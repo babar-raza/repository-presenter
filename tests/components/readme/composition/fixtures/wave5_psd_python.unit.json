@@ -1,0 +1,18 @@
+{
+ "source": "G:/rp-w5/psd-python (cut e407503a) section_authoring 30628a3e42dd rejected-1: scope_limitations limitation:2",
+ "unit": {
+  "fact_ids": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:061.list",
+   "public_symbol:aspose_psd_foss.layers.layerblendingrangesdata",
+   "public_symbol:aspose_psd_foss.layers.layermaskdata"
+  ],
+  "section": "scope_limitations",
+  "slot": "limitation:2",
+  "text": "Layer mask and blending ranges data report presence and raw length only: layermaskdata returns a fresh default object with no real parsed content and raises on setter, and layerblendingrangesdata.length gives the raw subsection length minus its 4-byte prefix while composite_blend_range and channel_blend_ranges remain empty defaults."
+ }
+}

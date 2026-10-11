@@ -1,0 +1,614 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; standard `mvn package` for the project declared in pom.xml; no workflow step or script names it",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "mvn package"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/build.yml"
+    },
+    {
+     "detail": null,
+     "path": ".github/workflows/maven-central-release.yml"
+    },
+    {
+     "detail": "2 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "ci matrix",
+    "workflow": ".github/workflows/build.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "job test strategy.matrix axes os, java",
+     "path": ".github/workflows/build.yml"
+    }
+   ],
+   "id": "build_test_asset:ci-matrix",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "os=ubuntu-latest,windows-latest,macos-latest;java=21,25"
+  },
+  {
+   "attributes": {
+    "role": "release workflow",
+    "workflow": ".github/workflows/maven-central-release.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "release step; job release runs mvn deploy",
+     "path": ".github/workflows/maven-central-release.yml"
+    }
+   ],
+   "id": "build_test_asset:release-workflow",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/maven-central-release.yml"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; standard `mvn test` for the project declared in pom.xml, which has tests in the tree; no workflow step or script names it",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "mvn test"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/conformance/org/aspose/slides/foss/conformance/CommentPositionConformanceTest.java"
+    },
+    {
+     "detail": null,
+     "path": "tests/conformance/org/aspose/slides/foss/conformance/CommentThreadConformanceTest.java"
+    },
+    {
+     "detail": null,
+     "path": "tests/conformance/org/aspose/slides/foss/conformance/DocumentPropertiesConformanceTest.java"
+    },
+    {
+     "detail": null,
+     "path": "tests/conformance/org/aspose/slides/foss/conformance/EffectElementConformanceTest.java"
+    },
+    {
+     "detail": null,
+     "path": "tests/conformance/org/aspose/slides/foss/conformance/EmbeddedImageConformanceTest.java"
+    },
+    {
+     "detail": "37 files; test suite (37 test sources among the 45 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.apache.poi-poi-ooxml",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.apache.poi:poi-ooxml 5.4.1"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.assertj-assertj-core",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.assertj:assertj-core 3.27.3"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.junit.jupiter-junit-jupiter-api",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.junit.jupiter:junit-jupiter-api 5.11.4"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.junit.jupiter-junit-jupiter-engine",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.junit.jupiter:junit-jupiter-engine 5.11.4"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.junit.jupiter-junit-jupiter-params",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.junit.jupiter:junit-jupiter-params 5.11.4"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "every `<dependency>` the POM declares is `test`, `provided` or optional",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": {
+    "prelude": "import java.io.*;\nimport java.util.*;\nimport org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.IAutoShape;\nimport org.aspose.slides.foss.IConnector;\nimport org.aspose.slides.foss.ISlide;\nimport org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.ShapeType;"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 197-216; java fence; unit inherited_unit:039.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IConnector, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n\n    IAutoShape s1 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 100, 60);\n    IAutoShape s2 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 350, 200, 100, 60);\n    IConnector conn = slide.getShapes().addConnector(ShapeType.BENT_CONNECTOR3, 0, 0, 1, 1);\n\n    conn.setStartShapeConnectedTo(s1);\n    conn.setStartShapeConnectionSiteIndex(3);\n    conn.setEndShapeConnectedTo(s2);\n    conn.setEndShapeConnectionSiteIndex(1);\n\n    pres.save(\"connector.pptx\", SaveFormat.PPTX);\n}\n"
+  },
+  {
+   "attributes": {
+    "prelude": "import java.io.*;\nimport java.util.*;\nimport org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.IComment;\nimport org.aspose.slides.foss.ICommentAuthor;\nimport org.aspose.slides.foss.ISlide;\nimport org.aspose.slides.foss.Presentation;"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 223-239; java fence; unit inherited_unit:042.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: EXECUTED; compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IComment, org.aspose.slides.foss.ICommentAuthor, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.drawing.PointF;\nimport org.aspose.slides.foss.export.SaveFormat;\n\nimport java.time.LocalDateTime;\n\ntry (Presentation pres = new Presentation()) {\n    ICommentAuthor author = pres.getCommentAuthors().addAuthor(\"Alice\", \"A\");\n    ISlide slide = pres.getSlides().get(0);\n    LocalDateTime now = LocalDateTime.of(2026, 1, 15, 12, 0, 0);\n    IComment comment = author.getComments().addComment(\"Review note\", slide,\n            new PointF(2.0f, 3.0f), now);\n\n    pres.save(\"comments.pptx\", SaveFormat.PPTX);\n}\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "slides"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "620a2614418854b4a18966a361e6907ddc88c7cb"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 191-191; heading; under Aspose.Slides FOSS for Java",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:036.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## Additional Examples"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 193-193; paragraph; under Aspose.Slides FOSS for Java > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:037.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Every example below was compiled against this tree and run. Beyond basic shape creation, the integration test suite exercises connectors, comments, notes, document properties, effects, and images end to end (create, save, reopen, re-verify). The flagship example below wires two shapes together with a connector; more usage examples are collapsed below it."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 195-195; paragraph; under Aspose.Slides FOSS for Java > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:038.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Connect two shapes with a bent connector, choosing a specific connection site on each end:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 197-216; code_block; under Aspose.Slides FOSS for Java > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:039.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```java\nimport org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n\n    IAutoShape s1 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 100, 60);\n    IAutoShape s2 = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 350, 200, 100, 60);\n    IConnector conn = slide.getShapes().addConnector(ShapeType.BENT_CONNECTOR3, 0, 0, 1, 1);\n\n    conn.setStartShapeConnectedTo(s1);\n    conn.setStartShapeConnectionSiteIndex(3);\n    conn.setEndShapeConnectedTo(s2);\n    conn.setEndShapeConnectionSiteIndex(1);\n\n    pres.save(\"connector.pptx\", SaveFormat.PPTX);\n}\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 218-219; html_block; under Aspose.Slides FOSS for Java > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:040.html_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "<details>\n<summary>View Additional Examples</summary>"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 221-221; heading; under Aspose.Slides FOSS for Java > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:041.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "### Add a Threaded Comment to a Slide"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for Java > Additional Examples > Add a Threaded Comment to a Slide"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 223-239; code_block; under Aspose.Slides FOSS for Java > Additional Examples > Add a Threaded Comment to a Slide",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:042.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```java\nimport org.aspose.slides.foss.*;\nimport org.aspose.slides.foss.drawing.PointF;\nimport org.aspose.slides.foss.export.SaveFormat;\n\nimport java.time.LocalDateTime;\n\ntry (Presentation pres = new Presentation()) {\n    ICommentAuthor author = pres.getCommentAuthors().addAuthor(\"Alice\", \"A\");\n    ISlide slide = pres.getSlides().get(0);\n    LocalDateTime now = LocalDateTime.of(2026, 1, 15, 12, 0, 0);\n    IComment comment = author.getComments().addComment(\"Review note\", slide,\n            new PointF(2.0f, 3.0f), now);\n\n    pres.save(\"comments.pptx\", SaveFormat.PPTX);\n}\n```"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the coordinate the `pom.xml` manifest declares",
+     "path": "pom.xml"
+    },
+    {
+     "detail": "package registry: found on maven",
+     "path": "https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml"
+    }
+   ],
+   "id": "install_command:maven",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.7.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/slides/java/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/slides/java/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "java",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug java",
+     "path": "https://products.aspose.com/slides/java/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/slides/java/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/slides/java/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/slides/java/"
+  },
+  {
+   "attributes": {
+    "floor_declaration": "maven.compiler.release"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`maven.compiler.release` declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:java_release",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "21"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`groupId` and `artifactId` declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "org.aspose:aspose-slides-foss"
+  },
+  {
+   "attributes": {
+    "registry": "maven",
+    "version_count": "1"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the maven registry lists for the package; the registry's state, not the repository's; the registry lists 1 version in all",
+     "path": "https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.7.0"
+  },
+  {
+   "attributes": {
+    "basis": "manifest_newer,changelog_unreleased"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "manifest version 26.8.0 is newer than the registry's current release 26.7.0",
+     "path": "pom.xml"
+    },
+    {
+     "detail": "`## [Unreleased]` lists 10 entries; the registry's current release is 26.7.0",
+     "path": "CHANGELOG.md"
+    }
+   ],
+   "id": "package:registry_lag",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.7.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.8.0"
+  }
+ ],
+ "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+ "schema_version": 1,
+ "source_revision": "620a2614418854b4a18966a361e6907ddc88c7cb"
+}

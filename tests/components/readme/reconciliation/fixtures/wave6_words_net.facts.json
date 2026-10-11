@@ -1,0 +1,398 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; standard `dotnet build Aspose.Words.sln` for the project declared in Aspose.Words.sln; no workflow step or script names it",
+     "path": "Aspose.Words.sln"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet build Aspose.Words.sln"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; standard `dotnet test Aspose.Words.sln` for the project declared in Aspose.Words.sln, which has tests in the tree; no workflow step or script names it",
+     "path": "Aspose.Words.sln"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet test Aspose.Words.sln"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "Aspose.Words.Tests/Defects/TestDefects.cs"
+    },
+    {
+     "detail": null,
+     "path": "Aspose.Words.Tests/Dml/Charts/TestAxisBound.cs"
+    },
+    {
+     "detail": null,
+     "path": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs"
+    },
+    {
+     "detail": null,
+     "path": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs"
+    },
+    {
+     "detail": null,
+     "path": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs"
+    },
+    {
+     "detail": "307 files; test suite (307 test sources among the 347 files here)",
+     "path": "Aspose.Words.Tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Words.Tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package reference declared by the project file, not passed on to consumers",
+     "path": "Aspose.Words/Aspose.Words.csproj"
+    }
+   ],
+   "id": "dependency:development.ilrepack",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "ILRepack 2.0.46"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `PackageReference` a consumer would install is declared",
+     "path": "Aspose.Words/Aspose.Words.csproj"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "words"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-words-foss/Aspose.Words-FOSS-for-.NET"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Words FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 212-212; heading; under Aspose.Words FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:045.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## API Reference"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Words FOSS for .NET > API Reference"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 214-214; paragraph; under Aspose.Words FOSS for .NET > API Reference",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:046.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The primary entry point is `Document`, loaded from a file, stream, or created empty, and edited through its node tree (`Section`, `Body`, `Paragraph`, `Run`, `Table`, and more) or the cursor-based `DocumentBuilder`. The table below covers the full public surface; the curated detail beneath it groups the classes used most often day to day."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Words FOSS for .NET > API Reference"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 216-217; html_block; under Aspose.Words FOSS for .NET > API Reference",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:047.html_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "<details>\n<summary>View the Supported Public API Surface</summary>"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Words FOSS for .NET > API Reference"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 219-219; heading; under Aspose.Words FOSS for .NET > API Reference",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:048.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "### Core API"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Words FOSS for .NET > API Reference > Core API"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 603-603; heading; under Aspose.Words FOSS for .NET > API Reference > Core API",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:050.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "#### Interfaces"
+  },
+  {
+   "attributes": {
+    "source_checkout_unverified": "no build exited 0: failed (`dotnet build Aspose.Words/Aspose.Words.csproj` exited 1)"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the package id declared by the manifest",
+     "path": "Aspose.Words/Aspose.Words.csproj"
+    },
+    {
+     "detail": "package registry: found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.words.foss/index.json"
+    }
+   ],
+   "id": "install_command:dotnet",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "dotnet add package Aspose.Words.FOSS"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/words/net/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/words/net/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "net",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug net",
+     "path": "https://products.aspose.com/words/net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/words/net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/words/net/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/words/net/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package id declared by the project file",
+     "path": "Aspose.Words/Aspose.Words.csproj"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Words.FOSS"
+  },
+  {
+   "attributes": {
+    "registry": "nuget",
+    "version_count": "2"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the nuget registry lists for the package; the registry's state, not the repository's; the registry lists 2 versions in all",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.words.foss/index.json"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.3.0"
+  },
+  {
+   "attributes": {
+    "floor_declaration": "TargetFrameworks"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "target frameworks the project declares",
+     "path": "Aspose.Words/Aspose.Words.csproj"
+    }
+   ],
+   "id": "package:target_framework",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "netstandard2.0;net8.0;net462"
+  }
+ ],
+ "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+ "schema_version": 1,
+ "source_revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c"
+}

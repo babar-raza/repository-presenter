@@ -1356,3 +1356,66 @@ def test_only_the_unit_whose_revision_restates_its_title_is_reverted() -> None:
         )
         is None
     )
+
+
+# ---- wave 6, Email-Python: the content-loss rule and the no-command rule could not both hold ----
+
+EMAIL_PYTHON_FACTS = FactsDocument(
+    "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "a" * 40,
+    (
+        Fact(
+            "install_command:pip",
+            "install_command",
+            "pip install aspose-email-foss",
+            (Evidence("pyproject.toml"),),
+        ),
+        Fact(
+            "build_test_asset:test-command",
+            "build_test_asset",
+            "python -m unittest discover -s tests -v",
+            (Evidence("README.md"),),
+            attributes={"role": "test command", "source": "ci workflow"},
+        ),
+        Fact(
+            "build_test_asset:ci-matrix",
+            "build_test_asset",
+            "python-version=3.10,3.11,3.12,3.13",
+            (Evidence(".github/workflows/ci.yml"),),
+        ),
+    ),
+)
+EMAIL_PYTHON_EXISTING = [
+    {
+        "section": "scope_limitations",
+        "slot": "limitation:1",
+        "text": "It does not connect to mail servers: IMAP, SMTP, and POP3 are not supported.",
+        "fact_ids": [
+            "build_test_asset:ci-matrix",
+            "build_test_asset:test-command",
+            "install_command:pip",
+        ],
+    }
+]
+
+
+def _email_python_revised(fact_ids: list[str]) -> list[dict[str, Any]]:
+    return [dict(EMAIL_PYTHON_EXISTING[0], fact_ids=fact_ids)]
+
+
+def test_a_revision_that_drops_a_printed_command_citation_loses_nothing() -> None:
+    """Attempt 1 of the archived coherence job was rejected for dropping `install_command:pip`
+    ("none of its own content ('pip install aspose-email-foss') remains"), and attempt 2 put the
+    text back and was rejected by unit_checks for "text contains a command ('pip install')": no
+    reply could satisfy both. The renderer prints the command, so its citation carries nothing a
+    unit may state; the install command and the build and test commands are not content here."""
+    revised = _email_python_revised(["build_test_asset:ci-matrix"])
+    errors = coherence_content_loss_errors(revised, EMAIL_PYTHON_EXISTING, EMAIL_PYTHON_FACTS)
+    assert [e for e in errors if "install_command:pip" in e or "test-command" in e] == []
+
+
+def test_a_dropped_citation_that_is_not_a_command_is_still_flagged() -> None:
+    """Negative control: the CI matrix is named content a unit may state, so its loss still is."""
+    revised = _email_python_revised(["build_test_asset:test-command", "install_command:pip"])
+    errors = coherence_content_loss_errors(revised, EMAIL_PYTHON_EXISTING, EMAIL_PYTHON_FACTS)
+    assert len(errors) == 1 and "build_test_asset:ci-matrix" in errors[0]

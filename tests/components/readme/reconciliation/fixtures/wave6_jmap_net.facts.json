@@ -1,0 +1,423 @@
+{
+ "facts": [
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/ci.yml"
+    },
+    {
+     "detail": "1 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/Aspose.Jmap.Tests/JmapClient.MailTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Jmap.Tests/JmapClient.SubmissionTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Jmap.Tests/JmapClientTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Jmap.Tests/Models/CommonTypesTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Jmap.Tests/Models/ComparatorTests.cs"
+    },
+    {
+     "detail": "22 files; test suite (22 test sources among the 23 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `PackageReference` a consumer would install is declared",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 114-128; csharp fence; unit inherited_unit:025.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: FAILED; Program.cs(13,49): error CS7036: There is no argument given that corresponds to the required parameter 'accountId' of 'JmapClientMailExtensions.ListMailboxesAsync(JmapClient, string, IReadOnlyList<string>?, IReadOnlyList<string>?, CancellationToken)'",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "using Aspose.Jmap;\n\nvar options = new JmapClientOptions\n{\n    SessionUrl = new Uri(\"https://jmap.example.test/.well-known/jmap\"),\n    Username = \"user@example.test\",\n    Password = \"secret\",\n};\n\nusing var client = new JmapClient(options);\nawait client.ConnectAsync();\n\nIReadOnlyList<Mailbox> mailboxes = await client.ListMailboxesAsync();\n"
+  },
+  {
+   "attributes": {
+    "prelude": "using Aspose.Jmap;"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 139-148; csharp fence; unit inherited_unit:029.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; compiled against Aspose.Jmap.csproj; SDK 10.0.401; usings supplied: using Aspose.Jmap;",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "var options = new JmapClientOptions\n{\n    SessionUrl = new Uri(\"https://jmap.example.test/.well-known/jmap\"),\n    BearerToken = \"eyJhbGciOi...\", // e.g. obtained via an OAuth 2.0 flow\n};\n\nusing var client = new JmapClient(options);\nawait client.ConnectAsync();\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 157-175; csharp fence; unit inherited_unit:032.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; Program.cs(5,66): error CS0103: The name 'accountId' does not exist in the current context",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "var query = new Invocation\n{\n    Name = \"Email/query\",\n    Arguments = new Dictionary<string, object> { [\"accountId\"] = accountId },\n    MethodCallId = \"c1\",\n};\nvar get = new Invocation\n{\n    Name = \"Email/get\",\n    Arguments = new Dictionary<string, object>\n    {\n        [\"accountId\"] = accountId,\n        [\"#ids\"] = new ResultReference { ResultOf = \"c1\", Name = \"Email/query\", Path = \"/ids\" },\n    },\n    MethodCallId = \"c2\",\n};\nvar resp = await client.SendRequestAsync(new[] { query, get }, new[] { \"urn:ietf:params:jmap:mail\" });\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "jmap"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-email-foss/Aspose.JMAP-FOSS-for-.NET"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "0d5cf17e0e9ee185eea2847f6587b918ac0eb016"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 83-85; code_block; under Aspose.JMAP FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\ndotnet add package Aspose.JMAP.FOSS\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 87-87; paragraph; under Aspose.JMAP FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:014.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Or add it directly to a project file:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 89-91; code_block; under Aspose.JMAP FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:015.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```xml\n<PackageReference Include=\"Aspose.JMAP.FOSS\" Version=\"0.1.0\" />\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 93-93; paragraph; under Aspose.JMAP FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:016.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The library targets .NET 8.0 and runs on Windows, Linux, and macOS."
+  },
+  {
+   "attributes": {
+    "build_command": "dotnet build src/Aspose.Jmap/Aspose.Jmap.csproj",
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the package id declared by the manifest",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    },
+    {
+     "detail": "package registry: distribution not found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.jmap.foss/index.json"
+    },
+    {
+     "detail": "verified source build: the package's own build ran `dotnet build src/Aspose.Jmap/Aspose.Jmap.csproj` against this revision and exited 0; the advertised command is exactly the one it ran",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    }
+   ],
+   "id": "install_command:dotnet",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-.NET.git\ncd Aspose.JMAP-FOSS-for-.NET\ndotnet build src/Aspose.Jmap/Aspose.Jmap.csproj"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; banner illustration",
+     "path": "https://products.aspose.org/media/jmap/net/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.org/media/jmap/net/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "unresolved",
+    "role": "enterprise"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; enterprise target; platform pages net: BROKEN",
+     "path": "https://products.aspose.com/jmap/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.com/jmap/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; product homepage",
+     "path": "https://products.aspose.org/jmap/net/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.org/jmap/net/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package id declared by the project file",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.JMAP.FOSS"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lowest target framework the project declares",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    }
+   ],
+   "id": "package:target_framework",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "net8.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the project file",
+     "path": "src/Aspose.Jmap/Aspose.Jmap.csproj"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "0.1.0"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 14; module; public by declaration",
+     "path": "src/Aspose.Jmap/JmapClient.Mail.cs"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Aspose"
+  }
+ ],
+ "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-.NET",
+ "schema_version": 1,
+ "source_revision": "0d5cf17e0e9ee185eea2847f6587b918ac0eb016"
+}

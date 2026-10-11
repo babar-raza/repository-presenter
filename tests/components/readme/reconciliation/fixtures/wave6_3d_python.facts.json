@@ -1,0 +1,1172 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "precondition": "pip install build",
+    "role": "build command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; job build runs `python -m build`; after `pip install build`",
+     "path": ".github/workflows/publish.yml"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "python -m build"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/publish.yml"
+    },
+    {
+     "detail": "1 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "docs/FBX_IMPLEMENTATION_SUMMARY.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/IMPLEMENTATION_SUMMARY.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/OBJ_IMPORTER_IMPLEMENTATION.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/PYPI_READINESS.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/STL_IMPORT_IMPLEMENTATION.md"
+    },
+    {
+     "detail": "7 files; documentation directory",
+     "path": "docs/"
+    }
+   ],
+   "id": "build_test_asset:docs",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "docs/"
+  },
+  {
+   "attributes": {
+    "role": "release workflow",
+    "workflow": ".github/workflows/publish.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "release step; job publish uses pypa/gh-action-pypi-publish",
+     "path": ".github/workflows/publish.yml"
+    }
+   ],
+   "id": "build_test_asset:release-workflow",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/publish.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/test_3mf_exporter.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_3mf_importer.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_3mf_material_export.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_3mf_materials.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_3mf_roundtrip.py"
+    },
+    {
+     "detail": "33 files; test suite (33 test sources among the 34 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "setup.py"
+    }
+   ],
+   "id": "dependency:development.dev.pytest-7.0.0",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pytest>=7.0.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "the `install_requires` list is empty",
+     "path": "setup.py"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "lines 128-141; python fence; unit inherited_unit:028.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "UNRESOLVED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.formats.obj import ObjLoadOptions\n\nscene = Scene()\noptions = ObjLoadOptions()\noptions.enable_materials = True\nscene.open(\"model.obj\", options)\n\nfor node in scene.root_node.child_nodes:\n    if node.entity is not None:\n        mesh = node.entity\n        print(f\"{node.name}: {len(mesh.control_points)} vertices, {mesh.polygon_count} polygons\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 145-158; python fence; unit inherited_unit:030.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.entities import Box\nfrom aspose.threed.shading import LambertMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nbox = Box(length=2.0, width=1.0, height=1.0)\nmaterial = LambertMaterial()\nmaterial.diffuse_color = Vector3(0.2, 0.6, 0.9)\n\nscene.root_node.create_child_node(\"Crate\", entity=box.to_mesh(), material=material)\nscene.save(\"crate.gltf\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "lines 167-173; python fence; unit inherited_unit:034.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "UNRESOLVED",
+   "value": "from aspose.threed import Scene\n\nscene = Scene()\nscene.open(\"model.obj\")\nscene.save(\"model.glb\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 180-194; python fence; unit inherited_unit:037.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.entities import Sphere\nfrom aspose.threed.shading import PbrMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nsphere = Sphere()\nmaterial = PbrMaterial(albedo=Vector3(0.8, 0.1, 0.1))\nmaterial.metallic_factor = 0.9\nmaterial.roughness_factor = 0.2\n\nscene.root_node.create_child_node(\"Ball\", entity=sphere.to_mesh(), material=material)\nscene.save(\"ball.stl\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 201-238; python fence; unit inherited_unit:040.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:005",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import io\nimport json\nfrom aspose.threed import Scene, FileFormat\nfrom aspose.threed.entities import Mesh\nfrom aspose.threed.utilities import Vector3, Vector4\nfrom aspose.threed.formats.gltf import GltfSaveOptions\nfrom aspose.threed.shading import PbrMaterial\n\nscene = Scene()\nmesh = Mesh(\"TestMesh\")\nmesh.control_points.add(Vector4(0.0, 0.0, 0.0, 1.0))\nmesh.control_points.add(Vector4(1.0, 0.0, 0.0, 1.0))\nmesh.control_points.add(Vector4(0.0, 1.0, 0.0, 1.0))\nmesh.create_polygon(0, 1, 2)\n\nalbedo = Vector3(0.8, 0.2, 0.3)\nmaterial = PbrMaterial(\"RedMaterial\", albedo)\nmaterial.metallic_factor = 0.5\nmaterial.roughness_factor = 0.7\n\nnode = scene.root_node.create_child_node(\"TestNode\")\nnode.entity = mesh\nnode.material = material\n\nstream = io.BytesIO()\n# Pass the detected FileFormat into the constructor explicitly: unlike\n# StlFormat, GltfFormat.create_save_options() does not set file_format on the\n# options it returns, and a bare stream (no filename) gives scene.save()\n# nothing else to detect the format from.\noptions = GltfSaveOptions(FileFormat.get_format_by_extension(\".gltf\"))\noptions.binary_mode = False\nscene.save(stream, options)\n\nstream.seek(0)\ngltf_data = json.loads(stream.read().decode(\"utf-8\"))\nprint(gltf_data[\"materials\"][0][\"pbrMetallicRoughness\"])\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "lines 242-254; python fence; unit inherited_unit:042.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:006",
+   "kind": "example",
+   "polarity": "UNRESOLVED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.entities import PolygonModifier\n\nscene = Scene()\nscene.open(\"model.obj\")\n\nfor node in scene.root_node.child_nodes:\n    if node.entity is not None:\n        triangulated = PolygonModifier.triangulate(node.entity)\n        if triangulated is not None:\n            node.entity = triangulated\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 258-270; python fence; unit inherited_unit:044.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 7: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as model.gltf from example 2's output crate.gltf",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:007",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.threed import Scene\n\nscene = Scene()\nscene.open(\"model.gltf\")\n\ndef walk(node, depth=0):\n    print(\"  \" * depth + (node.name or \"(unnamed)\"))\n    for child in node.child_nodes:\n        walk(child, depth + 1)\n\nwalk(scene.root_node)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 274-286; python fence; unit inherited_unit:046.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 8: FAILED; TypeError",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:008",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.entities import Cylinder\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\ncylinder = Cylinder()\nnode = scene.root_node.create_child_node(\"Post\", entity=cylinder.to_mesh())\nnode.transform.translation = Vector3(0.0, 1.0, 0.0)\nnode.transform.scaling = Vector3(0.5, 2.0, 0.5)\n\nscene.save(\"post.obj\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 290-315; python fence; unit inherited_unit:048.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 9: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:009",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import io\nfrom aspose.threed import Scene, FileFormat\nfrom aspose.threed.entities import Mesh\nfrom aspose.threed.utilities import Vector4\n\nscene = Scene()\nmesh = Mesh(\"triangle\")\nmesh.control_points.add(Vector4(0.0, 0.0, 0.0, 1.0))\nmesh.control_points.add(Vector4(1.0, 0.0, 0.0, 1.0))\nmesh.control_points.add(Vector4(1.0, 1.0, 0.0, 1.0))\nmesh.create_polygon(0, 1, 2)\n\nnode = scene.root_node.create_child_node(\"triangle_node\")\nnode.entity = mesh\n\nstream = io.StringIO()\n# Use FileFormat.get_format_by_extension(...).create_save_options() rather than\n# StlSaveOptions() directly: a default-constructed options object has no\n# file_format set, and scene.save() cannot infer the format from a bare stream\n# (only filename-based saves fall back to extension detection).\noptions = FileFormat.get_format_by_extension(\".stl\").create_save_options()\noptions.binary_mode = False\nscene.save(stream, options)\nprint(stream.getvalue())\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 319-325; python fence; unit inherited_unit:050.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 10: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:010",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.threed.entities import Box\n\nbox = Box(10, 20, 30)\nmesh = box.to_mesh()\nprint(f\"Control points: {len(mesh.control_points)}\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "lines 329-338; python fence; unit inherited_unit:052.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 11: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:011",
+   "kind": "example",
+   "polarity": "UNRESOLVED",
+   "value": "from aspose.threed import Scene\nfrom aspose.threed.formats.collada.ColladaLoadOptions import ColladaLoadOptions\n\nscene = Scene()\noptions = ColladaLoadOptions()\nscene.open(\"model.dae\", options)\n\nprint(f\"Child nodes: {len(scene.root_node.child_nodes)}\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 342-377; python fence; unit inherited_unit:054.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 12: EXECUTED; exit 0",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:012",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import io\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Mesh\nfrom aspose.threed.utilities import Vector4\nfrom aspose.threed.formats import ThreeMfSaveOptions\n\nscene = Scene()\nmesh = Mesh(\"cube\")\nfor point in [\n    Vector4(0, 0, 0, 1), Vector4(1, 0, 0, 1), Vector4(1, 1, 0, 1), Vector4(0, 1, 0, 1),\n    Vector4(0, 0, 1, 1), Vector4(1, 0, 1, 1), Vector4(1, 1, 1, 1), Vector4(0, 1, 1, 1),\n]:\n    mesh.control_points.add(point)\n\nmesh.create_polygon(0, 1, 2)\nmesh.create_polygon(0, 2, 3)\nmesh.create_polygon(4, 7, 6)\nmesh.create_polygon(4, 6, 5)\nmesh.create_polygon(0, 4, 5)\nmesh.create_polygon(0, 5, 1)\nmesh.create_polygon(2, 6, 7)\nmesh.create_polygon(2, 7, 3)\nmesh.create_polygon(0, 3, 7)\nmesh.create_polygon(0, 7, 4)\nmesh.create_polygon(1, 5, 6)\nmesh.create_polygon(1, 6, 2)\n\nnode = scene.root_node.create_child_node(\"cube\")\nnode.entity = mesh\n\nstream = io.BytesIO()\noptions = ThreeMfSaveOptions()\noptions.enable_compression = False\nscene.save(stream, options)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 67; FileFormat imports ThreeMfFormat, which states .3mf",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 74; ThreeMfPlugin (aspose/threed/formats/threemf/ThreeMfPlugin.py) registered with ThreeMfImporter for ThreeMfFormat, which states .3mf",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.3mf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".3mf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 335; example 11: input .dae",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 11: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 165; FileFormat imports ColladaFormat, which states .dae",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 76; ColladaPlugin (aspose/threed/formats/collada/ColladaPlugin.py) registered with ColladaImporter for ColladaFormat, which states .dae",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.dae",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".dae"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 76; FileFormat imports FbxFormat, which states .fbx",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 75; FbxPlugin (aspose/threed/formats/fbx/FbxPlugin.py) registered with FbxImporter for FbxFormat, which states .fbx",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.fbx",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".fbx"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 46; FileFormat imports GltfFormat, which states .glb",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfImporter for GltfFormat, which states .glb",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.glb",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".glb"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 262; example 7: input .gltf",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 7: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as model.gltf; example 7 read it: EXECUTED",
+     "path": "crate.gltf"
+    },
+    {
+     "detail": "line 46; FileFormat imports GltfFormat, which states .gltf",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfImporter for GltfFormat, which states .gltf",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.gltf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".gltf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 135; example 1: input .obj",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 171; example 3: input .obj",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 247; example 6: input .obj",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 33; FileFormat imports ObjFormat, which states .obj",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 71; ObjPlugin (aspose/threed/formats/obj/ObjPlugin.py) registered with ObjImporter for ObjFormat, which states .obj",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.obj",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".obj"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 153; FileFormat imports StlFormat, which states .stl",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 72; StlPlugin (aspose/threed/formats/stl/StlPlugin.py) registered with StlImporter for StlFormat, which states .stl",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:input.stl",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".stl"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 67; FileFormat imports ThreeMfFormat, which states .3mf",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 74; ThreeMfPlugin (aspose/threed/formats/threemf/ThreeMfPlugin.py) registered with ThreeMfExporter for ThreeMfFormat, which states .3mf",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.3mf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".3mf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 165; FileFormat imports ColladaFormat, which states .dae",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 76; ColladaPlugin (aspose/threed/formats/collada/ColladaPlugin.py) registered with ColladaExporter for ColladaFormat, which states .dae",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.dae",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".dae"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 172; example 3: output .glb",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 46; FileFormat imports GltfFormat, which states .glb",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfExporter for GltfFormat, which states .glb",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.glb",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".glb"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 157; example 2: output .gltf",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 231; example 5: output .gltf",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 46; FileFormat imports GltfFormat, which states .gltf",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfExporter for GltfFormat, which states .gltf",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.gltf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".gltf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 285; example 8: output .obj",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 8: FAILED; TypeError",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 33; FileFormat imports ObjFormat, which states .obj",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 71; ObjPlugin (aspose/threed/formats/obj/ObjPlugin.py) registered with ObjExporter for ObjFormat, which states .obj",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.obj",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".obj"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 193; example 4: output .stl",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 311; example 9: output .stl",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 9: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 153; FileFormat imports StlFormat, which states .stl",
+     "path": "aspose/threed/FileFormat.py"
+    },
+    {
+     "detail": "line 72; StlPlugin (aspose/threed/formats/stl/StlPlugin.py) registered with StlExporter for StlFormat, which states .stl",
+     "path": "aspose/threed/formats/__init__.py"
+    }
+   ],
+   "id": "format:output.stl",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".stl"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "3d"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "aspose/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "aspose/pydrawing/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose.pydrawing",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose.pydrawing"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "aspose/threed/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose.threed",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 84-84; paragraph; under Aspose.3D FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:012.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 86-88; code_block; under Aspose.3D FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npython3 -m pip install aspose-3d-foss\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Python > Development and Testing"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 774-774; paragraph; under Aspose.3D FOSS for Python > Development and Testing",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:072.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Run a single test file:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Python > Development and Testing"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 776-778; code_block; under Aspose.3D FOSS for Python > Development and Testing",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:073.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npython -m unittest tests.test_obj_importer\n```"
+  },
+  {
+   "attributes": {
+    "source_checkout_command": "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install ."
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "setup.py"
+    },
+    {
+     "detail": "package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository",
+     "path": "https://pypi.org/pypi/aspose-3d-foss/json"
+    }
+   ],
+   "id": "install_command:pip",
+   "kind": "install_command",
+   "polarity": "UNRESOLVED",
+   "value": "pip install aspose-3d-foss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/3d/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/3d/python/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "python",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug python-net",
+     "path": "https://products.aspose.com/3d/python-net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/3d/python-net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/3d/python/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/3d/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "setup.py"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "aspose-3d-foss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "python_requires declared",
+     "path": "setup.py"
+    }
+   ],
+   "id": "package:python_requires",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": ">=3.7"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "Python classifiers",
+     "path": "setup.py"
+    }
+   ],
+   "id": "package:python_versions",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "3.7,3.8,3.9,3.10,3.11,3.12"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the manifest",
+     "path": "setup.py"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.1.0"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.threed.FileFormat.FileFormat.version",
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 118; method; public by name",
+     "path": "aspose/threed/FileFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.fileformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.FileFormat.version"
+  },
+  {
+   "attributes": {
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 30; method; public by name",
+     "path": "aspose/threed/formats/collada/ColladaFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.collada.colladaformat.colladaformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.collada.ColladaFormat.ColladaFormat.version"
+  },
+  {
+   "attributes": {
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 30; method; public by name",
+     "path": "aspose/threed/formats/fbx/FbxFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.fbx.fbxformat.fbxformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.fbx.FbxFormat.FbxFormat.version"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.threed.formats.gltf.GltfFormat.GltfFormat.version",
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 29; method; public by name",
+     "path": "aspose/threed/formats/gltf/GltfFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.gltf.gltfformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.gltf.GltfFormat.version"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.threed.formats.obj.ObjFormat.ObjFormat.version",
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 30; method; public by name",
+     "path": "aspose/threed/formats/obj/ObjFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.obj.objformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.obj.ObjFormat.version"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.threed.formats.stl.StlFormat.StlFormat.version",
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 29; method; public by name",
+     "path": "aspose/threed/formats/stl/StlFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.stl.stlformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.stl.StlFormat.version"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose.threed.formats.threemf.ThreeMfFormat.ThreeMfFormat.version",
+    "signature": "def version(self) -> str",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 30; method; public by name",
+     "path": "aspose/threed/formats/threemf/ThreeMfFormat.py"
+    }
+   ],
+   "id": "public_symbol:aspose.threed.formats.threemfformat.version",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.threed.formats.ThreeMfFormat.version"
+  }
+ ],
+ "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+}
