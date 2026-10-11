@@ -216,8 +216,9 @@ def test_one_pull_request_whose_branch_commit_is_exactly_the_readme_patch(
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
     assert pull["title"] == "docs(readme): 4 verified corrections"
     body = pull["body"]
-    assert "`1.0.0` -> `2.0.0`" in body and "`package:published_version` (SUPPORTED)" in body
-    assert "inserted `## Dependencies`" in body and "`tree:CHANGELOG.md`" in body
+    assert "`1.0.0` -> `2.0.0`" in body
+    assert "current release `2.0.0` on the package registry" in body
+    assert "inserted `## Dependencies`" in body
     assert "[![PyPI](https://img.shields.io/pypi/v/synthetic-pkg.svg)]" in branch_readme
     assert "### How to decline" in body and "kind: correction" in body
     assert "Refreshes the README" not in body  # it does not claim to be a regeneration
@@ -316,7 +317,7 @@ def test_a_diagram_redraw_is_proposed_as_one_pull_request_whose_commit_is_the_pa
     assert render_patch(README_WITH_DIAGRAM, branch_readme) == patch
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
     assert pull["title"] == "docs(readme): 4 verified corrections"
-    assert "redrawn left to right so text no longer clips" in pull["body"]
+    assert "drawn left to right so the labels fit their boxes" in pull["body"]
     flat = branch_readme.replace("<br/>", " ")  # the drawing wraps long labels; the words stay
     for label in ("Starting Points", "Core Capabilities", "Outputs", "Polygon triangulation"):
         assert label in flat  # every word the maintainers wrote is still there

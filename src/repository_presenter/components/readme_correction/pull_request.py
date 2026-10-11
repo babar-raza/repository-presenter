@@ -1,31 +1,84 @@
-"""The pull request text for a correction: what changes, how it was checked, and nothing more.
+"""The pull request text for a correction: what changes, how it was checked, in plain words.
 
-Written from the bundle alone (``corrections.json``, ``validation_delta.json``): one bullet per edit
-with the line, the quoted before and after for a text edit and the evidence fact with its status,
-the exact counts the validators and the re-run recorded, how to review it and how to decline it,
-then the provenance block the shared effect reads back. It claims only what the bundle records: a
-diagram is called render-verified only when the bundle holds a render record, a check is counted
-only as the delta counts it, and it never says a statement was "checked" in general.
+Written from the bundle alone (``corrections.json``, ``validation_delta.json``, ``facts.json``) for
+the maintainer who will read it: one bullet per edit with the line, the quoted before and after for
+a text edit, a reason in ordinary language and where the evidence is (the file, the registry), the
+exact counts of what was checked, how to review and how to decline, then the provenance block the
+shared effect reads back. It claims only what the bundle records: a diagram is called drawn in a
+browser only when the bundle holds a render record, and a check is counted as the delta counts it.
 
-A regenerated candidate's text (``components/propose/pull_request.py``) describes a refreshed
-README reconciled section by section, which would misdescribe a correction; that composer refuses a
-correction bundle (``load_pull_request_evidence``) so the two cannot be mixed up.
+It names no internal artifact: no check or decision identifiers, no fact ids, no detector or file
+names of this tool. ``internal_identifiers`` is the one list of what that means; the composer
+applies it to what it writes (not to text quoted from the README) and raises rather than send a
+text that leaks one. A regenerated candidate's text (``components/propose/pull_request.py``)
+describes a refreshed README reconciled section by section, which would misdescribe a correction;
+that composer refuses a correction bundle so the two cannot be mixed up.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from repository_presenter.components.propose.pull_request import PullRequestContent
 from repository_presenter.components.readme_correction.bundle import CORRECTIONS_NAME, DELTA_NAME
 from repository_presenter.components.readme_diagram.model import NotAGlanceError
 from repository_presenter.components.readme_diagram.parse import parse
+from repository_presenter.core.facts import FACTS_FILENAME, Fact, read_facts
 
 _SHOWN = 120
 _PREFIX = "docs(readme): "
 _TITLE_LIMIT = 140
+_FOOTER = "\n---\n"
+
+#: What the text must never contain: identifiers of this tool's own checks, rulings, detectors,
+#: files and fact ids mean nothing to the maintainer who reads a pull request.
+_INTERNAL = (
+    r"\bBC-\d+",
+    r"\bOD-\d+",
+    r"\bR\d\b",
+    r"validate_candidate",
+    r"(?i)\ballowances?\b",
+    r"(?i)\bdetectors?\b",
+    r"(?i)\bowner rulings?\b",
+    r"corrections\.json",
+    r"validation_delta",
+    r"\b[A-Z]+_FIX\b",
+    r"\bMISSING_(?:SECTION|INFO)\b",
+    r"\b\d{8}-[0-9a-f]{7,8}\b",
+    r"\b(?:package|dependency|install_command|license|build_test_asset|link_target|example"
+    r"|public_symbol|format|identity|third_party_notices|inherited_unit):[\w.\-@]+",
+    r"\b(?:claim_[a-z_]+|second_h1|unclosed_details|missing_sections|add_[a-z_]+"
+    r"|at_a_glance_diagram|stale_phrase|broken_link|failing_example|report_gaps)\b",
+)
+INTERNAL_IDENTIFIERS = tuple(re.compile(p) for p in _INTERNAL)
+_QUOTED = re.compile(r"`[^`\n]*`")
+
+_REGISTRIES = {
+    "nuget.org": "NuGet",
+    "www.nuget.org": "NuGet",
+    "api.nuget.org": "NuGet",
+    "pypi.org": "PyPI",
+    "repo1.maven.org": "Maven Central",
+    "search.maven.org": "Maven Central",
+    "crates.io": "crates.io",
+    "registry.npmjs.org": "npm",
+    "www.npmjs.com": "npm",
+    "pkg.go.dev": "pkg.go.dev",
+    "proxy.golang.org": "pkg.go.dev",
+}
+
+
+def internal_identifiers(text: str, *, quoted: bool = True) -> list[str]:
+    """The internal identifiers ``text`` contains. ``quoted=False`` ignores backtick-quoted spans,
+    which quote the maintainer's own README or a value, not this tool's words."""
+    scanned = text if quoted else _QUOTED.sub("", text)
+    return sorted(
+        {m.group(0) for pattern in INTERNAL_IDENTIFIERS for m in pattern.finditer(scanned)}
+    )
 
 
 def _clip(text: str) -> str:
@@ -40,6 +93,12 @@ def _json(path: Path) -> dict[str, Any]:
     return document if isinstance(document, dict) else {}
 
 
+def _facts(bundle: Path) -> dict[str, Fact]:
+    path = bundle / FACTS_FILENAME
+    return {fact.id: fact for fact in read_facts(path).facts} if path.is_file() else {}
+
+
+# ------------------------------------------------------------------------------------ grouping
 def _category(edit: dict[str, Any]) -> str:
     kind, detector = edit["kind"], edit["detector"]
     if kind == "DIAGRAM_FIX":
@@ -105,10 +164,6 @@ def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
     return list(dict.fromkeys(added))
 
 
-def _phrase(category: str, edits: list[dict[str, Any]]) -> str:
-    return " and ".join(_parts(category, edits))
-
-
 def _groups(edits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for edit in edits:
@@ -127,39 +182,161 @@ def title_of(edits: list[dict[str, Any]]) -> str:
     return f"{_PREFIX}{len(edits)} verified corrections"
 
 
-def _evidence(edit: dict[str, Any]) -> str:
-    parts = []
+# ------------------------------------------------------------------------------------ evidence
+def _where(fact: Fact) -> str:
+    """Where a fact is read from: the file in the repository, or the registry's address."""
+    paths = [e.path for e in fact.evidence if e.path]
+    if not paths:
+        return ""
+    path = paths[0]
+    return f"at {path}" if path.startswith("http") else f"in `{path}`"
+
+
+def _fact_text(fact: Fact) -> str:
+    value = _clip(fact.value)
+    fid = fact.id
+    if fid == "dependency:none":
+        what = "no third-party dependencies are declared"
+    elif fid.startswith("dependency:"):
+        what = f"dependency `{value}`"
+    elif fid == "package:name":
+        what = f"package name `{value}`"
+    elif fid == "package:published_version":
+        what = f"current release `{value}` on the package registry"
+    elif fid == "package:version":
+        what = f"version `{value}` in the project file"
+    elif fid == "package:cxx_standard":
+        what = f"C++ standard `{value}`"
+    elif fid == "package:cmake_minimum":
+        what = f"minimum CMake version `{value}`"
+    elif fid == "package:target_framework":
+        what = f"target frameworks `{value}`"
+    elif fid.startswith("install_command:"):
+        what = f"install command `{value}`"
+    else:
+        what = f"{fact.kind.replace('_', ' ')} `{value}`"
+    where = _where(fact)
+    return f"{what} ({where})" if where else what
+
+
+def _evidence(edit: dict[str, Any], facts: dict[str, Fact]) -> str:
+    parts: list[str] = []
     for item in edit["evidence"]:
         if item["fact_id"]:
-            value = f": {_clip(str(item['value']))}" if item.get("value") else ""
-            parts.append(f"`{item['fact_id']}` ({item['status']}){value}")
+            fact = facts.get(item["fact_id"])
+            if fact is not None:
+                parts.append(_fact_text(fact))
         else:
-            parts.append(f"`{item['value']}`")
+            value = str(item["value"])
+            if value.startswith("tree:"):
+                parts.append(f"`{value[5:]}` exists in the repository")
+            elif ":" in value and value.rsplit(":", 1)[1].isdigit():
+                parts.append(f"README.md line {value.rsplit(':', 1)[1]}")
+            else:
+                parts.append(f"`{value}`")
     return "; ".join(parts) or "the README's own text"
+
+
+def _locator_lines(edit: dict[str, Any]) -> list[int]:
+    found = []
+    for item in edit["evidence"]:
+        value = str(item.get("value") or "")
+        if not item.get("fact_id") and value.rsplit(":", 1)[-1].isdigit():
+            found.append(int(value.rsplit(":", 1)[1]))
+    return found
+
+
+def _registry_of(facts: dict[str, Fact]) -> str:
+    fact = facts.get("package:published_version")
+    for evidence in fact.evidence if fact is not None else ():
+        host = urlparse(evidence.path).netloc
+        if host in _REGISTRIES:
+            return _REGISTRIES[host]
+    return "the package registry"
+
+
+# ------------------------------------------------------------------------------------- bullets
+def _chain(glance: Any) -> str:
+    names = list(glance.titles)
+    names.insert(1 if glance.starting_points else 0, "the product")
+    return " -> ".join(names)
 
 
 def _diagram_counts(edit: dict[str, Any]) -> str:
     try:
         glance = parse(edit["replacement"]).glance
     except NotAGlanceError:
-        return "Every label, group title and edge"
-    labels = len(glance.labels)
-    return f"All {labels} labels, the {len(glance.titles)} group titles and the chain"
+        return "Every label, group title and edge are unchanged (compared by script)."
+    return (
+        f"All {len(glance.labels)} labels, the {len(glance.titles)} group titles and the chain "
+        f"{_chain(glance)} are unchanged (compared by script)."
+    )
 
 
-def _bullet(edit: dict[str, Any]) -> list[str]:
+def _tested_range(render: dict[str, Any] | None) -> str:
+    if not render or render.get("status") != "verified":
+        return ""
+    versions = sorted(tuple(int(p) for p in v.split(".")[:2]) for v in render["releases"])
+    low, high = versions[0], versions[-1]
+    return f" in the Mermaid versions tested ({low[0]}.{low[1]} to {high[0]}.{high[1]})"
+
+
+def _why(edit: dict[str, Any]) -> str:
+    kind, detector = edit["kind"], edit["detector"]
+    lines = _locator_lines(edit)
+    if detector == "claim_version":
+        return str(edit["rationale"])
+    if kind == "FALSE_CLAIM_FIX":
+        shown = f"`{_clip(edit['original'])}`; the repository shows `{_clip(edit['replacement'])}`"
+        return f"the README says {shown}"
+    if detector == "second_h1":
+        return (
+            f"line {lines[0] if lines else edit['line']} is a second top-level heading, and a "
+            "README has one: its title, on line 1. We made it a second-level heading (`##`); if "
+            "the line was meant as a note, deleting the `#` instead may read better"
+        )
+    if detector == "unclosed_details":
+        opened = lines[0] if lines else "?"
+        end = lines[1] if len(lines) > 1 else edit["line"]
+        return (
+            f"the `<details>` block opened on line {opened} is never closed, so everything after "
+            "it renders collapsed. We close it before the next section heading (line "
+            f"{end}); that is our reading of where it should end, so tell us if it should end "
+            "elsewhere"
+        )
+    if kind == "MISSING_SECTION":
+        lines_ = edit["replacement"].splitlines()
+        heading = next((x[3:].strip() for x in lines_ if x.startswith("## ")), "")
+        return (
+            f"the README has no {heading} section; this one states what the repository's own "
+            "files declare"
+        )
+    if detector == "missing_sections":  # the contents-list item that goes with an inserted section
+        return "so the new section can be reached from the contents list"
+    if detector == "add_version_badge":
+        return (
+            "the README shows no version badge for the published package; it is added at the "
+            "front of the badge row"
+        )
+    if kind == "BROKEN_LINK":
+        return "the link points at a file the repository does not contain"
+    return "the README does not yet say this, and the repository's files show it"
+
+
+def _bullet(
+    edit: dict[str, Any], facts: dict[str, Fact], render: dict[str, Any] | None
+) -> list[str]:
     kind, line = edit["kind"], edit["line"]
-    why = f"  - why: {edit['rationale']}"
-    evidence = f"  - evidence: {_evidence(edit)}"
     if kind == "DIAGRAM_FIX":
         return [
-            f"- **At a Glance diagram** (README.md line {line}): redrawn left to right so text no "
-            f"longer clips. {_diagram_counts(edit)} Starting Points -> product -> Core "
-            "Capabilities -> Outputs are unchanged (compared by script). Layout hints only: "
+            f"- **At a Glance diagram** (README.md line {line}): drawn left to right so the labels "
+            f"fit their boxes{_tested_range(render)}. {_diagram_counts(edit)} Layout hints only: "
             "`flowchart LR`, `<br/>` line breaks, invisible `~~~` links that keep the columns in "
             "order, and one `%%{init}%%` line (SVG text, which a wider font cannot clip).",
-            f"  - evidence: `README.md:{line}` (the diagram as it is today)",
+            f"  - evidence: README.md line {line} (the diagram as it is today)",
         ]
+    why = f"  - why: {_why(edit)}"
+    evidence = f"  - evidence: {_evidence(edit, facts)}"
     if kind == "MISSING_SECTION":
         heading = next(x for x in edit["replacement"].splitlines() if x.startswith("## "))
         return [f"- inserted `{heading}` before line {line}", why, evidence]
@@ -167,7 +344,8 @@ def _bullet(edit: dict[str, Any]) -> list[str]:
         shown = next((x for x in edit["replacement"].splitlines() if x.strip()), "")
         extra = len([x for x in edit["replacement"].splitlines() if x.strip()]) - 1
         more = f" (+{extra} more line(s))" if extra > 0 else ""
-        return [f"- added at line {line}: `{_clip(shown)}`{more}", why, evidence]
+        where = "contents list" if edit["detector"] == "missing_sections" else "README"
+        return [f"- added to the {where} at line {line}: `{_clip(shown)}`{more}", why, evidence]
     if not edit["original"]:
         return [f"- inserted `{edit['replacement'].strip()}` before line {line}", why, evidence]
     change = f"`{_clip(edit['original'])}` -> `{_clip(edit['replacement'])}`"
@@ -181,7 +359,9 @@ def _lines(edits: list[dict[str, Any]]) -> str:
     return f"lines {', '.join(numbers[:-1])} and {numbers[-1]}"
 
 
-def _lead(groups: dict[str, list[dict[str, Any]]], revision: str) -> list[str]:
+def _lead(
+    groups: dict[str, list[dict[str, Any]]], facts: dict[str, Fact], revision: str
+) -> list[str]:
     paragraphs: list[str] = []
     for name, edits in groups.items():
         if name == "diagram":
@@ -190,7 +370,7 @@ def _lead(groups: dict[str, list[dict[str, Any]]], revision: str) -> list[str]:
             paragraphs.append(
                 f"The At a Glance diagram (README.md {_lines(edits)}) is drawn "
                 + (
-                    "top-down (`flowchart TD`), so on GitHub the three blocks stack vertically "
+                    "top-down (`flowchart TD`), so on GitHub the blocks stack vertically "
                     if top_down
                     else "so that the blocks stack vertically "
                 )
@@ -215,22 +395,32 @@ def _lead(groups: dict[str, list[dict[str, Any]]], revision: str) -> list[str]:
             names = _headings(edits)
             what = " and ".join(f"`{n}`" for n in names) if names else "a contents item"
             paragraphs.append(
-                f"The README has no {what} section; it is rendered from facts verified against "
-                f"the repository at revision `{revision[:12]}` (listed below), and gets its "
-                "Navigation item where the README has a contents list."
+                f"The README has no {what} section. We added one that states what the "
+                "repository's own files declare (cited below), with an item for it in the "
+                "contents list."
             )
-        elif name == "info":
-            lacks = _phrase(name, edits).replace("add the ", "").replace("add ", "")
+        elif name == "info" and any(e["detector"] == "add_version_badge" for e in edits):
+            package = facts.get("package:name")
+            version = facts.get("package:published_version")
             paragraphs.append(
-                f"The README lacks {lacks}, which the repository at revision "
-                f"`{revision[:12]}` verifies (evidence listed below)."
+                "The README has no version badge for the published package"
+                + (
+                    f" ({package.value} on {_registry_of(facts)}, current release {version.value})"
+                    if package is not None and version is not None
+                    else ""
+                )
+                + "; we added it at the front of the badge row."
             )
         else:
             paragraphs.append(
-                f"{_phrase(name, edits).capitalize()}, against the repository at revision "
-                f"`{revision[:12]}` (evidence listed below)."
+                f"{_parts(name, edits)[0].capitalize()}, against the repository at revision "
+                f"`{revision[:12]}` (evidence cited below)."
             )
     return paragraphs
+
+
+# ------------------------------------------------------------------------------------- checks
+_LENGTH = re.compile(r"(\d+) visible lines of \d+ exceed the visible budget (\d+)")
 
 
 def _delta_lines(delta: dict[str, Any]) -> list[str]:
@@ -238,21 +428,41 @@ def _delta_lines(delta: dict[str, Any]) -> list[str]:
         return []
     introduced = delta.get("introduced", [])
     resolved = sum(item["fewer"] for item in delta.get("resolved", []))
-    line = (
-        "- The project's validators (`validate_candidate`, checks BC-01 to BC-14) fail no check "
-        f"more often on the corrected README than on yours: {len(introduced)} introduced "
-        f"failure(s), {resolved} fewer failure(s) than before"
-    )
-    revealed = delta.get("revealed", [])
-    allowed = delta.get("allowed", [])
-    if revealed:
-        line += (
-            f"; {len(revealed)} check(s) now judge text that was hidden inside the broken markup"
+    text = (
+        "- We ran repository-presenter's README checks (install commands, version claims, "
+        "links, structure, length) on your README and on the corrected one. "
+        + (
+            "The corrected README has no failure that yours does not already have"
+            if not introduced
+            else f"The corrected README has {len(introduced)} failure(s) that yours does not"
         )
-    if allowed:
-        rulings = ", ".join(sorted({a["ruling"] for a in allowed}))
-        line += f"; {sum(a['extra'] for a in allowed)} recorded under owner ruling(s) {rulings}"
-    return [line + "."]
+        + (f", and has {resolved} fewer failure(s) than yours." if resolved else ".")
+    )
+    lines = [text]
+    revealed = delta.get("revealed", [])
+    if revealed:
+        spans = [
+            m.group(1)
+            for item in revealed
+            for detail in item["details"]
+            if (m := re.search(r"code span '([^']+)'", detail))
+        ]
+        about = f" (for example the code span `{spans[0]}`)" if spans else ""
+        lines.append(
+            "- Closing the broken markup makes text visible that the checks could not read "
+            f"before; they now report {sum(i['extra'] for i in revealed)} issue(s) there{about}. "
+            "That text is yours and this change does not alter it."
+        )
+    for item in delta.get("allowed", []):
+        found = next((m for d in item["details"] if (m := _LENGTH.search(d))), None)
+        if found is not None:
+            lines.append(
+                "- Length: the redraw adds a few lines (its init line and the links that keep "
+                f"columns in order), so the README now has {found.group(1)} lines outside "
+                f"collapsed blocks, over the {found.group(2)}-line limit the checks apply "
+                "(yours was within it)."
+            )
+    return lines
 
 
 def _render_lines(document: dict[str, Any]) -> list[str]:
@@ -272,6 +482,19 @@ def _render_lines(document: dict[str, Any]) -> list[str]:
     ]
 
 
+def _noticed(document: dict[str, Any]) -> list[str]:
+    stale = [f for f in document.get("unapplied_findings", []) if f["detector"] == "stale_phrase"]
+    if not stale:
+        return []
+    out = ["", "### Noticed, not changed"]
+    for finding in stale:
+        out.append(
+            f"- README.md line {finding['line']}: `{_clip(finding['text'])}` may be out of date "
+            "now that the package is published; we left it as you wrote it."
+        )
+    return out
+
+
 def compose_correction_pull_request(
     *,
     bundle: Path,
@@ -282,9 +505,11 @@ def compose_correction_pull_request(
 ) -> PullRequestContent:
     document = _json(bundle / CORRECTIONS_NAME)
     delta = _json(bundle / DELTA_NAME)
+    facts = _facts(bundle)
     edits: list[dict[str, Any]] = document["edits"]
     groups = _groups(edits)
     stability = document.get("stability", {})
+    render = document.get("render_check")
     checks = [
         "- Only `README.md` changes, and only at the places listed: with the edits removed, the "
         "corrected README and yours are identical.",
@@ -297,15 +522,16 @@ def compose_correction_pull_request(
     ]
     changes: list[str] = []
     for edit in sorted(edits, key=lambda e: (e["kind"] == "DIAGRAM_FIX", e["start"])):
-        changes += _bullet(edit)  # the content changes first, the diagram last
-    body = "\n".join(
+        changes += _bullet(edit, facts, render)  # the content changes first, the diagram last
+    above = "\n".join(
         [
-            *[p + "\n" for p in _lead(groups, source_revision)],
+            *[p + "\n" for p in _lead(groups, facts, source_revision)],
             "### What changes",
             *changes,
             "",
             "### How this was checked",
             *checks,
+            *_noticed(document),
             "",
             "### How to review",
             "Open **Files changed**: each hunk is one change listed above, and nothing else in "
@@ -315,9 +541,16 @@ def compose_correction_pull_request(
             "Close this pull request without merging. It will not be reopened or recreated for "
             "this proposal; a new pull request appears only after someone explicitly authorizes "
             "a new proposal for this repository.",
-            "",
+        ]
+    )
+    leaked = internal_identifiers(above, quoted=False)
+    if leaked:
+        raise ValueError(f"the pull request text would carry internal identifiers: {leaked}")
+    footer = "\n".join(
+        [
             "---",
-            "Proposed by repository-presenter. Provenance:",
+            "Proposed by repository-presenter, a tool that compares each Aspose FOSS README with "
+            "its repository. Provenance:",
             f"- candidate_hash: {candidate_hash}",
             f"- source_revision: {source_revision}",
             f"- policy_version: {policy_version}",
@@ -325,4 +558,4 @@ def compose_correction_pull_request(
             "",
         ]
     )
-    return PullRequestContent(title=title_of(edits), body=body)
+    return PullRequestContent(title=title_of(edits), body=above + "\n\n" + footer)
