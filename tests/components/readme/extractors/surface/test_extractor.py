@@ -382,3 +382,43 @@ def test_an_interface_and_a_type_alias_keep_their_own_properties_but_not_nested_
     assert not any(has("Placement", nested) for nested in ("col", "row", "text"))
     assert has("Pair", "left") and has("Pair", "right") and not has("Pair", "depth")
     assert has("Both", "a") and has("Both", "b")
+
+
+JS_EXPORTED = """
+/**
+ * A widget that tints things.
+ */
+export class Widget {
+  /** Save the widget. */
+  save(path) {}
+  _private() {}
+}
+
+/** Build a widget. */
+export function makeWidget() {}
+"""
+
+
+def test_a_jsdoc_block_before_an_exported_javascript_declaration_is_its_description(
+    tmp_path: Path,
+) -> None:
+    """The engine finds a doc comment through the language's adapter, and registers one for
+    TypeScript only; the façade registers it for JavaScript too. Without it every `export class`
+    reads as undocumented, because the comment sits before the `export_statement` around it
+    (measured 2026-10-11 on Aspose.JMAP-FOSS-for-Node.js: 30 of 30 exported classes)."""
+    package = tmp_path / "src"
+    package.mkdir()
+    (package / "widget.js").write_text(JS_EXPORTED, encoding="utf-8")
+    symbols = surface_symbols(get_parser("typescript"), "javascript", package, tmp_path, "widget")
+    docs = {symbol.value: symbol.doc for symbol in symbols}
+    assert docs["Widget"] == "A widget that tints things."
+    assert docs["Widget.save"] == "Save the widget."
+    assert docs["makeWidget"] == "Build a widget."
+    # Negative control: a private-by-convention member is not part of the surface.
+    assert "Widget._private" not in docs
+
+
+def test_the_javascript_adapter_is_registered_without_displacing_typescripts() -> None:
+    lang = api_surface.lang
+    assert lang.get("javascript") is lang.get("typescript")
+    assert lang.get("typescript") is lang.typescript

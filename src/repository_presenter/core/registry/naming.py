@@ -23,6 +23,9 @@ _PLATFORM_ALIASES = {
     "go": "go",
     "java": "java",
     "javascript": "javascript",
+    # The portfolio spells it "Node.js" in a repository name (Aspose.JMAP-FOSS-for-Node.js);
+    # the registry's platform and ecosystem are the slug without the dot.
+    "node.js": "nodejs",
     "nodejs": "nodejs",
     "python": "python",
     "rust": "rust",

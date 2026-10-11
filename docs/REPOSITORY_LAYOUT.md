@@ -69,6 +69,11 @@ src/repository_presenter/
     extractors/
       platforms/              one plugin per ecosystem (python.py first)
         python_format_declarations.py  static format declarations and plugin registrations, read from syntax trees (RESEARCH §22.1, §26)
+        nodejs.py              the Node.js plugin (a pure-JavaScript npm package): manifest facts and the entry-point surface, composed from surface/npm_package.py and never from typescript.py
+        nodejs_examples.py     its example verifier: node --check, then the snippet's own imports of the package loaded against a copy of the checkout staged at node_modules/<name>; a snippet that imports nothing from the package is not verified
+      surface/                 the shared surface façades (the vendored engine's only importer lives here)
+        npm_package.py         what an npm package's package.json and entry point publish, shared by the TypeScript and Node.js plugins: manifest and dependency facts, the entry-point re-export closure per ModuleDialect (TypeScript sources; JavaScript sources and CommonJS), and the name-and-module filter
+        npm_build.py           the npm half of an npm verifier, shared likewise: an npm this machine offers, a clean run directory, the package's own install/build in a copy, receipts free of machine paths
       examples/                example verification
     investigation/            repository_investigation job wiring
     reconciliation/           source_reconciliation job wiring, dispositions
