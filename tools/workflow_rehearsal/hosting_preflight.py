@@ -55,6 +55,9 @@ GATES = {
     "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED": ("H3", "H4"),
 }
 PAUSE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+# A second owner switch inside the issues stage (update comments on a filed issue): it narrows what the
+# issues gate permits, so it is modelled as known but is not a stage gate of its own.
+ISSUES_COMMENTS = "REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED"
 AMBIENT_SECRETS = {"GITHUB_TOKEN"}  # minted per run by GitHub, not a repository secret
 NOT_A_CYCLE_WORKFLOW = {"mirror-gitlab.yml"}  # its secrets gate no go-live stage
 WRITE_JOB_STAGE = {
@@ -273,7 +276,7 @@ def _variable_checks(
     gh: Gh, rows: list[dict[str, Any]]
 ) -> tuple[list[Check], dict[str, str] | None]:
     values, _ = _variable_state(gh)
-    known = set(GATES) | {PAUSE}
+    known = set(GATES) | {PAUSE, ISSUES_COMMENTS}
     unmodelled = sorted({v for row in rows for v in row["variables"]} - known)
     checks = [
         Check(
