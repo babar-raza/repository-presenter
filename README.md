@@ -75,7 +75,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 
 | Term | Meaning |
 |---|---|
-| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (36 entries across 15 `aspose-*-foss` organizations; Python 13, .NET 9, Java 4, C++ 4, TypeScript 3, Go 2, Rust 1). Nothing outside it is ever reached. |
+| **Registry** | [`data/registry.json`](data/registry.json): the hard allow-list of admitted repositories (43 entries across 15 `aspose-*-foss` organizations; Python 14, .NET 10, Java 5, C++ 5, TypeScript 4, Go 3, Rust 2). Nothing outside it is ever reached. |
 | **Mode** | Per registry entry: `dry_run` (analyze and seal locally, can never write), `full` (may propose, if separately authorized), or `disabled`. |
 | **Facts** | Deterministic, provenance-bound claims extracted from an immutable upstream revision. Every public README claim must map to one. |
 | **Candidate / bundle** | A proposed README plus the content-addressed evidence that justifies it, under `candidates/<owner>__<name>/<revision>/`; `CURRENT` points at the live one. |
@@ -86,7 +86,7 @@ GitHub token — see [Configuration](#configuration) and the [Example](#example)
 | **Handoff** | A local, evidence-backed record of a genuine upstream product defect, which may become a GitHub issue (gated). |
 | **`BLOCKED_EXTERNAL` / `FAILED_INTERNAL`** | Blocker classes: something only an owner can supply, versus a defect in this code. The second is never an acceptable stopping point. |
 
-The unit of progress is one: **authorizable candidates, N/36** (independent acceptance review
+The unit of progress is one: **authorizable candidates, N/43** (independent acceptance review
 passed and not worse than the live README; sealed counts are reported alongside, not as progress).
 Code volume, plans, and evidence files are supporting work, not progress.
 

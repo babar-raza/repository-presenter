@@ -37,7 +37,24 @@ def test_nested_license_directory_still_classifies(tmp_path: Path) -> None:
     assert facts[1].value == "MIT"
 
 
+def test_a_license_in_a_licenses_directory_is_cited_by_its_real_path(tmp_path: Path) -> None:
+    """The license fact's value and its evidence are the path the tree spells, directory and all,
+    so the License section links a file that exists (wave 3: `License/` in five Cells
+    repositories; the REUSE layout's `LICENSES/MIT.txt`)."""
+    (tmp_path / "LICENSES").mkdir()
+    (tmp_path / "LICENSES" / "MIT.txt").write_text("MIT License\n\nPermission is hereby", "utf-8")
+    facts = license_facts(tmp_path, "LICENSES/MIT.txt", "License/ThirdPartyNotices.txt")
+    by_id = {f.id: f for f in facts}
+    assert by_id["license:file"].value == "LICENSES/MIT.txt"
+    assert by_id["license:file"].evidence[0].path == "LICENSES/MIT.txt"
+    assert by_id["license:spdx"].evidence[0].path == "LICENSES/MIT.txt"
+    # A notices file beside the licence is its own record, cited by its own real path.
+    assert by_id["third_party_notices:file"].value == "License/ThirdPartyNotices.txt"
+    assert by_id["third_party_notices:file"].evidence[0].path == "License/ThirdPartyNotices.txt"
+
+
 def test_unrecognized_text_is_recorded_as_unresolved(tmp_path: Path) -> None:
+
     (tmp_path / "LICENSE").write_text("All rights reserved, terms unclear.", "utf-8")
     facts = license_facts(tmp_path, "LICENSE")
     assert facts[1].value == "UNCLASSIFIED"

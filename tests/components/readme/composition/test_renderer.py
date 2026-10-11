@@ -346,6 +346,60 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def _with_a_project_path() -> RenderContext:
+    """Aspose.PSD-FOSS-for-.NET (wave 3): the facts hold the project file's whole path, the path
+    from the project folder, the file name and the namespace as accepted values."""
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("import_path:widget.core", "import_path", "Widget.Core"),
+            _fact(
+                "build_test_asset:project", "build_test_asset", "src/Widget.Core/Widget.Core.csproj"
+            ),
+            _fact("build_test_asset:folder", "build_test_asset", "Widget.Core/Widget.Core.csproj"),
+            _fact("build_test_asset:file", "build_test_asset", "Widget.Core.csproj"),
+        ),
+    )
+    return RenderContext(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+
+
+def test_prose_does_not_wrap_a_token_inside_the_span_a_longer_token_just_made() -> None:
+    """The shorter values (the namespace, the file name) were wrapped again inside the span the
+    folder path had just made, splitting it into ``src/`Widget.Core/`Widget.Core`.csproj` `` and
+    failing BC-04 on a code span that is no fact value (Aspose.PSD-FOSS-for-.NET, wave 3)."""
+    context = _with_a_project_path()
+    assert context.prose(
+        "Build it with dotnet build src/Widget.Core/Widget.Core.csproj, then run."
+    ) == ("Build it with dotnet build src/`Widget.Core/Widget.Core.csproj`, then run.")
+    assert context.prose("Edit Widget.Core/Widget.Core.csproj to change it.") == (
+        "Edit `Widget.Core/Widget.Core.csproj` to change it."
+    )
+
+
+def test_prose_leaves_a_code_span_the_text_already_has_alone() -> None:
+    """Negative control: a token inside a span the author wrote is already in a span."""
+    context = _with_a_project_path()
+    text = "Run `dotnet build src/Widget.Core/Widget.Core.csproj` first, then `Scene.save`."
+    assert context.prose(text) == (
+        "Run `dotnet build src/Widget.Core/Widget.Core.csproj` first, then `Scene.save`."
+    )
+
+
+def test_prose_still_wraps_a_token_beside_a_span_and_a_lone_value() -> None:
+    """Negative control: only a match inside a span is skipped; a value standing alone, or beside
+    a span (a call, a sibling), is wrapped as before."""
+    context = _with_a_project_path()
+    assert context.prose("Open other/Widget.Core.csproj in an editor.") == (
+        "Open other/`Widget.Core.csproj` in an editor."
+    )
+    assert context.prose("Use `Scene.save` and Widget.Core.csproj together, or Scene.save().") == (
+        "Use `Scene.save` and `Widget.Core.csproj` together, or `Scene.save()`."
+    )
+
+
 def test_prose_wraps_an_identifier_its_own_cited_inherited_unit_fact_spells_verbatim() -> None:
     """G4-W17 arrival item 69: renderer.prose must wrap exactly what unit_checks (authoring.py)
     already admitted for this same unit - an identifier spelled verbatim inside a SUPPORTED
@@ -745,6 +799,24 @@ def test_an_unpublished_package_is_stated_plainly_and_only_verified_installs_ren
     assert render_readme(ENTRY, apache, PLAN, UNITS, DISPOSITIONS).endswith(
         "This project is licensed under the [Apache-2.0](LICENSE).\n"
     )
+
+
+def test_the_license_section_and_badge_link_the_licenses_directory_path_as_recorded() -> None:
+    """A license kept under `LICENSES/` (or `License/`) is linked by that real path, not by a root
+    `LICENSE` that does not exist; the fact's value is the only spelling the renderer reads."""
+    nested = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(f.id, f.kind, "LICENSES/MIT.txt", f.evidence) if f.id == "license:file" else f
+            for f in FACTS.facts
+        ),
+    )
+    readme = render_readme(ENTRY, nested, PLAN, UNITS, DISPOSITIONS)
+    assert readme.splitlines()[-1].startswith(
+        "This project is licensed under the [MIT License](LICENSES/MIT.txt). "
+    )
+    assert "(LICENSE)" not in readme
 
 
 def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> None:

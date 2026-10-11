@@ -285,11 +285,20 @@ def current_bundle(
 
 
 def drift_document(
-    observations: Sequence[RepositoryDrift], *, observed_at: str, owner: str | None
+    observations: Sequence[RepositoryDrift],
+    *,
+    observed_at: str,
+    owner: str | None,
+    discovery: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """The evidence document: a status summary and one row per repository, sorted by name."""
+    """The evidence document: a status summary and one row per repository, sorted by name.
+
+    ``discovery`` (``discovery.DiscoveryReport.to_json()``) is an additive section: present only
+    when the run reconciled the registry against its organizations, so a document without it is
+    exactly the schema 1 document that existed before and every reader of it is unaffected.
+    """
     ordered = sorted(observations, key=lambda observation: observation.repository)
-    return {
+    document: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "observed_at": observed_at,
         "owner": owner,
@@ -304,6 +313,9 @@ def drift_document(
         },
         "repositories": [asdict(observation) for observation in ordered],
     }
+    if discovery is not None:
+        document["discovery"] = dict(discovery)
+    return document
 
 
 def write_drift_document(document: dict[str, Any], path: Path) -> Path:

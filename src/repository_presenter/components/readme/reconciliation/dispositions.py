@@ -1836,11 +1836,13 @@ def _code_spans_name_a_symbol(text: str, facts: FactsDocument) -> bool:
     path - the test BC-05's ``NO_EVIDENCE_EITHER_WAY`` applies (``validation/deferrals.py``,
     ``DeferralContext.names_verified_symbol``, prose shape), which is looser than
     ``uncited_omit_candidates``: it also reads a directory segment of a path such as
-    ``Aspose.Words/Aspose.Words.csproj`` as the symbol ``Aspose.Words``. A deferral written under
-    the no-evidence wording would then be UNCLASSIFIED and block, so such a unit takes the typed
-    prefix too even when it has nothing to cite (Words-.NET 020 on the cut-2 tree, where the
-    path-segment guard leaves it with no candidate). ``test_dispositions.py`` pins the two
-    agreeing through ``review_deferrals``."""
+    ``Aspose.Words/Aspose.Words.csproj`` as the symbol ``Aspose.Words``. BC-05 itself no longer
+    reads a path token as a name (wave-3 U2: ``examples/outputfiles/`` is not the import path
+    ``examples``), so this side stays the wider of the two on purpose: a unit BC-05 reads as
+    naming a symbol always takes the typed prefix here, and a path-only unit that takes it too
+    is classified ADVISORY either way (Words-.NET 020 on the cut-2 tree, where the path-segment
+    guard leaves it with no candidate). ``test_dispositions.py`` pins the outcome through
+    ``review_deferrals``."""
     symbols = {
         fact.value
         for kind in ("public_symbol", "import_path")

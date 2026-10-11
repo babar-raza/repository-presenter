@@ -14,6 +14,17 @@ from pathlib import Path
 
 README_FILENAMES = frozenset({"readme.md", "readme", "readme.rst", "readme.txt"})
 LICENSE_FILENAMES = frozenset({"license", "license.txt", "license.md", "copying", "license.rst"})
+# Directories a repository conventionally keeps its own licence in when it has none at the root
+# (``License/LICENSE.txt`` in the Aspose cells repositories, the REUSE layout's ``LICENSES/``).
+# Only these: ``docs/``, ``third_party/`` and ``legal/`` hold other people's licences.
+LICENSE_DIRECTORIES = frozenset({"license", "licenses", "licence", "licences"})
+# A REUSE-style licence file is named for its SPDX identifier (``LICENSES/MIT.txt``). Only the
+# identifiers the license-text classifier knows, plus the other common ones.
+_SPDX_NAMED_LICENSE = re.compile(
+    r"^(?:mit|isc|0bsd|unlicense|apache-2\.0|bsd-[23]-clause|mpl-2\.0|cc0-1\.0"
+    r"|[al]?gpl-[23]\.[01](?:-only|-or-later)?)(?:\.txt|\.md)?$",
+    re.IGNORECASE,
+)
 NOTICES_FILENAMES = frozenset(
     {
         "notice",
@@ -105,16 +116,59 @@ def _find_covering_notices(root: Path) -> Path | None:
     return None
 
 
+def _license_directories(root: Path) -> list[Path]:
+    """The conventionally named licence directories directly under ``root``, in name order."""
+    if not root.is_dir():
+        return []
+    return [
+        entry
+        for entry in sorted(root.iterdir(), key=lambda p: p.name)
+        if entry.is_dir() and entry.name.lower() in LICENSE_DIRECTORIES
+    ]
+
+
+def _find_license_in(directory: Path) -> Path | None:
+    """A licence file named as a licence, else the one file named for an SPDX identifier.
+
+    Two identifier-named files (``MIT.txt`` and ``Apache-2.0.txt``) may be a dual licence or a
+    bundled dependency's, so none is taken for the project's own."""
+    named = _find_case_insensitive(directory, LICENSE_FILENAMES)
+    if named is not None:
+        return named
+    spdx_named = [
+        entry
+        for entry in sorted(directory.iterdir(), key=lambda p: p.name)
+        if entry.is_file() and _SPDX_NAMED_LICENSE.match(entry.name)
+    ]
+    return spdx_named[0] if len(spdx_named) == 1 else None
+
+
 def scan(root: Path) -> FileInventory:
-    """Inventory the root of ``root``; a license may also sit in a ``License`` directory."""
+    """Inventory the root of ``root``; a licence or notices file may also sit in a licence
+    directory (``License/``, ``LICENSES/``), and the path recorded is the real one."""
     readme_path = _find_case_insensitive(root, README_FILENAMES)
+    license_directories = _license_directories(root)
     license_path = _find_case_insensitive(root, LICENSE_FILENAMES)
-    if license_path is None and root.is_dir():
-        for entry in sorted(root.iterdir(), key=lambda p: p.name):
-            if entry.is_dir() and entry.name.lower() == "license":
-                license_path = _find_case_insensitive(entry, LICENSE_FILENAMES)
-                if license_path is not None:
-                    break
+    if license_path is None:
+        license_path = next(
+            (found for d in license_directories if (found := _find_license_in(d)) is not None),
+            None,
+        )
+    # A notices file beside the licence (``License/ThirdPartyNotices.txt``) is looked up by its
+    # notices name only: ``license`` is not a ``NOTICES_DIRECTORIES`` entry, because
+    # ``_NOTICE_BEARING_FILE`` would then take ``LICENSE.txt`` itself for the attribution.
+    notices_path = (
+        _find_case_insensitive(root, NOTICES_FILENAMES)
+        or next(
+            (
+                found
+                for d in license_directories
+                if (found := _find_case_insensitive(d, NOTICES_FILENAMES)) is not None
+            ),
+            None,
+        )
+        or _find_covering_notices(root)
+    )
     community_paths: dict[str, Path] = {}
     for canonical_name, names in COMMUNITY_FILENAMES.items():
         found = _find_case_insensitive(root, names)
@@ -124,7 +178,5 @@ def scan(root: Path) -> FileInventory:
         readme_path=readme_path,
         license_path=license_path,
         community_paths=community_paths,
-        notices_path=(
-            _find_case_insensitive(root, NOTICES_FILENAMES) or _find_covering_notices(root)
-        ),
+        notices_path=notices_path,
     )
