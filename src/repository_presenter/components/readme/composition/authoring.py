@@ -409,6 +409,13 @@ _FORBIDDEN = (
 _ANCHORED_ONLY = frozenset({"- ", "* "})
 
 
+# What follows a "<" that opens a tag, a closing tag, a comment/doctype or a processing
+# instruction, or a placeholder written in angle brackets. A "<" before a digit, "=" or a space is a
+# comparison ("quickjs>=1.19,<2", the dependency fact's own range) that no renderer reads as markup
+# (Aspose.HTML-FOSS-for-Python limitation:5, 2026-10-11: refused twice as HTML).
+_MARKUP_OPENER = re.compile(r"<[A-Za-z_/!?]")
+
+
 def _bare_angle_bracket(raw_text: str) -> bool:
     """Whether ``raw_text`` carries a ``<`` outside any code span - real HTML in running prose,
     never a protected command's own placeholder.
@@ -422,7 +429,7 @@ def _bare_angle_bracket(raw_text: str) -> bool:
     protected command's own syntax, not markup; one written in running prose - never inside a
     span - still is.
     """
-    return "<" in _CODE_SPAN.sub("", raw_text)
+    return _MARKUP_OPENER.search(_CODE_SPAN.sub("", raw_text)) is not None
 
 
 # A bracketed, comma-separated list a unit's own text echoes: matched together with any single

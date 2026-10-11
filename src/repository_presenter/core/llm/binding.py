@@ -109,6 +109,33 @@ def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, st
     return sorted(rewrites.items())
 
 
+def drop_unknown_finding_ids(payload: Any, facts: FactsDocument) -> list[str]:
+    """Remove, in place, every cited ID the facts do not carry from a review finding's own
+    ``fact_ids``; returns the IDs dropped.
+
+    A finding's ``fact_ids`` is the reviewer's pointer at evidence, and every consumer reads it
+    through the facts (``cited = [by_id[i] ... if i in by_id]``): an ID that names no fact was
+    already invisible to the rulings, so removing it changes no judgement - it only stops one
+    invented pointer (Aspose.Page-FOSS-for-Python, 2026-10-11: ``scope:pdf_import_absent`` beside
+    two real format IDs, refused twice) from discarding a whole review of otherwise-bound findings.
+    A finding left naming nothing is judged as the finding that names no fact, which is what it
+    now is; the verdict and every other field are untouched, and nothing is added. Applies to
+    ``findings[*].fact_ids`` only: an omission claim's own ``missing_ids`` stay bound as before.
+    """
+    known = {fact.id for fact in facts.facts}
+    dropped: list[str] = []
+    findings = payload.get("findings") if isinstance(payload, dict) else None
+    for finding in findings if isinstance(findings, list) else []:
+        cited = finding.get("fact_ids") if isinstance(finding, dict) else None
+        if not isinstance(cited, list):
+            continue
+        kept = [item for item in cited if not isinstance(item, str) or item in known]
+        dropped.extend(item for item in cited if isinstance(item, str) and item not in known)
+        if len(kept) != len(cited):
+            finding["fact_ids"] = kept
+    return dropped
+
+
 def fold_duplicate_units(payload: Any) -> None:
     """A repeated ``unit_id`` disposition is dropped in place, keeping the first.
 
@@ -187,6 +214,39 @@ def merge_partial_units(revised: Any, original: Any) -> Any:
         }
         merged[key] = [declared_by_unit.get(item["unit_id"], item) for item in original_value]
     return merged
+
+
+def fill_silent_units(revised: Any, original: Any) -> Any:
+    """``revised`` with each unit-keyed list completed from ``original`` for the units it left out.
+
+    The re-ask of a ``unit_ids`` job quotes only the units that were wrong, and a model answers
+    what it was shown: Aspose.PDF for TypeScript's second reply declared the 4 units the first
+    rejection named and nothing for the other 36, so it was refused as "no disposition for
+    inherited units: ..." although the first reply had already answered all 36 validly (cut-2
+    wave, 2026-10-11, two batches). A unit the reply is silent on keeps the disposition it had
+    the first time; a unit the reply does state is the reply's own, and the rejected ones are
+    judged again by the same checks, so nothing is accepted that was not judged. A list is only
+    completed when it is a strict subset of the original's units; a full reply is returned as
+    given (unlike :func:`merge_partial_units`, order and extra entries are never rewritten).
+    """
+    if not (isinstance(revised, dict) and isinstance(original, dict)):
+        return revised
+    completed = dict(revised)
+    for key, original_value in original.items():
+        revised_value = completed.get(key)
+        if not (
+            isinstance(original_value, list)
+            and isinstance(revised_value, list)
+            and original_value
+            and all(isinstance(item, dict) and "unit_id" in item for item in original_value)
+            and all(isinstance(item, dict) and "unit_id" in item for item in revised_value)
+        ):
+            continue
+        stated = {item["unit_id"] for item in revised_value}
+        silent = [item for item in original_value if item["unit_id"] not in stated]
+        if silent:
+            completed[key] = [*revised_value, *silent]
+    return completed
 
 
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:

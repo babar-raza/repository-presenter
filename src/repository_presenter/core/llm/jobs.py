@@ -36,6 +36,8 @@ from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm import transport
 from repository_presenter.core.llm.binding import (
     binding_errors,
+    drop_unknown_finding_ids,
+    fill_silent_units,
     fold_duplicate_units,
     resolve_symbol_ids,
 )
@@ -460,6 +462,26 @@ class _Attempts:
 Checks = Callable[[dict[str, Any]], list[str]]
 
 
+_ENUM_SHOWN = 12
+
+
+def _schema_message(error: Any) -> str:
+    """A schema error's text, with a long ``enum`` shown as its first few values and a count.
+
+    jsonschema quotes the whole enum: a decoder-pinned ``fact_ids`` array is hundreds of IDs, so a
+    one-ID mistake produced a rejection of several thousand characters (six cut-2 failures read as
+    a wall of ``public_symbol:`` IDs with the cause cut off), which the re-ask prompt, the rejected
+    record and the ``JobError`` all repeated. The IDs a model may use are already in its schema; the
+    message only has to say which value was refused and that it is not among them."""
+    allowed = error.validator_value if error.validator == "enum" else None
+    if not isinstance(allowed, list) or len(allowed) <= _ENUM_SHOWN:
+        return str(error.message)
+    return (
+        f"{error.instance!r} is not one of {allowed[:_ENUM_SHOWN]!r} "
+        f"(and {len(allowed) - _ENUM_SHOWN} more allowed values; cite only an offered ID)"
+    )
+
+
 def _parse(
     manifest: LoadedManifest,
     content: str,
@@ -475,7 +497,7 @@ def _parse(
         return None, ["output is not a JSON object"]
     validator = Draft202012Validator(schema_for(manifest, call_schema))
     errors = [
-        f"{error.json_path}: {error.message}"
+        f"{error.json_path}: {_schema_message(error)}"
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
     ]
     # G4-W17 arrival item 100 (PGPY-02): a job's domain checks run once the schema has passed,
@@ -491,6 +513,8 @@ def _parse(
     # re-ask budget was spent.
     schema_valid = not errors
     resolve_symbol_ids(output, facts)  # a symbol cited by its read path binds to its fact
+    if manifest.manifest.output.binding == "finding_ids":
+        drop_unknown_finding_ids(output, facts)  # an invented pointer is no evidence at all
     if manifest.manifest.output.binding == "unit_ids":
         fold_duplicate_units(output)  # a repeated disposition answers nothing the first lacked
     errors.extend(binding_errors(output, facts, manifest.manifest.output.binding))
@@ -624,6 +648,7 @@ def run_job(
     current = payload
     rejection: list[str] = []
     recovered_rejection: list[str] = []
+    first_reply = ""
     for ask in (1, 2):
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
         if reply.finish_reason == "length":
@@ -638,7 +663,11 @@ def run_job(
                 f"({manifest.manifest.sampling.max_output_tokens}); raise the budget or bound "
                 "the output, never retry"
             )
-        output, rejection = _parse(manifest, reply.content, facts, checks, call_schema)
+        content = reply.content
+        if ask == 2 and manifest.manifest.output.binding == "unit_ids":
+            content = _complete_from_first_reply(content, first_reply)
+        first_reply = reply.content
+        output, rejection = _parse(manifest, content, facts, checks, call_schema)
         if output is not None:
             store.put(request_sha256, job, reply.model, output)
             return JobResult(
@@ -660,13 +689,19 @@ def run_job(
             # rejected, and only on that exact raw reply - never on the first attempt, so the
             # model's own re-ask is always tried before any deterministic correction.
             try:
-                raw = json.loads(reply.content)
+                raw = json.loads(content)
             except json.JSONDecodeError:
                 raw = None
             corrected = recover(raw) if isinstance(raw, dict) else None
             if corrected is not None:
+                # Judged by the manifest's own schema, the binding and the checks - not by
+                # ``call_schema``: that pins what a *decoder* may emit (a packet-capped ID list)
+                # and a deterministic correction legitimately writes IDs the decoder was never
+                # offered, the same reason a stored output is re-judged without it (above).
+                # Measured 2026-10-11: a deferral citing the unit's own verified example was
+                # refused as "'example:004' is not one of [...]" on six repositories.
                 fixed, fixed_rejection = _parse(
-                    manifest, json.dumps(corrected), facts, checks, call_schema
+                    manifest, json.dumps(corrected), facts, checks, None
                 )
                 if fixed is not None:
                     store.put(request_sha256, job, reply.model, fixed)
@@ -691,6 +726,17 @@ def run_job(
     if recovered_rejection:
         message += f"; recover's correction was rejected too: {'; '.join(recovered_rejection)}"
     raise JobError(message)
+
+
+def _complete_from_first_reply(content: str, first: str) -> str:
+    """``content`` with the units it is silent on filled from the first reply (see
+    :func:`fill_silent_units`); unchanged when either is not a JSON object or nothing is silent."""
+    try:
+        revised, original = json.loads(content), json.loads(first)
+    except json.JSONDecodeError:
+        return content
+    completed = fill_silent_units(revised, original)
+    return content if completed == revised else json.dumps(completed)
 
 
 def _re_ask(

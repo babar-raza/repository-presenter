@@ -1118,12 +1118,17 @@ def test_which_capability_facts_are_shared_is_composed_from_the_citations() -> N
         None,
     ]
 
-    # A fact may only be declared shared by a capability that cites it.
+    # A fact may only be declared shared by a capability that cites it - and a declaration that
+    # says otherwise is corrected from the citations, not refused (Aspose.Cells for Python,
+    # 2026-10-11: capabilities 3 and 5 named a fact they did not cite; refused twice, run failed).
     stray = [dict(item) for item in overlapping]
     stray[2]["shared_fact_ids"] = ["example:001"]
-    assert plan_checks(_plan(core_capabilities=stray), FACTS) == [
-        "capability 3 declares shared facts it does not cite: example:001; shared_fact_ids is a "
-        "subset of that capability's fact_ids"
+    plan = _plan(core_capabilities=stray)
+    assert plan_checks(plan, FACTS) == []
+    assert [item.get("shared_fact_ids") for item in plan["core_capabilities"]] == [
+        ["example:001"],
+        ["example:001"],
+        [],
     ]
 
 

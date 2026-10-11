@@ -627,6 +627,34 @@ def test_a_protected_commands_own_placeholder_bracket_is_not_html() -> None:
     assert unit_checks(bare, task, FACTS, NAME) == ["unit capability:1: text contains HTML ('<')"]
 
 
+def test_a_version_constraints_less_than_is_not_html() -> None:
+    """Aspose.HTML-FOSS-for-Python limitation:5 (2026-10-11): "requires the optional
+    quickjs>=1.19,<2 extra" - the dependency fact's own version range - was refused twice as
+    `text contains HTML ('<')`, the model reproducing the range because it is the fact. A tag or
+    placeholder opens with `<` and a letter, `/`, `!` or `?`; `<` before a digit, `=` or a space is
+    a comparison, which no Markdown renderer reads as markup."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:aspose.threed.scene"}),
+        ("capability:1",),
+    )
+
+    def checked(text: str) -> list[str]:
+        unit = {
+            "section": "key_capabilities",
+            "slot": "capability:1",
+            "text": text,
+            "fact_ids": ["public_symbol:aspose.threed.scene"],
+        }
+        return unit_checks({"units": [unit], "omitted": []}, task, FACTS, NAME)
+
+    assert checked("Scene rendering needs the extra pinned as quickjs>=1.19,<2 to run.") == []
+    assert checked("Scene needs a build older than 2 (<= 1.9) or a count < 3.") == []
+    for markup in ("Scene is <b>bold</b>.", "Scene is <!-- x -->.", "Scene is a</div> tail."):
+        assert checked(markup) == ["unit capability:1: text contains HTML ('<')"]
+
+
 def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifier() -> None:
     """A format or another product is a word here, an identifier only where code lives.
 

@@ -6,6 +6,8 @@ from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.binding import (
     binding_errors,
     collect_ids,
+    drop_unknown_finding_ids,
+    fill_silent_units,
     fold_duplicate_units,
     merge_partial_units,
     resolve_symbol_ids,
@@ -102,6 +104,49 @@ def test_fact_bindings_require_known_supported_facts() -> None:
 def test_findings_may_cite_contradicted_facts_but_never_unknown_ones() -> None:
     findings = {"findings": [{"fact_ids": ["example:002"]}, {"fact_ids": ["missing:1"]}]}
     assert binding_errors(findings, FACTS, "finding_ids") == ["unknown fact ID missing:1"]
+
+
+def test_an_invented_pointer_on_a_finding_is_dropped_and_the_known_ones_stay() -> None:
+    """Aspose.Page-FOSS-for-Python independent_review (2026-10-11): ``scope:pdf_import_absent``
+    beside two real format IDs was refused twice, discarding the whole review. Every consumer reads
+    a finding's ``fact_ids`` through the facts, so an ID naming no fact was never evidence."""
+    findings = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [
+            {"id": "F01", "fact_ids": ["example:001", "scope:pdf_import_absent", "example:002"]},
+            {"id": "F02", "fact_ids": ["nope:1"], "omission": {"missing_ids": ["nope:2"]}},
+            {"id": "F03", "fact_ids": []},
+        ],
+    }
+    assert drop_unknown_finding_ids(findings, FACTS) == ["scope:pdf_import_absent", "nope:1"]
+    assert [f["fact_ids"] for f in findings["findings"]] == [["example:001", "example:002"], [], []]
+    assert findings["verdict"] == "REJECT_PRESENTATION"
+    assert binding_errors(findings, FACTS, "finding_ids") == []
+    assert drop_unknown_finding_ids({"findings": "not a list"}, FACTS) == []
+    assert drop_unknown_finding_ids(["not", "a", "dict"], FACTS) == []
+
+
+def test_units_a_reply_is_silent_on_are_filled_from_the_first_reply_without_reordering() -> None:
+    first = {
+        "dispositions": [
+            {"unit_id": "inherited_unit:001.heading", "disposition": "A"},
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "B"},
+        ]
+    }
+    reask = {"dispositions": [{"unit_id": "inherited_unit:002.paragraph", "disposition": "C"}]}
+    assert fill_silent_units(reask, first) == {
+        "dispositions": [
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "C"},
+            {"unit_id": "inherited_unit:001.heading", "disposition": "A"},
+        ]
+    }
+    # A full reply is returned as given: order and extras are the reply's own.
+    full = {
+        "dispositions": [*reversed(first["dispositions"]), {"unit_id": "x", "disposition": "Z"}]
+    }
+    assert fill_silent_units(full, first) == full
+    assert fill_silent_units("nope", first) == "nope"
+    assert fill_silent_units({"other": 1}, first) == {"other": 1}
 
 
 def test_unit_bindings_name_every_inherited_unit_exactly_once() -> None:
