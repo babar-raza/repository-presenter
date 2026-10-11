@@ -81,7 +81,7 @@ GitHub notification email for failed scheduled runs of the repository owner.
 | `audit-app-installations.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | - |
 | `candidates-publish.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` |
 | `ci.yml` | - | - | - |
-| `issues-scheduled.yml` | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` |
+| `issues-scheduled.yml` | `REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED`, `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED`, `REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED` |
 | `liveness.yml` | - | - | - |
 | `mirror-gitlab.yml` | - | `GITLAB_TOKEN` | - |
 | `monitor.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | - |
@@ -122,7 +122,7 @@ Artifacts: `up:sbom-and-vulnerability-audit-py${{ matrix.python-version }}`
 | `analyse` | `targets` | ubuntu-latest | contents: read (workflow) | permission-contents=read+permission-issues=read+permission-metadata=read | - | - | yes | `${{ needs.targets.outputs.matrix != '[]' }}` |
 | `file-and-close` | `targets` | ubuntu-latest | contents: read (workflow) | permission-contents=read+permission-issues=read+permission-metadata=read; permission-issues=write+permission-metadata=read | - | - | yes | `${{ vars.REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED == '1' && needs.targets.outputs.matrix != '[]' }}` |
 
-Artifacts: `up:issue-report-${{ matrix.target.owner }}__${{ matrix.target.name }}`
+Artifacts: `up:issue-report-${{ matrix.target.owner }}__${{ matrix.target.name }}`, `up:resume-contract-${{ matrix.target.owner }}__${{ matrix.target.name }}`
 
 #### `liveness.yml` job graph
 
