@@ -47,8 +47,8 @@ decisions), `archetypes/*.yaml`, `assignments.yaml` (every registry repository),
 recomputed from `data/readme_standard/survey.json` by the validator and fails the build when it
 drifts; every table between `generated:` markers is rendered from the data files and cannot be
 edited by hand.
-The population is the repositories of `data/registry.json` at the survey: [stat:readme_count=42] have a
-README and one has none (43 in all; the Node.js JMAP library joins as the 44th when it is admitted).
+The population is the repositories of `data/registry.json` at the survey: [stat:readme_count=43] have a
+README and one has none (44 in all).
 A rule carries one or more bases. **OBSERVED_COMMON** means at least 80 percent of the live
 READMEs that could carry it do. **OBSERVED_VARIANT** means it is observed but below 80 percent or in
 competing forms. **OWNER_RULE** means the owner stated it, in `plans/idea.md`, the directive or the rulings of 2026-10-11.
@@ -123,29 +123,29 @@ wording (§6.2), which follows the documents and never the other way round.
 ## 2. Evidence: what the live portfolio is
 
 **Population.** Aspose.GIS FOSS for .NET is the one registry repository without a README, and its
-default branch carries no LICENSE either (DEF-26, DEF-07). Of the READMEs, 38/42
+default branch carries no LICENSE either (DEF-26, DEF-07). Of the READMEs, 39/43
 (obs:ten_sections_at_least_nine) carry at least nine of the ten sections of the owner's template
-under their exact headings, 36/42 (obs:ten_sections_all) carry all ten, and 41/42
+under their exact headings, 37/43 (obs:ten_sections_all) carry all ten, and 42/43
 (obs:order_follows_standard) keep the standard headings in the standard order. The four that do
 not carry the skeleton are Cells Python (a short form), Font Python (a persona and CLI pitch),
 Slides .NET (a hand-written reference) and Words .NET (a provenance narrative). The live portfolio
-is therefore one skeleton with a small set of deliberate departures, not 42 unrelated documents.
+is therefore one skeleton with a small set of deliberate departures, not 43 unrelated documents.
 
-**The JMAP family.** The seven JMAP libraries admitted on 2026-10-11 are seven near-identical
-READMEs on the full skeleton: Navigation, a Mermaid At a Glance, the three Dependencies buckets,
+**The JMAP family.** The eight JMAP libraries admitted on 2026-10-11 (seven first, then Node.js as the 44th
+registry entry) are near-identical READMEs on the full skeleton: Navigation, a Mermaid At a Glance, the three Dependencies buckets,
 one Quick Start, a visible and a collapsed Additional Example, and the standard License paragraph.
 They differ from the rest of the portfolio in what they lack, and each absence has one cause. No
 Aspose product,
 documentation or reference page exists for the family (the survey's GET of
 `products.aspose.org/jmap/python/`, `docs.aspose.org/jmap/python/` and the `kb.` and `reference.`
-equivalents answered 404, while the Email pages answered 200), so there is no banner, no Aspose
+equivalents answered 404, as did the `nodejs` pages, while the Email pages answered 200), so there is no banner, no Aspose
 link, no docs trio and no Enterprise Edition paragraph, and the standard adds none (LNK-11). Their
 API Reference is a prose paragraph with no listing (DEF-28), and none has published a package, which
 each says in one plain sentence beside the intended package id. They need no archetype of their own:
-six are `std-source` and one, C++, is `std-native`, and the `no_aspose_product_pages` structure
+seven are `std-source` and one, C++, is `std-native`, and the `no_aspose_product_pages` structure
 (§4.1) records the family condition.
 
-**Inherited additions.** 9/42 (obs:inherited_additions_present) READMEs carry at least one H2
+**Inherited additions.** 9/43 (obs:inherited_additions_present) READMEs carry at least one H2
 heading outside the twelve standard names: Project Structure (Cells Go, Cells Java, Cells Rust, PDF
 Cpp), Feature Showcase (PDF Go), Detailed Documentation and Constraints (Cells Go), the
 conditional core section Third-Party Notices (PDF Go, PDF Cpp), and the whole own-voice outlines of Cells Python, Font Python, Slides .NET
@@ -153,10 +153,10 @@ and Words .NET, which include an MCP Server section (Font Python). They are not 
 owner's ruling R5 treats them as the second kind of structure, to be retained in place (§3.1.1). H3
 additions such as a History subsection are not measured by the survey, which reads H2 headings only.
 
-**Size.** The median README is [stat:lines_median=541.0] lines of which [stat:visible_lines_median=236.5]
+**Size.** The median README is [stat:lines_median=537.0] lines of which [stat:visible_lines_median=236.0]
 lie outside collapsed blocks; the longest is [stat:lines_max=4612.0] lines (PDF TypeScript). The
-length is collapsed API and example material: 12/42 (obs:visible_lines_over_300) exceed the code's
-300-line visible budget and 6/42 (obs:lines_over_1000) exceed 1,000 lines in total.
+length is collapsed API and example material: 12/43 (obs:visible_lines_over_300) exceed the code's
+300-line visible budget and 6/43 (obs:lines_over_1000) exceed 1,000 lines in total.
 
 **How it was measured.** `tools/readme_standard/survey_features.py` turns one README into a flat
 record of about 110 measures; `tools/readme_standard/build_survey.py` runs it over clones of the
@@ -196,26 +196,26 @@ frequency among the READMEs that could carry it.
 <!-- generated:elements -->
 | # | Element | Heading | Structure | Requirement | Basis | Live | What it is |
 |---|---|---|---|---|---|---|---|
-| 1 | `identity_h1` | `# <product name>` | core | required | OBSERVED_COMMON + OWNER_RULE | 41/42 | Exactly one H1, the complete canonical product name. |
-| 2 | `badge_row` | none (see summary) | core | required | OBSERVED_COMMON + OWNER_RULE | 42/42 | One badge paragraph under the H1; images only, each backed by a verified target. |
-| 3 | `banner` | none (see summary) | inherited | optional | OBSERVED_VARIANT | 32/42 | A linked product banner between the badge row and the opening: one image whose single link goes to products.aspose.org/{family}/{platform}/, correct and not promotion (owner ruling R1). |
-| 4 | `opening` | none (see summary) | core | required | OBSERVED_COMMON + OWNER_RULE | 42/42 | Two to four sentences that start with the product name and say what it is and does, with its real entry-point types, before any promotion. |
-| 5 | `navigation` | `## Navigation` | core | expected | OBSERVED_COMMON + OWNER_RULE | 39/42 | A flat list of in-page links to every H2 of the document, in document order. |
-| 6 | `at_a_glance` | `## At a Glance` | core | expected (at least three verified core capabilities) | OBSERVED_COMMON + OWNER_RULE | 39/42 | A Mermaid flowchart: Starting Points, the product, Core Capabilities, Outputs. The three mother blocks run left to right and each is split by key capability, Core included; every box grows with its text so no label is clipped (owner ruling R7); nothing else in the section. |
-| 7 | `key_capabilities` | `## Key Capabilities` | core | required | OBSERVED_COMMON + OWNER_RULE | 38/42 | A bulleted list of what the library does, each bullet naming the real types it rests on. |
-| 8 | `installation` | `## Installation` | core | required | OBSERVED_COMMON + OWNER_RULE | 40/42 | Every idiomatic install form of the ecosystem, then supported runtimes; when unpublished, the source install and a plain statement that no package exists. |
-| 9 | `dependencies` | `## Dependencies` | core | expected | OBSERVED_COMMON + OWNER_RULE | 37/42 | Dependency buckets from the manifest: Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. |
-| 10 | `quick_start` | `## Quick Start` | core | expected (at least one example verified at this revision) | OBSERVED_COMMON + OWNER_RULE | 38/42 | One to three minimal examples that compile or run, each with a lead-in sentence. |
-| 11 | `feature_showcase` | `## Feature Showcase` | inherited | optional | OBSERVED_VARIANT | 1/42 | A linked preview image of a repository-owned asset that proves a capability. |
-| 12 | `additional_examples` | `## Additional Examples` | core | expected | OBSERVED_COMMON + OWNER_RULE | 39/42 | A lead-in, one visible flagship example, and a collapsed block of further task-named examples. |
-| 13 | `project_structure` | `## Project Structure` | inherited | optional | OBSERVED_VARIANT | 4/42 | A fenced directory tree of the repository, kept current with the tree. |
-| 14 | `api_reference` | `## API Reference` | core | expected (the repository exposes a public API) | OBSERVED_COMMON + OWNER_RULE | 39/42 | A short visible intro naming the entry-point types and the type count, then the complete public surface collapsed in a details block: Class \| Description tables and a Detailed Member Reference. |
-| 15 | `docs_resources` | `## Documentation & Resources` | core | expected | OBSERVED_COMMON + OWNER_RULE | 39/42 | Getting started guide, How-to guides & FAQ and Full API reference on the Aspose sites, repository files that help a reader, and an Open an issue item. |
-| 16 | `scope_limitations` | `## Scope and Limitations` | core | required | OBSERVED_COMMON + OWNER_RULE | 38/42 | Bulleted designed or declared limitations, each naming the mechanism, closed by the Enterprise Edition paragraph. |
+| 1 | `identity_h1` | `# <product name>` | core | required | OBSERVED_COMMON + OWNER_RULE | 42/43 | Exactly one H1, the complete canonical product name. |
+| 2 | `badge_row` | none (see summary) | core | required | OBSERVED_COMMON + OWNER_RULE | 43/43 | One badge paragraph under the H1; images only, each backed by a verified target. |
+| 3 | `banner` | none (see summary) | inherited | optional | OBSERVED_VARIANT | 32/43 | A linked product banner between the badge row and the opening: one image whose single link goes to products.aspose.org/{family}/{platform}/, correct and not promotion (owner ruling R1). |
+| 4 | `opening` | none (see summary) | core | required | OBSERVED_COMMON + OWNER_RULE | 43/43 | Two to four sentences that start with the product name and say what it is and does, with its real entry-point types, before any promotion. |
+| 5 | `navigation` | `## Navigation` | core | expected | OBSERVED_COMMON + OWNER_RULE | 40/43 | A flat list of in-page links to every H2 of the document, in document order. |
+| 6 | `at_a_glance` | `## At a Glance` | core | expected (at least three verified core capabilities) | OBSERVED_COMMON + OWNER_RULE | 40/43 | A Mermaid flowchart: Starting Points, the product, Core Capabilities, Outputs. The three mother blocks run left to right and each is split by key capability, Core included; every box grows with its text so no label is clipped (owner ruling R7); nothing else in the section. |
+| 7 | `key_capabilities` | `## Key Capabilities` | core | required | OBSERVED_COMMON + OWNER_RULE | 39/43 | A bulleted list of what the library does, each bullet naming the real types it rests on. |
+| 8 | `installation` | `## Installation` | core | required | OBSERVED_COMMON + OWNER_RULE | 41/43 | Every idiomatic install form of the ecosystem, then supported runtimes; when unpublished, the source install and a plain statement that no package exists. |
+| 9 | `dependencies` | `## Dependencies` | core | expected | OBSERVED_COMMON + OWNER_RULE | 38/43 | Dependency buckets from the manifest: Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. |
+| 10 | `quick_start` | `## Quick Start` | core | expected (at least one example verified at this revision) | OBSERVED_COMMON + OWNER_RULE | 39/43 | One to three minimal examples that compile or run, each with a lead-in sentence. |
+| 11 | `feature_showcase` | `## Feature Showcase` | inherited | optional | OBSERVED_VARIANT | 1/43 | A linked preview image of a repository-owned asset that proves a capability. |
+| 12 | `additional_examples` | `## Additional Examples` | core | expected | OBSERVED_COMMON + OWNER_RULE | 40/43 | A lead-in, one visible flagship example, and a collapsed block of further task-named examples. |
+| 13 | `project_structure` | `## Project Structure` | inherited | optional | OBSERVED_VARIANT | 4/43 | A fenced directory tree of the repository, kept current with the tree. |
+| 14 | `api_reference` | `## API Reference` | core | expected (the repository exposes a public API) | OBSERVED_COMMON + OWNER_RULE | 40/43 | A short visible intro naming the entry-point types and the type count, then the complete public surface collapsed in a details block: Class \| Description tables and a Detailed Member Reference. |
+| 15 | `docs_resources` | `## Documentation & Resources` | core | expected | OBSERVED_COMMON + OWNER_RULE | 40/43 | Getting started guide, How-to guides & FAQ and Full API reference on the Aspose sites, repository files that help a reader, and an Open an issue item. |
+| 16 | `scope_limitations` | `## Scope and Limitations` | core | required | OBSERVED_COMMON + OWNER_RULE | 39/43 | Bulleted designed or declared limitations, each naming the mechanism, closed by the Enterprise Edition paragraph. |
 | 17 | `enterprise_paragraph` | none (see summary) | core | conditional (a verified aspose.com product target exists for the family and platform) | OBSERVED_COMMON + OWNER_RULE | 30/31 | The final paragraph of Scope and Limitations: one to three sentences relating the FOSS scope to the Enterprise Edition, with one link to the verified product page. |
-| 18 | `development_testing` | `## Development and Testing` | core | expected | OBSERVED_COMMON + OWNER_RULE | 39/42 | Build and test commands from the repository's own files, never collapsed. |
-| 19 | `third_party_notices` | `## Third-Party Notices` | core | conditional (a third-party notices file exists in the tree) | OBSERVED_VARIANT + OWNER_RULE | 2/42 | A visible heading with a repository-relative link to the notices file. |
-| 20 | `license` | `## License` | core | required | OBSERVED_COMMON + OWNER_RULE | 42/42 | A prose declaration of the license with a repository-relative link, never a bare link. |
+| 18 | `development_testing` | `## Development and Testing` | core | expected | OBSERVED_COMMON + OWNER_RULE | 40/43 | Build and test commands from the repository's own files, never collapsed. |
+| 19 | `third_party_notices` | `## Third-Party Notices` | core | conditional (a third-party notices file exists in the tree) | OBSERVED_VARIANT + OWNER_RULE | 2/43 | A visible heading with a repository-relative link to the notices file. |
+| 20 | `license` | `## License` | core | required | OBSERVED_COMMON + OWNER_RULE | 43/43 | A prose declaration of the license with a repository-relative link, never a bare link. |
 <!-- /generated:elements -->
 
 ### 3.1.1 Inherited additions
@@ -261,42 +261,42 @@ the conditional core section Third-Party Notices, which STR-26 maps and which ar
 
 ### 3.2 Composition per element
 
-**Identity and badges.** One H1 in 41/42 (obs:h1_exactly_one), in the canonical form
-`Aspose.<Family> FOSS for <Platform>` in 39/42 (obs:h1_canonical_name). The badge row is one
-paragraph directly under the H1 in 42/42 (obs:badge_row_single_paragraph), median
+**Identity and badges.** One H1 in 42/43 (obs:h1_exactly_one), in the canonical form
+`Aspose.<Family> FOSS for <Platform>` in 40/43 (obs:h1_canonical_name). The badge row is one
+paragraph directly under the H1 in 43/43 (obs:badge_row_single_paragraph), median
 [stat:badge_count_median=3.0] badges. What it holds varies with the product, which is why only the
-license badge is common: license 39/42 (obs:badge_license), runtime floor 25/42 (obs:badge_runtime),
-contributors 30/42 (obs:badge_contributors), package 21/42 (obs:badge_package), build status 9/42
+license badge is common: license 40/43 (obs:badge_license), runtime floor 25/43 (obs:badge_runtime),
+contributors 31/43 (obs:badge_contributors), package 21/43 (obs:badge_package), build status 9/43
 (obs:badge_ci). The owner's order (package, runtime, build, license, contributors) is followed by
-21/40 (obs:badge_order_ok) rows of two or more badges, so it governs added badges only, as the owner ruled (STR-04, OD-05, R6).
+22/41 (obs:badge_order_ok) rows of two or more badges, so it governs added badges only, as the owner ruled (STR-04, OD-05, R6).
 
-**Banner.** A linked product banner sits between the badge row and the opening in 32/42
+**Banner.** A linked product banner sits between the badge row and the opening in 32/43
 (obs:banner_present); its image is served from `products.aspose.org` in 31/32
 (obs:banner_image_on_products_org) and it links to an Aspose product page in 32/32
-(obs:banner_links_to_aspose). An Aspose link therefore precedes the first section in 32/42
+(obs:banner_links_to_aspose). An Aspose link therefore precedes the first section in 32/43
 (obs:aspose_link_before_opening). The owner ruled (R1, OD-01) that this is correct: one link behind
 the banner to `products.aspose.org/{family}/{platform}/` is not promotion before the product is
 explained, and `plans/idea.md` was wrong to say otherwise. The banner is below the 80 percent line
-only because ten READMEs have none: the seven JMAP READMEs, whose family has no product page to
+only because eleven READMEs have none: the eight JMAP READMEs, whose family has no product page to
 link (LNK-11), and three off-template ones. The standard keeps a live banner exactly and never adds
 one, because the live README is the authority (STR-05).
 
-**Opening.** The first paragraph begins with the product name in 36/42
-(obs:opening_starts_with_product), says the library is open source in 36/42
-(obs:opening_free_open_source), runs two to four sentences in 38/42
-(obs:opening_two_to_four_sentences), median [stat:opening_words_median=67.5] words, and names an
-audience in only 3/42 (obs:opening_audience_phrase). It names the license in 15/42
+**Opening.** The first paragraph begins with the product name in 37/43
+(obs:opening_starts_with_product), says the library is open source in 37/43
+(obs:opening_free_open_source), runs two to four sentences in 39/43
+(obs:opening_two_to_four_sentences), median [stat:opening_words_median=68.0] words, and names an
+audience in only 3/43 (obs:opening_audience_phrase). It names the license in 15/43
 (obs:opening_names_license), so a license mention is a variant, not a requirement. Three live
 openings state what the library is not (PSD .NET, PSD Python and Slides .NET); that voice is kept
 (`scope_forward` and `candid_handwritten`, §4.1). The opening is the maintainers' sentence; only a
 false claim in it is corrected (STR-06).
 
-**Navigation and At a Glance.** A Navigation section exists in 39/42 (obs:navigation_present),
-links every H2 in 37/39 (obs:navigation_complete) and precedes At a Glance in 38/39
-(obs:navigation_before_glance). At a Glance exists in 39/42 (obs:glance_present) and is a Mermaid
-flowchart in 38/39 (obs:glance_mermaid) with the groups Starting Points 36/38
-(obs:glance_starting_points), Core Capabilities 38/38 (obs:glance_core_capabilities) and Outputs
-38/38 (obs:glance_outputs_group); the exception is an image with no text equivalent (PDF .NET,
+**Navigation and At a Glance.** A Navigation section exists in 40/43 (obs:navigation_present),
+links every H2 in 38/40 (obs:navigation_complete) and precedes At a Glance in 39/40
+(obs:navigation_before_glance). At a Glance exists in 40/43 (obs:glance_present) and is a Mermaid
+flowchart in 39/40 (obs:glance_mermaid) with the groups Starting Points 37/39
+(obs:glance_starting_points), Core Capabilities 39/39 (obs:glance_core_capabilities) and Outputs
+39/39 (obs:glance_outputs_group); the exception is an image with no text equivalent (PDF .NET,
 DEF-18). The owner added a rendering rule on 2026-10-11 (R7, OD-10): some live diagrams clip their
 text in boxes too small for it and some lay the three mother blocks out vertically; neither is
 accepted. Every box grows with its text; Starting Points, Core Capabilities and Outputs run left
@@ -306,70 +306,70 @@ are MERMAID_CLIPPED (DEF-29) and MERMAID_VERTICAL (DEF-30). The survey reads the
 not its render, so it cannot count either defect; their live prevalence is measured by TC-MMD-01
 and no frequency is claimed here.
 
-**Key Capabilities.** Present under that exact heading in 38/42 (obs:key_capabilities_present); the
+**Key Capabilities.** Present under that exact heading in 39/43 (obs:key_capabilities_present); the
 other four list capabilities under another name (Features, What You Get, What it can do). The
 visible bullet count has median [stat:capability_bullets_median=9.0] and maximum
-[stat:capability_bullets_max=40.0]; only 16/38 (obs:capabilities_3_to_8) fall inside the legacy
-three-to-eight range and 5/38 (obs:capabilities_over_12) exceed twelve, so the live count stands, and the owner ruled
+[stat:capability_bullets_max=40.0]; only 16/39 (obs:capabilities_3_to_8) fall inside the legacy
+three-to-eight range and 5/39 (obs:capabilities_over_12) exceed twelve, so the live count stands, and the owner ruled
 that there is no cap (STR-09, OD-03, R6).
 
-**Installation and Dependencies.** Installation exists in 40/42 (obs:installation_present) and
-shows a registry command in 28/40 (obs:install_registry_command), a clone-and-build path in 17/40
-(obs:install_source_clone), a CMake path in 5/40 (obs:install_native_build) and a plain statement
-that no package is published in 12/40 (obs:install_says_unpublished); these are the channels of §4.
-Dependencies exists in 37/42 (obs:dependencies_present) with the buckets Required Package
-Dependencies 37/37 (obs:deps_required_h3), Native and System Requirements 35/37
-(obs:deps_native_h3), Development Dependencies 32/37 (obs:deps_development_h3) and Optional
-Dependencies 5/37 (obs:deps_optional_h3); a verified-empty bucket reads "No required third-party
-package dependencies." in 17/37 (obs:deps_zero_sentence). Two READMEs that carry the generated
+**Installation and Dependencies.** Installation exists in 41/43 (obs:installation_present) and
+shows a registry command in 29/41 (obs:install_registry_command), a clone-and-build path in 18/41
+(obs:install_source_clone), a CMake path in 5/41 (obs:install_native_build) and a plain statement
+that no package is published in 13/41 (obs:install_says_unpublished); these are the channels of §4.
+Dependencies exists in 38/43 (obs:dependencies_present) with the buckets Required Package
+Dependencies 38/38 (obs:deps_required_h3), Native and System Requirements 36/38
+(obs:deps_native_h3), Development Dependencies 33/38 (obs:deps_development_h3) and Optional
+Dependencies 5/38 (obs:deps_optional_h3); a verified-empty bucket reads "No required third-party
+package dependencies." in 17/38 (obs:deps_zero_sentence). Two READMEs that carry the generated
 skeleton lack Dependencies altogether (Cells .NET and Cells C++, DEF-19).
 
-**Quick Start and examples.** Quick Start exists in 38/42 (obs:quick_start_present) and holds one
-to three fenced blocks in 38/38 (obs:quick_start_one_to_three_examples). Additional Examples exists
-in 39/42 (obs:additional_examples_present), sits in one collapsed block in 38/39
-(obs:additional_examples_collapsed) and gives every example a task name, never a number, in 39/39
-(obs:additional_examples_task_named); the median is [stat:additional_examples_median=5.0] examples.
+**Quick Start and examples.** Quick Start exists in 39/43 (obs:quick_start_present) and holds one
+to three fenced blocks in 39/39 (obs:quick_start_one_to_three_examples). Additional Examples exists
+in 40/43 (obs:additional_examples_present), sits in one collapsed block in 39/40
+(obs:additional_examples_collapsed) and gives every example a task name, never a number, in 40/40
+(obs:additional_examples_task_named); the median is [stat:additional_examples_median=4.5] examples.
 
-**API Reference.** Present in 39/42 (obs:api_present). Where it lists the surface it is collapsed
-and tabulated: collapsed in 32/39 (obs:api_collapsed), with a `Class | Description` table in 31/39
-(obs:api_class_description_table), a Detailed Member Reference in 25/39
-(obs:api_member_reference) and a stated type count in 21/39 (obs:api_states_type_count). The other
-seven are the JMAP READMEs, whose API Reference is a prose paragraph naming the entry-point types
-with no listing at all: 7/39 (obs:api_listing_absent), DEF-28. The summary line starts with "View"
+**API Reference.** Present in 40/43 (obs:api_present). Where it lists the surface it is collapsed
+and tabulated: collapsed in 32/40 (obs:api_collapsed), with a `Class | Description` table in 31/40
+(obs:api_class_description_table), a Detailed Member Reference in 25/40
+(obs:api_member_reference) and a stated type count in 21/40 (obs:api_states_type_count). The other
+eight are the JMAP READMEs, whose API Reference is a prose paragraph naming the entry-point types
+with no listing at all: 8/40 (obs:api_listing_absent), DEF-28. The summary line starts with "View"
 wherever there is one (obs:api_summary_view_prefix), but the wording varies: "View the Supported
-Public API Surface" is the most common at 11/39 (obs:api_summary_view_supported) and the
-renderer's "View the Complete Public API Surface" appears in 1/39 (obs:api_summary_view_complete),
+Public API Surface" is the most common at 11/40 (obs:api_summary_view_supported) and the
+renderer's "View the Complete Public API Surface" appears in 1/40 (obs:api_summary_view_complete),
 so the live wording is kept (STR-14). Listings range up to [stat:api_rows_max=1026.0] rows, median
 [stat:api_rows_median=183.0].
 
-**Documentation & Resources.** Present in 39/42 (obs:docs_present). Where the README links any
+**Documentation & Resources.** Present in 40/43 (obs:docs_present). Where the README links any
 Aspose page the three Aspose sites are all linked in 31/32 (obs:docs_trio_when_aspose_linked); over
-all READMEs with the section it is 31/39 (obs:docs_trio), because the seven JMAP READMEs list
-only the issues item. The items read "Getting started guide" 30/39
-(obs:docs_getting_started_guide), "How-to guides & FAQ" 28/39 (obs:docs_how_to_guides_faq) and
-"Full API reference" 31/39 (obs:docs_full_api_reference); an "Open an issue" item is present in
-36/39 (obs:docs_open_issue) and the issues page is linked from 41/42 (obs:issues_link). Repository
+all READMEs with the section it is 31/40 (obs:docs_trio), because the eight JMAP READMEs list
+only the issues item. The items read "Getting started guide" 30/40
+(obs:docs_getting_started_guide), "How-to guides & FAQ" 28/40 (obs:docs_how_to_guides_faq) and
+"Full API reference" 31/40 (obs:docs_full_api_reference); an "Open an issue" item is present in
+37/40 (obs:docs_open_issue) and the issues page is linked from 42/43 (obs:issues_link). Repository
 files that help a reader (PUBLISHING.md, CHANGELOG.md, docs/ guides, workflow files) are listed in
-23/39 (obs:docs_repo_relative).
+23/40 (obs:docs_repo_relative).
 
-**Scope and Limitations and the Enterprise paragraph.** Present in 38/42 (obs:scope_present); the
+**Scope and Limitations and the Enterprise paragraph.** Present in 39/43 (obs:scope_present); the
 median list has [stat:scope_bullets_median=6.0] bullets and the longest [stat:scope_bullets_max=68.0].
 Where the README links any Aspose page the Enterprise Edition is named in the section in 30/31
-(obs:enterprise_in_scope_when_aspose_linked); over all READMEs with the section it is 30/38
-(obs:enterprise_in_scope), the difference being the seven JMAP READMEs (no product page to name,
+(obs:enterprise_in_scope_when_aspose_linked); over all READMEs with the section it is 30/39
+(obs:enterprise_in_scope), the difference being the eight JMAP READMEs (no product page to name,
 LNK-11) and PDF .NET. The paragraph that names it is the last element of the section in 30/30
 (obs:enterprise_closes_scope). Its wording is in §3.4.
 
-**Development and Testing, notices and License.** Development and Testing exists in 39/42
-(obs:devtest_present). License exists in 42/42 (obs:license_present), is a prose declaration
-("licensed under the ...") in 39/42 (obs:license_prose), adds the sentence on MIT permissions in
-38/42 (obs:license_permissions_sentence), and carries a copyright line in 2/42
-(obs:license_copyright_line). A Third-Party Notices heading exists in 2/42
+**Development and Testing, notices and License.** Development and Testing exists in 40/43
+(obs:devtest_present). License exists in 43/43 (obs:license_present), is a prose declaration
+("licensed under the ...") in 40/43 (obs:license_prose), adds the sentence on MIT permissions in
+39/43 (obs:license_permissions_sentence), and carries a copyright line in 2/43
+(obs:license_copyright_line). A Third-Party Notices heading exists in 2/43
 (obs:third_party_section); further notices are linked from the License section (Note, Cells Python,
 TeX).
 
 **Product-specific sections** are rare and each is justified by a file the repository really
-carries: Project Structure 4/42 (obs:project_structure_section) and Feature Showcase 1/42
+carries: Project Structure 4/43 (obs:project_structure_section) and Feature Showcase 1/43
 (obs:feature_showcase_section). They are preserved when live and never added (STR-25).
 
 **Forms observed and the preferred form.** Where several forms compete the preferred form is the
@@ -439,9 +439,9 @@ live one; for an element the live README lacks, it is the first form below that 
 ### 3.4 Links
 
 **The Aspose link set.** Where a README links any Aspose page, exactly five Aspose links appear in
-30/34 (obs:aspose_links_exactly_five_when_aspose_linked); over all READMEs it is 30/42
-(obs:aspose_links_exactly_five) because 8/42 (obs:aspose_links_none) carry none: Font and the seven
-JMAP READMEs, whose family has no pages yet (LNK-11). At most five appear in 41/42
+30/34 (obs:aspose_links_exactly_five_when_aspose_linked); over all READMEs it is 30/43
+(obs:aspose_links_exactly_five) because 9/43 (obs:aspose_links_none) carry none: Font and the eight
+JMAP READMEs, whose family has no pages yet (LNK-11). At most five appear in 42/43
 (obs:aspose_links_at_most_five); the maximum is [stat:aspose_links_max=7.0] (Words .NET). The
 five are the banner and the Enterprise Edition on `products.aspose.org` and
 `products.aspose.com`, and the documentation, knowledge-base and reference sites in Documentation &
@@ -456,10 +456,10 @@ not a target (LNK-06); a sixth is added only when a verified article explains th
 | Banner, above the opening | the product page on `products.aspose.org` | 32/32 (obs:banner_links_to_aspose) |
 | Documentation & Resources | `docs.`, `kb.` and `reference.aspose.org` for the family and platform | 31/32 (obs:docs_trio_when_aspose_linked) |
 | Enterprise Edition, closing Scope and Limitations | the product page on `products.aspose.com` | 30/31 (obs:enterprise_in_scope_when_aspose_linked) |
-| Repository files | PUBLISHING.md, CHANGELOG.md, docs/ guides, workflow files, LICENSE | 23/39 (obs:docs_repo_relative) |
-| Issues | the repository's issues page | 41/42 (obs:issues_link) |
-| Badges | registry page, workflow, LICENSE, contributors graph | 42/42 (obs:badge_row_present) |
-| Forum | `forum.aspose.com` | 1/42 (obs:forum_links), removed |
+| Repository files | PUBLISHING.md, CHANGELOG.md, docs/ guides, workflow files, LICENSE | 23/40 (obs:docs_repo_relative) |
+| Issues | the repository's issues page | 42/43 (obs:issues_link) |
+| Badges | registry page, workflow, LICENSE, contributors graph | 43/43 (obs:badge_row_present) |
+| Forum | `forum.aspose.com` | 1/43 (obs:forum_links), removed |
 
 **The Enterprise paragraph.** It is one to three sentences closing Scope and Limitations. Its
 shape in the live portfolio:
@@ -481,20 +481,20 @@ cosmetic and is not changed on its own. None of the 30 opens "full-featured"
 0/30 (obs:enterprise_full_featured_anchor): `plans/idea.md` asked for that wording and the renderer
 prints it, the owner ruled that the live anchor is correct and the file was wrong, and the prefix
 is neither required nor checked. Where the README links any Aspose page "Enterprise Edition"
-appears exactly once in 29/34 (obs:enterprise_once_when_aspose_linked), and in 29/42
+appears exactly once in 29/34 (obs:enterprise_once_when_aspose_linked), and in 29/43
 (obs:enterprise_once) of all READMEs. The owner ruled (R3, OD-07) that the aspose.com product is
 always called Enterprise Edition, with no exception: `commercial` stands in for the product or
-edition name in 10/42 (obs:commercial_substitute) and a banned edition name in 1/42
+edition name in 10/43 (obs:commercial_substitute) and a banned edition name in 1/43
 (obs:banned_edition_names), and each such word that refers to the product is rewritten to
 Enterprise Edition (LNK-03, DEF-14), whether the README links Aspose pages or not.
 
-**Repository-relative links.** Links to the repository's own files are relative (LNK-07); 5/42
+**Repository-relative links.** Links to the repository's own files are relative (LNK-07); 5/43
 (obs:absolute_self_blob_links) use an absolute `github.com/.../blob/main/...` URL for their own
-files, and 3/42 (obs:dead_relative_links) carry a relative link whose target does not exist.
-AGENTS.md is linked as a contributor guide in 17/42 (obs:agent_file_links); that is accepted, and
+files, and 3/43 (obs:dead_relative_links) carry a relative link whose target does not exist.
+AGENTS.md is linked as a contributor guide in 17/43 (obs:agent_file_links); that is accepted, and
 an assistant-specific file such as CLAUDE.md is not a user resource (LNK-10).
 
-**Forbidden.** Forum links appear in 1/42 (obs:forum_links) and are removed (LNK-08).
+**Forbidden.** Forum links appear in 1/43 (obs:forum_links) and are removed (LNK-08).
 
 <!-- generated:rules-lnk -->
 | ID | Element | Basis | Severity | Rule | Deterministic detector |
@@ -519,16 +519,16 @@ restyles a live sentence. The live voice is declarative, third person, present t
 product as the subject and imperative mood reserved for install, run and test instructions
 (TON-01). Measured on visible prose (outside code, tables, headings and collapsed blocks):
 
-- **Sentence length.** The median of the per-README mean is [stat:sentence_mean_median=19.4] words,
+- **Sentence length.** The median of the per-README mean is [stat:sentence_mean_median=19.3] words,
   the 90th percentile of sentences has median [stat:sentence_p90_median=35.0]; the means range from
   [stat:sentence_mean_min=9.5] (Cells Python) to [stat:sentence_mean_max=34.3] (PDF Go). A mean of at
-  most 25 words holds in 37/42 (obs:sentence_mean_at_most_25) and of at most 30 in 41/42
+  most 25 words holds in 38/43 (obs:sentence_mean_at_most_25) and of at most 30 in 42/43
   (obs:sentence_mean_at_most_30) (TON-02).
 - **Register.** "free, open-source" is the standard descriptor, and none uses a word from the
-  survey's lexicon of marketing superlatives: 42/42 (obs:no_marketing_superlatives) avoid it. Emoji are absent in
-  39/42 (obs:no_emoji) and first-person words in 40/42 (obs:no_first_person); the exceptions are
+  survey's lexicon of marketing superlatives: 43/43 (obs:no_marketing_superlatives) avoid it. Emoji are absent in
+  40/43 (obs:no_emoji) and first-person words in 41/43 (obs:no_first_person); the exceptions are
   Words .NET, Imaging .NET and PDF TypeScript for emoji (the last is documentation of Markdown
-  output) and Words .NET and Slides C++ for first person. Second person is used in 21/42
+  output) and Words .NET and Slides C++ for first person. Second person is used in 21/43
   (obs:second_person_used), in instructions and warnings.
 - **Dashes.** The median README holds [stat:em_dashes_median=20.0] em dashes; they are the
   portfolio's separator in capability bullets and are left alone.
@@ -651,7 +651,7 @@ beside the evidence in each assignment's notes.
 <!-- generated:archetypes -->
 | Archetype | Mode | Install channels | Repositories | What it is |
 |---|---|---|---|---|
-| `std-source` | gap_fill | source_only | 17 | The generated ten-section skeleton for a library with no registry install: the reader clones and builds, installs editable, runs npm install from a clone, or adds a ProjectReference or Git dependency. The README says plainly that no package is published and what to do instead. |
+| `std-source` | gap_fill | source_only | 18 | The generated ten-section skeleton for a library with no registry install: the reader clones and builds, installs editable, runs npm install from a clone, or adds a ProjectReference or Git dependency. The README says plainly that no package is published and what to do instead. |
 | `std-registry` | gap_fill | registry | 16 | The generated ten-section skeleton with Navigation and Additional Examples, for a library the reader installs from PyPI, NuGet, Maven Central or the Go module proxy. The live README has the skeleton; the work is correction, gap-filling and measurable improvement inside it. |
 | `std-native` | gap_fill | native_build | 5 | The generated ten-section skeleton for a C++ library the reader integrates through CMake (add_subdirectory, FetchContent, find_package), sometimes with a Windows-only prebuilt NuGet package. Installation is the longest section of the portfolio and its toolchain floors are part of Dependencies. |
 | `offtemplate` | insertion | registry, none | 4 | A README that does not use the generated skeleton: a terse short form (Cells Python), a persona and CLI pitch (Font), a candid hand-written reference (Slides .NET) or a provenance narrative (Words .NET). Its structure and voice are the authority; the standard only inserts verified elements the README lacks and corrects what is false, beside the README's own headings. |
@@ -700,9 +700,8 @@ Install-channel variants:
 ### 4.3 Assignments
 
 Every registry repository, once each (the validator proves coverage; family and ecosystem are the
-registry's own). The seven JMAP libraries were added on 2026-10-11; the Node.js JMAP library is the
-44th registry entry and is added here, with its survey row, in the commit that follows its
-admission. Until then the validator reports it as an unassigned registry repository.
+registry's own). The eight JMAP libraries were added on 2026-10-11, the Node.js library last as the
+44th registry entry.
 
 <!-- generated:assignments -->
 | Repository | Family | Ecosystem | Archetype | Channel | API | Voice | Surfaces | Special structures |
@@ -726,6 +725,7 @@ admission. Until then the validator reports it as an unassigned registry reposit
 | JMAP Cpp | jmap | cpp | `std-native` | native_build | none | neutral_reference | library | no_aspose_product_pages |
 | JMAP Go | jmap | go | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
 | JMAP Java | jmap | java | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
+| JMAP Node.js | jmap | nodejs | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
 | JMAP Python | jmap | python | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
 | JMAP Rust | jmap | rust | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
 | JMAP TypeScript | jmap | typescript | `std-source` | source_only | none | neutral_reference | library | no_aspose_product_pages |
@@ -836,16 +836,16 @@ changes the least text. The detector column says whether it exists in `src/` tod
 | DEF-25 | non-prose or non-canonical license and name | 5: Font Python, Slides .NET, Words .NET, PSD .NET, PSD Python | existing: text_checks.license_prose; BC-12 canonical product name | Write the License section as the standard prose declaration and set the H1 to the canonical product name. | any extra license facts (font licenses, notices) |
 | DEF-26 | README missing | 1: GIS .Net | existing: snapshot: default branch has no README; processability gate | Author the standard skeleton from verified facts only if the tree carries a real public surface; otherwise insufficient_evidence. |  |
 | DEF-27 | Dependencies section points at the manifest instead of listing it | 1: JMAP Java | new: a dependency bucket that defers to the manifest file and names no dependency | List the manifest's dependencies with their versions in the bucket and keep the pointer as one sentence. | the pointer sentence |
-| DEF-28 | API Reference without a listing | 7: JMAP .NET, JMAP Cpp, JMAP Go, JMAP Java, JMAP Python, JMAP Rust, JMAP TypeScript | new: API Reference holds prose only: no table rows and no member bullets | Keep the intro paragraph and add the collapsed Class \| Description listing built from the verified public symbols, with the verified count; leave an undocumented type undescribed. | the intro paragraph and its error-handling description |
+| DEF-28 | API Reference without a listing | 8: JMAP .NET, JMAP Cpp, JMAP Go, JMAP Java, JMAP Node.js, JMAP Python, JMAP Rust, JMAP TypeScript | new: API Reference holds prose only: no table rows and no member bullets | Keep the intro paragraph and add the collapsed Class \| Description listing built from the verified public symbols, with the verified count; leave an undocumented type undescribed. | the intro paragraph and its error-handling description |
 | DEF-29 | MERMAID_CLIPPED: an At a Glance label clipped in a box too small for its text | 0: none | new: a real render of the Mermaid block (headless Mermaid at the version GitHub ships) with each label's extent measured against its box; a label wider or taller than its box is clipped, and a static prediction from label length is advisory only (STR-28) | Rebuild the diagram so every box grows with its text (no fixed width, no truncation, wrapped labels with the box height grown to fit) and render it again to prove nothing is clipped; never shorten a label to make it fit. | every node, label, edge and group name |
 | DEF-30 | MERMAID_VERTICAL: the At a Glance mother blocks stacked vertically | 0: none | new: a real render of the Mermaid block with the position of the Starting Points, Core Capabilities and Outputs groups measured; groups laid out top to bottom instead of left to right fail (STR-28) | Lay the diagram out left to right, one mother block after another, each split by key capability and Core included, as some older live revisions drew it; keep every node and edge and render it again. | every node, label, edge and group name |
 <!-- /generated:defects -->
 
-Prevalence of the markup defects among the READMEs: second H1 1/42 (obs:second_h1), unbalanced
-details tags 1/42 (obs:unclosed_details), fences without a language 7/42
-(obs:fences_without_language), an unquoted pip specifier 1/42 (obs:unquoted_pip_specifier), heading
-level jumps 2/42 (obs:heading_level_jumps), a bare label heading followed by a sibling or shallower
-heading 19/42 (obs:empty_label_headings), a repeated heading text 6/42 (obs:duplicate_headings).
+Prevalence of the markup defects among the READMEs: second H1 1/43 (obs:second_h1), unbalanced
+details tags 1/43 (obs:unclosed_details), fences without a language 7/43
+(obs:fences_without_language), an unquoted pip specifier 1/43 (obs:unquoted_pip_specifier), heading
+level jumps 2/43 (obs:heading_level_jumps), a bare label heading followed by a sibling or shallower
+heading 19/43 (obs:empty_label_headings), a repeated heading text 6/43 (obs:duplicate_headings).
 The last two are structural smells the older contract itself prescribed (`#### Detailed Member
 Reference` followed by `###` groups); they are advisory and never a stand-alone change (DEF-24).
 
@@ -938,15 +938,15 @@ pending the next governed cut for the code that still encodes the legacy rule:
 |---|---|---|
 | Row 7: three to eight capabilities | 16/31 inside the range (obs:capabilities_3_to_8) | no cap (OD-03, R6) |
 | BC-06 and row 18: anchor opens "full-featured" | 0/30 (obs:enterprise_full_featured_anchor) | the live anchor is correct, the prefix is not required (OD-02, R2) |
-| Row 14: summary "View the Complete Public API Surface" | 1/39 (obs:api_summary_view_complete) | keep live wording |
+| Row 14: summary "View the Complete Public API Surface" | 1/40 (obs:api_summary_view_complete) | keep live wording |
 | Visible budget 300 (code) or 320 (contract) lines | 12/35 over 300 (obs:visible_lines_over_300) | no-grow (OD-06, R6) |
-| Row 3 banner and `promotion_after_product` | banner present in 32/42 (obs:banner_present) | correct and not promotion; preserve, never add (OD-01, R1) |
+| Row 3 banner and `promotion_after_product` | banner present in 32/43 (obs:banner_present) | correct and not promotion; preserve, never add (OD-01, R1) |
 | Row 2 and BC-07: badge order blocks | 16/33 in order (obs:badge_order_ok) | order governs added badges (OD-05, R6) |
-| Row 5: Navigation required | 39/42 (obs:navigation_present) | required in the standard skeleton, optional in an off-template README |
-| The semantic shell as a fixed template; a section beyond it only as a justified plan `deviation` | 9/42 (obs:inherited_additions_present) carry headings outside the twelve standard names | fixed core plus inherited additions retained in place, no justification needed (OD-09, R5) |
+| Row 5: Navigation required | 40/43 (obs:navigation_present) | required in the standard skeleton, optional in an off-template README |
+| The semantic shell as a fixed template; a section beyond it only as a justified plan `deviation` | 9/43 (obs:inherited_additions_present) carry headings outside the twelve standard names | fixed core plus inherited additions retained in place, no justification needed (OD-09, R5) |
 | `plans/idea.md`: the template owns tone and headings; source tone and prose structure are not preservation obligations | the live READMEs keep their own voice and outline | follow each live README (OD-04, R4); idea.md corrected |
 | Whole-document `flowchart TD` At a Glance, BC-07 label geometry | unmeasured; some diagrams clipped or stacked vertically | left to right, unclipped, render-verified (OD-10, R7) |
-| `commercial`, `paid`, `full` standing for the aspose.com product tolerated until rewritten case by case | 10/42 (obs:commercial_substitute) | always Enterprise Edition, no exception (OD-07, R3) |
+| `commercial`, `paid`, `full` standing for the aspose.com product tolerated until rewritten case by case | 10/43 (obs:commercial_substitute) | always Enterprise Edition, no exception (OD-07, R3) |
 
 ### 6.2 Code gates and governed constants that encode the old contract
 
@@ -1003,15 +1003,15 @@ rulings (R5, R7) that were not open questions of the first draft.
 <!-- generated:decisions -->
 | ID | Question | Status | Ruling | Code gate that still encodes the old rule | Rules |
 |---|---|---|---|---|---|
-| OD-01 | The banner links to products.aspose.org above the opening, which plans/idea.md read as promotion before the product is explained, while the live portfolio does it in 32/42 READMEs. | owner-ruled 2026-10-11 | R1: the banner above the opening, one image with a single link to products.aspose.org/{family}/{platform}/, is correct and is not promotion before the product is explained; plans/idea.md was wrong and is corrected. A live banner is preserved exactly and none is added to a README that lacks one (the live README stands). The promotion_after_product predicate exempts the banner link. | Item 14 (text_checks.promotion_after_product exempts the banner link) and item 7 (the banner counts as one of the five Aspose links). Owner-ruled, pending the next governed cut. | STR-05, LNK-02 |
+| OD-01 | The banner links to products.aspose.org above the opening, which plans/idea.md read as promotion before the product is explained, while the live portfolio does it in 32/43 READMEs. | owner-ruled 2026-10-11 | R1: the banner above the opening, one image with a single link to products.aspose.org/{family}/{platform}/, is correct and is not promotion before the product is explained; plans/idea.md was wrong and is corrected. A live banner is preserved exactly and none is added to a README that lacks one (the live README stands). The promotion_after_product predicate exempts the banner link. | Item 14 (text_checks.promotion_after_product exempts the banner link) and item 7 (the banner counts as one of the five Aspose links). Owner-ruled, pending the next governed cut. | STR-05, LNK-02 |
 | OD-02 | plans/idea.md asked for a 'full-featured ... Enterprise Edition' anchor and BC-06 enforces the prefix; no live anchor uses it (0/30). | owner-ruled 2026-10-11 | R2: the live anchor is correct and plans/idea.md was wrong. The anchor reads 'Aspose.&lt;Family&gt; for &lt;Platform&gt; — Enterprise Edition' with a spaced em dash, as the live READMEs write it (27/30 use that dash; the family alone, 'Aspose.&lt;Family&gt; — Enterprise Edition', when the verified target is the family page). The 'full-featured' prefix is not required and is not checked. | Item 7 (the BC-06 anchor-prefix check in validation/links/rules.py and validation/registry.py becomes an anchor-shape check) and item 3 (the renderer prints the live shape). Owner-ruled, pending the next governed cut. | LNK-04 |
-| OD-03 | README_CONTRACT row 7 caps Key Capabilities at three to eight items; only 16/38 live READMEs stay inside that range. | owner-ruled 2026-10-11 | R6: the default is accepted. The live count stands; there is no cap on Key Capabilities in live-first mode. | Item 10 (capabilities_min and capabilities_max in composition/policy.py) and item 2 (the range check in composition/planning.py). Owner-ruled, pending the next governed cut. | STR-09 |
+| OD-03 | README_CONTRACT row 7 caps Key Capabilities at three to eight items; only 16/39 live READMEs stay inside that range. | owner-ruled 2026-10-11 | R6: the default is accepted. The live count stands; there is no cap on Key Capabilities in live-first mode. | Item 10 (capabilities_min and capabilities_max in composition/policy.py) and item 2 (the range check in composition/planning.py). Owner-ruled, pending the next governed cut. | STR-09 |
 | OD-04 | plans/idea.md said source tone and prose structure are not preservation obligations and that the approved presentation template owns tone, headings and organization; the 2026-10-11 directive says the opposite. | owner-ruled 2026-10-11 | R4: that line of plans/idea.md was wrong. Follow each live README for tone, prose structure and headings; plans/idea.md is corrected at the owner's explicit request. | Item 4 (reconciliation defaults to keep-in-place), item 2 (planning is edits, not sections) and item 12 (documents that name the contract as the structure authority); plans/idea.md itself is already corrected. Owner-ruled, pending the next governed cut. | PRC-01 |
-| OD-05 | The owner's badge order (package, runtime, build, license, contributors) is followed by 21/40 of the live rows that have two or more badges. | owner-ruled 2026-10-11 | R6: the default is accepted. The order applies only to badges the change adds; an existing row is never reordered on its own. | Item 5 (the BC-07 badge-order check becomes baseline-relative). Owner-ruled, pending the next governed cut. | STR-04 |
-| OD-06 | The visible-length budget is 300 lines in code and 320 in the contract; 12/42 live READMEs exceed 300. | owner-ruled 2026-10-11 | R6: the default is accepted. Visible length may not grow except to add a required element; nothing is trimmed to a budget. | Item 5 (the BC-07 visible-length check) and item 10 (visible_lines_budget in composition/policy.py, also read by repair/rounds.py). Owner-ruled, pending the next governed cut. | STR-24 |
-| OD-07 | 10/42 live READMEs use 'commercial' for the aspose.com product; the owner rule allows Enterprise Edition only. | owner-ruled 2026-10-11 | R3: the aspose.com product is always called Enterprise Edition, with no exception (the owner chose 'Enterprise Edition' over 'Enterprise product'). 'Commercial', 'paid', 'full' and any similar word standing for it are always rewritten to Enterprise Edition, with the diff shown to the reviewer; a phrase about the code's own origin is not about the product and is left. | Item 7 (the BC-06 banned list and the commercial-substitute heuristic) and item 14 (text_checks.edition_name). Owner-ruled, pending the next governed cut. | LNK-03 |
+| OD-05 | The owner's badge order (package, runtime, build, license, contributors) is followed by 22/41 of the live rows that have two or more badges. | owner-ruled 2026-10-11 | R6: the default is accepted. The order applies only to badges the change adds; an existing row is never reordered on its own. | Item 5 (the BC-07 badge-order check becomes baseline-relative). Owner-ruled, pending the next governed cut. | STR-04 |
+| OD-06 | The visible-length budget is 300 lines in code and 320 in the contract; 12/43 live READMEs exceed 300. | owner-ruled 2026-10-11 | R6: the default is accepted. Visible length may not grow except to add a required element; nothing is trimmed to a budget. | Item 5 (the BC-07 visible-length check) and item 10 (visible_lines_budget in composition/policy.py, also read by repair/rounds.py). Owner-ruled, pending the next governed cut. | STR-24 |
+| OD-07 | 10/43 live READMEs use 'commercial' for the aspose.com product; the owner rule allows Enterprise Edition only. | owner-ruled 2026-10-11 | R3: the aspose.com product is always called Enterprise Edition, with no exception (the owner chose 'Enterprise Edition' over 'Enterprise product'). 'Commercial', 'paid', 'full' and any similar word standing for it are always rewritten to Enterprise Edition, with the diff shown to the reviewer; a phrase about the code's own origin is not about the product and is left. | Item 7 (the BC-06 banned list and the commercial-substitute heuristic) and item 14 (text_checks.edition_name). Owner-ruled, pending the next governed cut. | LNK-03 |
 | OD-08 | Cells Go documents the v26.7.1 release while main is ahead of that release; no policy said whether a README documents the release, main, or both. | owner-ruled 2026-10-11 | R6: the default is accepted. The README documents the release and marks main-only features unreleased (PRC-08). | Item 13 (the published-versus-head claim model in the live-first lane) and item 5 (BC-14). Owner-ruled, pending the next governed cut. | PRC-08 |
-| OD-09 | Is the structure a fixed template? The standard allowed a section beyond the standard set only as a justified deviation, while 9/42 live READMEs carry headings of their own. | owner-ruled 2026-10-11 | R5: there are two kinds of structure. The fixed core is the sections every product's candidate shares. The inherited additions are the extra headings some live READMEs carry (History, an MCP server section where supported, and similar); they must be retained in place, and are not deviations. So the structure is not fixed like a template. | Item 1 (SEMANTIC_SHELL and the plan deviation mechanism), items 2 to 4 (planning, renderer and reconciliation keep inherited sections in place) and item 12. Owner-ruled, pending the next governed cut. | STR-25, STR-26, STR-27 |
+| OD-09 | Is the structure a fixed template? The standard allowed a section beyond the standard set only as a justified deviation, while 9/43 live READMEs carry headings of their own. | owner-ruled 2026-10-11 | R5: there are two kinds of structure. The fixed core is the sections every product's candidate shares. The inherited additions are the extra headings some live READMEs carry (History, an MCP server section where supported, and similar); they must be retained in place, and are not deviations. So the structure is not fixed like a template. | Item 1 (SEMANTIC_SHELL and the plan deviation mechanism), items 2 to 4 (planning, renderer and reconciliation keep inherited sections in place) and item 12. Owner-ruled, pending the next governed cut. | STR-25, STR-26, STR-27 |
 | OD-10 | Some live At a Glance diagrams clip their text in boxes too small for it, and some lay the Starting Points, Core Capabilities and Outputs blocks out vertically; recent aspose.org skill changes did not fully fix it. | owner-ruled 2026-10-11 | R7: no clipping, a box grows with its text. The three mother blocks run left to right, each split by key capability, Core included, as some older live revisions drew it. Acceptance is by a real render (STR-28); the defect classes are MERMAID_CLIPPED (DEF-29) and MERMAID_VERTICAL (DEF-30). Cards TC-MMD-01 to TC-MMD-03 in plans/reseal-and-refresh/PLAN.md section 11A. | Item 15 (the At a Glance builder, BC-07 label geometry and the renderer): TC-MMD-03. Owner-ruled, pending the next governed cut. | STR-08, STR-28 |
 <!-- /generated:decisions -->
 
@@ -1027,8 +1027,7 @@ rulings (R5, R7) that were not open questions of the first draft.
   the validator holds equal to the survey) and one survey row (shallow, read-only
   clone, then `build_survey --root <old clones> --root <new clones>`, which keeps every old row
   byte for byte when its clone is unchanged); the validator fails until the registry, the
-  assignments and the survey agree and `api_size_class` matches the survey. The Node.js JMAP
-  library is the next one due.
+  assignments and the survey agree and `api_size_class` matches the survey.
 - **Add an archetype** as `archetypes/<id>.yaml` defining every element of `common.yaml`; the
   validator fails on a missing or unknown element and on an archetype with no member.
 - **Version.** The standard has no version constant until item 11 of §6 lands; until then a

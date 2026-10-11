@@ -361,7 +361,10 @@ def features(text: str, tree: Path | None = None) -> dict[str, Any]:
         "h1_count": len(h1s),
         "h1_text": h1s[0][2] if h1s else None,
         "h1_canonical": bool(
-            h1s and re.match(r"^Aspose\.[A-Za-z0-9]+ FOSS for (?:\.NET|[A-Za-z0-9+#]+)$", h1s[0][2])
+            h1s
+            and re.match(
+                r"^Aspose\.[A-Za-z0-9]+ FOSS for (?:\.NET|Node\.js|[A-Za-z0-9+#]+)$", h1s[0][2]
+            )
         ),
         "h2": h2_names,
     }

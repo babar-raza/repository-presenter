@@ -1354,6 +1354,7 @@ defect_classes:
       - aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp
       - aspose-email-foss/Aspose.JMAP-FOSS-for-Go
       - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js
       - aspose-email-foss/Aspose.JMAP-FOSS-for-Python
       - aspose-email-foss/Aspose.JMAP-FOSS-for-Rust
       - aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript
