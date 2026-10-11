@@ -1,0 +1,568 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "package.json script"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; script \"build\" is defined",
+     "path": "package.json"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "npm run build"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/ci.yml"
+    },
+    {
+     "detail": "1 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; job test runs `npm test`",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "npm test"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "test/client-core.test.ts"
+    },
+    {
+     "detail": null,
+     "path": "test/client-mail.test.ts"
+    },
+    {
+     "detail": null,
+     "path": "test/client-submission.test.ts"
+    },
+    {
+     "detail": null,
+     "path": "test/models/CommonTypes.test.ts"
+    },
+    {
+     "detail": null,
+     "path": "test/models/Comparator.test.ts"
+    },
+    {
+     "detail": "22 files; test suite (22 test sources among the 22 files here)",
+     "path": "test/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "test/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `devDependencies` in the package manifest",
+     "path": "package.json"
+    }
+   ],
+   "id": "dependency:development.types-node",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "@types/node ^20.0.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `devDependencies` in the package manifest",
+     "path": "package.json"
+    }
+   ],
+   "id": "dependency:development.typescript",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "typescript ^5.5.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `dependencies` a consumer would install is declared",
+     "path": "package.json"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 107-117; typescript fence; unit inherited_unit:023.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: EXECUTED; type-checked against aspose-email-foss__Aspose.JMAP-FOSS-for-TypeScript with Version 5.9.3 --noEmit; 8 in the package's own sources; the package's own npm build succeeded (`npm install` exited 0; `npm run build` exited 0)",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import { JmapClient, JmapClientOptions } from \"aspose-jmap-foss-ts\";\n\nconst options: JmapClientOptions = {\n  sessionUrl: \"https://jmap.example.test/.well-known/jmap\",\n  username: \"user@example.test\",\n  password: \"secret\",\n};\nconst client = new JmapClient(options);\nconst session = await client.connect();\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 127-136; typescript fence; unit inherited_unit:027.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: FAILED; example_002.ts(1,16): error TS2304: Cannot find name 'JmapClientOptions'.",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "const options: JmapClientOptions = {\n  sessionUrl: \"https://jmap.example.test/.well-known/jmap\",\n  username: \"\",\n  password: \"\",\n  bearerToken: \"eyJhbGciOi...\", // OAuth access token\n};\nconst client = new JmapClient(options);\nconst session = await client.connect();\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 145-158; typescript fence; unit inherited_unit:030.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; example_003.ts(3,66): error TS18004: No value exists in scope for the shorthand property 'accountId'. Either declare one or provide an initializer.",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "import { Invocation, ResultReference } from \"aspose-jmap-foss-ts\";\n\nconst query = new Invocation({ name: \"Email/query\", arguments: { accountId }, methodCallId: \"c1\" });\nconst get = new Invocation({\n  name: \"Email/get\",\n  arguments: {\n    accountId,\n    \"#ids\": new ResultReference({ resultOf: \"c1\", name: \"Email/query\", path: \"/ids\" }).toJson(),\n  },\n  methodCallId: \"c2\",\n});\nconst resp = await client.sendRequest([query, get], [\"urn:ietf:params:jmap:mail\"]);\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "typescript"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "jmap"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "typescript"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "d8fdf9e8f3367424c3a900271eb3bd0b99c6195e"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "module specifier a consumer of the package imports",
+     "path": "package.json"
+    }
+   ],
+   "id": "import_path:aspose-jmap-foss-ts",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose-jmap-foss-ts"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for TypeScript > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 78-80; paragraph; under Aspose.JMAP FOSS for TypeScript > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:012.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "No package has been published to npm yet; until it is, build the library from source (see\n[Development and Testing](#development-and-testing)). The intended published id is\n`aspose-jmap-foss-ts`:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for TypeScript > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 82-84; code_block; under Aspose.JMAP FOSS for TypeScript > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\nnpm install aspose-jmap-foss-ts\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.JMAP FOSS for TypeScript > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 86-87; paragraph; under Aspose.JMAP FOSS for TypeScript > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:014.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The package ships `.d.ts` type definitions and targets Node.js 18 or later (for the built-in\n`fetch`); the source compiles with a standard `tsconfig` (`tsc`)."
+  },
+  {
+   "attributes": {
+    "build_command": "npm install\nnpm run build",
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the name declared by the manifest",
+     "path": "package.json"
+    },
+    {
+     "detail": "package registry: distribution not found on npm",
+     "path": "https://registry.npmjs.org/aspose-jmap-foss-ts"
+    },
+    {
+     "detail": "verified source build: the package's own build ran `npm install\nnpm run build` against this revision and exited 0; the advertised command is exactly the one it ran",
+     "path": "package.json"
+    }
+   ],
+   "id": "install_command:npm",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript.git\ncd Aspose.JMAP-FOSS-for-TypeScript\nnpm install\nnpm run build"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 28; anchor; text 'Development and Testing'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #development-and-testing exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:017",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#development-and-testing"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; banner illustration",
+     "path": "https://products.aspose.org/media/jmap/typescript/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.org/media/jmap/typescript/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "unresolved",
+    "role": "enterprise"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; enterprise target; platform pages typescript: BROKEN",
+     "path": "https://products.aspose.com/jmap/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.com/jmap/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "BROKEN; product homepage",
+     "path": "https://products.aspose.org/jmap/typescript/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "UNRESOLVED",
+   "value": "https://products.aspose.org/jmap/typescript/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package name declared by the manifest",
+     "path": "package.json"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "aspose-jmap-foss-ts"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "Node runtime the manifest declares under `engines`",
+     "path": "package.json"
+    }
+   ],
+   "id": "package:node_engine",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": ">=18.0.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the manifest",
+     "path": "package.json"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "0.1.0"
+  },
+  {
+   "attributes": {
+    "signature": ": EmailAddress[] | null",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 85; method; re-exported by the package entry point `src/index.ts`",
+     "path": "src/models/Email.ts"
+    }
+   ],
+   "id": "public_symbol:email.from",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Email.from"
+  },
+  {
+   "attributes": {
+    "signature": ": string",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 16; method; re-exported by the package entry point `src/index.ts`",
+     "path": "src/models/EmailBodyPart.ts"
+    }
+   ],
+   "id": "public_symbol:emailbodypart.type",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "EmailBodyPart.type"
+  },
+  {
+   "attributes": {
+    "signature": ": string",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 38; method; re-exported by the package entry point `src/index.ts`",
+     "path": "src/models/CommonTypes.ts"
+    }
+   ],
+   "id": "public_symbol:jmapprotocolerror.type",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "JmapProtocolError.type"
+  },
+  {
+   "attributes": {
+    "signature": ": string",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 156; method; re-exported by the package entry point `src/index.ts`",
+     "path": "src/models/CommonTypes.ts"
+    }
+   ],
+   "id": "public_symbol:methoderror.type",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "MethodError.type"
+  },
+  {
+   "attributes": {
+    "signature": ": string",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 73; method; re-exported by the package entry point `src/index.ts`",
+     "path": "src/models/CommonTypes.ts"
+    }
+   ],
+   "id": "public_symbol:seterror.type",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "SetError.type"
+  }
+ ],
+ "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript",
+ "schema_version": 1,
+ "source_revision": "d8fdf9e8f3367424c3a900271eb3bd0b99c6195e"
+}

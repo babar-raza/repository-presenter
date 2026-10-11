@@ -1,0 +1,476 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; standard `mvn package` for the project declared in pom.xml; no workflow step or script names it",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "mvn package"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/maven-central-release.yml"
+    },
+    {
+     "detail": "1 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "docs/api-diff-26.1.0.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/directory-structures.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/foss-java-progress.md"
+    },
+    {
+     "detail": "3 files; documentation directory",
+     "path": "docs/"
+    }
+   ],
+   "id": "build_test_asset:docs",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "docs/"
+  },
+  {
+   "attributes": {
+    "role": "release workflow",
+    "workflow": ".github/workflows/maven-central-release.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "release step; job release-deploy runs gh release",
+     "path": ".github/workflows/maven-central-release.yml"
+    }
+   ],
+   "id": "build_test_asset:release-workflow",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/maven-central-release.yml"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; standard `mvn test` for the project declared in pom.xml, which has tests in the tree; no workflow step or script names it",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "mvn test"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "src/test/java/com/aspose/threed/ArrayListAdapterTests.java"
+    },
+    {
+     "detail": null,
+     "path": "src/test/java/com/aspose/threed/ColladaTests.java"
+    },
+    {
+     "detail": null,
+     "path": "src/test/java/com/aspose/threed/FormatDetectionTests.java"
+    },
+    {
+     "detail": null,
+     "path": "src/test/java/com/aspose/threed/GltfFormatTest.java"
+    },
+    {
+     "detail": null,
+     "path": "src/test/java/com/aspose/threed/MaterialTests.java"
+    },
+    {
+     "detail": "11 files; test suite (11 test sources among the 11 files here)",
+     "path": "src/test/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "src/test/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared with `<scope>test</scope>`, never resolved for a consumer",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:development.org.junit.jupiter-junit-jupiter",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "org.junit.jupiter:junit-jupiter 5.10.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "every `<dependency>` the POM declares is `test`, `provided` or optional",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "3d"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Java"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 584-584; heading; under Aspose.3D FOSS for Java",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:071.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## Scope and Limitations"
+  },
+  {
+   "attributes": {
+    "repository_files": "FILE_FORMATS.md",
+    "section": "Aspose.3D FOSS for Java > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 586-594; list; under Aspose.3D FOSS for Java > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:072.list",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "- STL (import and export) is the only format that is fully functional in the published `26.5.0` package; a handful of other formats have recognized options classes registered with `FileFormat` but no working load/save path behind them in that package — see [FILE_FORMATS.md](FILE_FORMATS.md) for format-by-format notes, keeping in mind its summary table and later detail sections don't fully agree with each other.\n- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issues in this repository, and build from source instead if you need it).\n- Several of the recognized-but-unfinished formats above fail silently rather than with an error: loading or saving through them can return successfully while producing no real data, so don't rely on catching an exception to detect the gap — check the actual output.\n- Additional format coverage beyond STL (including proprietary and high-performance formats) is a commercial-edition feature; see the closing note below.\n- A handful of primitive-shape classes have a mesh-conversion method that is present but not yet implemented; `Box`, `Cylinder`, `Sphere`, and `Dish` are confirmed to convert correctly.\n- `NurbsCurve` exposes its full control-point/knot/degree data model, but sampling points along the curve is not yet implemented.\n- `PbrSpecularMaterial`'s accessors are unimplemented in this edition; the PBR material capability described above uses the alternative that works.\n- Licensing, trial, and DRM-related functionality (`License`, `Metered`) is intentionally excluded, as are cryptographic helpers and ZIP-packaged file-system read/write — none of these apply to the FOSS edition.\n- Scene rendering is not implemented in this edition."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.3D FOSS for Java > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 596-600; paragraph; under Aspose.3D FOSS for Java > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:073.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "These limitations are specific to the FOSS edition and don't apply to\n[Aspose.3D for Java — Enterprise Edition](https://products.aspose.com/3d/java/), which adds\nbroader format support (including glTF, FBX, USD, PDF, A3DW, and JT), full mesh conversion for\nevery primitive, NURBS curve evaluation, rendering, and additional API surface — simply swap to\nthe commercial package; no separate trial download is required."
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the coordinate the `pom.xml` manifest declares",
+     "path": "pom.xml"
+    },
+    {
+     "detail": "package registry: found on maven",
+     "path": "https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml"
+    }
+   ],
+   "id": "install_command:maven",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 586; relative; text 'FILE_FORMATS.md'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains FILE_FORMATS.md",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:030",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "FILE_FORMATS.md"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 596; external; text 'Aspose.3D for Java — Enterprise Edition'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.com/3d/java/"
+    }
+   ],
+   "id": "link_target:031",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/3d/java/"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/3d/java/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/3d/java/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "java",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug java",
+     "path": "https://products.aspose.com/3d/java/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/3d/java/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/3d/java/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/3d/java/"
+  },
+  {
+   "attributes": {
+    "floor_declaration": "maven.compiler.target"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`maven.compiler.target` declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:java_release",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "21"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`groupId` and `artifactId` declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "org.aspose:aspose-3d-foss"
+  },
+  {
+   "attributes": {
+    "registry": "maven",
+    "version_count": "1"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the maven registry lists for the package; the registry's state, not the repository's; the registry lists 1 version in all",
+     "path": "https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.5.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the POM",
+     "path": "pom.xml"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.5.0"
+  }
+ ],
+ "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+ "schema_version": 1,
+ "source_revision": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3"
+}

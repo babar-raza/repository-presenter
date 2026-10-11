@@ -1,0 +1,589 @@
+{
+ "facts": [
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/ci.yml"
+    },
+    {
+     "detail": null,
+     "path": ".github/workflows/nuget-release.yml"
+    },
+    {
+     "detail": "2 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "ci matrix",
+    "workflow": ".github/workflows/ci.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "job build strategy.matrix axes os",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "build_test_asset:ci-matrix",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "os=ubuntu-22.04,ubuntu-24.04,macos-14,windows-2022,windows-2025"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "docs/media/banner-readme.png"
+    },
+    {
+     "detail": null,
+     "path": "docs/nuget/README.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/nuget/icon.png"
+    },
+    {
+     "detail": "3 files; documentation directory",
+     "path": "docs/"
+    }
+   ],
+   "id": "build_test_asset:docs",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "docs/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "examples/consumer/CMakeLists.txt"
+    },
+    {
+     "detail": null,
+     "path": "examples/consumer/main.cpp"
+    },
+    {
+     "detail": null,
+     "path": "examples/nuget-consumer/README.md"
+    },
+    {
+     "detail": null,
+     "path": "examples/nuget-consumer/main.cpp"
+    },
+    {
+     "detail": null,
+     "path": "examples/nuget-consumer/nuget-consumer.vcxproj"
+    },
+    {
+     "detail": "5 files; example directory",
+     "path": "examples/"
+    }
+   ],
+   "id": "build_test_asset:examples",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "examples/"
+  },
+  {
+   "attributes": {
+    "role": "release workflow",
+    "workflow": ".github/workflows/nuget-release.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "release step; job publish runs nuget push",
+     "path": ".github/workflows/nuget-release.yml"
+    }
+   ],
+   "id": "build_test_asset:release-workflow",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/nuget-release.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Slides.Foss.IntegrationTests/connector_test.cpp"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Slides.Foss.IntegrationTests/document_properties_test.cpp"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Slides.Foss.IntegrationTests/effect_format_test.cpp"
+    },
+    {
+     "detail": null,
+     "path": "tests/Aspose.Slides.Foss.IntegrationTests/fill_format_test.cpp"
+    },
+    {
+     "detail": "124 files; test suite (124 test sources among the 137 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `find_package`; not on the library target's public link interface, so it belongs to this repository's own build",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "dependency:development.asposeslidesfoss",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "AsposeSlidesFoss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `FetchContent_Declare`; not on the library target's public link interface, so it belongs to this repository's own build",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "dependency:development.googletest",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "googletest"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `find_package`; not on the library target's public link interface, so it belongs to this repository's own build",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "dependency:development.gtest",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "GTest"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `find_package`; not on the library target's public link interface, so it belongs to this repository's own build",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "dependency:development.miniz",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "miniz"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "declared by `find_package` and on `AsposeSlidesFoss`'s public link interface, so a consumer links it too",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "dependency:pugixml",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pugixml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "cpp"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "slides"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "cpp"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "469ce77a07b988c49deb930632b8276c89ec6b66"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "CMake target a consumer links against `add_library`",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "import_path:asposeslidesfoss",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "AsposeSlidesFoss"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for C++ > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 755-757; paragraph; under Aspose.Slides FOSS for C++ > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:101.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Nothing below is a \"coming soon\" — the member named in each item below is the one that doesn't\nexist, so a call to it is a compile error rather than a silent no-op, plus two defects worth\nknowing about before you rely on them."
+  },
+  {
+   "attributes": {
+    "repository_files": "powerpoint_title_and_content.pptx,tests/test_data/powerpoint_title_and_content.pptx",
+    "section": "Aspose.Slides FOSS for C++ > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 759-826; list; under Aspose.Slides FOSS for C++ > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:102.list",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "- **Not in the public API**: charts, SmartArt, OLE objects, and mathematical text (no\n  `ShapeCollection::add_chart` or equivalent for the rest); animations and slide transitions (no\n  timeline, no transition type); group shapes (no `ShapeCollection::add_group_shape`); hyperlinks\n  and action settings (no `set_hyperlink_click` on a portion format or a shape); slide backgrounds\n  and themes (no `Slide::background`, no `Presentation::master_theme`); slide size (no\n  `Presentation::slide_size` — a new deck is 4:3, `cx=9144000 cy=6858000`, from the bundled\n  template, with no supported way to change it); saving to a stream (the only `save()` overload\n  takes a path); adding an image from a path or a stream (the only overload is\n  `add_image(std::span<const std::uint8_t>)`); and export to non-PPTX-family formats (PDF, HTML,\n  SVG, images), VBA macros, and digital signatures — see Save formats below.\n- **Sections exist in name only**: `ISection` is declared (a single, member-less interface) and\n  nothing implements it — there is no `Presentation::sections()` and no concrete `Section` class.\n- These are defects, not missing features — the call succeeds and the object model agrees with the\n  caller afterward. **`slides().add_clone()` loses the source shapes' text.** The clone is\n  registered, the shape arrives with its geometry, rotation, and name copied — but the copy only\n  calls `add_auto_shape()` plus `set_rotation()`/`set_name()`; the source's text frame is never\n  copied, so the cloned shape has no text.\n- **`masters().add_clone()` does not reach the file.** The in-memory clone gets its own shapes and\n  layout slides copied, but the saved package's `<p:sldMasterIdLst>` and `ppt/slideMasters/` parts\n  don't reflect it.\n- **Save formats**: `save()` writes six Office Open XML presentation formats — `Pptx`, `Pptm`,\n  `Ppsx`, `Ppsm`, `Potx`, and `Potm` — sharing one package layout that differs only in the content\n  type of the main presentation part; the three macro-enabled ones are written without a VBA\n  project, since macros aren't supported. Every other `SaveFormat` value (`Pdf`, `Html`, `Odp`,\n  `Ppt`, image formats, and the rest) throws `std::invalid_argument` — it used to return\n  successfully, having written a PPTX under the requested name, leaving the caller with a file\n  PowerPoint refuses to open and nothing to indicate why:\n\n  ```cpp\n  pres.save(\"report.pdf\", SaveFormat::PDF);  // throws std::invalid_argument\n  ```\n\n  The format decides the content type and\n  the file name decides nothing: `save(\"deck.pptx\", SaveFormat::POTX)` writes a correct template\n  under a `.pptx` name, and PowerPoint refuses a file whose extension and content type disagree —\n  name the file for the format you asked for.\n- **Placeholder geometry**: `Shape::x()`/`y()`/`width()`/`height()` resolve placeholder\n  inheritance — a placeholder with no `a:xfrm` of its own reports the position and size it takes\n  from its layout or master. The XML-level accessor `Shape::get_xfrm()` does not: it returns this\n  shape's own `a:xfrm` and an empty node when there is none. It used to return the inherited\n  element itself — which lives in a layout or master part shared by every slide that uses it and\n  must never be handed out for mutation, and which was parsed into a document already destroyed by\n  the time it was read, making that read undefined behaviour. Read inherited geometry with\n  `Shape::get_inherited_frame()`, which returns a value; `get_inherited_xfrm()` has been removed.\n- **What a load and a save do to a part this library does not model**: a part it did not itself\n  write is carried through unchanged. Opening this repository's own 13-part, hand-authored fixture\n  (`tests/test_data/powerpoint_title_and_content.pptx`, with placeholders that inherit their\n  geometry from the layout) and saving it again produces 13 parts, none added, none dropped, 10 of\n  the 13 byte-identical, with the text preserved. The three that differ are the three this library\n  regenerates on every save, deliberately: `[Content_Types].xml`, `docProps/app.xml` (deck\n  statistics recounted from the slides list), and `docProps/core.xml` (`dcterms:modified` is\n  stamped).\n- Unknown XML parts encountered during load are preserved verbatim on save, so opening and\n  re-saving a file never strips content this library doesn't yet understand.\n- **pugixml is a leak of an implementation detail into the interface** (see\n  [Installation](#installation) for the consumer-facing consequence), disclosed here rather than\n  quietly fixed because the fix is not small: the classes expose XML-backed entry points —\n  `init_internal(pugi::xml_node, ...)`, `get_sp_pr()`, `ensure_xfrm()`, and their neighbours — which\n  are called across translation-unit boundaries and by the test suite, so they can't simply be\n  moved into a `.cpp`. Removing pugixml from the interface means giving those classes an opaque\n  handle or a pimpl and rewriting every one of the 172 uses of `pugi::` in the public headers\n  (246 total in `include/`, of which 74 are under `_internal/`) along with the 266 call sites\n  behind them in `src/` — counts a few `grep` commands still print today, and a rewrite of the\n  XML-backing layer, not an edit to the headers. Until\n  that happens: pugixml must be installable and discoverable wherever this library is used; a\n  consumer compiles against pugixml's headers, so a pugixml major-version change is a breaking\n  change for this library too; and pugixml is declared as an ordinary public dependency in the\n  packaging drafts under `packaging/`, never as a private or vendored one."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for C++ > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 828-831; paragraph; under Aspose.Slides FOSS for C++ > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:103.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "These limitations don't apply to\n[Aspose.Slides for C++ — Enterprise Edition](https://products.aspose.com/slides/cpp/), which adds\nbroader format support (including PDF, HTML, and image export), charts, animations, and full\ncommercial support."
+  },
+  {
+   "attributes": {
+    "build_command": "cmake -S . -B build\ncmake --build build",
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "source build for the CMake project the manifest declares; C++ has no package registry to install from",
+     "path": "CMakeLists.txt"
+    },
+    {
+     "detail": "package registry: none could not be read",
+     "path": "no package registry"
+    },
+    {
+     "detail": "verified source build: the package's own build ran `cmake -S . -B build\ncmake --build build` against this revision and exited 0; the advertised command is exactly the one it ran",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "install_command:cmake",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git\ncd Aspose.Slides-FOSS-for-Cpp\ncmake -S . -B build\ncmake --build build"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 13; anchor; text 'Installation'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #installation exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:013",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#installation"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 828; external; text 'Aspose.Slides for C++ — Enterprise Edition'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.com/slides/cpp/"
+    }
+   ],
+   "id": "link_target:031",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/slides/cpp/"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/slides/cpp/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/slides/cpp/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "cpp",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug cpp",
+     "path": "https://products.aspose.com/slides/cpp/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/slides/cpp/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/slides/cpp/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/slides/cpp/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lowest CMake version `cmake_minimum_required` accepts",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "package:cmake_minimum",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "3.20"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "C++ standard the project's own build requires",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "package:cxx_standard",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "20"
+  },
+  {
+   "attributes": {
+    "registry": "nuget"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "NuGet package the repository's own README names",
+     "path": "README.md"
+    },
+    {
+     "detail": "package registry: found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.slides.cpp.foss/index.json"
+    }
+   ],
+   "id": "package:distribution.aspose.slides.cpp.foss",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Slides.Cpp.FOSS"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "project name declared by `project()`",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "AsposeSlidesFoss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by `project(... VERSION ...)`",
+     "path": "CMakeLists.txt"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.9.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "third-party notices file at the root",
+     "path": "THIRD_PARTY_NOTICES"
+    }
+   ],
+   "id": "third_party_notices:file",
+   "kind": "third_party_notices",
+   "polarity": "SUPPORTED",
+   "value": "THIRD_PARTY_NOTICES"
+  }
+ ],
+ "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+ "schema_version": 1,
+ "source_revision": "469ce77a07b988c49deb930632b8276c89ec6b66"
+}

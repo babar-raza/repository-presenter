@@ -65,7 +65,7 @@ from repository_presenter.components.readme.composition.output_bounds import (
     largest_slot_citation_count,
     omittable_count,
 )
-from repository_presenter.core.facts import FactsDocument, bounded_records
+from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -341,6 +341,20 @@ _CONTENT_TOKEN = re.compile(r"[a-z0-9][a-z0-9+./_-]{2,}")
 _NEUTRAL_FACT_KINDS = frozenset({"identity", "package"})
 
 
+def _printed_command(fact: Fact) -> bool:
+    """Whether ``fact`` records a command the renderer prints verbatim in a fenced block: the
+    install command, a build or test command. A unit never carries a command (``unit_checks``
+    refuses one: "text contains a command ('pip install')"), so a coherence revision that drops
+    the citation of one loses nothing a reader could have read there - and a check that demanded
+    its text back would contradict that rule (wave 6, Email-Python: attempt 1 rejected for
+    dropping ``install_command:pip``, attempt 2 restored ``pip install aspose-email-foss`` and was
+    rejected for the command, and the job failed with both rules unsatisfiable)."""
+    return fact.kind == "install_command" or (
+        fact.kind == "build_test_asset"
+        and str((fact.attributes or {}).get("role", "")).endswith("command")
+    )
+
+
 def _content_tokens(text: str) -> frozenset[str]:
     """The lower-cased, three-or-more-character tokens ``text`` spells - a coarse but cheap
     proxy for "this text still mentions this content", good enough to tell a genuine restatement
@@ -367,7 +381,12 @@ def _dropped_untraced_fact_ids(
     untraced: list[str] = []
     for fact_id in dropped:
         fact = by_id.get(fact_id)
-        if fact is None or fact.polarity != "SUPPORTED" or fact.kind in _NEUTRAL_FACT_KINDS:
+        if (
+            fact is None
+            or fact.polarity != "SUPPORTED"
+            or fact.kind in _NEUTRAL_FACT_KINDS
+            or _printed_command(fact)
+        ):
             continue
         value_tokens = _content_tokens(fact.value)
         if value_tokens and value_tokens & revised_tokens:

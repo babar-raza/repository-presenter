@@ -1,0 +1,400 @@
+{
+ "facts": [
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "aspose_psd_foss_test/__init__.py"
+    },
+    {
+     "detail": null,
+     "path": "aspose_psd_foss_test/asposecompatibilitytests.py"
+    },
+    {
+     "detail": null,
+     "path": "aspose_psd_foss_test/colordatatests.py"
+    },
+    {
+     "detail": null,
+     "path": "aspose_psd_foss_test/fixturedocumenttests.py"
+    },
+    {
+     "detail": null,
+     "path": "aspose_psd_foss_test/imagedatatests.py"
+    },
+    {
+     "detail": "test suite; 26 files here, test sources not told apart",
+     "path": "aspose_psd_foss_test/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss_test/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 97-102; python fence; unit inherited_unit:015.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import sys\nsys.path.insert(0, \"/path/to/Aspose.PSD-FOSS-for-Python\")\n\nfrom aspose_psd_foss.psdimage import PsdImage\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 134-167; python fence; unit inherited_unit:026.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.psd",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    },
+    {
+     "detail": "staged as output.psd",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose_psd_foss.psdimage import PsdImage\nfrom aspose_psd_foss.layers.blendmode import BlendMode\n\nimage = PsdImage.load(\"input.psd\")\n\nprint(image.width)\nprint(image.height)\nprint(image.channels_count)\nprint(image.bits_per_channel)\nprint(image.color_mode)\nprint(image.version)\nprint(image.compression)\nprint(len(image.layers))\nprint(len(image.image_resources))\n\nfor layer in image.layers:\n    print(layer.name)\n    print(layer.bounds)\n    print(layer.blend_mode_key)\n    print(layer.is_visible)\n    print(layer.opacity)\n\nlayer = image.layers[0]\nlayer.name = \"Updated layer\"\nlayer.is_visible = False\nlayer.left = 10\nlayer.top = 20\nlayer.right = 110\nlayer.bottom = 120\nlayer.opacity = 128\nlayer.blend_mode_key = BlendMode.MULTIPLY\nimage.save(\"output.psd\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 179-194; python fence; unit inherited_unit:031.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.psd",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    },
+    {
+     "detail": "staged as output.psd",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose_psd_foss.psdimage import PsdImage\nfrom aspose_psd_foss.layers.blendmode import BlendMode\n\nimage = PsdImage.load(\"input.psd\")\nlayer = image.layers[0]\nlayer.name = \"Updated layer\"\nlayer.is_visible = False\nlayer.opacity = 128\nlayer.blend_mode_key = BlendMode.MULTIPLY\nlayer.clipping = 1\nlayer.left += 1\nlayer.top += 1\nlayer.bottom += 1\nimage.save(\"output.psd\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 201-212; python fence; unit inherited_unit:034.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.psd",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import io\n\nfrom aspose_psd_foss.psdimage import PsdImage\n\nwith open(\"input.psd\", \"rb\") as f:\n    data = f.read()\n\nstream = io.BytesIO(data)\nimage = PsdImage.load(stream)\nprint(image.width, image.height)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 138; example 2: input .psd",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 183; example 3: input .psd",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 206; example 4: input .psd",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.psd; example 4 read it: EXECUTED",
+     "path": "aspose_psd_foss_test/testdata/basic-indexed.psd"
+    }
+   ],
+   "id": "format:input.psd",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".psd"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "line 166; example 2: output .psd",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "line 193; example 3: output .psd",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; IndexError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    }
+   ],
+   "id": "format:output.psd",
+   "kind": "format",
+   "polarity": "UNRESOLVED",
+   "value": ".psd"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "psd"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "dbc90f46f7ef405748885aaf44cecd6e74461e8d"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PSD-FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 93-95; paragraph; under Aspose.PSD-FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:014.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "That last line is a smoke test — if it prints the class instead of raising\n`ModuleNotFoundError`, the library is importable. In your own project, either run from inside\nthis checkout or add it to `sys.path`/`PYTHONPATH`:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PSD-FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 97-102; code_block; under Aspose.PSD-FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:015.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```python\nimport sys\nsys.path.insert(0, \"/path/to/Aspose.PSD-FOSS-for-Python\")\n\nfrom aspose_psd_foss.psdimage import PsdImage\n```"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/psd/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/psd/python/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "python",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug python-net",
+     "path": "https://products.aspose.com/psd/python-net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/psd/python-net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/psd/python/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/psd/python/"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss"
+  },
+  {
+   "attributes": {
+    "docstring": "Python port of Aspose.PSD.FileFormats.Psd.PsdImage",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/psdimage.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.psdimage",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.psdimage"
+  },
+  {
+   "attributes": {
+    "docstring": "Represents a PSD image that can be loaded, inspected, and saved without rendering.",
+    "signature": "class PsdImage(Image)",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 38; class; public by name",
+     "path": "aspose_psd_foss/psdimage.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.psdimage.psdimage",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.psdimage.PsdImage"
+  }
+ ],
+ "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "dbc90f46f7ef405748885aaf44cecd6e74461e8d"
+}

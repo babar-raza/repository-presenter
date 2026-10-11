@@ -1,0 +1,767 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "Makefile"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; target build is defined",
+     "path": "Makefile"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "make build"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "Makefile"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; target test is defined",
+     "path": "Makefile"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "make test"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/common/test_utils.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/image/test_glyph_fill_policy.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/image/test_raster_output.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/image/test_xps_raster_integration.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/mcp/test_handlers.py"
+    },
+    {
+     "detail": "50 files; test suite (50 test sources among the 66 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.test.pillow",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "Pillow"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.test.pypdf",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pypdf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'test' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.test.pypdfium2",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pypdfium2"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install requirement declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:skia-python",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "skia-python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 137-145; python fence; unit inherited_unit:029.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.ps",
+     "path": "testdata/ps/integration/PAGENET-79-1.ps"
+    },
+    {
+     "detail": "staged as output.pdf",
+     "path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.page.mcp.handlers import ps_to_pdf\nfrom aspose.page.mcp.types import McpInput, McpOutput\n\nresult = ps_to_pdf(\n    McpInput(input_path=\"input.ps\", input_bytes_b64=None),\n    McpOutput(output_path=\"output.pdf\", return_bytes=False),\n)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 149-158; python fence; unit inherited_unit:031.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.ps",
+     "path": "testdata/ps/integration/PAGENET-79-1.ps"
+    },
+    {
+     "detail": "staged as output.png",
+     "path": "testdata/xps/integration/avatar.png"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.page.ps.document import PsDocument\nfrom aspose.page.ps.output import ImageSaveOptions\n\nps = PsDocument.from_file(\"input.ps\")\ndata = ps.to_image(ImageSaveOptions(format=\"png\", dpi=150))\n\nwith open(\"output.png\", \"wb\") as f:\n    f.write(data)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 168-185; python fence; unit inherited_unit:035.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import aspose.page.ps  # works around a module import-order issue in aspose.page.pdf.writer\nfrom aspose.page.common.render_model import RenderModelBuilder, Matrix\nfrom aspose.page.pdf.writer import PdfWriter, PdfMetadata\n\nbuilder = RenderModelBuilder()\nbuilder.begin_page(100, 100)\nbuilder.add_text(\"Hello, Aspose.Page\", \"Helvetica\", 12, Matrix.identity(), None)\nbuilder.end_page()\ndoc = builder.document()\n\nmetadata = PdfMetadata(\n    title=\"\", creator=\"\", producer=\"Aspose.Page FOSS for Python\",\n    creation_date=\"D:20260101000000\", mod_date=\"D:20260101000000\", trapped=False,\n)\nwriter = PdfWriter(metadata)\npdf_bytes = writer.write(doc)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 206-212; python fence; unit inherited_unit:045.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.eps",
+     "path": "testdata/ps/integration/PAGEJAVA-73-2.eps"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.page.mcp.handlers import eps_metadata\nfrom aspose.page.mcp.types import McpInput\n\nmeta = eps_metadata(McpInput(input_path=\"input.eps\", input_bytes_b64=None))\nprint(meta[\"bounding_box\"], meta[\"title\"])\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 216-224; python fence; unit inherited_unit:047.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.xps",
+     "path": "testdata/xps/integration/transforms.xps"
+    },
+    {
+     "detail": "staged as output.pdf",
+     "path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+    }
+   ],
+   "id": "example:005",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.page.mcp.handlers import xps_to_pdf\nfrom aspose.page.mcp.types import McpInput, McpOutput\n\nresult = xps_to_pdf(\n    McpInput(input_path=\"input.xps\", input_bytes_b64=None),\n    McpOutput(output_path=\"output.pdf\", return_bytes=False),\n)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 228-242; python fence; unit inherited_unit:049.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 6: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as blank.png",
+     "path": "testdata/xps/integration/avatar.png"
+    }
+   ],
+   "id": "example:006",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "import aspose.page.ps  # works around a module import-order issue in aspose.page.image.raster_renderer\nfrom aspose.page.common.render_model import RenderDocument, RenderPage\nfrom aspose.page.image.raster_renderer import RasterRenderer\nfrom aspose.page.image.encoders import encode_png\n\ndoc = RenderDocument()\ndoc.pages.append(RenderPage(width=200, height=100))\n\nsurface = RasterRenderer(dpi=144).render(doc)\npng_bytes = encode_png(surface, dpi=144)\n\nwith open(\"blank.png\", \"wb\") as f:\n    f.write(png_bytes)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 249-258; python fence; unit inherited_unit:052.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 7: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as input.xps",
+     "path": "testdata/xps/integration/transforms.xps"
+    },
+    {
+     "detail": "staged as output.png",
+     "path": "testdata/xps/integration/avatar.png"
+    }
+   ],
+   "id": "example:007",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose.page.xps.document import XpsDocument\nfrom aspose.page.ps.output import ImageSaveOptions\n\ndoc = XpsDocument.from_file(\"input.xps\")\ndata = doc.to_image(ImageSaveOptions(format=\"png\", dpi=150))\n\nwith open(\"output.png\", \"wb\") as f:\n    f.write(data)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 265-270; python fence; unit inherited_unit:055.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 8: FAILED; ImportError; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:008",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose.page.mcp import create_server\n\nserver = create_server()\nserver.run(host=\"127.0.0.1\", port=8000)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as input.eps; example 4 read it: EXECUTED",
+     "path": "testdata/ps/integration/PAGEJAVA-73-2.eps"
+    }
+   ],
+   "id": "format:input.eps",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".eps"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as output.pdf; example 1 read it: EXECUTED",
+     "path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+    },
+    {
+     "detail": "staged as output.pdf; example 5 read it: EXECUTED",
+     "path": "testdata/ps/baseline/ps2pdf/functional/images09/PAGEJAVA-242~.pdf"
+    }
+   ],
+   "id": "format:input.pdf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".pdf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 156; example 2: input .png",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as output.png; example 2 read it: EXECUTED",
+     "path": "testdata/xps/integration/avatar.png"
+    },
+    {
+     "detail": "line 240; example 6: input .png",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 6: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as blank.png; example 6 read it: EXECUTED",
+     "path": "testdata/xps/integration/avatar.png"
+    },
+    {
+     "detail": "line 256; example 7: input .png",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 7: EXECUTED; exit 0; ran against the repository source tree; the package would not build",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as output.png; example 7 read it: EXECUTED",
+     "path": "testdata/xps/integration/avatar.png"
+    }
+   ],
+   "id": "format:input.png",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".png"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as input.ps; example 1 read it: EXECUTED",
+     "path": "testdata/ps/integration/PAGENET-79-1.ps"
+    },
+    {
+     "detail": "staged as input.ps; example 2 read it: EXECUTED",
+     "path": "testdata/ps/integration/PAGENET-79-1.ps"
+    }
+   ],
+   "id": "format:input.ps",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".ps"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as input.xps; example 5 read it: EXECUTED",
+     "path": "testdata/xps/integration/transforms.xps"
+    },
+    {
+     "detail": "staged as input.xps; example 7 read it: EXECUTED",
+     "path": "testdata/xps/integration/transforms.xps"
+    }
+   ],
+   "id": "format:input.xps",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".xps"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "page"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-page-foss/Aspose.Page-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose/page/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose.page",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose.page"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Page FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 86-86; paragraph; under Aspose.Page FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:012.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Install the package from PyPI:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Page FOSS for Python > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 88-90; code_block; under Aspose.Page FOSS for Python > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npip install aspose-page-foss\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Page FOSS for Python > Development and Testing"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 572-572; paragraph; under Aspose.Page FOSS for Python > Development and Testing",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:094.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Run only the MCP-focused checks:"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Page FOSS for Python > Development and Testing"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 574-576; code_block; under Aspose.Page FOSS for Python > Development and Testing",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:095.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\npython3 -m unittest tests.mcp.test_handlers tests.mcp.test_server\n```"
+  },
+  {
+   "attributes": {
+    "source_checkout_unverified": "no example executed against a build of this checkout that succeeded"
+   },
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    },
+    {
+     "detail": "package registry: a distribution of this name exists, but ownership not confirmed: the registry lists no source repository to compare with this one",
+     "path": "https://pypi.org/pypi/aspose-page-foss/json"
+    }
+   ],
+   "id": "install_command:pip",
+   "kind": "install_command",
+   "polarity": "UNRESOLVED",
+   "value": "pip install aspose-page-foss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE.txt"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE.txt"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE.txt"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/page/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/page/python/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "python",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug python-net",
+     "path": "https://products.aspose.com/page/python-net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/page/python-net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/page/python/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/page/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "aspose-page-foss"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "python_requires declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:python_requires",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": ">=3.10"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose"
+  },
+  {
+   "attributes": {
+    "docstring": "Aspose.Page FOSS for Python.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose/page/__init__.py"
+    }
+   ],
+   "id": "public_symbol:aspose.page",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.page"
+  },
+  {
+   "attributes": {
+    "docstring": "XPS package loading utilities.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose/page/xps/package.py"
+    }
+   ],
+   "id": "public_symbol:aspose.page.xps.package",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose.page.xps.package"
+  }
+ ],
+ "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+}

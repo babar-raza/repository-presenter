@@ -1,0 +1,552 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; standard `dotnet build Aspose.Imaging.Foss.sln` for the project declared in Aspose.Imaging.Foss.sln; no workflow step or script names it",
+     "path": "Aspose.Imaging.Foss.sln"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet build Aspose.Imaging.Foss.sln"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/ci.yml"
+    },
+    {
+     "detail": null,
+     "path": ".github/workflows/release.yml"
+    },
+    {
+     "detail": "2 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "ci matrix",
+    "workflow": ".github/workflows/ci.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "job build-and-test strategy.matrix axes os",
+     "path": ".github/workflows/ci.yml"
+    }
+   ],
+   "id": "build_test_asset:ci-matrix",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "os=ubuntu-latest,windows-latest"
+  },
+  {
+   "attributes": {
+    "role": "release workflow",
+    "workflow": ".github/workflows/release.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "release step; job publish runs nuget push",
+     "path": ".github/workflows/release.yml"
+    }
+   ],
+   "id": "build_test_asset:release-workflow",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/release.yml"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; standard `dotnet test Aspose.Imaging.Foss.sln` for the project declared in Aspose.Imaging.Foss.sln, which has tests in the tree; no workflow step or script names it",
+     "path": "Aspose.Imaging.Foss.sln"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet test Aspose.Imaging.Foss.sln"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs"
+    },
+    {
+     "detail": "1 files; test suite (1 test sources among the 5 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `PackageReference` a consumer would install is declared",
+     "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 153-163; csharp fence; unit inherited_unit:029.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: FAILED; Program.cs(8,38): error CS0103: The name 'bytes' does not exist in the current context",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "using Aspose.Imaging.Foss;\n\n// From a file path\nvar info = ImageProbe.ProbeFile(\"photo.jpg\");\nConsole.WriteLine($\"{info.Format}: {info.Width}x{info.Height}, {info.BitDepth}-bit\");\n\n// From a stream (seekable or not) or a byte array\nvar format = ImageProbe.DetectFormat(bytes);\nvar info2 = ImageProbe.Probe(stream);\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 179-184; csharp fence; unit inherited_unit:035.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: FAILED; Program.cs(3,58): error CS0103: The name 'cancellationToken' does not exist in the current context",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "using Aspose.Imaging.Foss;\n\nvar info = await ImageProbe.ProbeFileAsync(\"upload.png\", cancellationToken);\nConsole.WriteLine($\"{info.Format}: {info.Width}x{info.Height}\");\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 192-197; csharp fence; unit inherited_unit:038.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: EXECUTED; compiled against Aspose.Imaging.Foss.csproj; SDK 10.0.401",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "using Aspose.Imaging.Foss;\n\nvar info = ImageProbe.ProbeFile(\"animation.gif\");\nConsole.WriteLine($\"{info.Format}: {info.FrameCount} frame(s)\");\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 204-209; csharp fence; unit inherited_unit:041.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: FAILED; Program.cs(3,27): error CS0103: The name 'GetUploadStream' does not exist in the current context",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "using Aspose.Imaging.Foss;\n\nusing var networkStream = GetUploadStream(); // CanSeek == false\nvar format = ImageProbe.DetectFormat(networkStream);\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "imaging"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "6ebb2091ad016a46489bef65eaad0f1eb9843e1a"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Imaging FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 111-111; paragraph; under Aspose.Imaging FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:015.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Build and install from a clone of the repository:"
+  },
+  {
+   "attributes": {
+    "repository_files": "Aspose.Imaging.Foss.csproj,src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj",
+    "section": "Aspose.Imaging FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 113-117; code_block; under Aspose.Imaging FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:016.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\ngit clone https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET.git\ncd Aspose.Imaging-FOSS-for-.NET\ndotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj -c Release\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Imaging FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 119-119; paragraph; under Aspose.Imaging FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:017.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Reference the built assembly from another project, or add the project directly:"
+  },
+  {
+   "attributes": {
+    "repository_files": "Aspose.Imaging.Foss,Aspose.Imaging.Foss.csproj",
+    "section": "Aspose.Imaging FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 121-123; code_block; under Aspose.Imaging FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:018.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```xml\n<ProjectReference Include=\"..\\Aspose.Imaging-FOSS-for-.NET\\src\\Aspose.Imaging.Foss\\Aspose.Imaging.Foss.csproj\" />\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Imaging FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 125-127; paragraph; under Aspose.Imaging FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:019.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The library multi-targets `netstandard2.0` and `net8.0` — see\n[Dependencies](#dependencies) below for the full required, native, and development-only\nbreakdown."
+  },
+  {
+   "attributes": {
+    "build_command": "dotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj",
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the package id declared by the manifest",
+     "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+    },
+    {
+     "detail": "package registry: distribution not found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.imaging.foss/index.json"
+    },
+    {
+     "detail": "verified source build: the package's own build ran `dotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj` against this revision and exited 0; the advertised command is exactly the one it ran",
+     "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+    }
+   ],
+   "id": "install_command:dotnet",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET.git\ncd Aspose.Imaging-FOSS-for-.NET\ndotnet build src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 19; anchor; text 'Dependencies'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #dependencies exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:012",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#dependencies"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/imaging/net/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/imaging/net/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "net",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug net",
+     "path": "https://products.aspose.com/imaging/net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/imaging/net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/imaging/net/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/imaging/net/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package id declared by the project file",
+     "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Imaging.Foss"
+  },
+  {
+   "attributes": {
+    "floor_declaration": "TargetFrameworks"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "target frameworks the project declares",
+     "path": "src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj"
+    }
+   ],
+   "id": "package:target_framework",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "netstandard2.0;net8.0"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; module; public by declaration",
+     "path": "src/Aspose.Imaging.Foss/ImageFormat.cs"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Aspose"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; module; public by declaration",
+     "path": "src/Aspose.Imaging.Foss/ImageFormat.cs"
+    }
+   ],
+   "id": "public_symbol:aspose.imaging",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Imaging"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; module; public by declaration",
+     "path": "src/Aspose.Imaging.Foss/ImageFormat.cs"
+    }
+   ],
+   "id": "public_symbol:aspose.imaging.foss",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Imaging.Foss"
+  }
+ ],
+ "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+ "schema_version": 1,
+ "source_revision": "6ebb2091ad016a46489bef65eaad0f1eb9843e1a"
+}

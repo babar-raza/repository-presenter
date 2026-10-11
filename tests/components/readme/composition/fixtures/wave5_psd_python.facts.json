@@ -1,0 +1,463 @@
+{
+ "facts": [
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "psd"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "dbc90f46f7ef405748885aaf44cecd6e74461e8d"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PSD-FOSS for Python > Scope and Limitations"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 391-436; list; under Aspose.PSD-FOSS for Python > Scope and Limitations",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:061.list",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "- **Structural inspection and limited editing only — not a rendering engine.** The library\n  parses only a small supported subset of the full PSD/PSB format and never decodes or renders\n  pixels; there is no raster export, no pixel editing, and no export to PNG, JPEG, or other\n  raster images anywhere in the library.\n- **Several Aspose.PSD-compatible members are present for API shape only and always return a\n  fixed, disconnected value.** `global_layer_resources` always returns an empty list and its\n  setter raises `NotSupportedException`; `global_layer_mask_info` always returns an empty marker\n  object with no members; `has_transparency_data` always returns `False`; `image_resources`\n  reads real preserved resource blocks but its setter raises `NotSupportedException`;\n  `active_layer`'s setter raises `NotSupportedException`. `global_angle` is a plain stored value\n  with no connection to the parsed document at all — setting it has no effect on what gets\n  saved.\n- **`layer_mask_data` reports presence only; `layer_blending_ranges_data` reports presence and\n  byte length — neither reports parsed content.** A layer's `layer_mask_data` is non-`None` only\n  when the layer genuinely has a mask subsection, but the returned object is a fresh default\n  each time (`default_color`, `flags`, `image_data`, `mask_rectangle` and the edges are always\n  their type's default, never the mask's real parsed bytes); its setter raises. A layer's\n  `layer_blending_ranges_data.length` is the raw subsection length minus its 4-byte length\n  prefix, but `composite_blend_range`/`channel_blend_ranges` are always empty defaults, not\n  parsed ranges. `mask_info` and `blending_ranges_info` likewise carry only presence and raw\n  length.\n- **Image resources are read as opaque, unknown-only blocks.** `image_resources` exposes each\n  resource's `id`, `name`, and `data_size`, but does not interpret any specific resource ID's\n  real structure (no ICC-profile, slice, or guide semantics, for example) — only generic,\n  byte-preserving read access.\n- **`version` is a fixed Aspose.PSD-compatibility marker, not the file's own version field.**\n  It always reads `6`; setting it to anything other than `6` raises `ValueError`. To tell which\n  real container was loaded, use `image.is_psb` (equivalently `image.is_large_document`).\n- **Layer edits change layer-record metadata only.** Setting `top`/`left`/`bottom`/`right`\n  rewrites the layer record's rectangle but leaves the layer's channel data lengths and pixel\n  bytes exactly as they were, so a resized rectangle no longer matches its pixel data.\n  `opacity` and `clipping` are not validated — an `opacity` of `300` is saved and reloads as\n  `44`. Layer names are written as ASCII Pascal strings: a non-ASCII name makes `save` raise\n  `UnicodeEncodeError`, a name longer than 255 bytes raises `PsdSaveException`, and the layer's\n  additional layer data is written back verbatim, so any Unicode layer-name block already in the\n  file keeps its old value after a rename.\n- **Parsed channel information is read-only and always reports `CompressionMethod.RAW`.**\n  `Layer.channel_information`'s setter raises `NotSupportedException`.\n- **Load enforces PSD/PSB header limits.** Channel count must be 1–56, bit depth one of 1, 8,\n  16, or 32, and width and height at most 30000 pixels (PSD) or 300000 pixels (PSB); anything\n  else raises `PsdLoadException`. A missing path raises `FileNotFoundError`.\n- **`ResourceBlock.save` is not supported** — it raises `NotImplementedError` for every block\n  `image_resources` returns. `active_layer` always returns the first layer.\n- **No full Photoshop feature set.** No text, vector, effects, smart filters, or adjustment-layer\n  rendering; no semantic recognition of specific image-resource kinds; no full tagged-block\n  editing."
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layerblendingrangesdata",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layerblendingrangesdata"
+  },
+  {
+   "attributes": {
+    "docstring": "Represents PSD layer blending ranges data.",
+    "signature": "class LayerBlendingRangesData",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 5; class; public by name",
+     "path": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layerblendingrangesdata.layerblendingrangesdata",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layerblendingrangesdata.LayerBlendingRangesData"
+  },
+  {
+   "attributes": {
+    "docstring": "Creates public blending ranges data from a preserved raw subsection length.",
+    "signature": "def from_raw_length(cls, length)",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 22; method; public by name",
+     "path": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layerblendingrangesdata.layerblendingrangesdata.from_raw_length",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layerblendingrangesdata.LayerBlendingRangesData.from_raw_length"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets the blending ranges data length in bytes.",
+    "signature": "def length(self)",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 17; method; public by name",
+     "path": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layerblendingrangesdata.layerblendingrangesdata.length",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layerblendingrangesdata.LayerBlendingRangesData.length"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata"
+  },
+  {
+   "attributes": {
+    "docstring": "Defines the base class for PSD layer mask data.",
+    "signature": "class LayerMaskData(ABC)",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 9; class; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the bottom layer mask position.",
+    "signature": "def bottom(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 25; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.bottom",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.bottom"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets the size of the layer mask data.",
+    "signature": "def data_size(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 34; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.data_size",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.data_size"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the default layer mask color.",
+    "signature": "def default_color(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 39; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.default_color",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.default_color"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the layer mask flags.",
+    "signature": "def flags(self) -> LayerMaskFlags",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 48; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.flags",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.flags"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the layer mask image data.",
+    "signature": "def image_data(self) -> bytearray",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 57; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.image_data",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.image_data"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the left layer mask position.",
+    "signature": "def left(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 68; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.left",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.left"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the mask rectangle.",
+    "signature": "def mask_rectangle(self) -> Rectangle",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 77; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.mask_rectangle",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.mask_rectangle"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the right layer mask position.",
+    "signature": "def right(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 86; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.right",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.right"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the top layer mask position.",
+    "signature": "def top(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 95; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdata.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdata.layermaskdata.top",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdata.LayerMaskData.top"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdatashort.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdatashort",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdatashort"
+  },
+  {
+   "attributes": {
+    "docstring": "Defines layer mask data for layers that have only a raster or vector mask.",
+    "signature": "class LayerMaskDataShort(LayerMaskData)",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 4; class; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdatashort.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdatashort.layermaskdatashort",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdatashort.LayerMaskDataShort"
+  },
+  {
+   "attributes": {
+    "docstring": "Gets or sets the layer mask padding.",
+    "signature": "def padding(self)",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 14; method; public by name",
+     "path": "aspose_psd_foss/layers/layermaskdatashort.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.layers.layermaskdatashort.layermaskdatashort.padding",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.layers.layermaskdatashort.LayerMaskDataShort.padding"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "aspose_psd_foss/writedescriptors/psdimagewriter.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.writedescriptors.psdimagewriter",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.writedescriptors.psdimagewriter"
+  },
+  {
+   "attributes": {
+    "docstring": "Writes parsed PSD/PSB document state to a stream.",
+    "signature": "class PsdImageWriter",
+    "symbol_kind": "class"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 6; class; public by name",
+     "path": "aspose_psd_foss/writedescriptors/psdimagewriter.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.writedescriptors.psdimagewriter.psdimagewriter",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.writedescriptors.psdimagewriter.PsdImageWriter"
+  },
+  {
+   "attributes": {
+    "docstring": "Saves a parsed document state to a writable stream.",
+    "signature": "def save(document: PsdImageDocumentState, stream, leave_open: bool) -> None",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 12; method; public by name",
+     "path": "aspose_psd_foss/writedescriptors/psdimagewriter.py"
+    }
+   ],
+   "id": "public_symbol:aspose_psd_foss.writedescriptors.psdimagewriter.psdimagewriter.save",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_psd_foss.writedescriptors.psdimagewriter.PsdImageWriter.save"
+  }
+ ],
+ "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "dbc90f46f7ef405748885aaf44cecd6e74461e8d"
+}

@@ -1,0 +1,995 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "Makefile"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; target build is defined",
+     "path": "Makefile"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "make build"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "Makefile"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; target test is defined",
+     "path": "Makefile"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "make test"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "tests/test_animation.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_animation_export.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_animation_performance.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_animation_report.py"
+    },
+    {
+     "detail": null,
+     "path": "tests/test_autonomous.py"
+    },
+    {
+     "detail": "105 files; test suite (105 test sources among the 106 files here)",
+     "path": "tests/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "tests/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.dev.build-1.2",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "build>=1.2"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.dev.pytest-7.4",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "pytest>=7.4"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'dev' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:development.dev.ruff-0.4",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "ruff>=0.4"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `project.dependencies` is declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "extra 'mcp' declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "dependency:optional.mcp.mcp-1.0",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "mcp>=1.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 40-52; python fence; unit inherited_unit:015.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as testdata/Roboto-VariableFont_wdth,wght.ttf",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose_font import FontLoader, WebFontOptimizer\n\nfont = FontLoader.open(\"testdata/Roboto-VariableFont_wdth,wght.ttf\")\npackage = WebFontOptimizer.build(\n    font,\n    presets=(\"latin\",),\n    text=\"Variable Font Web Demo 0123456789\",\n    variable_mode=\"auto\",\n    include_woff=True,\n)\npackage.write_to(\"demo/web_opt_demo\")\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 85-99; python fence; unit inherited_unit:026.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose_font import FontLoader, FontQaReporter\n\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\npackage = FontQaReporter.build_package(\n    font,\n    \"qa-package\",\n    presets=(\"latin\",),\n    text=\"QA\",\n    preview_instance_name=\"Bold\",\n)\nprint(package.json_path)\nprint(package.html_path)\nprint(package.preview_path)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 128-141; python fence; unit inherited_unit:036.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 3: FAILED; TypeError",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "example:003",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose_font import FontLoader, VariableInstanceBuilder\n\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\npackage = VariableInstanceBuilder.build_package(\n    font,\n    instance_names=[\"Bold\"],\n    naming_strategy=\"ribbi-safe\",\n    family_suffix=\"Beta\",\n    stat_policy=\"static\",\n    preview_text=\"Review\",\n    output_dir=\"var-package-output\",\n)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 260-276; python fence; unit inherited_unit:068.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 4: EXECUTED; exit 0",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "example:004",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "from aspose_font import FontLoader\n\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\nprint(font.is_variable)\nprint([axis.tag for axis in font.axes])\nprint(len(font.named_instances))\nprint(font.get_axis(\"wght\").get_preset(\"Bold\").value)\nprint(font.smart_instancer.resolve({\"wght\": \"Bold\", \"wdth\": \"Condensed\"}).label)\nprint(font.smart_instancer.suggest_axis_values(\"wght\", include_bounds=True))\nprint(font.get_axis(\"wght\").name((\"fr-CA\", \"en\")))\nprint(font.get_axis(\"wght\").range_summary)\nprint(font.get_named_instance(\"Condensed Bold\").format_coordinates(font.variable_axes, include_tags=True))\nprint(font.get_axis(\"wght\").localized_labels((\"pt-PT\", \"fr-CA\")))\nprint(font.variable_presentation(preferred_languages=(\"en\",))[\"axes\"][0][\"range_summary\"])\nprint(font.variable_presentation(preferred_languages=(\"fr-CA\", \"en\"))[\"axes\"][0][\"language_profiles\"][0])\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 295-418; python fence; unit inherited_unit:071.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: FAILED; KeyError",
+     "path": "examples.json"
+    },
+    {
+     "detail": "staged as preview.png",
+     "path": "testdata/ImageTemplates/drawingSample_MingLiU-Template-1.png"
+    },
+    {
+     "detail": "staged as preview.svg",
+     "path": "testdata/SVG/Abel-Regular.svg"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "example:005",
+   "kind": "example",
+   "polarity": "CONTRADICTED",
+   "value": "from aspose_font import FontLoader, FontPreviewBuilder, FontQaReporter, WebFontOptimizer\nfrom aspose_font import FontCleaner\nfrom aspose_font.subsetter import FontSubsetter\n\nfont = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")\n\nsubset_result = FontSubsetter.subset_for_web_with_coverage(\n    font,\n    presets=(\"latin\", \"arabic\"),\n    text=\"Aspose مرحبا\",\n)\nprint(subset_result.font.num_glyphs)\nprint(subset_result.coverage.covered_count, subset_result.coverage.missing_codepoints)\n\npreview = FontPreviewBuilder.build(font, instance_name=\"Bold\", text=\"Preview\")\npreview.write_to(\"preview.png\")\n\nsvg_preview = FontPreviewBuilder.build(\n    font,\n    instance_name=\"Bold\",\n    text=\"Preview\",\n    output_format=\"svg\",\n)\nsvg_preview.write_to(\"preview.svg\")\n\ninstanced = font.smart_instancer.instantiate(\n    {\"wght\": \"Bold\", \"wdth\": \"Condensed\"},\n    naming_strategy=\"ribbi-safe\",\n    family_suffix=\"Beta\",\n)\nprint(instanced.font_family, instanced.font_style, instanced.ttf_tables.name.get(17))\n\nmenu_named = font.instantiate(\n    {\"wght\": 700, \"wdth\": 75},\n    naming_strategy=\"ribbi-safe\",\n    legacy_family_name=\"Acme Sans Menu\",\n    typographic_family_name=\"Acme Sans Pro\",\n    stat_policy=\"static\",\n)\nprint(menu_named.ttf_tables.name.get(1), menu_named.ttf_tables.name.get(16))\nprint(\"STAT\" in menu_named.ttf_tables._raw)\n\npreview = font.preview_naming_policy(\n    {\"wght\": 700, \"wdth\": 75},\n    naming_strategy=\"ribbi-safe\",\n    stat_policy=\"static\",\n)\nprint(preview.stat_diagnostics.generated_stat_axis_value_flags)\n\ncleaned = FontCleaner.clean_for_web(font)\nprint(\"meta\" in cleaned.ttf_tables._raw)\n\ncompat = font.smart_instancer.check_compatibility(\n    before_instance_name=\"Regular\",\n    after_instance_name=\"Condensed Bold\",\n    text=\"Aspose\",\n)\nprint(compat.is_compatible, len(compat.issues))\n\ndelta = font.smart_instancer.inspect_deltas(\n    instance_name=\"Bold\",\n    codepoint=ord(\"A\"),\n)\nprint(delta.total_tuple_count, len(delta.active_tuples))\n\ntext_compare = font.smart_instancer.compare_delta_text(\n    text=\"Aspose\",\n    before_instance_name=\"Regular\",\n    after_instance_name=\"Condensed Bold\",\n)\nprint(text_compare.moved_glyph_count, text_compare.comparable_glyph_count)\n\nqa_report = FontQaReporter.build(\n    font,\n    presets=(\"latin\",),\n    text=\"Aspose QA\",\n)\nqa_report.write_html(\"font-qa-report.html\")\n\nbundle = font.smart_instancer.build_web_bundle(\n    instance_name=\"Bold\",\n    family_suffix=\"Beta\",\n    include_woff=False,\n    preview_text=\"Aspose Variable\",\n)\nbundle.write_to(\"web-out\")\n\nsubset_bundle = WebFontOptimizer.build(\n    font,\n    presets=(\"latin\", \"arabic\"),\n    text=\"Aspose\",\n    include_woff=False,\n)\nprint(subset_bundle.manifest[\"export_mode\"])\nprint(subset_bundle.manifest[\"subset\"][\"coverage\"][\"missing_count\"])\n\nlive_bundle = WebFontOptimizer.build(\n    font,\n    include_woff=False,\n    variable_mode=\"live\",\n)\nprint(live_bundle.manifest[\"requested_variable_mode\"], live_bundle.manifest[\"export_mode\"])\n\nstatic_stat_bundle = WebFontOptimizer.build(\n    font,\n    include_woff=False,\n    variable_mode=\"static\",\n    instance_name=\"Bold\",\n    stat_policy=\"static\",\n)\nprint(static_stat_bundle.manifest[\"requested_stat_policy\"])\n\ngrid_package = font.smart_instancer.build_axis_grid_web_family_package(\n    \"wght\",\n    [400.0, 700.0],\n    family_name=\"Roboto Grid\",\n    include_woff=False,\n    preview_text=\"Grid Family\",\n    naming_strategy=\"preserve-family\",\n)\ngrid_package.write_to(\"web-grid-family\")\nprint(grid_package.manifest[\"bundles\"][1][\"review_label\"])\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "staged as testdata/Roboto-VariableFont_wdth,wght.ttf; example 1 read it: EXECUTED",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf; example 2 read it: EXECUTED",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    },
+    {
+     "detail": "staged as Roboto-VariableFont_wdth,wght.ttf; example 4 read it: EXECUTED",
+     "path": "testdata/Roboto-VariableFont_wdth,wght.ttf"
+    }
+   ],
+   "id": "format:input.ttf",
+   "kind": "format",
+   "polarity": "SUPPORTED",
+   "value": ".ttf"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "line 373; example 5: output .html",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: FAILED; KeyError",
+     "path": "examples.json"
+    }
+   ],
+   "id": "format:output.html",
+   "kind": "format",
+   "polarity": "UNRESOLVED",
+   "value": ".html"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "line 311; example 5: output .png",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: FAILED; KeyError",
+     "path": "examples.json"
+    }
+   ],
+   "id": "format:output.png",
+   "kind": "format",
+   "polarity": "UNRESOLVED",
+   "value": ".png"
+  },
+  {
+   "attributes": null,
+   "confidence": 0.5,
+   "evidence": [
+    {
+     "detail": "line 319; example 5: output .svg",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 5: FAILED; KeyError",
+     "path": "examples.json"
+    }
+   ],
+   "id": "format:output.svg",
+   "kind": "format",
+   "polarity": "UNRESOLVED",
+   "value": ".svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "font"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-font-foss/Aspose.Font-FOSS-for-Python"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/_brotli/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.brotli",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font._brotli"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/cff/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.cff",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.cff"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/cff2/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.cff2",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.cff2"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/ci/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.ci",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.ci"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/diagnostics/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.diagnostics",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.diagnostics"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/eot/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.eot",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.eot"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/perf/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.perf",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.perf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/ttf/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.ttf",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.ttf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/type1/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.type1",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.type1"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package dir",
+     "path": "src/aspose_font/woff/__init__.py"
+    }
+   ],
+   "id": "import_path:aspose_font.woff",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.woff"
+  },
+  {
+   "attributes": {
+    "section": "aspose-font > What Can This Font Do?"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 192-192; heading; under aspose-font > What Can This Font Do?",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:054.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "### CSS Hints"
+  },
+  {
+   "attributes": {
+    "section": "aspose-font > What Can This Font Do? > CSS Hints"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 194-194; paragraph; under aspose-font > What Can This Font Do? > CSS Hints",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:055.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Use these `@font-face` best practices:"
+  },
+  {
+   "attributes": {
+    "section": "aspose-font > What Can This Font Do? > CSS Hints"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 196-204; code_block; under aspose-font > What Can This Font Do? > CSS Hints",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:056.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```css\n@font-face {\n  font-family: 'Roboto';\n  src: url('roboto.woff2') format('woff2');\n  font-weight: 400;\n  font-display: swap;\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n```"
+  },
+  {
+   "attributes": {
+    "section": "aspose-font > What Can This Font Do? > CSS Hints"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 206-208; list; under aspose-font > What Can This Font Do? > CSS Hints",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:057.list",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "- **font-display: swap** prevents invisible text during load\n- **unicode-range** subsets glyphs per language for faster loading\n- **font-weight/font-style** match CSS usage patterns"
+  },
+  {
+   "attributes": {
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    },
+    {
+     "detail": "package registry: distribution not found",
+     "path": "https://pypi.org/pypi/aspose-font/json"
+    },
+    {
+     "detail": "verified source build: an example executed against this revision, proving the source compiles even though the registry does not yet list the package",
+     "path": "examples.json"
+    }
+   ],
+   "id": "install_command:pip",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python.git\ncd Aspose.Font-FOSS-for-Python\npip install ."
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE.txt"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE.txt"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE.txt"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/font/python/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/font/python/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "family",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; family level; platform pages python: BROKEN; python-net: BROKEN; python-cpp: BROKEN; python-java: BROKEN",
+     "path": "https://products.aspose.com/font/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/font/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/font/python/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/font/python/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:license",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "distribution name declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "aspose-font"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "python_requires declared",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:python_requires",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": ">=3.10"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the manifest",
+     "path": "pyproject.toml"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "1.0.0"
+  },
+  {
+   "attributes": {
+    "docstring": "CFF font parser and Font implementation.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/cff/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.cff.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.cff.font"
+  },
+  {
+   "attributes": {
+    "docstring": "CFF2 (CFF Version 2) variable font implementation.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/cff2/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.cff2.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.cff2.font"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose_font.cff2.font.Cff2Font.load",
+    "docstring": "Load CFF2 font from file path.",
+    "signature": "def load(cls, path: str | Path) -> 'Cff2Font'",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 249; method; public by name",
+     "path": "src/aspose_font/cff2/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.cff2font.load",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.Cff2Font.load"
+  },
+  {
+   "attributes": {
+    "docstring": "Embedded OpenType (EOT) parser and wrapper font type.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/eot/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.eot.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.eot.font"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose_font.eot.font.EotFont.weight",
+    "signature": "def weight(self) -> int",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 192; method; public by name",
+     "path": "src/aspose_font/eot/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.eotfont.weight",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.EotFont.weight"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose_font.loader.FontLoader.load",
+    "docstring": "Load a font and keep friendly metadata about where it came from.",
+    "signature": "def load(source: str | os.PathLike[str] | bytes | io.IOBase, font_type: FontType | None=None, *, collection_index: int | None=None) -> LoadedFont",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 110; method; public by name",
+     "path": "src/aspose_font/loader.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.fontloader.load",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.FontLoader.load"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose_font.instancing.SmartInstancer.font",
+    "signature": "def font(self) -> 'TtfFont'",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 73; method; public by name",
+     "path": "src/aspose_font/instancing.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.smartinstancer.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.SmartInstancer.font"
+  },
+  {
+   "attributes": {
+    "docstring": "Text layout — TextRenderer producing positioned GlyphLayouts from a font and string.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/text.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.text",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.text"
+  },
+  {
+   "attributes": {
+    "docstring": "TTF/OTF font parser and Font interface implementation.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/ttf/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.ttf.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.ttf.font"
+  },
+  {
+   "attributes": {
+    "docstring": "Type1 font parser-backed Font implementation.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/type1/font.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.type1.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.type1.font"
+  },
+  {
+   "attributes": {
+    "defined_at": "aspose_font.instances.VariableInstanceBuilder.font",
+    "signature": "def font(self) -> 'TtfFont'",
+    "symbol_kind": "method"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 128; method; public by name",
+     "path": "src/aspose_font/instances.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.variableinstancebuilder.font",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.VariableInstanceBuilder.font"
+  },
+  {
+   "attributes": {
+    "docstring": "WOFF v2 parser and wrapper font.",
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 1; module; public by name",
+     "path": "src/aspose_font/woff/woff2.py"
+    }
+   ],
+   "id": "public_symbol:aspose_font.woff.woff2",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "aspose_font.woff.woff2"
+  }
+ ],
+ "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+ "schema_version": 1,
+ "source_revision": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6"
+}

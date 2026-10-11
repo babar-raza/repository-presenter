@@ -1,0 +1,16 @@
+{
+ "source": "G:/rp-w6/slides-net (cut 8fbf2166) section_authoring a4eb865b081a rejected-1 (identical in attempts 2 and 3): the development_testing 'summary' unit",
+ "unit": {
+  "fact_ids": [
+   "identity:platform",
+   "package:target_framework",
+   "build_test_asset:tests",
+   "build_test_asset:test-command",
+   "build_test_asset:ci-matrix",
+   "build_test_asset:ci"
+  ],
+  "section": "development_testing",
+  "slot": "summary",
+  "text": "Aspose.Slides FOSS for .NET targets net8.0 and net10.0 frameworks and is built using the dotnet CLI. The test suite resides in the tests/ directory and is executed with dotnet test Aspose.Slides.Foss.sln. Continuous integration runs on Ubuntu, Windows, and macOS using workflows defined in .github/workflows/. The repository uses the Aspose.Slides.FOSS solution file for all build and test operations."
+ }
+}

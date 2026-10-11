@@ -66,6 +66,15 @@ fact is verified (``OWN_LICENSE_COVERED_BY_LICENSE_SECTION``) or absent
 follows any withheld next block, not only a code block. The bundled-material notices a
 repository keeps as ``LICENSE-FONTS`` or ``fonts/LICENSE.txt`` are recorded by the snapshot
 inventory, so their attribution has a record to render from.
+
+Wave 6 (cut 8fbf2166, PDF-Go): the linked product banner row (``inherited_unit:003.badge_row``)
+was deferred with the reason that it "moved to enterprise_relationship", a destination that holds
+prose only, and matched no class at all (UNCLASSIFIED, a BLOCK). The shell owns every badge and
+banner row, so ``BADGE_ROW_RENDERED_BY_SHELL`` takes any deferred ``badge_row`` as ADVISORY,
+whatever reason the reconciler gave. The lead-in rule (``LEADIN_OF_WITHHELD_CONTENT``) is
+unchanged: ``coordinate_neighbor_promises`` now omits, rather than defers, a lead-in whose block
+is omitted, so the pair this class holds to the README's content is never one the reconciler
+itself manufactured (JMAP-.NET, Imaging-.NET, Font-Python).
 """
 
 from __future__ import annotations
@@ -372,6 +381,13 @@ def _internal(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> b
     return bool(_INTERNAL_FILE.search(ctx.text(unit_id)))
 
 
+def _badge_row(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The unit is a badge or banner row. The shell owns every one (README_CONTRACT.md rows 2 and
+    3: the badges and the product banner are rebuilt from verified link facts), so a row the
+    reconciler held back has no second home and loses nothing the shell does not print."""
+    return _kind(unit_id) == "badge_row"
+
+
 def _build_path(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
     """The upstream documents a build, test or sample path: a shell command, a rationale that
     says so, or a unit under the upstream's own Development/Testing/Samples section (the
@@ -551,6 +567,17 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "The unit names a repository-internal governance file (AGENTS.md or CLAUDE.md), which is "
         "not public documentation. It is never published.",
         _internal,
+    ),
+    DeferralClass(
+        "BADGE_ROW_RENDERED_BY_SHELL",
+        "ADVISORY",
+        None,
+        "The unit is an inherited badge or banner row. The shell renders the badges and the "
+        "product banner from the verified link facts (README_CONTRACT.md rows 2 and 3) and owns "
+        "every such row, so the inherited one has no place beside them and is withheld, never "
+        "published. The reconciler's reason (the row moved, was promotional) does not matter: "
+        "nothing it holds is lost.",
+        _badge_row,
     ),
     DeferralClass(
         "BUILD_TEST_PATH_UNRECORDED",
