@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "defect_fingerprint": "sha256:52d17222c2290fa93602bb8ca7631c7908d4b8b1cd9edc076e6161f8eebf316f",
+  "triggering_check": {
+    "id": "PACKAGE_METADATA_SOURCE_URL",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "setup.py",
+      "detail": "line 15: url=\"https://github.com/aspose-3d/Aspose.3D-for-Python\" (revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02; unchanged at the live head)"
+    },
+    {
+      "path": "https://github.com/aspose-3d/Aspose.3D-for-Python",
+      "detail": "HTTP 404 (2026-10-11)"
+    },
+    {
+      "path": "https://pypi.org/pypi/aspose-3d-foss/json",
+      "detail": "2026-10-11: version 26.1.0; home_page and project_urls['Homepage'] are https://github.com/aspose-3d/Aspose.3D-for-Python"
+    }
+  ],
+  "claim": "At revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02, setup.py sets url to https://github.com/aspose-3d/Aspose.3D-for-Python, which answers HTTP 404, and the aspose-3d-foss 26.1.0 package on PyPI publishes that address as its Homepage; no URL published for the package names this repository.",
+  "suggested_issue_title": "Aspose.3D FOSS for Python: setup.py url points to a repository that returns 404",
+  "suggested_issue_body": "## Summary\n\nAt revision `65b1f577c0f16d0d9112bb6c1153d3024543ac02`, `setup.py` sets `url` to `https://github.com/aspose-3d/Aspose.3D-for-Python`. That address answers HTTP 404. PyPI shows the same address as the Homepage of `aspose-3d-foss` 26.1.0, so the package's only link to its source leads to a page that does not exist.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-Python\n- Revision: `65b1f577c0f16d0d9112bb6c1153d3024543ac02` (the upstream revision this report was verified against, default branch `master`)\n- Verified on 2026-10-11 from a fresh shallow clone; the PyPI read is the public JSON API.\n\n## Steps to reproduce\n\n```\ngrep -n 'url=' setup.py\ncurl -s -o /dev/null -w '%{http_code}\\n' https://github.com/aspose-3d/Aspose.3D-for-Python\ncurl -s -o /dev/null -w '%{http_code}\\n' https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python\ncurl -s https://pypi.org/pypi/aspose-3d-foss/json | python -c 'import json,sys; i=json.load(sys.stdin)[\"info\"]; print(i[\"home_page\"], i[\"project_urls\"])'\n```\n\n## Expected\n\n`setup.py` `url` points to this repository, `https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python`, which answers HTTP 200, so the package page on PyPI links to the source.\n\n## Actual\n\n- `setup.py:15` is `url=\"https://github.com/aspose-3d/Aspose.3D-for-Python\"`, which answers HTTP 404.\n- `https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python` answers HTTP 200.\n- PyPI `aspose-3d-foss` 26.1.0 lists `https://github.com/aspose-3d/Aspose.3D-for-Python` as `home_page` and as `project_urls['Homepage']`; no other URL is listed.\n\n## Suggested fix\n\nSet `url` in `setup.py` to `https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python` (a `project_urls` mapping with `Repository` and `Issues` entries would also help) and publish a release, since PyPI shows the metadata of the release only.\n\n<!-- repository-presenter-defect: sha256:52d17222c2290fa93602bb8ca7631c7908d4b8b1cd9edc076e6161f8eebf316f -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

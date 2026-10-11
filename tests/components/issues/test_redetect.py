@@ -49,7 +49,9 @@ def test_registered_check_ids_cover_every_shape_the_harvest_produced() -> None:
 
     detectable = {c.id for c in REGISTRY.values() if c.detector is not None}
     assert (
-        set(registered_check_ids()) == {"BC-02", "BC-03", "BC-06", "NOT_PROCESSABLE"} | detectable
+        set(registered_check_ids())
+        == {"BC-02", "BC-03", "BC-06", "NOT_PROCESSABLE", "PACKAGE_METADATA_SOURCE_URL"}
+        | detectable
     )
     assert detectable
 

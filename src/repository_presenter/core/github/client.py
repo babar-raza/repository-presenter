@@ -47,7 +47,7 @@ import base64
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, NoReturn
 
 import httpx
 
@@ -268,6 +268,31 @@ def default_post(url: str, token: str, payload: dict[str, Any]) -> tuple[int, An
     return response.status_code, body
 
 
+class IssueOutcomeUnknownError(RepositoryMetadataError):
+    """A write whose effect is unknown: the request may have been applied although no usable
+    answer came back (the connection dropped, the server timed out or answered 5xx, or an HTTP 201
+    carried no body to record). A caller must reconcile - search the target for what it tried to
+    create - before it ever retries (``AGENTS.md``: "reconcile uncertain remote effects before
+    retrying"). A definite rejection (4xx) is a plain :class:`RepositoryMetadataError`: nothing
+    was created."""
+
+
+# Statuses after which a create may nevertheless have taken effect: a timeout and the gateway
+# family (the proxy gave up while the origin went on). 429 and every other 4xx are definite.
+_AMBIGUOUS_WRITE_STATUSES = frozenset({408, 500, 502, 503, 504})
+
+
+def _write_failure(owner: str, name: str, url: str, status_code: int, body: Any) -> NoReturn:
+    """Raise the right error for a POST that did not return its success status."""
+    if status_code == -1:
+        raise IssueOutcomeUnknownError(f"{owner}/{name}: unreachable ({body})")
+    if status_code in _AMBIGUOUS_WRITE_STATUSES:
+        raise IssueOutcomeUnknownError(
+            f"{owner}/{name}: POST {url} returned HTTP {status_code}; the effect is unknown"
+        )
+    raise RepositoryMetadataError(f"{owner}/{name}: POST {url} returned HTTP {status_code}")
+
+
 def create_issue(
     owner: str,
     name: str,
@@ -281,22 +306,22 @@ def create_issue(
 
     Raises :class:`RepositoryMetadataError` on anything but a well-formed HTTP 201 (GitHub's own
     success status for issue creation), or a response missing the ``number``/``html_url`` fields a
-    caller needs to record what was filed - never a guessed or partial result.
+    caller needs to record what was filed - never a guessed or partial result. An outcome that may
+    still have created the issue (see :class:`IssueOutcomeUnknownError`) raises that subclass so
+    the caller reconciles instead of retrying blind.
     """
     if not token:
         raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
     url = f"{API_ROOT}/repos/{owner}/{name}/issues"
     status_code, response_body = write(url, token, {"title": title, "body": body})
-    if status_code == -1:
-        raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({response_body})")
     if status_code != 201:
-        raise RepositoryMetadataError(f"{owner}/{name}: POST {url} returned HTTP {status_code}")
+        _write_failure(owner, name, url, status_code, response_body)
     if (
         not isinstance(response_body, dict)
         or "number" not in response_body
         or "html_url" not in response_body
     ):
-        raise RepositoryMetadataError(
+        raise IssueOutcomeUnknownError(
             f"{owner}/{name}: POST {url} returned HTTP 201 with no usable issue body"
         )
     return CreatedIssue(number=int(response_body["number"]), url=str(response_body["html_url"]))
@@ -349,6 +374,149 @@ def find_issue_with_marker(
     raise RepositoryMetadataError(
         f"{owner}/{name}: more than {ISSUE_LIST_MAX_PAGES} pages of issues - cannot prove absence"
     )
+
+
+# The prefix every issue body this system files carries (components/issues/file.py appends the full
+# marker, ``<prefix> sha256:<fingerprint> -->``); scanning for the prefix finds all of them.
+MARKER_PREFIX = "<!-- repository-presenter-defect:"
+
+
+@dataclass(frozen=True)
+class MarkerIssue:
+    """One issue (never a pull request) whose body carries the system's fingerprint marker."""
+
+    number: int
+    url: str
+    state: str
+    created_at: str
+
+
+def scan_marker_issues(
+    owner: str,
+    name: str,
+    *,
+    token: str | None,
+    state: str = "all",
+    since: str | None = None,
+    fetch: FetchFn = default_fetch,
+) -> tuple[MarkerIssue, ...]:
+    """Every issue of ``state`` (``open``, ``closed`` or ``all``) whose body carries a fingerprint
+    marker: the filer's own footprint in a target, for the per-day and open-issue caps.
+
+    ``since`` is GitHub's own filter (issues *updated* at or after it, an ISO 8601 instant); the
+    caller narrows by ``created_at``. Raises :class:`RepositoryMetadataError` when the listing is
+    incomplete (an error, or more than ``ISSUE_LIST_MAX_PAGES`` full pages): a cap decided on a
+    partial count could be exceeded, so the count is never inferred from a partial read."""
+    found: list[MarkerIssue] = []
+    for page in range(1, ISSUE_LIST_MAX_PAGES + 1):
+        url = (
+            f"{API_ROOT}/repos/{owner}/{name}/issues"
+            f"?state={state}&per_page={ISSUE_LIST_PAGE_SIZE}&page={page}"
+        )
+        if since is not None:
+            url += f"&since={since}"
+        status_code, body = fetch(url, token)
+        if status_code == -1:
+            raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+        if status_code != 200 or not isinstance(body, list):
+            raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+        for item in body:
+            if not isinstance(item, dict) or "pull_request" in item:
+                continue
+            text = item.get("body")
+            if not isinstance(text, str) or MARKER_PREFIX not in text:
+                continue
+            number, html_url = item.get("number"), item.get("html_url")
+            issue_state, created = item.get("state"), item.get("created_at")
+            if not (
+                isinstance(number, int)
+                and isinstance(html_url, str)
+                and isinstance(issue_state, str)
+                and isinstance(created, str)
+            ):
+                raise RepositoryMetadataError(
+                    f"{owner}/{name}: a marked issue has no usable number/url/state/created_at"
+                )
+            found.append(MarkerIssue(number, html_url, issue_state, created))
+        if len(body) < ISSUE_LIST_PAGE_SIZE:
+            return tuple(found)
+    raise RepositoryMetadataError(
+        f"{owner}/{name}: more than {ISSUE_LIST_MAX_PAGES} pages of issues - cannot prove the count"
+    )
+
+
+@dataclass(frozen=True)
+class IssueComment:
+    """One comment on an issue: only what the lifecycle's update de-duplication reads."""
+
+    id: int
+    body: str
+    created_at: str
+
+
+def _comment(owner: str, name: str, item: object) -> IssueComment:
+    if not isinstance(item, dict):
+        raise RepositoryMetadataError(f"{owner}/{name}: a comment is not an object")
+    identifier, text, created = item.get("id"), item.get("body"), item.get("created_at")
+    if not isinstance(identifier, int) or not isinstance(created, str):
+        raise RepositoryMetadataError(f"{owner}/{name}: a comment has no usable id/created_at")
+    return IssueComment(identifier, text if isinstance(text, str) else "", created)
+
+
+def list_issue_comments(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    token: str | None,
+    fetch: FetchFn = default_fetch,
+) -> tuple[IssueComment, ...]:
+    """``GET /repos/{owner}/{repo}/issues/{number}/comments``, oldest first, every page. Raises
+    :class:`RepositoryMetadataError` on an error or an unbounded listing: an update is decided on
+    the full thread, never a partial one."""
+    comments: list[IssueComment] = []
+    for page in range(1, ISSUE_LIST_MAX_PAGES + 1):
+        url = (
+            f"{API_ROOT}/repos/{owner}/{name}/issues/{number}/comments"
+            f"?per_page={ISSUE_LIST_PAGE_SIZE}&page={page}"
+        )
+        status_code, body = fetch(url, token)
+        if status_code == -1:
+            raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
+        if status_code != 200 or not isinstance(body, list):
+            raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
+        comments.extend(_comment(owner, name, item) for item in body)
+        if len(body) < ISSUE_LIST_PAGE_SIZE:
+            return tuple(comments)
+    raise RepositoryMetadataError(
+        f"{owner}/{name}: more than {ISSUE_LIST_MAX_PAGES} pages of comments on #{number}"
+    )
+
+
+def create_issue_comment(
+    owner: str,
+    name: str,
+    number: int,
+    *,
+    body: str,
+    token: str,
+    write: WriteFn = default_post,
+) -> IssueComment:
+    """``POST /repos/{owner}/{repo}/issues/{number}/comments``. No authorization check here (the
+    gate is ``components/issues/file.py``'s); an ambiguous outcome raises
+    :class:`IssueOutcomeUnknownError` so the caller reconciles before it posts again."""
+    if not token:
+        raise RepositoryMetadataError(f"{owner}/{name}: POST refused - no write-scoped token")
+    url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}/comments"
+    status_code, response_body = write(url, token, {"body": body})
+    if status_code != 201:
+        _write_failure(owner, name, url, status_code, response_body)
+    try:
+        return _comment(owner, name, response_body)
+    except RepositoryMetadataError as exc:
+        raise IssueOutcomeUnknownError(
+            f"{owner}/{name}: POST {url} returned HTTP 201 with no usable comment: {exc}"
+        ) from exc
 
 
 @dataclass(frozen=True)

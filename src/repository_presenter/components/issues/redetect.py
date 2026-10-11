@@ -74,6 +74,7 @@ from repository_presenter.core.github.read_client import (
 from repository_presenter.core.package_registry import (
     RegistryObservation,
     observe_distribution,
+    points_at_repository,
 )
 
 # A BC-02 handoff about a missing distribution records the registry URL it probed; the replay asks
@@ -761,4 +762,82 @@ def _redetect_not_processable_defect(
         still_fires=still_fires,
         note=note,
         fresh=tuple(fresh),
+    )
+
+
+# --- PACKAGE_METADATA_SOURCE_URL: published metadata that does not name the source repository -----
+
+PACKAGE_METADATA_SOURCE_URL = "PACKAGE_METADATA_SOURCE_URL"
+
+
+def _metadata_source_gap(handoff: Handoff) -> str | None:
+    identities = registry_identities(handoff.evidence)
+    if len(identities) == 1:
+        return None
+    return (
+        f"the {PACKAGE_METADATA_SOURCE_URL} redetector re-reads one package's registry metadata "
+        f"and this handoff's evidence names {len(identities)} registry packages, so the "
+        "recheck-before-filing is inconclusive"
+    )
+
+
+@register(PACKAGE_METADATA_SOURCE_URL, gap=_metadata_source_gap)
+def _redetect_package_metadata_source_url(
+    handoff: Handoff, reads: RedetectionReads
+) -> RedetectionResult:
+    """The package registry's own metadata for the one distribution the evidence names (its
+    ``home_page`` and ``project_urls``) lists no URL that names this repository: either a URL for
+    a repository that does not exist, or no URL at all. Resolved only once a registry URL names
+    the repository, so a fix that is committed but not yet released still reads as firing, which
+    is the truth a visitor to the registry page sees. A registry read that failed, or a package
+    the registry no longer lists, is inconclusive and never a resolution."""
+    identities = registry_identities(handoff.evidence)
+    head, drifted, error = _read_head(handoff, reads)
+    if len(identities) != 1:
+        return _result(
+            handoff,
+            revision=head or handoff.source_revision,
+            drifted=drifted,
+            still_fires=None,
+            note="cannot redetect: expected exactly one package-registry identity in this "
+            f"handoff's own evidence, found {len(identities)}",
+        )
+    if head is None:
+        return _result(
+            handoff,
+            revision=None,
+            drifted=False,
+            still_fires=None,
+            note=f"inconclusive: cannot resolve current default-branch revision: {error}",
+        )
+    identity = next(iter(identities))
+    if identity.ecosystem == _PYTHON_ECOSYSTEM:
+        observation = reads.observe_pypi(identity.name, None)
+    else:
+        observation = reads.observe_registry(identity.ecosystem, identity.name, None)
+    listed = ", ".join(observation.project_urls) or "none"
+    fresh = (EvidenceEntry(path=observation.url, detail=f"registry URLs: {listed}"),)
+    if observation.error is not None or not observation.found:
+        why = observation.error or "the registry no longer lists the package"
+        return _result(
+            handoff,
+            revision=head,
+            drifted=drifted,
+            still_fires=None,
+            note=f"inconclusive: package registry read for {identity.name!r}: {why}",
+            fresh=fresh,
+        )
+    named = points_at_repository(observation.project_urls, handoff.repository) is True
+    return _result(
+        handoff,
+        revision=head,
+        drifted=drifted,
+        still_fires=not named,
+        note=(
+            f"no longer fires: the registry lists a URL naming {handoff.repository}"
+            if named
+            else f"still fires: no registry URL for {identity.name!r} names "
+            f"{handoff.repository} (listed: {listed})"
+        ),
+        fresh=fresh,
     )
