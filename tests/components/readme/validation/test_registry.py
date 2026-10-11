@@ -43,6 +43,8 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
+from repository_presenter.components.readme_diagram import Glance, build_body, parse
+from repository_presenter.components.readme_diagram.rebuild import mermaid_fences
 from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
@@ -274,6 +276,23 @@ def _candidate(
         ("LICENSE", "setup.py"),
         TASKS,
     )
+
+
+def _diagram_fence(readme: str) -> tuple[list[str], Any]:
+    lines = readme.splitlines(keepends=True)
+    (fence,) = mermaid_fences(lines)
+    return lines, fence
+
+
+def _drawn_glance(readme: str) -> Glance:
+    """The meaning of the At a Glance diagram a README carries."""
+    return parse(_diagram_fence(readme)[1].body).glance
+
+
+def _redrawn(readme: str, glance: Glance) -> str:
+    """``readme`` with its At a Glance diagram replaced by the contract's drawing of ``glance``."""
+    lines, fence = _diagram_fence(readme)
+    return "".join([*lines[: fence.first], build_body(glance), *lines[fence.last :]])
 
 
 def _verdicts(document: dict[str, Any]) -> dict[str, str]:
@@ -1373,8 +1392,28 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
         "expected exactly one H1 '# Aspose.3D FOSS for Python'; found 2"
     ]
 
-    one_column = validate_candidate(
+    # Updated for R7 (OD-10): BC-07 holds the diagram to the one horizontal drawing of its own
+    # content, so a renamed column cluster is a drawing that is not the contract's (the old test
+    # saw "found 1 column(s)" because it counted `capr` by name); six capabilities drawn as one
+    # column still fail with the original column-rule message, asserted next.
+    renamed = validate_candidate(
         _candidate(readme.replace('subgraph capr[" "]', 'subgraph capx[" "]')), tmp_path, ()
+    )
+    renamed_failure = _failed(renamed, "BC-07")
+    assert renamed_failure["causal_stage"] == "COMPOSING"
+    assert renamed_failure["details"] == [
+        "At a Glance is not the contract's horizontal drawing of its own content "
+        "(line 10: '    subgraph capx[\" \"]' != '    subgraph capr[\" \"]')"
+    ]
+    meaning = _drawn_glance(readme)
+    one_column = validate_candidate(
+        _candidate(
+            _redrawn(
+                readme, dataclasses.replace(meaning, capability_columns=(meaning.capabilities,))
+            )
+        ),
+        tmp_path,
+        (),
     )
     assert _failed(one_column, "BC-07")["details"] == [
         "At a Glance: 6 capabilities form two balanced columns; found 1 column(s)"
@@ -1863,9 +1902,9 @@ def test_narration_covers_the_vocabulary_idea_md_lists_in_every_form(tmp_path: P
         assert f"internal narration {phrase!r}" in details, sentence
 
 
-def test_an_at_a_glance_label_that_wraps_past_three_lines_fails(tmp_path: Path) -> None:
-    """README_CONTRACT section 2.1: "no label wrapping past three lines at Mermaid's default node
-    width - a longer title is shortened at planning, never clipped at render"."""
+def test_an_at_a_glance_label_that_wraps_past_the_line_ceiling_fails(tmp_path: Path) -> None:
+    """README_CONTRACT section 2.1 (R7, OD-10): no label wraps past four lines at the diagram's
+    pixel budget - a longer title is shortened at planning, never clipped at render."""
     readme = _candidate().readme
     long_label = " ".join(["Export", "scenes"] * 10)
     widened = readme.replace('c1["Build scenes"]', f'c1["{long_label}"]')
@@ -1874,8 +1913,22 @@ def test_an_at_a_glance_label_that_wraps_past_three_lines_fails(tmp_path: Path) 
     structure = _failed(document, "BC-07")
     located = next(f for f in structure["failures"] if "wraps to" in f["detail"])
     assert located["causal_stage"] == "PLANNING"
-    assert "lines at the common node width of 28 characters; at most 3" in located["detail"]
+    # Updated for R7 (OD-10): the ceiling is four lines at the diagram's pixel budget (two columns
+    # share a README's width, so 160 px) from the one width model, not three lines of 28 characters.
+    assert "lines at the 160px line budget; at most 4" in located["detail"]
     assert not any("wraps to" in d for d in _structure_details(_candidate(), tmp_path))
+    # The same title drawn the contract's way (wrapped by the model) is still too long: BC-07 does
+    # not accept a label that only *looks* wrapped (README_STANDARD.md STR-28: never repaired by
+    # shortening a label at render).
+    meaning = _drawn_glance(readme)
+    columns = (
+        (long_label, *meaning.capability_columns[0][1:]),
+        meaning.capability_columns[1],
+    )
+    wrapped = _redrawn(readme, dataclasses.replace(meaning, capability_columns=columns))
+    wrapped_failures = _failed(validate_candidate(_candidate(wrapped), tmp_path, ()), "BC-07")
+    assert [f["causal_stage"] for f in wrapped_failures["failures"]] == ["PLANNING"]
+    assert "wraps to 10 lines" in wrapped_failures["details"][0]
 
 
 def _link_fact(name: str, url: str) -> Fact:

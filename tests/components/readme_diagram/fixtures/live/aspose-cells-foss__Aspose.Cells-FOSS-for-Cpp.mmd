@@ -1,0 +1,29 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing .xlsx workbook (file path or in-memory stream)"]
+  end
+  PRODUCT["Aspose.Cells FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Create or load .xlsx workbooks"]
+      c2["Read and write cell values and formulas"]
+      c3["Apply cell styling: fonts, fills, borders, alignment"]
+      c4["Merge cell ranges and format numbers"]
+      c5["Control worksheet view and protection settings"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c6["Apply conditional formatting and data validation"]
+      c7["Manage hyperlinks and defined names"]
+      c8["Configure page setup and print settings"]
+      c9["Read and write document properties"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1[".xlsx workbook (file path or binary stream)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

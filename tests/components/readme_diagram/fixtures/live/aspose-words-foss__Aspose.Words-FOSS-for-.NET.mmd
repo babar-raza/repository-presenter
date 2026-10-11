@@ -1,0 +1,31 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing DOCX, DOCM, DOTX, or DOTM document"]
+    i2["A Flat OPC package"]
+    i3["A Markdown or plain text file"]
+  end
+  PRODUCT["Aspose.Words FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Document creation from scratch and editing"]
+      c2["Text, styles, tables, lists, and sections"]
+      c3["Tracked-changes engine"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Field evaluation engine"]
+      c5["Document protection and signature verification"]
+      c6["DOCX, Markdown, and plain-text conversion"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["DOCX, DOCM, DOTX, or DOTM documents"]
+    o2["Flat OPC packages"]
+    o3["Markdown (.md)"]
+    o4["Plain text (.txt)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

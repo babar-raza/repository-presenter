@@ -1,0 +1,26 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing OneNote (.one) file"]
+  end
+  PRODUCT["Aspose.Note FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Parse the MS-ONE/OneStore binary container"]
+      c2["Traverse the Document/Page/Outline DOM"]
+      c3["Extract rich text and hyperlinks"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Extract images and attached files"]
+      c5["Inspect tables, tags, and numbered lists"]
+      c6["Export pages to PDF"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PDF file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -386,6 +386,26 @@ _merge_ledger(
 )
 
 
+# Owner ruling R7 (OD-10, 2026-10-11) and TC-MMD-03: the At a Glance diagram is drawn left to right
+# with SVG labels pinned and wrapped by one width model (components/readme_diagram), where it was
+# drawn `flowchart TD` with HTML labels that a wider font clips. The one sealed candidate that
+# carries the diagram re-renders to bytes that differ from its sealed README in the diagram's lines
+# only (diff checked directly: the lines between the mermaid fence markers, nothing else moves).
+# A real, deliberate, correct rendering-behavior change; the candidate needs a real re-seal through
+# `present`, since validation and review were judged against the old bytes. `strict=True` as above.
+_merge_ledger(
+    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+    since="2026-10-11",
+    expires="2026-11-10",
+    reason=(
+        "the At a Glance diagram is drawn left to right with SVG labels (R7, OD-10): the sealed "
+        "bytes carry the top-to-bottom `flowchart TD` with HTML labels, so a fresh render differs "
+        "in the diagram's lines only - see comment above"
+    ),
+    ref="G3-W10 TC-MMD-03 (owner ruling R7, OD-10); docs/DECISION_LOG.md section 31 2026-10-11",
+)
+
+
 def block_is_live(record: dict[str, str], today: dt.date) -> bool:
     """Whether a ledger record still excuses its candidate: true through its `expires` date."""
     return today <= dt.date.fromisoformat(record["expires"])

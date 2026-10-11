@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing .pptx presentation"]
+  end
+  PRODUCT["Aspose.Slides FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Presentation, slide, layout, and master management"]
+      c2["Shape creation, including group shapes"]
+      c3["Text formatting (TextFrame, Paragraph, Portion)"]
+      c4["Charts with 74 chart types"]
+      c5["Animations and slide transitions"]
+      c6["Presentation theming (color, font, and format schemes)"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c7["Fill, line, and 3D shape styling"]
+      c8["Visual effects (shadow, glow, blur, reflection)"]
+      c9["Document properties"]
+      c10["Speaker notes and threaded comments"]
+      c11["Image embedding"]
+      c12["Markdown export (24 flavor dialects)"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A .pptx presentation (file path or binary stream)"]
+    o2["Markdown text"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

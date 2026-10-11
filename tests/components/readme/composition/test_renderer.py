@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     unit_checks,
 )
+from repository_presenter.components.readme.composition.components.glance import diagram_failures
 from repository_presenter.components.readme.composition.placement import (
     api_reference_covered_fact_ids,
 )
@@ -27,6 +29,7 @@ from repository_presenter.components.readme.composition.renderer import (
     write_text,
 )
 from repository_presenter.components.readme.extractors.platforms.cpp import CPP
+from repository_presenter.components.readme_diagram import lint_source, parse, render_check
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
@@ -1785,23 +1788,32 @@ def test_the_banner_is_a_linked_image_from_both_verified_facts_or_absent() -> No
     assert "banner-readme.png" not in render_readme(ENTRY, one, plan, UNITS, DISPOSITIONS)
 
 
-def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
-    lines = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
+def _glance_section(readme: str) -> list[str]:
+    lines = readme.splitlines()
     start = lines.index("## At a Glance")
     end = lines.index("## Key Capabilities")
-    section = [line for line in lines[start + 1 : end] if line.strip()]
+    return [line for line in lines[start + 1 : end] if line.strip()]
+
+
+def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
+    # Updated for R7 (OD-10): the same chain, drawn left to right with SVG labels and pinned columns
+    # (components/readme_diagram) instead of the top-to-bottom `flowchart TD` with HTML labels.
+    section = _glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))
     assert section == [
         "```mermaid",
-        "flowchart TD",
+        '%%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false, "nodeSpacing": 22, '
+        '"rankSpacing": 26, "padding": 10, "useMaxWidth": true}}}%%',
+        "flowchart LR",
         '  subgraph StartingPoints["Starting Points"]',
-        "    direction LR",
+        "    direction TB",
         '    i1["An existing OBJ file"]',
         "  end",
-        '  PRODUCT["Aspose.3D FOSS for Python"]',
+        '  PRODUCT["Aspose.3D<br/>FOSS for Python"]',
         '  subgraph Capabilities["Core Capabilities"]',
         "    direction TB",
         '    c1["Build scenes"]',
         '    c2["Save GLB"]',
+        "    c1 ~~~ c2",
         "  end",
         '  subgraph Outputs["Outputs"]',
         "    direction TB",
@@ -1810,6 +1822,36 @@ def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
         "  StartingPoints --> PRODUCT --> Capabilities --> Outputs",
         "```",
     ]
+
+
+def test_the_rendered_at_a_glance_runs_left_to_right_and_its_labels_cannot_clip() -> None:
+    """The clipping model: the production renderer's diagram is the contract's own drawing - no
+    ``flowchart TD``, SVG labels, every label inside the pixel budget - and every node keeps the
+    words the plan chose (R7/OD-10, README_STANDARD.md STR-28)."""
+    body = "\n".join(_glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))[1:-1])
+    assert body.splitlines()[1] == "flowchart LR" and "flowchart TD" not in body
+    assert '"htmlLabels": false' in body.splitlines()[0]
+    assert lint_source(body).conforming
+    # The fixture plan carries two capabilities, which planning would refuse; that is the only
+    # contract finding: the drawing itself, its geometry and its labels are the contract's own.
+    assert [f.message for f in diagram_failures(body, True)] == [
+        "At a Glance shows 2 capabilities; at least 3"
+    ]
+    glance = parse(body).glance
+    assert glance.starting_points == ("An existing OBJ file",)
+    assert glance.capabilities == ("Build scenes", "Save GLB")
+    assert glance.outputs == ("GLB file",) and glance.product == "Aspose.3D FOSS for Python"
+
+
+def test_the_rendered_at_a_glance_passes_a_real_render_in_every_font() -> None:
+    """The real render (skipped when no browser renderer is installed, see render_check.py): the
+    three blocks sit left to right, no label exceeds its box natively or in five wider fonts."""
+    renderer = render_check.find_renderer(os.environ)
+    if renderer is None:
+        pytest.skip("no Mermaid renderer installed (RP_MERMAID_TOOLS)")
+    body = "\n".join(_glance_section(render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS))[1:-1])
+    run = render_check.measure(renderer, {"production": body + "\n"})
+    assert render_check.check_entry(run.entries["production"], parse(body).glance) == []
 
 
 def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities() -> None:
@@ -1827,7 +1869,15 @@ def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities()
     assert "  PRODUCT --> Capabilities" + chr(10) in readme
     assert '    subgraph capl[" "]' in readme and '    subgraph capr[" "]' in readme
     assert '      c3["Read OBJ"]' in readme and '      c4["Write STL"]' in readme
-    assert "~~~" not in readme
+    # Updated for R7 (OD-10): the columns are pinned top to bottom by invisible `~~~` edges (the
+    # reading order a renderer would otherwise choose), where the old drawing had no such edge.
+    assert "      c1 ~~~ c2 ~~~ c3" in readme and "      c4 ~~~ c5 ~~~ c6" in readme
+    # The right column is declared first: Mermaid draws sibling clusters in reverse order, so the
+    # first half of the capabilities lands on the left.
+    assert readme.index('subgraph capr[" "]') < readme.index('subgraph capl[" "]')
+    glance = parse("\n".join(_glance_section(readme)[1:-1])).glance
+    assert [len(column) for column in glance.capability_columns] == [3, 3]
+    assert glance.capabilities == tuple(titles)
 
 
 def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> None:

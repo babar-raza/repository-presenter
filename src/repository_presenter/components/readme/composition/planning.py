@@ -26,9 +26,7 @@ from repository_presenter.components.readme.composition.authoring import (
     title_terms,
 )
 from repository_presenter.components.readme.composition.components.glance import (
-    GLANCE_LINE_CHARS,
-    GLANCE_MAX_LINES,
-    wrapped_lines,
+    capability_title_problem,
 )
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
@@ -1109,20 +1107,13 @@ def plan_checks(
         if len(titles) < 3:
             errors.append("at_a_glance needs at least three capability titles")
         for title in titles:
-            # Geometry-safe labels (README_CONTRACT.md section 2.1): a longer title is
-            # shortened here at planning, never clipped at render.
-            for token in title.split():
-                if len(token) > GLANCE_LINE_CHARS:
-                    errors.append(
-                        "at_a_glance capability title carries an unbroken token over 28 "
-                        f"characters: {token!r}; shorten the title"
-                    )
-            # ... and no label wraps past three lines at the one common node width (section 2.1);
-            # BC-07 judges the rendered label against the same function.
-            if len(wrapped_lines(title)) > GLANCE_MAX_LINES:
+            # Geometry-safe labels (README_CONTRACT.md section 2.1): a longer title is shortened
+            # here at planning, never clipped at render; BC-07 judges the rendered label by the
+            # same function (components/readme_diagram/contract.py).
+            problem = capability_title_problem(title, len(titles))
+            if problem is not None:
                 errors.append(
-                    f"at_a_glance capability title {title!r} wraps past {GLANCE_MAX_LINES} lines "
-                    f"at {GLANCE_LINE_CHARS} characters per line; shorten the title"
+                    f"at_a_glance capability title {title!r} {problem}; shorten the title"
                 )
 
     examples = {i for i in supported if i.startswith("example:")}

@@ -1,0 +1,31 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing FBX, COLLADA, OBJ, STL, PLY, or U3D file"]
+    i2["An existing glTF file (.gltf/.glb)"]
+    i3["An existing 3MF or RVM file (Microsoft 3MF, AVEVA PDMS RVM)"]
+  end
+  PRODUCT["Aspose.3D FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Scene graph construction (Scene, Node hierarchy)"]
+      c2["Primitive and IFC profile geometry"]
+      c3["Material assignment (Lambert, Phong, PBR)"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Skeletal animation (bones, keyframes, morph targets)"]
+      c5["NURBS curve and surface definition"]
+      c6["Format import and export"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["FBX, COLLADA, OBJ, STL, PLY, or U3D file"]
+    o2["glTF file (.gltf/.glb)"]
+    o3["3MF or RVM file (Microsoft 3MF, AVEVA PDMS RVM)"]
+    o4["AMF or HTML5 (Aspose 3D Web viewer) output"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

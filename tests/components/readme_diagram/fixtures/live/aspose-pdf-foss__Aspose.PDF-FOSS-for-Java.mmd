@@ -1,0 +1,37 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing PDF file"]
+    i2["An existing HTML file"]
+    i3["TIFF images (multi-frame)"]
+  end
+  PRODUCT["Aspose.PDF FOSS for Java"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Text extraction, search, and replacement"]
+      c2["Document generation and editing"]
+      c3["Drawing shapes and gradient shadings"]
+      c4["Page rasterization to image formats"]
+      c5["AcroForm and XFA form fields"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c6["Annotations and markup"]
+      c7["Digital signatures and encryption"]
+      c8["PDF/A validation and conversion"]
+      c9["Resource optimization"]
+      c10["Tagged PDF and logical structure"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A PDF file"]
+    o2["An HTML file"]
+    o3["BMP images"]
+    o4["GIF images"]
+    o5["JPEG images"]
+    o6["TIFF images"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -1,0 +1,23 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing CFB container (file or bytes)"]
+    i2["An existing .msg file (file or bytes)"]
+    i3["An existing EML file (via Python's email package)"]
+  end
+  PRODUCT["Aspose.Email FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Low-level CFB container read/write (CFBReader / CFBWriter)"]
+    c2["Low-level MSG document read/write (MsgReader / MsgWriter / MsgDocument)"]
+    c3["High-level MapiMessage API (create, edit, save, reload)"]
+    c4["Export a MapiMessage to a Python EmailMessage (to_email_message)"]
+    c5["Import a Python EmailMessage into a MapiMessage (from_email_message)"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["CFB containers"]
+    o2[".msg files"]
+    o3["EML files (via Python's email package)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -31,6 +31,9 @@ from repository_presenter.components.readme.composition.components.ecosystems im
     REGISTRY_NAMES,
     host_names,
 )
+from repository_presenter.components.readme.composition.components.glance import (
+    draw_at_a_glance,
+)
 from repository_presenter.components.readme.composition.components.identity import (
     elide_noncanonical,
     product_name,
@@ -1192,9 +1195,10 @@ def _label(text: str) -> str:
 
 def _at_a_glance(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2.1: one chain, StartingPoints --> PRODUCT --> Capabilities
-    --> Outputs, each group a single listing node; Starting Points and Outputs are omitted with
-    their hop when nothing is verified; up to five capabilities form one column, six to eight
-    two balanced columns; the renderer owns every node, edge, and label."""
+    --> Outputs, drawn left to right by ``components/readme_diagram`` (the one builder the
+    live-first correction path shares); Starting Points and Outputs are omitted with their hop
+    when nothing is verified; up to five capabilities form one column, six to eight two balanced
+    columns; the renderer owns every node, edge, and label."""
     glance = context.plan.get("at_a_glance") or {}
     inputs = [
         format_name(fact.value)
@@ -1207,41 +1211,12 @@ def _at_a_glance(context: RenderContext) -> list[str]:
         if fact is not None
     ]
     titles = [_label(context.canonical(title)) for title in glance.get("capability_titles", [])]
-    lines = ["```mermaid", "flowchart TD"]
-    chain: list[str] = []
-    if inputs:
-        lines.append('  subgraph StartingPoints["Starting Points"]')
-        lines.append("    direction LR")
-        lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
-        lines.append("  end")
-        chain.append("StartingPoints")
-    lines.append(f'  PRODUCT["{_label(context.name)}"]')
-    chain.append("PRODUCT")
-    lines.append('  subgraph Capabilities["Core Capabilities"]')
-    if len(titles) >= 6:
-        lines.append("    direction LR")
-        left = (len(titles) + 1) // 2
-        for name, first, column in (("capl", 1, titles[:left]), ("capr", left + 1, titles[left:])):
-            lines.append(f'    subgraph {name}[" "]')
-            lines.append("      direction TB")
-            for offset, title in enumerate(column):
-                lines.append(f'      c{first + offset}["{title}"]')
-            lines.append("    end")
-    else:
-        lines.append("    direction TB")
-        for index, title in enumerate(titles, start=1):
-            lines.append(f'    c{index}["{title}"]')
-    lines.append("  end")
-    chain.append("Capabilities")
-    if outputs:
-        lines.append('  subgraph Outputs["Outputs"]')
-        lines.append("    direction TB")
-        lines.append(f'    o1["{_or_list(outputs)} file"]')
-        lines.append("  end")
-        chain.append("Outputs")
-    lines.append("  " + " --> ".join(chain))
-    lines.append("```")
-    return lines
+    return draw_at_a_glance(
+        product=_label(context.name),
+        starting_points=(f"An existing {_or_list(inputs)} file",) if inputs else (),
+        capability_titles=titles,
+        outputs=(f"{_or_list(outputs)} file",) if outputs else (),
+    )
 
 
 def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[str]:

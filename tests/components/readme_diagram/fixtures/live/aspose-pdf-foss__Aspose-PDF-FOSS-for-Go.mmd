@@ -1,0 +1,41 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing PDF document (including encrypted)"]
+    i2["Nothing — authored from scratch"]
+  end
+  PRODUCT["Aspose.PDF FOSS for Go"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Page-level operations (split, merge, extract, impose)"]
+      c2["Encryption and digital signatures"]
+      c3["Content authoring via the Flow layout engine"]
+      c4["Tables and vector graphics"]
+      c5["AcroForm fields"]
+      c6["Annotations, bookmarks, redaction, and portfolios"]
+      c7["Stamps and watermarks"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c8["Tagged PDF and PDF/UA accessibility"]
+      c9["PDF/A and structural validation"]
+      c10["Rendering to raster images"]
+      c11["HTML, SVG, and Markdown conversion"]
+      c12["AI copilots"]
+      c13["Text extraction, search, and replace"]
+      c14["Table detection and Office/eBook conversion"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PDF documents (file path or in-memory stream)"]
+    o2["PNG, JPEG, GIF, BMP, and TIFF raster images"]
+    o3["HTML (single-file)"]
+    o4["SVG"]
+    o5["Markdown"]
+    o6["Plain text"]
+    o7["DOCX (Word), XLSX (Excel), and EPUB"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
