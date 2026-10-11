@@ -184,9 +184,13 @@ def test_a_package_reference_becomes_a_dependency_and_a_private_one_is_developme
     assert facts["dependency:development.ilrepack"].value == "ILRepack 2.0.46"
     assert "dependency:none" not in facts
     assert not any("other" in fact_id for fact_id in facts)
-    # The floor is the lowest target across every lineage, not the lowest the vendored table
-    # happens to name: netcoreapp3.1 is older than net6.0 and both are older than net10.0.
-    assert facts["package:target_framework"].value == "netcoreapp3.1"
+    # Every declared target is the fact's value, broadest first, not the lowest one alone: a
+    # reader on net10.0 would otherwise be told the package needs only netcoreapp3.1
+    # (Aspose.Slides-FOSS for .NET declared net8.0;net10.0 and the page named net8.0).
+    # netcoreapp3.1 is older than net6.0 and both are older than net10.0.
+    floor = facts["package:target_framework"]
+    assert floor.value == "netcoreapp3.1;net6.0;net10.0"
+    assert (floor.attributes or {}).get("floor_declaration") == "TargetFrameworks"
 
 
 def test_a_project_with_no_package_reference_proves_a_verified_zero(tmp_path: Path) -> None:
@@ -233,7 +237,7 @@ def test_manifest_facts_carry_identity_version_framework_and_the_install_command
     facts = {fact.id: fact for fact in net.PLUGIN.manifest_facts(tmp_path, manifest, tree)}
     assert facts["package:name"].value == "Aspose.Widget"
     assert facts["package:version"].value == "1.2.3"
-    assert facts["package:target_framework"].value == "net6.0"
+    assert facts["package:target_framework"].value == "net6.0;net8.0"
     install = facts["install_command:dotnet"]
     assert install.value == "dotnet add package Aspose.Widget"
     # Unresolved until a registry says otherwise: a declared id is not a published package.
@@ -423,3 +427,24 @@ def test_every_fact_the_plugin_emits_is_typed_as_a_fact(tmp_path: Path) -> None:
         *net.PLUGIN.surface_facts(tmp_path, tree),
     ]:
         assert isinstance(fact, Fact)
+
+
+def test_a_single_target_framework_stays_a_single_value_without_an_override(
+    tmp_path: Path,
+) -> None:
+    """One `TargetFramework` is its own floor: the value and the citation are unchanged."""
+    source = tmp_path / "src" / "Aspose.Widget"
+    source.mkdir(parents=True)
+    (source / "Aspose.Widget.csproj").write_text(
+        CSPROJ.replace(
+            "<TargetFrameworks>net8.0;net6.0</TargetFrameworks>",
+            "<TargetFramework>net8.0</TargetFramework>",
+        ),
+        encoding="utf-8",
+    )
+    (source / "Widget.cs").write_text(WIDGET, encoding="utf-8")
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = {f.id: f for f in net.PLUGIN.manifest_facts(tmp_path, manifest, [])}
+    assert facts["package:target_framework"].value == "net8.0"
+    assert not (facts["package:target_framework"].attributes or {})

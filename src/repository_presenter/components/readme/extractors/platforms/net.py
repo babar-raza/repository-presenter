@@ -150,11 +150,18 @@ def _package_id(declared_name: str | None, manifest: Path) -> tuple[str, bool]:
 
 
 def _floor(identity: PackageIdentity) -> str:
-    """The lowest framework the project targets, or what the reader gave when it lists none."""
+    """Every framework the project targets, broadest first and `;`-separated as MSBuild spells
+    them, or what the reader gave when it lists none.
+
+    A single target is returned unchanged. Keeping only the lowest of several lost the others:
+    Aspose.Slides-FOSS for .NET declares `net8.0;net10.0` and its badge and Dependencies row
+    named `net8.0` alone (BC-10 triage, cause 2). Order is deterministic (`_framework_order`).
+    """
     targets = identity.raw.get("target_frameworks")
     if not isinstance(targets, list) or not targets:
         return identity.floor
-    return min((str(target) for target in targets), key=_framework_order)
+    unique = dict.fromkeys(str(target).strip() for target in targets if str(target).strip())
+    return ";".join(sorted(unique, key=_framework_order)) or identity.floor
 
 
 def _dependency_facts(project: Path, where: str) -> list[Fact]:
@@ -300,12 +307,23 @@ class NetPlugin:
             )
         floor = _floor(identity)
         if floor:
+            several = ";" in floor
             facts.append(
                 Fact(
                     fact_id("package", "target_framework"),
                     "package",
                     floor,
-                    (Evidence(where, "lowest target framework the project declares"),),
+                    (
+                        Evidence(
+                            where,
+                            "target frameworks the project declares"
+                            if several
+                            else "lowest target framework the project declares",
+                        ),
+                    ),
+                    # The property that lists several is the plural one; the spec's generic
+                    # `TargetFramework` would cite a declaration the project does not make.
+                    attributes={"floor_declaration": "TargetFrameworks"} if several else None,
                 )
             )
         facts.extend(_dependency_facts(manifest, where))

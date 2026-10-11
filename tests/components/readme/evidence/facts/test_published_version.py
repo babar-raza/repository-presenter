@@ -14,6 +14,7 @@ from repository_presenter.components.readme.evidence.facts import links, publish
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
 from repository_presenter.components.readme.evidence.facts.published_version import (
     PUBLISHED_VERSION_FACT_ID,
+    pin_install_version,
     published_version_fact,
 )
 from repository_presenter.components.readme.extractors.platforms import python_registry
@@ -163,3 +164,39 @@ def test_the_fact_id_core_names_is_the_one_a_package_fact_slugs_to() -> None:
     from repository_presenter.core.facts import fact_id
 
     assert fact_id("package", "published_version") == package_registry.PUBLISHED_VERSION_FACT_ID
+
+
+def _install(value: str, **attributes: str) -> Fact:
+    return Fact(
+        "install_command:maven",
+        "install_command",
+        value,
+        (
+            Evidence(
+                "pom.xml", "install command for the coordinate the `pom.xml` manifest declares"
+            ),
+        ),
+        attributes=attributes or None,
+    )
+
+
+def test_a_registry_install_names_the_published_release_not_the_manifest_version() -> None:
+    """The Maven command embeds the POM's version; BC-14 holds it to the registry's release."""
+    published = published_version_fact(ENTRY, NAME)
+    assert published is None  # nothing conclusive without an injected reading
+    release = Fact(PUBLISHED_VERSION_FACT_ID, "package", "26.7.0", (Evidence("u", "registry"),))
+    fact = _install("mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.8.0")
+    pinned = pin_install_version(fact, "26.8.0", release)
+    assert pinned.value == "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.7.0"
+    assert pinned.evidence == fact.evidence and pinned.polarity == fact.polarity
+
+
+def test_a_pin_changes_nothing_when_the_versions_agree_or_the_install_is_a_source_build() -> None:
+    release = Fact(PUBLISHED_VERSION_FACT_ID, "package", "26.7.0", (Evidence("u", "registry"),))
+    same = _install("mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.7.0")
+    assert pin_install_version(same, "26.7.0", release) is same
+    assert pin_install_version(same, "26.7.0", None) is same
+    source = _install("git clone x; mvn package:26.8.0", install_kind="source")
+    assert pin_install_version(source, "26.8.0", release) is source
+    other = _install("mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss")
+    assert pin_install_version(other, "26.8.0", release) is other

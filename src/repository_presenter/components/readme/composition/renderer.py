@@ -57,6 +57,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 )
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
+from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
 from repository_presenter.core.registry.models import RegistryEntry
 
 # The template component version dependencies.json records. 19: facts render in canonical (ID)
@@ -93,7 +94,12 @@ RENDERER_VERSION = "29"
 # before it enters the Core API table (identity.elide_noncanonical), rather than let a citation
 # carry it onto the page and fail BC-12 unrepairably; quoted_evidence_elisions recomputes the
 # same elisions for the advisory audit trail (validation/registry.py's advisory_notes).
-RENDERER_VERSION = "30"
+# 31 (BC-10 triage cause 2, CUT-2): Installation names the registry's published version when
+# package:published_version is SUPPORTED (the project file's version otherwise, as before) and
+# adds the ecosystem spec's alternative declarations (Maven POM entry and Gradle line for Java)
+# under a registry install; a multi-framework .NET project's runtime badge lists every target
+# framework. A repository with a single target and no published_version fact renders as before.
+RENDERER_VERSION = "31"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -744,7 +750,16 @@ def _installation(context: RenderContext) -> list[str]:
     lines: list[str] = []
     install = context.fact(context.spec.install_fact_id)
     package = context.fact("package:name")
-    version = context.fact("package:version")
+    # A reader installs what the registry lists, not what the checkout declares: the repository
+    # is ahead of its last release or behind a later one (Aspose.Email-FOSS for .NET: the project
+    # file says 0.1.0, NuGet lists 26.7.0). The registry's reading, when it was conclusive, names
+    # the version; BC-14 holds any version statement to the same fact.
+    published = context.fact(PUBLISHED_VERSION_FACT_ID)
+    version = (
+        published
+        if published is not None and published.polarity == "SUPPORTED"
+        else context.fact("package:version")
+    )
     kind = (install.attributes or {}).get("install_kind") if install is not None else None
     source_kind = kind == "source"
     checkout_kind = kind == "source_checkout"
@@ -782,6 +797,11 @@ def _installation(context: RenderContext) -> list[str]:
         lines.append(lead)
         lines.append("")
         lines.extend(_code_block("bash", install.value))
+        for alternative, fence, body in context.spec.install_alternative_blocks(
+            package.value, version.value if version is not None else ""
+        ):
+            lines.extend(["", alternative, ""])
+            lines.extend(_code_block(fence, body))
     elif install is not None and package is not None:
         detail = install.evidence[-1].detail or "the registry could not be checked"
         registry = context.spec.registry

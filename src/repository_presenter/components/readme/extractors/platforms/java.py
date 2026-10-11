@@ -70,6 +70,20 @@ JAVA: Final = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("pom.xml",),
     source_suffixes=frozenset({".java"}),
+    # The two declarations the upstream READMEs also give next to `mvn dependency:get`; both are
+    # the coordinate and version the Installation sentence already states, in another syntax.
+    install_alternatives=(
+        (
+            "Or declare it in Maven:",
+            "xml",
+            "<dependency>\n"
+            "  <groupId>{group}</groupId>\n"
+            "  <artifactId>{artifact}</artifactId>\n"
+            "  <version>{version}</version>\n"
+            "</dependency>",
+        ),
+        ("Or declare it in Gradle:", "groovy", "implementation '{group}:{artifact}:{version}'"),
+    ),
 )
 # §29.6 E3 and `core/ecosystems.py`'s own rule: adding an ecosystem is a spec, a verifier and a
 # negative control, never an edit to a shared file - so the spec is declared beside the plugin

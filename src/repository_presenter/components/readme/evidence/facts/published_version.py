@@ -22,6 +22,8 @@ Rules the fact keeps:
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from repository_presenter.components.readme.extractors.surface.registry import (
     RegistryObservation,
     observe,
@@ -57,3 +59,28 @@ def published_version_fact(entry: RegistryEntry, package_name: Fact | None) -> F
         ),
         attributes={"registry": reading.registry},
     )
+
+
+_SOURCE_KINDS = frozenset({"source", "source_checkout"})
+
+
+def pin_install_version(install: Fact, manifest_version: str, published: Fact | None) -> Fact:
+    """``install`` with the manifest's version replaced by the registry's published release.
+
+    A coordinate-form registry command (Maven's ``-Dartifact=group:artifact:<version>``) embeds
+    the version the POM declares, while a reader can fetch only what the registry lists; BC-14
+    holds the command to the registry's release when it is known. Applies only to a registry
+    install whose value ends in ``:<manifest version>`` - a source-build command, a command that
+    names no version, and a repository whose manifest already agrees are returned unchanged.
+    """
+    if (
+        published is None
+        or not manifest_version
+        or published.value == manifest_version
+        or install.kind != "install_command"
+        or (install.attributes or {}).get("install_kind") in _SOURCE_KINDS
+        or not install.value.endswith(f":{manifest_version}")
+    ):
+        return install
+    pinned = install.value.removesuffix(manifest_version) + published.value
+    return replace(install, value=pinned)
