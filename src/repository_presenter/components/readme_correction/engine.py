@@ -33,8 +33,14 @@ class CorrectionError(PresenterError):
 
 def _without_narration(ctx: Context, edits: list[Edit], findings: list[Finding]) -> list[Edit]:
     """Drop every edit whose inserted text carries internal-assurance narration, with the
-    contents-list item that points at a dropped section; the reason is reported."""
-    bad = {id(edit): narration(edit.replacement) for edit in edits if narration(edit.replacement)}
+    contents-list item that points at a dropped section; the reason is reported. Only words the
+    edit brings count: a phrase the replaced text already held is the maintainers' own."""
+    bad = {}
+    for edit in edits:
+        known = set(narration(edit.original))
+        fresh = [hit for hit in narration(edit.replacement) if hit not in known]
+        if fresh:
+            bad[id(edit)] = fresh
     pairs = {
         (e.detector, e.order) for e in edits if id(e) in bad and e.detector == "missing_sections"
     }

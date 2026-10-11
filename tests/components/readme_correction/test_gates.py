@@ -104,6 +104,48 @@ def test_an_edit_whose_text_still_narrates_is_dropped_with_its_contents_item(
     assert any("internal narration" in f.reason for f in result.findings)
 
 
+def test_words_the_replaced_text_already_held_are_the_maintainers_own_not_narration(
+    make_context: Any,
+) -> None:
+    from repository_presenter.components.readme_correction.engine import _without_narration
+    from repository_presenter.components.readme_correction.model import DIAGRAM_FIX, Edit
+
+    nl = chr(10)
+    label = "Checks run against this revision"
+    readme = nl.join(["# P", "", "```mermaid", "flowchart TD", f"  a['{label}']", "```", ""])
+    start = readme.index("flowchart")
+    end = readme.index("```" + nl, start)
+    body = readme[start:end]
+    kept = Edit(
+        kind=DIAGRAM_FIX,
+        detector="at_a_glance_diagram",
+        start=start,
+        end=end,
+        original=body,
+        replacement=body.replace("flowchart TD", "flowchart LR"),
+        fact_ids=(),
+        locators=("README.md:4",),
+        rationale="redrawn",
+    )
+    assert narration(kept.replacement)  # the maintainers' label does match a narration pattern
+    findings: list[Any] = []
+    assert _without_narration(make_context(readme), [kept], findings) == [kept]
+    assert findings == []
+    fresh = Edit(
+        kind=DIAGRAM_FIX,
+        detector="at_a_glance_diagram",
+        start=start,
+        end=end,
+        original=body,
+        replacement=body.replace(label, label + " and evidence"),
+        fact_ids=(),
+        locators=("README.md:4",),
+        rationale="redrawn",
+    )
+    assert _without_narration(make_context(readme), [fresh], findings) == []
+    assert findings and "internal narration" in findings[0].reason
+
+
 # --------------------------------------------------------------------------------- redundancy
 def test_dependencies_the_readme_already_names_elsewhere_are_not_repeated(
     make_context: Any, make_fact: Any
