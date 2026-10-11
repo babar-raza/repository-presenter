@@ -268,7 +268,7 @@ def test_the_pull_request_lists_each_edit_with_its_evidence_and_claims_nothing_e
         policy_version="p1",
     )
     assert "`26.5.0` -> `26.7.0`" in content.body
-    assert "`package:published_version` (SUPPORTED)" in content.body
+    assert "current release `26.7.0` on the package registry" in content.body
     assert "Refreshes the README" not in content.body and "reconciled" not in content.body
     assert "kind: correction" in content.body and "No model wrote" in content.body
 
@@ -303,7 +303,7 @@ def test_structure_fixes_are_proposable_evidenced_by_their_readme_lines(
     )
     assert content.title.startswith("docs(readme): ")
     assert "unclosed <details>" in content.title and "second H1" in content.title
-    assert "`README.md:" in content.body
+    assert "README.md line" in content.body
     assert "inserted `</details>` before line" in content.body
 
 
@@ -336,8 +336,8 @@ def test_additions_are_proposable_with_their_tree_paths_as_evidence(
         source_revision="a" * 40,
         policy_version="p1",
     )
-    assert "`tree:CHANGELOG.md`" in content.body
-    assert "added at line" in content.body
+    assert "`CHANGELOG.md` exists in the repository" in content.body
+    assert "added to the README at line" in content.body
 
 
 def test_a_locator_naming_a_path_the_tree_lacks_or_a_line_past_the_end_is_a_problem(
@@ -382,8 +382,8 @@ def test_a_diagram_rebuild_is_proposable_with_its_pull_request_text(
         "docs(readme): show the current release (26.7.0) in the install snippets "
         "and lay out the At a Glance diagram left to right"
     )
-    assert "redrawn left to right so text no longer clips" in content.body
-    assert "(compared by script)" in content.body and "`README.md:8`" in content.body
+    assert "drawn left to right so the labels fit their boxes" in content.body
+    assert "(compared by script)" in content.body and "README.md line 8" in content.body
 
 
 def tight_readme() -> str:

@@ -1,28 +1,34 @@
-"""The pull request text of a correction, written from the bundle, against the reviewer's drafts.
+"""The pull request text of a correction: plain words, from the bundle, with no internal identifier.
 
-Three drafts (a version fix, two structure fixes, a diagram redraw) are the golden shapes: a title
-that names the change, a lead that says why, one bullet per edit with the quoted before and after
-and the evidence fact with its status, exact counts from the validation delta, how to review and how
-to decline. None of the generic composer's overclaims may appear: "every statement checked", "no
-verification counts", a heading diff.
+Golden shapes (the reviewers' drafts): a title that names the change, a lead that says why, one
+bullet per edit with the line, the quoted before and after, a reason in ordinary language and where
+the evidence is (the file or the registry), what was checked with exact counts, how to review, how
+to decline. Nothing in it may be an identifier of this tool's own checks, rulings, detectors, files
+or run ids (``internal_identifiers`` is the list), and none of the generic composer's overclaims.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from repository_presenter.components.propose.pull_request import load_pull_request_evidence
+from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme_correction import bundle as files
 from repository_presenter.components.readme_correction.pull_request import (
+    INTERNAL_IDENTIFIERS,
     compose_correction_pull_request,
+    internal_identifiers,
 )
 from repository_presenter.components.readme_correction.settle import correct_settled
 
 NL = chr(10)
+WORDS = "aspose-words-foss/Aspose.Words-FOSS-for-Python"
+JAVA = "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
 FORBIDDEN = (
     "Every statement",
     "No verification counts",
@@ -30,7 +36,29 @@ FORBIDDEN = (
     "Refreshes the README",
     "sections updated",
     "Rewritten sections",
+    "so text no longer clips",
+    "Starting Points -> product",  # only for a diagram that has that block (see the chain test)
 )
+XML_AND_GRADLE = [
+    "",
+    "```xml",
+    "<artifactId>aspose-3d-foss</artifactId>",
+    "```",
+    "",
+    "```groovy",
+    "implementation 'org.aspose:aspose-3d-foss'",
+    "```",
+]
+OTHER_SECTIONS = [
+    "## Dependencies",
+    "",
+    "None.",
+    "",
+    "## Development and Testing",
+    "",
+    "Run it.",
+    "",
+]
 
 VERSION = NL.join(
     [
@@ -41,15 +69,9 @@ VERSION = NL.join(
         "```bash",
         "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0",
         "```",
+        *XML_AND_GRADLE,
         "",
-        "```xml",
-        "<artifactId>aspose-3d-foss</artifactId>",
-        "```",
-        "",
-        "```groovy",
-        "implementation 'org.aspose:aspose-3d-foss'",
-        "```",
-        "",
+        *OTHER_SECTIONS,
         "## License",
         "",
         "MIT.",
@@ -65,16 +87,9 @@ STRUCTURE = NL.join(
         "```bash",
         "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0",
         "```",
+        *XML_AND_GRADLE,
         "",
-        "```xml",
-        "<artifactId>aspose-3d-foss</artifactId>",
-        "```",
-        "",
-        "```groovy",
-        "implementation 'org.aspose:aspose-3d-foss'",
-        "```",
-        "",
-        "# Requires **Java 21+**",
+        "# Pin the `v26` module path.",
         "",
         "<details>",
         "<summary>More commands</summary>",
@@ -83,19 +98,56 @@ STRUCTURE = NL.join(
         "mvn test",
         "```",
         "",
+        *OTHER_SECTIONS,
         "## License",
         "",
         "MIT.",
         "",
     ]
 )
-DIAGRAM = NL.join(
+SECTIONS = NL.join(
     [
-        "flowchart TD",
-        '  subgraph StartingPoints["Starting Points"]',
-        "    direction LR",
-        '    i1["An existing OBJ, STL, or 3MF file"]',
-        "  end",
+        "# Aspose.Cells FOSS for .NET",
+        "",
+        "## Navigation",
+        "",
+        "- [Installation](#installation)",
+        "- [Quick Start](#quick-start)",
+        "- [License](#license)",
+        "",
+        "## Installation",
+        "",
+        "```bash",
+        "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0",
+        "```",
+        *XML_AND_GRADLE,
+        "",
+        "## Quick Start",
+        "",
+        "Run it.",
+        "",
+        "## Development and Testing",
+        "",
+        "Run it.",
+        "",
+        "## License",
+        "",
+        "MIT.",
+        "",
+    ]
+)
+
+
+def diagram(titles: bool = True, inputs: bool = True, first_title: str = "Starting Points") -> str:
+    lines = ["flowchart TD"]
+    if inputs:
+        lines += [
+            f'  subgraph StartingPoints["{first_title}"]',
+            "    direction LR",
+            '    i1["An existing OBJ, STL, or 3MF file"]',
+            "  end",
+        ]
+    lines += [
         '  PRODUCT["Aspose.3D FOSS for Java"]',
         '  subgraph Capabilities["Core Capabilities"]',
         "    direction LR",
@@ -116,54 +168,77 @@ DIAGRAM = NL.join(
         "    direction TB",
         '    o1["OBJ, STL, or 3MF file"]',
         "  end",
-        "  StartingPoints --> PRODUCT --> Capabilities --> Outputs",
+        (
+            "  StartingPoints --> PRODUCT --> Capabilities --> Outputs"
+            if inputs
+            else "  PRODUCT --> Capabilities --> Outputs"
+        ),
         "",
     ]
-)
-DIAGRAM_ONLY = NL.join(
-    [
-        "# Aspose.3D FOSS for Java",
-        "",
-        "## At a Glance",
-        "",
-        "```mermaid",
-        DIAGRAM + "```",
-        "",
-        "## License",
-        "",
-        "MIT.",
-        "",
-    ]
-)
+    return NL.join(lines)
 
 
-def complete(readme: str, *, installation: bool = False) -> str:
-    """``readme`` with the other template sections present, so only the edit under test is made."""
-    tail = ["## Dependencies", "", "None.", "", "## Development and Testing", "", "Run it.", ""]
-    head = ["## Installation", "", "```xml", "<artifactId>aspose-3d-foss</artifactId>", "```", ""]
-    head += ["```groovy", "implementation 'org.aspose:aspose-3d-foss'", "```", ""]
-    head = head if installation else []
-    return readme.replace("## License", NL.join([*head, *tail, "## License"]), 1)
+def with_diagram(body: str) -> str:
+    return NL.join(
+        [
+            "# Aspose.3D FOSS for Java",
+            "",
+            "## At a Glance",
+            "",
+            "```mermaid",
+            body + "```",
+            "",
+            "## Installation",
+            "",
+            "```bash",
+            "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0",
+            "```",
+            *XML_AND_GRADLE,
+            "",
+            *OTHER_SECTIONS,
+            "## License",
+            "",
+            "MIT.",
+            "",
+        ]
+    )
 
 
 def compose(
-    tmp_path: Path, make_context: Any, readme: str, render: dict[str, Any] | None = None
+    tmp_path: Path,
+    make_context: Any,
+    readme: str,
+    *,
+    facts: Any = None,
+    repository: str = JAVA,
+    render: dict[str, Any] | None = None,
+    tree: Any = ("README.md", "LICENSE", "pom.xml"),
 ) -> Any:
-    readme = complete(readme, installation="## Installation" not in readme)
-    ctx = make_context(readme)
+    ctx = make_context(readme, facts, repository=repository, tree=tree)
     result, delta = correct_settled(ctx, readme.encode())
     directory = tmp_path / "bundle"
     files.write_bundle(ctx, readme.encode(), result, delta, directory, render=render)
     return compose_correction_pull_request(
         bundle=directory,
-        repository="aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+        repository=repository,
         candidate_hash="c" * 64,
         source_revision="a" * 40,
         policy_version="p1",
     )
 
 
-def test_a_version_fix_names_the_release_the_lines_and_the_evidence(
+def above_footer(content: Any) -> str:
+    return str(content.body).split("\n---\n", 1)[0]
+
+
+def assert_plain(content: Any) -> None:
+    text = above_footer(content) + NL + content.title
+    assert internal_identifiers(text) == [], internal_identifiers(text)
+    for phrase in FORBIDDEN[:-1]:
+        assert phrase not in text
+
+
+def test_a_version_fix_names_the_release_the_lines_and_where_the_evidence_is(
     tmp_path: Path, make_context: Any
 ) -> None:
     content = compose(tmp_path, make_context, VERSION)
@@ -174,51 +249,136 @@ def test_a_version_fix_names_the_release_the_lines_and_the_evidence(
     assert "The README pins `26.5.0` (README.md line 6)" in body
     assert "lists `26.7.0` as the current release" in body
     assert "- README.md line 6: `26.5.0` -> `26.7.0`" in body
-    assert "evidence: `package:name` (SUPPORTED)" in body
-    assert "`package:published_version` (SUPPORTED): 26.7.0" in body
-    assert "0 introduced failure(s)" in body
+    assert "is shown at version 26.5.0, but the registry's current stable release is 26.7.0" in body
+    assert "current release `26.7.0` on the package registry (at https://repo1.maven.org/x)" in body
+    assert "package name `org.aspose:aspose-3d-foss` (in `pom.xml`)" in body
     assert "(idempotent: yes)" in body and "(model calls: 0)" in body
     assert "### How to review" in body and "### How to decline" in body
     assert "- candidate_hash: " + "c" * 64 in body and "- kind: correction" in body
-    for phrase in FORBIDDEN:
-        assert phrase not in body and phrase not in content.title
+    assert_plain(content)
 
 
-def test_two_structure_fixes_are_each_a_bullet_with_their_line_and_a_title_that_says_so(
+def test_two_structure_fixes_say_why_in_ordinary_words_and_own_the_inferred_part(
     tmp_path: Path, make_context: Any
 ) -> None:
     content = compose(tmp_path, make_context, STRUCTURE)
-    assert content.title.startswith("docs(readme): ")
     assert "demote a stray second H1" in content.title
     assert "close an unclosed <details> block" in content.title
     body = content.body
     assert "no wording changes" in body
+    assert "is a second top-level heading, and a README has one: its title, on line 1" in body
+    assert "deleting the `#` instead may read better" in body
+    assert "is never closed, so everything after it renders collapsed" in body
+    assert "that is our reading of where it should end, so tell us if it should end" in body
+    assert "template has" not in body
+    assert body.count("  - evidence: README.md line") >= 2
+    assert_plain(content)
+
+
+def test_a_check_that_reads_text_the_broken_markup_hid_is_said_in_words_not_counted_away(
+    tmp_path: Path, make_context: Any
+) -> None:
+    body = compose(tmp_path, make_context, STRUCTURE).body
+    assert "Closing the broken markup makes text visible that the checks could not read" in body
+    assert "(for example the code span `v26`)" in body
+    assert "That text is yours and this change does not alter it." in body
+
+
+def test_an_inserted_section_cites_the_file_and_says_what_it_states(
+    tmp_path: Path, make_context: Any, make_fact: Any
+) -> None:
+    facts = [
+        make_fact("package:name", "Aspose.Cells.FOSS", evidence=(("src/Cells.csproj", None),)),
+        make_fact(
+            "dependency:skiasharp", "SkiaSharp 2.88.8", evidence=(("src/Cells.csproj", "x"),)
+        ),
+        make_fact(
+            "package:target_framework",
+            "netstandard2.0;net8.0",
+            evidence=(("src/Cells.csproj", "x"),),
+        ),
+        make_fact(
+            "license:spdx", "MIT", evidence=(("LICENSE", "license text states this license"),)
+        ),
+        make_fact("license:file", "LICENSE", evidence=(("LICENSE", None),)),
+    ]
+    content = compose(tmp_path, make_context, SECTIONS, facts=facts)
+    body = content.body
+    assert "Dependencies" in content.title and "Navigation item" in content.title
     assert (
-        "- README.md line 9: `# Requires **Java 21+**` -> `## Requires **Java 21+**`" in body
-        or ("second_h1" in body or "Requires **Java 21+**" in body)
+        "the README has no Dependencies section; this one states what the repository's own "
+        "files declare" in body
     )
-    assert "inserted `</details>` before line" in body
-    assert body.count("  - evidence: `README.md:") >= 2
-    for phrase in FORBIDDEN:
-        assert phrase not in body
+    assert "dependency `SkiaSharp 2.88.8` (in `src/Cells.csproj`)" in body
+    assert "so the new section can be reached from the contents list" in body
+    assert "template's" not in body
+    assert_plain(content)
+
+
+def test_a_badge_names_the_package_the_registry_and_the_release(
+    tmp_path: Path, make_context: Any, make_fact: Any
+) -> None:
+    facts = [
+        make_fact("package:name", "aspose-words-foss", evidence=(("pyproject.toml", None),)),
+        make_fact(
+            "package:published_version",
+            "26.3.0",
+            evidence=(("https://pypi.org/pypi/x/json", None),),
+        ),
+        make_fact(
+            "install_command:pip",
+            "pip install aspose-words-foss",
+            attributes={"install_kind": "registry"},
+            evidence=(("pyproject.toml", None), ("https://pypi.org/x", "package registry: found")),
+        ),
+    ]
+    readme = NL.join(["# P", "", "Intro.", "", "## Installation", "", "x", ""])
+    content = compose(tmp_path, make_context, readme, facts=facts, repository=WORDS)
+    assert (
+        "The README has no version badge for the published package "
+        "(aspose-words-foss on PyPI, current release 26.3.0)" in content.body
+    )
+    assert (
+        "the README shows no version badge for the published package; it is added at the front "
+        "of the badge row" in content.body
+    )
+    assert "lacks published-version badge" not in content.body
+    assert "stable order" not in content.body
+    assert_plain(content)
 
 
 def test_a_diagram_redraw_says_what_is_unchanged_and_claims_no_render_without_a_record(
     tmp_path: Path, make_context: Any
 ) -> None:
-    content = compose(tmp_path, make_context, DIAGRAM_ONLY)
-    assert content.title == "docs(readme): lay out the At a Glance diagram left to right"
+    content = compose(tmp_path, make_context, with_diagram(diagram()))
+    assert "lay out the At a Glance diagram left to right" in content.title
     body = content.body
     assert "is drawn top-down (`flowchart TD`)" in body
-    assert "redrawn left to right so text no longer clips" in body
+    assert "drawn left to right so the labels fit their boxes." in body
     assert "All 9 labels, the 3 group titles and the chain" in body
+    assert "Starting Points -> the product -> Core Capabilities -> Outputs are unchanged" in body
     assert "(compared by script)" in body and "`flowchart LR`" in body
     assert "headless browser" not in body  # no render record, so no claim about one
-    for phrase in FORBIDDEN:
-        assert phrase not in body
+    assert_plain(content)
 
 
-def test_a_recorded_render_is_reported_with_its_exact_counts(
+def test_the_chain_names_the_blocks_the_diagram_really_has(
+    tmp_path: Path, make_context: Any
+) -> None:
+    without = compose(tmp_path / "a", make_context, with_diagram(diagram(inputs=False))).body
+    assert (
+        "All 8 labels, the 2 group titles and the chain the product -> Core Capabilities -> Outputs"
+        in without
+    )
+    assert "Starting Points" not in without
+    renamed = compose(
+        tmp_path / "b", make_context, with_diagram(diagram(first_title="Inputs and formats"))
+    ).body
+    assert "Inputs and formats -> the product -> Core Capabilities -> Outputs" in renamed
+    assert "Starting Points" not in renamed
+
+
+def test_a_recorded_render_states_the_tested_range_and_the_exact_counts(
     tmp_path: Path, make_context: Any
 ) -> None:
     render = {
@@ -228,14 +388,95 @@ def test_a_recorded_render_is_reported_with_its_exact_counts(
         "browser": "Chrome/154",
         "diagrams": [{"horizontal": True, "clipped_fonts": 0, "word_splits": 0, "problems": 0}],
     }
-    body = compose(tmp_path, make_context, DIAGRAM_ONLY, render).body
+    body = compose(tmp_path, make_context, with_diagram(diagram()), render=render).body
+    assert "so the labels fit their boxes in the Mermaid versions tested (11.4 to 12.1)." in body
     assert "Mermaid 11.17.2, 11.4.1, 11.12.0, 12.1.0" in body
     assert "horizontal on every release, 0 clipped labels, 0 words split across lines" in body
     unverified = {"status": "not_run", "reason": "no renderer installed"}
-    assert (
-        "headless browser"
-        not in compose(tmp_path / "again", make_context, DIAGRAM_ONLY, unverified).body
+    other = compose(
+        tmp_path / "again", make_context, with_diagram(diagram()), render=unverified
+    ).body
+    assert "headless browser" not in other and "Mermaid versions tested" not in other
+
+
+def tight(readme: str) -> str:
+    lines = line_counts(readme)[0]
+    filler = NL.join(f"Maintainer line {n}." for n in range(299 - lines - 3))
+    return readme.replace(
+        "## Installation", "## Notes" + NL + NL + filler + NL + NL + "## Installation", 1
     )
+
+
+def test_the_length_the_redraw_adds_is_said_in_words_without_the_rulings(
+    tmp_path: Path, make_context: Any
+) -> None:
+    content = compose(tmp_path, make_context, tight(with_diagram(diagram())))
+    body = content.body
+    assert (
+        "the redraw adds a few lines (its init line and the links that keep columns in order)"
+        in body
+    )
+    assert re.search(
+        r"the README now has \d+ lines outside collapsed blocks, over the 300-line limit", body
+    )
+    assert "(yours was within it)" in body
+    assert "owner ruling" not in body
+    assert_plain(content)
+
+
+def test_the_checks_sentence_is_plain_and_counts_exactly(tmp_path: Path, make_context: Any) -> None:
+    body = compose(tmp_path, make_context, VERSION).body
+    assert "We ran repository-presenter's README checks" in body
+    assert "has no failure that yours does not already have" in body
+    assert "validate_candidate" not in body and "BC-" not in body
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "BC-07",
+        "OD-06",
+        "R7",
+        "validate_candidate",
+        "an allowance",
+        "the detector found",
+        "corrections.json",
+        "DIAGRAM_FIX",
+        "20261011-4b724575",
+        "package:name",
+        "claim_version",
+    ],
+)
+def test_the_identifier_scan_catches_each_kind_of_internal_name(text: str) -> None:
+    assert internal_identifiers(f"See {text} for why.") != []
+    assert INTERNAL_IDENTIFIERS
+
+
+def test_quoted_readme_text_is_not_mistaken_for_an_internal_name() -> None:
+    quoted = "The README says `BC-07 and R7` on line 4."
+    assert internal_identifiers(quoted, quoted=False) == []
+    assert internal_identifiers(quoted) != []
+
+
+def test_a_text_that_would_leak_an_identifier_is_refused_not_sent(
+    tmp_path: Path, make_context: Any
+) -> None:
+    ctx = make_context(VERSION)
+    result, delta = correct_settled(ctx, VERSION.encode())
+    directory = tmp_path / "bundle"
+    files.write_bundle(ctx, VERSION.encode(), result, delta, directory)
+    path = directory / files.CORRECTIONS_NAME
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document["edits"][0]["rationale"] = "BC-14 says so, see OD-06"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match="internal identifiers"):
+        compose_correction_pull_request(
+            bundle=directory,
+            repository=JAVA,
+            candidate_hash="c" * 64,
+            source_revision="a" * 40,
+            policy_version="p1",
+        )
 
 
 def test_the_regenerated_candidates_composer_refuses_a_correction_bundle(
