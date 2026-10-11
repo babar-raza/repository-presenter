@@ -505,18 +505,29 @@ class Narrowing:
 
     ``pending(content, rejection)`` names the parts of the second reply still wrong (unit IDs,
     slots); empty when none can be named, and nothing is then asked. ``ask(parts, content,
-    rejection)`` is the narrowed packet and call schema (the same prompt, narrowed to ``parts``,
-    with the defects of ``rejection`` that concern them). ``merge(content, narrowed, parts)`` is
-    the whole reply with ``parts`` taken from the narrowed reply. The merged reply is judged by the
-    job's ordinary schema, binding and checks, so nothing is accepted unjudged. ``subject``
-    completes the failure message ("... a narrowed ask for the silent units")."""
+    rejection, repeated)`` is the narrowed packet and call schema (the same prompt, narrowed to
+    ``parts``, with the defects of ``rejection`` that concern them). ``merge(content, narrowed,
+    parts)`` is the whole reply with ``parts`` taken from the narrowed reply. The merged reply is
+    judged by the job's ordinary schema, binding and checks, so nothing is accepted unjudged.
+    ``subject`` completes the failure message ("... a narrowed ask for the silent units").
+
+    ``repeated(first, second, parts)`` names the ``parts`` the second reply gave exactly as the
+    first did. The re-ask carried the complete defect list and the model answered it with the same
+    units, so asking for them again with the same defects would be a third equivalent attempt
+    (AGENTS.md "Implementation Discipline"; wave 4: Slides-Java and Slides-Cpp returned the same
+    text a third time). ``ask`` is handed those parts as its last argument so that the narrowed
+    request changes the evidence - it says the earlier text was returned twice and rejected twice -
+    instead of repeating the question. ``None`` for a job whose narrowed ask already shows the
+    model what the re-ask did not (the silent units of a ``unit_ids`` job)."""
 
     pending: Callable[[str, Sequence[str]], list[str]]
     ask: Callable[
-        [Sequence[str], str, Sequence[str]], tuple[Mapping[str, Any], dict[str, Any] | None]
+        [Sequence[str], str, Sequence[str], Sequence[str]],
+        tuple[Mapping[str, Any], dict[str, Any] | None],
     ]
     merge: Callable[[str, str, Sequence[str]], str]
     subject: str = "the silent units"
+    repeated: Callable[[str, str, Sequence[str]], list[str]] | None = None
 
 
 _ENUM_SHOWN = 12
@@ -728,13 +739,14 @@ def run_job(
     recovered_rejection: list[str] = []
     first_reply = ""
     narrowed_units: list[str] = []
+    repeated_units: list[str] = []
     merged_so_far = ""
     for ask in (1, 2, 3):
         if ask == 3:
             if not narrowed_units or narrowing is None:
                 break
             narrowed_packet, narrowed_schema = narrowing.ask(
-                narrowed_units, merged_so_far, rejection
+                narrowed_units, merged_so_far, rejection, repeated_units
             )
             current = request_payload(
                 manifest,
@@ -756,6 +768,7 @@ def run_job(
                 "the output, never retry"
             )
         content = reply.content
+        earlier_reply = first_reply
         if ask == 2 and manifest.manifest.output.binding == "unit_ids":
             content = _complete_from_first_reply(content, first_reply)
         elif ask == 3 and narrowing is not None:
@@ -781,6 +794,8 @@ def run_job(
         else:
             if ask == 2 and narrowing is not None:
                 narrowed_units = narrowing.pending(content, rejection)
+                if narrowed_units and narrowing.repeated is not None:
+                    repeated_units = narrowing.repeated(earlier_reply, content, narrowed_units)
                 if narrowed_units:
                     # The model's own two asks are spent; one narrowed ask for the parts still
                     # wrong comes before any deterministic last resort.
@@ -863,7 +878,7 @@ def _narrowing(
         return None
     return Narrowing(
         pending=lambda content, _rejection: _silent_units(content, facts),
-        ask=lambda units, _content, _rejection: narrow(units),
+        ask=lambda units, _content, _rejection, _repeated: narrow(units),
         merge=lambda merged, narrowed, units: _add_narrowed_units(narrowed, merged, units),
     )
 

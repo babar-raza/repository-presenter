@@ -43,6 +43,7 @@ from repository_presenter.components.readme.composition.authoring_retry import (
     authoring_narrowing,
     failing_slots,
     recover_restating_sentences,
+    repeated_slots,
 )
 from repository_presenter.components.readme.composition.coherence import (
     recover_coherence_missing_units,
@@ -53,7 +54,6 @@ from repository_presenter.components.readme.composition.output_bounds import (
 from repository_presenter.components.readme.composition.type_fallback import (
     recover_section_authoring_with_type_fallback,
 )
-from repository_presenter.components.readme.repair.rounds import _reject_unlisted_items
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -281,15 +281,6 @@ _SLIDES_FACTS = _with_cited(
     _reply("wave3_slides_java_scope.rejected-1.json"),
     _reply("wave3_slides_java_scope.rejected-2.json"),
 )
-_SLIDES_DISPOSITIONS = {
-    "dispositions": [
-        {
-            "unit_id": "inherited_unit:088.list",
-            "disposition": "VERIFIED_PRESERVE",
-            "destination_section": "scope_limitations",
-        }
-    ]
-}
 
 
 def _slides_task() -> SectionTask:
@@ -301,13 +292,28 @@ def _slides_task() -> SectionTask:
     )
 
 
+def _needs_master_clone(output: dict[str, Any]) -> list[str]:
+    """A stand-in for any unit-level refusal of slot ``limitation:7``, which is what the narrowed
+    ask is for. Wave 3 drove it with the list guard (the seventh unit left one item of the Scope
+    list unstated); that guard is gone - placement prints an unstated item, so no reply is refused
+    for one (wave-4 triage, cause 1) - but the narrowing is about WHICH slot a refusal names, not
+    about what the refusal says, so this refuses the slot until it states the master-cloning
+    defect and quotes it whole, as the guard did."""
+    unit = next((u for u in output.get("units", []) if u.get("slot") == "limitation:7"), None)
+    if unit is None or "cloning a master" in str(unit.get("text", "")):
+        return []
+    return ["unit limitation:7: must state 'A known defect: cloning a master' (the list item)"]
+
+
 def _slides_checks(task: SectionTask) -> Any:
-    return _reject_unlisted_items(
-        functools.partial(unit_checks, task=task, facts=_document(_SLIDES_FACTS), name=SLIDES_NAME),
-        task,
-        _SLIDES_DISPOSITIONS,
-        _document(_SLIDES_FACTS),
+    own = functools.partial(
+        unit_checks, task=task, facts=_document(_SLIDES_FACTS), name=SLIDES_NAME
     )
+
+    def checks(output: dict[str, Any]) -> list[str]:
+        return [*own(output), *_needs_master_clone(output)]
+
+    return checks
 
 
 # The model's own words for the one item its second reply left out, as a third, narrowed ask
@@ -372,7 +378,7 @@ def _run(
     facts: list[Fact],
     *,
     name: str = NAME,
-    dispositions: dict[str, Any] | None = None,
+    extra: Any = None,
     narrow: bool = True,
 ) -> JobResult:
     document = _document(facts)
@@ -385,11 +391,8 @@ def _run(
         ledger=Ledger(tmp_path / "calls.jsonl"),
         store=CallStore(tmp_path / "calls"),
         context=JobContext("org/repo", "a" * 40),
-        checks=_reject_unlisted_items(
-            functools.partial(unit_checks, task=task, facts=document, name=name),
-            task,
-            dispositions or {},
-            document,
+        checks=_with_extra(
+            functools.partial(unit_checks, task=task, facts=document, name=name), extra
         ),
         call_schema=call_schema,
         recover=functools.partial(
@@ -403,6 +406,12 @@ def _run(
     )
 
 
+def _with_extra(checks: Any, extra: Any) -> Any:
+    if extra is None:
+        return checks
+    return lambda output: [*checks(output), *extra(output)]
+
+
 def _user_text(request: dict[str, Any]) -> str:
     return "\n".join(str(m["content"]) for m in request["messages"] if m["role"] == "user")
 
@@ -411,16 +420,23 @@ def _units_by_slot(output: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {unit["slot"]: unit for unit in output["units"]}
 
 
-def test_the_real_slides_java_replies_are_refused_as_the_run_recorded_them() -> None:
-    """The stand-in facts reproduce the run's two rejections: seven faults, then one."""
+def test_the_real_slides_java_replies_are_refused_as_the_run_recorded_them_bar_the_list() -> None:
+    """The stand-in facts reproduce the run's two rejections, seven faults and then one - except
+    the list refusal, which no longer exists: an unstated list item is printed by placement, so the
+    second reply (whose only fault was one unstated item) is accepted as it stands."""
     task = _slides_task()
-    errors = _slides_checks(task)(copy.deepcopy(_reply("wave3_slides_java_scope.rejected-1.json")))
+    unit_level = functools.partial(
+        unit_checks, task=task, facts=_document(_SLIDES_FACTS), name=SLIDES_NAME
+    )
+    errors = unit_level(copy.deepcopy(_reply("wave3_slides_java_scope.rejected-1.json")))
     recorded = _real("wave3_slides_java_scope.rejected-1.json")["rejection"]
-    assert [e.split(":")[0] for e in errors] == [e.split(":")[0] for e in recorded]
-    assert any("5 not stated" in e for e in errors)
+    kept = [e for e in recorded if "list_item_missing" not in e]
+    assert len(kept) == len(recorded) - 1
+    assert [e.split(":")[0] for e in errors] == [e.split(":")[0] for e in kept]
+    assert unit_level(copy.deepcopy(_reply("wave3_slides_java_scope.rejected-2.json"))) == []
+    # The stand-in refuses that second reply the way the list guard did.
     second = _slides_checks(task)(copy.deepcopy(_reply("wave3_slides_java_scope.rejected-2.json")))
-    assert len(second) == 1 and "1 not stated" in second[0]
-    assert "A known defect: cloning a master" in second[0]
+    assert len(second) == 1 and "A known defect: cloning a master" in second[0]
 
 
 def test_only_the_failing_slot_is_named_for_a_third_ask() -> None:
@@ -430,12 +446,12 @@ def test_only_the_failing_slot_is_named_for_a_third_ask() -> None:
     assert failing_slots(task, content, rejection) == ["limitation:7"]
     first = _real("wave3_slides_java_scope.rejected-1.json")["content"]
     rejection_first = _slides_checks(task)(json.loads(first))
-    # unit-level faults (limitation:2, :4, :5) and the list, which names limitation:7
+    # the unit-level faults of the first reply (the list refusal that also named limitation:7 is
+    # gone)
     assert failing_slots(task, first, rejection_first) == [
         "limitation:2",
         "limitation:4",
         "limitation:5",
-        "limitation:7",
     ]
 
 
@@ -502,7 +518,7 @@ def test_slides_java_third_ask_asks_for_one_unit_and_keeps_the_other_seven_as_gi
         _slides_third_reply(),
     )
     result = _run(
-        tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME, dispositions=_SLIDES_DISPOSITIONS
+        tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME, extra=_needs_master_clone
     )
     assert result.attempts == result.provider_calls == 3
     accepted = _units_by_slot(result.output)
@@ -538,7 +554,7 @@ def test_slides_java_third_ask_asks_for_one_unit_and_keeps_the_other_seven_as_gi
     # The accepted output is stored under the logical request: the same request later is free.
     mock_gateway(monkeypatch, lambda request: pytest.fail("a stored output made a provider call"))
     again = _run(
-        tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME, dispositions=_SLIDES_DISPOSITIONS
+        tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME, extra=_needs_master_clone
     )
     assert again.cache_reused and again.output == result.output
 
@@ -568,7 +584,7 @@ def test_a_narrowed_ask_cannot_change_a_unit_that_was_accepted(
             _slides_task(),
             _SLIDES_FACTS,
             name=SLIDES_NAME,
-            dispositions=_SLIDES_DISPOSITIONS,
+            extra=_needs_master_clone,
         )
     assert len(requests) == 3
     assert "narrowed ask" in str(caught.value)
@@ -595,7 +611,7 @@ def test_a_unit_still_failing_after_the_narrowed_ask_fails_the_job_naming_it(
             _slides_task(),
             _SLIDES_FACTS,
             name=SLIDES_NAME,
-            dispositions=_SLIDES_DISPOSITIONS,
+            extra=_needs_master_clone,
         )
     message = str(caught.value)
     assert "three times (the third a narrowed ask for the units still failing)" in message
@@ -619,7 +635,7 @@ def test_without_a_narrowing_the_second_rejection_still_fails_after_two_asks(
             _slides_task(),
             _SLIDES_FACTS,
             name=SLIDES_NAME,
-            dispositions=_SLIDES_DISPOSITIONS,
+            extra=_needs_master_clone,
             narrow=False,
         )
     assert len(requests) == 2
@@ -655,6 +671,101 @@ def test_a_rejection_no_unit_owns_is_not_narrowed_and_fails_after_two_asks(
     with pytest.raises(JobError, match="output rejected twice"):
         _run(tmp_path, task, _SLIDES_FACTS)
     assert len(requests) == 2
+
+
+def test_a_reply_that_leaves_a_list_item_out_is_accepted_not_asked_for_again(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Wave-4 triage, cause 1: the authoring call used to refuse a reply for a list item it left
+    out (3D .NET: eight items, seven slots; Email .NET: the item names a package no fact spells).
+    Placement prints the item as written, so the second reply of Slides-Java - one item short -
+    is accepted at once, one provider call."""
+    requests = _serve(monkeypatch, _reply("wave3_slides_java_scope.rejected-2.json"))
+    result = _run(tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME)
+    assert result.attempts == result.provider_calls == 1
+    assert len(requests) == 1
+    assert "cloning a master" not in " ".join(u["text"] for u in result.output["units"])
+
+
+# ---------------------------------------------------------------------------------------------
+# Wave 4, Slides-Java and Slides-Cpp: the same text three times.
+# ---------------------------------------------------------------------------------------------
+
+
+def test_repeated_slots_are_the_ones_the_second_reply_gave_exactly_as_the_first_did() -> None:
+    first = json.dumps(
+        {
+            "units": [
+                {"slot": "a", "text": "same", "fact_ids": ["x"]},
+                {"slot": "b", "text": "before", "fact_ids": ["x"]},
+                {"slot": "c", "text": "same", "fact_ids": ["x"]},
+            ]
+        }
+    )
+    second = json.dumps(
+        {
+            "units": [
+                {"slot": "a", "text": "same", "fact_ids": ["x"]},
+                {"slot": "b", "text": "after", "fact_ids": ["x"]},
+                {"slot": "c", "text": "same", "fact_ids": ["y"]},  # same words, other citation
+            ]
+        }
+    )
+    assert repeated_slots(first, second, ["a", "b", "c"]) == ["a"]
+    assert repeated_slots(first, second, ["b"]) == []
+    assert repeated_slots(first, "not json", ["a"]) == []
+    assert repeated_slots(first, second, ["missing"]) == []  # no unit, nothing repeated
+
+
+def _stutter_units() -> dict[str, Any]:
+    """The Slides-Java stutter: capability:7 stays the same unit in every reply."""
+    return {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:7",
+                "text": "Charts are not available.",
+                "fact_ids": ["license:file"],
+            }
+        ],
+        "omitted": [],
+    }
+
+
+def test_a_unit_returned_unchanged_is_asked_for_a_third_time_with_the_evidence_changed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The model returned limitation:7 unchanged after the re-ask named its fault, so the same
+    question put again is the third equivalent attempt (AGENTS.md). The narrowed ask is made, and
+    differs from the re-ask in what it says: the unit was returned twice and rejected twice, and
+    what changing it means."""
+    task = _slides_task()
+    second = _reply("wave3_slides_java_scope.rejected-2.json")
+    first = copy.deepcopy(_reply("wave3_slides_java_scope.rejected-1.json"))
+    first["units"] = copy.deepcopy(second["units"])  # slot for slot the same as the second
+    fixed = _slides_third_reply()
+    requests = _serve(monkeypatch, first, second, fixed)
+    result = _run(tmp_path, task, _SLIDES_FACTS, name=SLIDES_NAME, extra=_needs_master_clone)
+    assert result.attempts == 3
+    asked = _user_text(requests[2])
+    assert "Your first two replies gave limitation:7 exactly as shown above" in asked
+    assert "that text is not to be returned again" in asked
+    assert "A known defect: cloning a master" in asked  # the reason is still quoted whole
+    assert requests[2] != requests[1]
+
+
+def test_a_unit_the_second_reply_changed_gets_the_ordinary_narrowed_ask(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: where the re-ask moved the unit, nothing is said about repetition."""
+    requests = _serve(
+        monkeypatch,
+        _reply("wave3_slides_java_scope.rejected-1.json"),
+        _reply("wave3_slides_java_scope.rejected-2.json"),
+        _slides_third_reply(),
+    )
+    _run(tmp_path, _slides_task(), _SLIDES_FACTS, name=SLIDES_NAME, extra=_needs_master_clone)
+    assert "exactly as shown above" not in _user_text(requests[2])
 
 
 # ---------------------------------------------------------------------------------------------
@@ -875,9 +986,9 @@ def _slides_setup() -> tuple[SectionTask, list[Fact], dict[str, Any], dict[str, 
 
 
 @pytest.mark.parametrize(
-    ("setup", "name", "dispositions", "unit_named"),
+    ("setup", "name", "extra", "unit_named"),
     [
-        (_slides_setup, SLIDES_NAME, _SLIDES_DISPOSITIONS, "A known defect: cloning a master"),
+        (_slides_setup, SLIDES_NAME, _needs_master_clone, "A known defect: cloning a master"),
         (_pdf_cpp_setup, NAME, None, "restates its own title 'No runtime dependencies'"),
         (_email_setup, NAME, None, "email.message.EmailMessage"),
         (_words_setup, NAME, None, "SaveFormat.PDF"),
@@ -889,7 +1000,7 @@ def test_each_real_wave3_reply_pair_failed_the_job_at_two_asks_and_is_now_asked_
     monkeypatch: pytest.MonkeyPatch,
     setup: Any,
     name: str,
-    dispositions: dict[str, Any] | None,
+    extra: Any,
     unit_named: str,
 ) -> None:
     """The baseline: the two replies each repository really got, served to the job as it ran in
@@ -898,11 +1009,11 @@ def test_each_real_wave3_reply_pair_failed_the_job_at_two_asks_and_is_now_asked_
     task, facts, first, second = setup()
     _serve(monkeypatch, first, second)
     with pytest.raises(JobError, match="output rejected twice") as caught:
-        _run(tmp_path / "before", task, facts, name=name, dispositions=dispositions, narrow=False)
+        _run(tmp_path / "before", task, facts, name=name, extra=extra, narrow=False)
     assert unit_named in str(caught.value)
     requests = _serve(monkeypatch, first, second, {"units": [], "omitted": []})
     with pytest.raises(JobError, match="narrowed ask"):
-        _run(tmp_path / "after", task, facts, name=name, dispositions=dispositions)
+        _run(tmp_path / "after", task, facts, name=name, extra=extra)
     assert len(requests) == 3
 
 

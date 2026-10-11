@@ -237,10 +237,14 @@ list while the section stated half of it, and BC-05 passed every such unit). A `
 Scope list twice). Planning completes the hand-off: every `link_target` fact such a list cites into
 Documentation and Resources joins the plan's `links` when the plan already carries one of them, and
 a list placement drops from Scope and Limitations is added to every limitation's `unit_ids`. The
-authoring guard (`list_coverage.py`) then refuses a section whose units do not state every item of a
-list it was handed (or, in an unbound section such as Development and Testing, of a list placement
-dropped from it), and BC-05 fails the candidate naming each item the rendered section does not state —
-by the link it carries in Documentation and Resources, by its subject words elsewhere.
+authoring objective names those lists so the units fold their items in where they fit, but authoring
+does not refuse a reply that leaves one out (wave-4 triage, cause 1: a list longer than its slots,
+or an item naming an identifier no fact spells, made the refusal unsatisfiable): placement prints
+every item the section does not state, as written, and BC-05 fails the candidate naming each item the
+rendered section still does not state — by the link it carries in Documentation and Resources, by
+the item's own words elsewhere (`list_coverage.missing_items`, the one test placement, BC-05 and the
+objective share: an item is stated when the section holds half the words of its lead or half the
+words only that item says, so a bold label the composer folds into its sentences is not the item).
 
 Two more placement rules, both from the same G1 canary bundle: a placed unit inherits its section's
 visibility — in a `collapsible` section it renders inside the section's `<details>` block after the

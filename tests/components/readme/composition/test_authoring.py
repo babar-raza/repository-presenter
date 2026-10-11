@@ -46,12 +46,15 @@ from repository_presenter.components.readme.composition.authoring import (
     recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
+    restates_own_title,
     section_selections,
     section_spellings,
+    slash_alternatives,
     slot_fact_sets,
     slot_records,
     slot_rendering,
     source_prose,
+    stray_identifiers,
     surface_members,
     title_terms,
     uncarried_units,
@@ -4449,7 +4452,7 @@ def test_a_technical_identifier_that_starts_with_the_family_name_is_not_rewritte
         assert output["units"][0]["text"] == text, text
 
 
-# --- LST-01: the objective names the lists a section must state in full ---------------------------
+# --- LST-01: the objective names the lists a section may fold into its units ----------------------
 _DEV_DEPS_UNIT = "inherited_unit:021.list"
 _DEV_DEPS_LIST = "\n".join(
     [
@@ -4474,11 +4477,11 @@ def _kept_list_dispositions(unit: str, destination: str, *fact_ids: str) -> dict
     }
 
 
-def test_a_list_placement_dropped_from_development_testing_is_owed_in_full() -> None:
+def test_a_list_placement_dropped_from_development_testing_is_named_in_its_objective() -> None:
     """3D .NET 52b0f00e: the development dependencies list was moved into Development and Testing,
     dropped by placement because it cites build_test_asset:tests (which the section prints), and
     the one summary unit authored there stated neither package. The section's slot is unbound, so
-    nothing owed the composer the list."""
+    nothing told the composer of the list."""
     facts = FactsDocument(
         ENTRY.repository,
         "a" * 40,
@@ -4489,7 +4492,12 @@ def test_a_list_placement_dropped_from_development_testing_is_owed_in_full() -> 
     task = tasks["development_testing"]
     assert task.owed_lists == frozenset({_DEV_DEPS_UNIT})
     assert f"{_DEV_DEPS_UNIT} (2 items)" in task.packet["objective"]
-    assert "every item of which your units must state" in task.packet["objective"]
+    # A hint, not a demand: an item the units leave out is printed by placement, so the objective
+    # says so and never asks the model to spell an identifier it was not given just to cover one
+    # (wave-4 triage, cause 1: Email .NET / Imaging .NET deadlocked on exactly that).
+    assert "any item you leave out is printed as written" in task.packet["objective"]
+    assert "never spell an identifier you were not given" in task.packet["objective"]
+    assert "must state" not in task.packet["objective"]
     assert _DEV_DEPS_UNIT in citable(task, "summary")  # an unbound slot may cite it
     # Negative control: a list the section does not cover is printed whole, so nothing is owed,
     # and no other section's objective gains the rule.
@@ -4502,7 +4510,7 @@ def test_a_list_placement_dropped_from_development_testing_is_owed_in_full() -> 
 
 def test_a_list_the_plan_handed_to_the_limitation_slots_is_named_in_their_objective() -> None:
     """Cells .NET 941814fd: the plan handed the Scope list to every limitation slot; nothing told
-    the composer that every one of its seven bullets had to be stated."""
+    the composer that its seven bullets were there to be folded in."""
     facts = FactsDocument(
         ENTRY.repository,
         "a" * 40,
@@ -4516,7 +4524,7 @@ def test_a_list_the_plan_handed_to_the_limitation_slots_is_named_in_their_object
     tasks = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, kept, plan)}
     objective = tasks["scope_limitations"].packet["objective"]
     assert f"{_DEV_DEPS_UNIT} (7 items)" in objective
-    assert tasks["scope_limitations"].owed_lists == frozenset()  # bound: owed through its slots
+    assert tasks["scope_limitations"].owed_lists == frozenset()  # bound: named through its slots
     bare = {**PLAN, "material_limitations": [{"fact_ids": ["example:001"], "unit_ids": []}]}
     unhanded = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, kept, bare)}
     assert "Lists kept as written" not in unhanded["scope_limitations"].packet["objective"]
@@ -4537,3 +4545,139 @@ def test_a_unit_cut_off_on_a_foreign_character_is_a_repairable_unit_check_error(
     errors = unit_checks(cut, task, _enterprise_facts(), NAME)
     assert any("CJK script" in error for error in errors)
     assert any("ends without terminal punctuation" in error for error in errors)
+
+
+# --- Wave 4 (reseal 8c48f4d2, triage cause 4): a slash between two accepted names ----------------
+
+
+def _pair_facts(*values: str) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            *(
+                _fact(f"public_symbol:pair-{index}", "public_symbol", value)
+                for index, value in enumerate(values)
+            ),
+        ),
+    )
+
+
+def _pair_errors(text: str, facts: FactsDocument) -> list[str]:
+    return unit_checks(_name_output(text), _name_task(), facts, NAME)
+
+
+def test_two_accepted_names_joined_by_a_slash_are_not_one_unaccepted_path() -> None:
+    """3D .NET's limitation:2 said 'Scene.Open/Scene.Save' in three attempts and was refused in
+    three: _MODULE_PATH reads the pair as one slash-delimited module path, which no fact spells,
+    although both halves are fact values. Before: the pair was the stray; now it is judged by
+    name."""
+    text = "Both Scene.Open/Scene.Save fail for this format."
+    assert identifier_tokens(text) >= {"Scene.Open/Scene.Save", "Scene.Open", "Scene.Save"}
+    assert _pair_errors(text, _pair_facts("Scene.Open", "Scene.Save")) == []
+
+
+def test_the_refusal_of_a_pair_names_the_half_no_fact_spells_not_the_pair() -> None:
+    """The re-ask must be able to tell which half is wrong: only 'Scene.Save' is refused, and the
+    nearest accepted spelling is offered for it."""
+    errors = _pair_errors(
+        "Both Cells.Open/Cells.Save fail here.", _pair_facts("Cells.Open", "Cells.SaveAs")
+    )
+    assert errors == [
+        "unit limitation:1: identifiers that are not accepted fact values: Cells.Save "
+        "(nearest accepted: Cells.SaveAs)"
+    ]
+
+
+def test_a_bare_half_borrows_the_namespace_of_the_first_name() -> None:
+    """'maven.compiler.source/target' is two properties; 'target' alone is not an identifier."""
+    both = _pair_facts("maven.compiler.source", "maven.compiler.target")
+    text = "The build sets maven.compiler.source/target to 17."
+    assert _pair_errors(text, both) == []
+    # One half accepted, the other not: the refusal shows the pair as the model wrote it.
+    errors = _pair_errors(text, _pair_facts("maven.compiler.source"))
+    assert errors == [
+        "unit limitation:1: identifiers that are not accepted fact values: "
+        "maven.compiler.source/target (nearest accepted: maven.compiler.source)"
+    ]
+
+
+def test_a_path_is_never_accepted_for_the_names_it_is_made_of() -> None:
+    """Negative controls: a slash between a name and a file, or a hyphenated segment, is a path or
+    a module path no fact spells; each half being a fact value does not make it one."""
+    facts = _pair_facts("Scene.Open", "notes.md", "github.com", "aspose-pdf-foss")
+    module = "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+    for text, token in (
+        ("See Scene.Open/notes.md for details.", "Scene.Open/notes.md"),
+        (f"Import {module} first.", module),
+    ):
+        errors = _pair_errors(text, facts)
+        assert len(errors) == 1 and token in errors[0], (text, errors)
+
+
+def test_a_pair_neither_half_of_which_is_accepted_is_refused_as_the_one_token_it_was() -> None:
+    errors = _pair_errors("Use Cells.Alpha/Cells.Beta for it.", _pair_facts("Other.Name"))
+    assert len(errors) == 1
+    assert "Cells.Alpha/Cells.Beta" in errors[0]
+
+
+def test_slash_alternatives_reads_pairs_and_leaves_paths_alone() -> None:
+    assert slash_alternatives("Scene.Open/Scene.Save") == [
+        ("Scene.Open", "Scene.Open"),
+        ("Scene.Save", "Scene.Save"),
+    ]
+    assert slash_alternatives("NurbsCurve.Evaluate/EvaluateAt") == [
+        ("NurbsCurve.Evaluate", "NurbsCurve.Evaluate"),
+        ("NurbsCurve.EvaluateAt", "NurbsCurve.Evaluate/EvaluateAt"),
+    ]
+    for path in (
+        "github.com/aspose-pdf-foss/x",  # a hyphenated segment
+        "Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",  # a file
+        "org.aspose/9lives",  # a segment that is no name
+        "Scene.Open",  # no slash at all
+    ):
+        assert slash_alternatives(path) is None, path
+    assert stray_identifiers({"A.b", "C.d"}, lambda token: token == "C.d") == ["C.d"]
+
+
+# --- Wave 4 (triage, section 6): the title test could not see lowerCamel and I-prefixed names ---
+
+_TITLE_FACTS = _pair_facts("IDocumentProperties", "setCustomPropertyValue")
+
+
+def test_a_unit_naming_a_lowercamel_method_and_an_interface_does_not_restate_its_title() -> None:
+    """Slides-Java capability:5: 'It reads and writes core, app, and custom document properties
+    ... via IDocumentProperties, and sets custom property values with setCustomPropertyValue.'
+    under the title 'Document properties' was refused as a stutter in three identical replies,
+    because the terms test saw PascalCase and dotted names only."""
+    title = "Document properties"
+    text = (
+        "It reads and writes core, app, and custom document properties such as title, subject, "
+        "author, keywords, and category via IDocumentProperties, and sets custom property values "
+        "with setCustomPropertyValue."
+    )
+    assert title_terms(text, _TITLE_FACTS) == set()  # the blind spot: nothing beyond the title
+    assert not restates_own_title(text, title, _TITLE_FACTS)
+    # Negative control: the same sentence without either name IS the stutter.
+    plain = "It reads and writes core, app, and custom document properties."
+    assert restates_own_title(plain, title, _TITLE_FACTS)
+    # And through the check that refuses it.
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:aspose.threed.scene"}),
+        ("capability:5",),
+        slot_titles={"capability:5": title},
+    )
+    output = _name_output(text, "key_capabilities", "capability:5")
+    errors = unit_checks(output, task, _TITLE_FACTS, NAME)
+    assert not [e for e in errors if "restates its own title" in e], errors
+
+
+def test_a_title_is_restated_by_its_words_not_by_its_letters() -> None:
+    """JMAP-Java: 'Email submission' was 'found' inside 'Email submissions'."""
+    title = "Email submission"
+    assert not restates_own_title("It supports email submissions through the API.", title, FACTS)
+    assert restates_own_title("It supports email submission.", title, FACTS)
+    assert restates_own_title("Email submission works.", title, FACTS)

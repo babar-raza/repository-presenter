@@ -85,8 +85,7 @@ src/repository_presenter/
       type_fallback.py        the last-attempt recovery for one API Reference type description refused only for an unevidenced identifier (README_CONTRACT.md row 14)
       authoring_retry.py       what section_authoring does once its two asks are spent: one narrowed ask for only the slots still refused (the accepted units kept as given), and the last-resort removal of a sentence that only restates the slot title or a printed command; wired by repair/rounds.py, composed in type_fallback.py
       audience.py              the section-authoring guard that an audience, use case, or spared cost in the opening is stated only when an accepted fact states it, with its last-resort deletion; called by unit_checks (BC-04 too)
-      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE) states every item, layered on unit_checks by repair/rounds.py
-      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE/MOVE) states every item, layered on unit_checks by repair/rounds.py; its item test also serves BC-05
+      list_coverage.py         the one test of which items of a list kept as written (VERIFIED_PRESERVE/MOVE) a section states: read by coverage.py (placement prints the rest), by BC-05, and by the authoring objective that names the lists to fold in; authoring itself does not refuse an unstated item
       text_hygiene.py          the section-authoring guard that an authored unit is not cut off mid-sentence, not written in another script, and not a pasted list; called by unit_checks (BC-04 too)
       references.py            dangling references: a sentence pointing at a table, list, example or section the finished README does not have; called by BC-07
     components/                 semantic-shell template components (README_CONTRACT.md §2)

@@ -6,6 +6,9 @@ overlap rule and BC-08 then demanded back: Cells-Go 024, Page-Python 092, PDF-Go
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from repository_presenter.components.readme.composition.coverage import (
     COMMAND,
     SENTENCE_SHARE,
@@ -262,3 +265,21 @@ def test_what_is_dropped_is_always_something_bc05s_item_test_accepts() -> None:
         shown = _shown({"scope_limitations": section})
         if uncovered("inherited_unit:001.list", text, shown, "scope_limitations") == "":
             assert missing_items(text, section) == []
+
+
+def test_a_list_restated_under_its_bold_labels_is_dropped_not_printed_a_second_time() -> None:
+    """Wave 4, JMAP-Go: the Scope list ("Protocol", "Out of scope for v1", the unit-test note) is
+    stated by the five authored units without ever saying "out of scope". Placement shares the
+    item test with BC-05, so it too no longer reads the label for the item: nothing is printed
+    twice, and a list the units do not state is still carried whole."""
+    archived = json.loads(
+        (Path(__file__).parent / "fixtures" / "wave4_list_replies.json").read_text(encoding="utf-8")
+    )["jmap_go"]
+    stated = " ".join(archived["units"].values())
+    shown = _shown({"scope_limitations": stated})
+    assert uncovered(archived["unit"], archived["list"], shown, "scope_limitations") == ""
+    silent = _shown({"scope_limitations": "The library targets Go 1.21."})
+    assert (
+        uncovered(archived["unit"], archived["list"], silent, "scope_limitations")
+        == archived["list"]
+    )
