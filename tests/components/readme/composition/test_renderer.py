@@ -1898,3 +1898,159 @@ def test_prose_wraps_a_recorded_project_name_and_bc12_then_passes_the_sentence()
     pattern = canonical_name_pattern("Aspose.PDF FOSS for .NET")
     assert pattern.search(sentence)
     assert not pattern.search(wrapped.replace("`Aspose.Pdf.Foss.Tests`", ""))
+
+
+# --- BC-10 triage cause 2: lossy renderer / extraction output (cut 2) ---------------------------
+
+
+def _net_entry() -> RegistryEntry:
+    return ENTRY.model_copy(update={"ecosystem": "net", "platform": "net"})
+
+
+def _net_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith(("install_command:", "package:"))),
+            _fact("package:name", "package", "Aspose.Email"),
+            _fact("package:version", "package", "0.1.0"),
+            _fact("install_command:dotnet", "install_command", "dotnet add package Aspose.Email"),
+            *extra,
+        ),
+    )
+
+
+def _installation_of(readme: str) -> str:
+    return readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+
+
+def test_installation_names_the_registrys_published_version_not_the_csproj_version() -> None:
+    """Aspose.Email-FOSS for .NET: the csproj says 0.1.0, NuGet lists 26.7.0. A reader who
+    follows the sentence must be told the release they can fetch (BC-14 holds it to the same)."""
+    published = _fact("package:published_version", "package", "26.7.0")
+    readme = render_readme(_net_entry(), _net_facts(published), PLAN, UNITS, DISPOSITIONS)
+    installation = _installation_of(readme)
+    assert "(`Aspose.Email`, version 26.7.0):" in installation
+    assert "0.1.0" not in installation
+
+
+def test_installation_keeps_the_manifest_version_when_no_registry_version_is_known() -> None:
+    readme = render_readme(_net_entry(), _net_facts(), PLAN, UNITS, DISPOSITIONS)
+    assert "(`Aspose.Email`, version 0.1.0):" in _installation_of(readme)
+
+
+def test_an_unconfirmed_published_version_is_never_preferred() -> None:
+    unconfirmed = _fact("package:published_version", "package", "26.7.0", polarity="UNRESOLVED")
+    readme = render_readme(_net_entry(), _net_facts(unconfirmed), PLAN, UNITS, DISPOSITIONS)
+    assert "version 0.1.0" in _installation_of(readme)
+
+
+def test_every_declared_target_framework_reaches_the_badge_and_the_requirement() -> None:
+    """Aspose.Slides-FOSS for .NET declares net8.0 and net10.0; the page named only net8.0."""
+    floor = Fact(
+        "package:target_framework",
+        "package",
+        "net8.0;net10.0",
+        (Evidence("src/Slides.csproj", "target frameworks the project declares"),),
+        attributes={"floor_declaration": "TargetFrameworks"},
+    )
+    facts = _net_facts(floor)
+    plan = {
+        **PLAN,
+        "sections": [
+            {**item, "include": True} if item["section_id"] == "dependencies" else item
+            for item in PLAN["sections"]
+        ],
+    }
+    readme = render_readme(_net_entry(), facts, plan, UNITS, DISPOSITIONS)
+    section = readme.split("## Dependencies\n\n", 1)[1].split("\n## ", 1)[0]
+    assert (
+        "- Requires .NET `net8.0;net10.0` (`TargetFrameworks` in `src/Slides.csproj`)." in section
+    )
+    assert "![.NET](https://img.shields.io/badge/.net-net8.0_%7C_net10.0-blue.svg)" in readme
+
+
+def test_a_single_target_framework_renders_exactly_as_before() -> None:
+    floor = _fact("package:target_framework", "package", "net8.0")
+    readme = render_readme(_net_entry(), _net_facts(floor), PLAN, UNITS, DISPOSITIONS)
+    assert "![.NET](https://img.shields.io/badge/.net-net8.0-blue.svg)" in readme
+
+
+def _java_facts(*extra: Fact, version: str = "26.5.0") -> FactsDocument:
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith(("install_command:", "package:"))),
+            _fact("package:name", "package", "org.aspose:aspose-3d-foss"),
+            _fact("package:version", "package", version),
+            _fact(
+                "install_command:maven",
+                "install_command",
+                f"mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:{version}",
+            ),
+            *extra,
+        ),
+    )
+
+
+def _java_entry() -> RegistryEntry:
+    from repository_presenter.components.readme.extractors.platforms import java  # noqa: F401
+
+    return ENTRY.model_copy(update={"ecosystem": "java", "platform": "java"})
+
+
+def test_maven_and_gradle_alternatives_reach_the_installation_section() -> None:
+    """Aspose.3D-FOSS for Java and Aspose.PDF-FOSS for Java: the source README offers the Maven
+    dependency and the Gradle line; the renderer printed only `mvn dependency:get`."""
+    readme = render_readme(_java_entry(), _java_facts(), PLAN, UNITS, DISPOSITIONS)
+    installation = _installation_of(readme)
+    assert "```bash\nmvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0\n```" in (
+        installation
+    )
+    assert (
+        "Or declare it in Maven:\n\n```xml\n<dependency>\n"
+        "  <groupId>org.aspose</groupId>\n"
+        "  <artifactId>aspose-3d-foss</artifactId>\n"
+        "  <version>26.5.0</version>\n"
+        "</dependency>\n```" in installation
+    )
+    assert (
+        "Or declare it in Gradle:\n\n```groovy\n"
+        "implementation 'org.aspose:aspose-3d-foss:26.5.0'\n```" in installation
+    )
+    assert installation.index("mvn dependency:get") < installation.index("<dependency>")
+
+
+def test_the_alternatives_use_the_published_version_when_the_registry_names_one() -> None:
+    published = _fact("package:published_version", "package", "26.7.0")
+    readme = render_readme(_java_entry(), _java_facts(published), PLAN, UNITS, DISPOSITIONS)
+    installation = _installation_of(readme)
+    assert "<version>26.7.0</version>" in installation
+    assert "aspose-3d-foss:26.7.0'" in installation
+    assert "26.5.0" not in installation.split("```bash", 1)[0]
+
+
+def test_no_alternative_renders_for_a_source_install_or_without_a_version() -> None:
+    source = Fact(
+        "install_command:maven",
+        "install_command",
+        "git clone https://github.com/x/y.git\ncd y\nmvn package",
+        (Evidence("pom.xml", "verified source build"),),
+        attributes={"install_kind": "source"},
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*(f for f in _java_facts().facts if f.id != "install_command:maven"), source),
+    )
+    readme = render_readme(_java_entry(), facts, PLAN, UNITS, DISPOSITIONS)
+    assert "<dependency>" not in readme and "implementation '" not in readme
+    versionless = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(f for f in _java_facts().facts if f.id != "package:version"),
+    )
+    readme = render_readme(_java_entry(), versionless, PLAN, UNITS, DISPOSITIONS)
+    assert "<dependency>" not in readme

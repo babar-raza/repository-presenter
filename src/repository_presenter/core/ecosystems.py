@@ -102,6 +102,11 @@ class EcosystemSpec:
     floor_is_minimum: bool = False
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
+    # Other declarations of the same published package a reader of this ecosystem uses besides the
+    # install command (a Maven POM entry, a Gradle line): `(lead, fence, template)` over
+    # `{group}`, `{artifact}` and `{version}`, derived only from the verified package coordinate
+    # and the version the registry or manifest names - never authored. Empty means none.
+    install_alternatives: tuple[tuple[str, str, str], ...] = ()
 
     @property
     def example_fences(self) -> frozenset[str]:
@@ -127,6 +132,22 @@ class EcosystemSpec:
         group, _, artifact = package.partition(":")
         return self.version_badge.format(package=package, group=group, artifact=artifact or group)
 
+    def install_alternative_blocks(self, package: str, version: str) -> list[tuple[str, str, str]]:
+        """``(lead, fence, body)`` for each alternative declaration of ``package`` at ``version``.
+
+        Empty when the ecosystem declares none or the coordinate has no group to name
+        (``{group}`` is the part before the colon, as `badge` reads it).
+        """
+        if not self.install_alternatives or not version:
+            return []
+        group, _, artifact = package.partition(":")
+        if not artifact:
+            return []
+        return [
+            (lead, fence, template.format(group=group, artifact=artifact, version=version))
+            for lead, fence, template in self.install_alternatives
+        ]
+
     def runtime_badge(self, floor: str) -> str:
         """The language-or-runtime badge for the manifest ``floor`` this ecosystem's floor fact
         carries, or an empty string when the ecosystem declares no floor or ``floor`` has no
@@ -136,7 +157,12 @@ class EcosystemSpec:
             return ""
         bound = _FLOOR_BOUND.search(floor)
         text = bound.group(1) if bound else floor.strip()
-        if bound is None and _PLAIN_FLOOR.fullmatch(text) is None:
+        # A project may target several frameworks (`net8.0;net10.0`): the fact lists them all,
+        # `;`-separated, and the badge names each rather than only the first.
+        parts = [part.strip() for part in text.split(";")] if bound is None else [text]
+        if len(parts) > 1 and all(_PLAIN_FLOOR.fullmatch(part) for part in parts):
+            text = " | ".join(parts)
+        elif bound is None and _PLAIN_FLOOR.fullmatch(text) is None:
             return ""
         if self.floor_is_minimum:
             text += "+"

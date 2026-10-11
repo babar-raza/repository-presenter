@@ -17,6 +17,7 @@ from repository_presenter.components.readme.evidence.facts.links import link_fac
 from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
 from repository_presenter.components.readme.evidence.facts.published_version import (
     PACKAGE_NAME_FACT_ID,
+    pin_install_version,
     published_version_fact,
 )
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
@@ -260,6 +261,12 @@ def extract_facts(
         )
         if published is not None:
             facts.append(published)
+            # A coordinate-form install command embeds the manifest's version; a reader can
+            # fetch only the registry's, which BC-14 holds the command to.
+            manifest_version = next(
+                (f.value for f in manifest_facts if f.id == "package:version"), ""
+            )
+            facts[:] = [pin_install_version(f, manifest_version, published) for f in facts]
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     # G4-W17 arrival item 51: the manifest's own license declaration, through the ManifestReader
     # facade the plugins read identity from, stands in for a license file the repository does
