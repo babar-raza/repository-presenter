@@ -227,6 +227,11 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
+from repository_presenter.components.readme_correction.gate import load_proposable_correction
+from repository_presenter.components.readme_correction.pull_request import (
+    compose_correction_pull_request,
+)
+from repository_presenter.components.readme_correction.run import produce_correction
 from repository_presenter.core.authorization.proposal import (
     AUTHORIZATION_DIRNAME,
     CURRENT_POLICY_VERSION,
@@ -353,6 +358,7 @@ from repository_presenter.core.secrets import (
     configured_secrets,
     find_secret_leaks,
     redact,
+    scan_for_secrets,
     stage_transaction_for_upload,
 )
 from repository_presenter.core.snapshot.capture import (
@@ -883,6 +889,34 @@ def build_parser() -> argparse.ArgumentParser:
     verify_noop.add_argument("--first", type=Path, required=True, metavar="PATH")
     verify_noop.add_argument("--second", type=Path, required=True, metavar="PATH")
     verify_noop.add_argument("--root", type=Path, default=None, help=root_help)
+    correct = subcommands.add_parser(
+        "correct-readme",
+        help=(
+            "correct the live README at the registry's head against verified facts: a patch "
+            "bundle (README.md, README.patch, corrections.json) of evidenced edits only - false "
+            "claims, template sections facts alone can fill, broken links - with no model call "
+            "and no write to the target"
+        ),
+    )
+    correct.add_argument("--repo", required=True, metavar="OWNER/NAME", help="registry coordinates")
+    correct.add_argument("--root", type=Path, default=None, help=root_help)
+    correct.add_argument(
+        "--facts",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "a facts.json for exactly the registry head's revision (a candidate's or a prior "
+            "facts-only run's); omitted, the facts-only extraction path runs first"
+        ),
+    )
+    correct.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        metavar="DIR",
+        help="the empty or absent directory the correction bundle is written into",
+    )
     propose = subcommands.add_parser(
         "propose",
         help=(
@@ -918,6 +952,18 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "the commit this run was triggered at (the workflow passes ${{ github.sha }}); "
             "defaults to $GITHUB_SHA, then HEAD"
+        ),
+    )
+    propose.add_argument(
+        "--correction-bundle",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "propose the corrected README of a `correct-readme --out` bundle instead of a sealed "
+            "candidate: the explicit, typed alternative gate (components/readme_correction/"
+            "gate.py) re-derives the correction and refuses unless it is exactly the evidenced "
+            "edits; every other check (registry, source revision, authorization, token) is shared"
         ),
     )
     propose.add_argument(
@@ -1257,10 +1303,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_sealed_ready(args.repo, args.root)
     if args.command == "stage-transaction-artifact":
         return run_stage_transaction_artifact(args.transaction, args.staging)
+    if args.command == "correct-readme":
+        return run_correct_readme(args.repo, args.root, facts_path=args.facts, out=args.out)
     if args.command == "propose":
         return run_propose(
             args.repo,
             args.root,
+            correction_bundle=args.correction_bundle,
             local_test_readme_file=args.local_test_readme_file,
             source_revision=args.source_revision,
             base_branch=args.base_branch,
@@ -2309,9 +2358,14 @@ def run_propose(
     authorization_record: Path | None = None,
     trigger_sha: str | None = None,
     propose: bool = False,
+    correction_bundle: Path | None = None,
 ) -> int:
     """Create or update the one stable presenter branch/PR proposing ``repository``'s README
     candidate (G6-W02; ``components/propose/effect.py``).
+
+    ``correction_bundle`` swaps the candidate for the corrected README of a ``correct-readme``
+    bundle, behind its own typed gate (``components/readme_correction/gate.py``); nothing else in
+    this function changes for it, and a regenerated candidate is still judged by the original gate.
 
     A proposal carries exactly one thing: ``repository``'s sealed ``CURRENT`` candidate, and only
     while that bundle is integrity-verified and ``READY_FOR_PROPOSAL`` at the revision the target
@@ -2367,9 +2421,13 @@ def run_propose(
             permit = require_write_permitted(registry, repository, "readme_proposal")
         elif entry.mode != "full":
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
-        candidate = load_proposable_candidate(
-            root, repository, acceptance=proposal_acceptance_gate(root)
-        )
+        if correction_bundle is not None:
+            candidate = load_proposable_correction(correction_bundle, repository, root=root)
+            print(f"propose: correction bundle {correction_bundle.name} (typed correction gate)")
+        else:
+            candidate = load_proposable_candidate(
+                root, repository, acceptance=proposal_acceptance_gate(root)
+            )
         readme_text = candidate.readme_text
         revision = candidate.revision
         candidate_hash = candidate.candidate_hash
@@ -2466,14 +2524,20 @@ def run_propose(
             base = default_branch_read.branch
         base = base or ""  # unused by propose_candidate before its own authorization gate
 
-        evidence = load_pull_request_evidence(candidate.bundle)
-
         def _compose_pull_request(live_readme: str | None) -> PullRequestContent:
+            if correction_bundle is not None:
+                return compose_correction_pull_request(
+                    bundle=candidate.bundle,
+                    repository=repository,
+                    candidate_hash=candidate_hash,
+                    source_revision=revision,
+                    policy_version=CURRENT_POLICY_VERSION,
+                )
             return compose_pull_request(
                 candidate_readme=readme_text,
                 live_readme=live_readme,
                 repository=repository,
-                evidence=evidence,
+                evidence=load_pull_request_evidence(candidate.bundle),
                 candidate_hash=candidate_hash,
                 source_revision=revision,
                 policy_version=CURRENT_POLICY_VERSION,
@@ -2518,6 +2582,62 @@ def run_propose(
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
+    return EXIT_OK
+
+
+def run_correct_readme(
+    repository: str, root_argument: Path | None, *, facts_path: Path | None, out: Path
+) -> int:
+    """``correct-readme``: write the correction bundle for ``repository``'s live README.
+
+    Read-only toward the target, no model call, no write beyond ``out``. The hard allow-list is
+    checked before any repository-specific network work, exactly as ``present`` does."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+        print(f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem})")
+
+        def extract_facts(revision: str) -> Path:
+            code = run_present(entry.repository, root_argument, facts_only=True)
+            facts = (
+                root / RUNS_DIRNAME / "transactions" / f"{entry.owner}__{entry.name}" / revision
+            ) / FACTS_FILENAME
+            if code != EXIT_OK or not facts.is_file():
+                raise ConfigError(
+                    f"no facts at {revision} for {entry.repository}: the facts-only run "
+                    f"ended {code} without a facts.json (not processable, or the head moved)"
+                )
+            return facts
+
+        outcome = produce_correction(
+            entry,
+            clone_directory=root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
+            out_directory=out,
+            facts_path=facts_path,
+            extract_facts=extract_facts,
+            token=os.environ.get("GH_TOKEN") or None,
+        )
+        leaks = scan_for_secrets(out, configured_secrets(os.environ))
+        if leaks:
+            shutil.rmtree(out)
+            _fail(f"correct-readme: a secret appeared in {leaks[0].path.name}; bundle discarded")
+            return EXIT_UNSAFE
+    except FileExistsError as exc:
+        _fail(f"correct-readme: {redact(str(exc), live_values)}")
+        return EXIT_USAGE
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    counts = ", ".join(f"{kind} {count}" for kind, count in sorted(outcome.summary.items()))
+    print(
+        f"correct-readme: {outcome.repository} @ {outcome.revision[:12]}: "
+        f"{outcome.edits} edit(s) ({counts or 'none'}), {outcome.unapplied} finding(s) left "
+        f"unapplied; bundle {outcome.out}"
+    )
     return EXIT_OK
 
 
