@@ -66,6 +66,19 @@
         }
       }
     },
+    "defect_class": {
+      "enum": [
+        "LICENSE_MISSING_ROOT",
+        "LICENSE_MISMATCH",
+        "MANIFEST_PLACEHOLDER_METADATA",
+        "README_MISSING_OR_PLACEHOLDER",
+        "SOURCE_UNPARSEABLE",
+        "BUILD_OR_TESTS_FAIL",
+        "EXAMPLE_FAILS",
+        "INSTALL_FAILS"
+      ],
+      "description": "Optional (G6-W07, additive, back-compatible): the detector class that found this defect, one of the entries of components/issues/classes.py's registry. Absent on a handoff drafted before the registry existed; such a handoff stays valid unchanged. A class detected from the pinned tree and manifests alone carries the class id as triggering_check.id, so the redetector registry dispatches on it like any other id."
+    },
     "claim": {
       "type": "string",
       "minLength": 1,

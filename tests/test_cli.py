@@ -756,6 +756,85 @@ def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pat
     return source
 
 
+def _facts_only(root: Path) -> int:
+    return main(["present", "--repo", CANARY, "--root", str(root), "--facts-only"])
+
+
+def _defects(root: Path) -> list[Path]:
+    return sorted((root / "evidence" / "upstream-defects").glob("*/*.json"))
+
+
+def _move_license_under_a_directory(source: Path) -> None:
+    # A case-insensitive filesystem cannot hold LICENSE and License/ at once: step aside first.
+    (source / "LICENSE").rename(source / "LICENSE.moving")
+    (source / "License").mkdir()
+    (source / "LICENSE.moving").rename(source / "License" / "LICENSE.txt")
+    commit_all(source, "move the license under License/")
+
+
+def test_a_license_only_under_a_directory_is_recorded_once_and_never_twice(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G6-W07: the defect-class detectors run on the facts-only path, deterministically."""
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    _move_license_under_a_directory(local_canary["source"])
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    written = _defects(project_with_registry)
+    assert len(written) == 1
+    handoff = json.loads(written[0].read_text("utf-8"))
+    assert handoff["defect_class"] == "LICENSE_MISSING_ROOT"
+    assert handoff["status"] == "HANDOFF_PENDING" and handoff["issue_ref"] is None
+    assert "the license file is only in License/" in handoff["suggested_issue_title"]
+    assert "upstream-defect handoff: evidence/upstream-defects/" in out
+    # No provider call, and nothing written outside the transaction and the handoff directory.
+    assert gateway_ready.requests == []
+    assert _facts_only(project_with_registry) == EXIT_OK
+    again = capsys.readouterr().out
+    assert _defects(project_with_registry) == written
+    assert "upstream-defect handoff" not in again
+
+
+def test_a_repository_with_a_root_license_records_no_handoff_and_prints_nothing_new(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    assert not (project_with_registry / "evidence" / "upstream-defects").exists()
+    assert "upstream-defect" not in out
+    assert "preflight: runs/transactions" in out
+    assert gateway_ready.requests == []
+
+
+def test_a_ledger_that_cannot_be_read_does_not_change_the_exit_code(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    _move_license_under_a_directory(local_canary["source"])
+    assert _facts_only(project_with_registry) == EXIT_OK
+    capsys.readouterr()
+    (original,) = _defects(project_with_registry)
+    twin = original.with_name("twin.json")
+    twin.write_bytes(original.read_bytes())  # two artifacts claiming one key: LedgerError
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    assert "upstream-defect handoffs: not recorded" in out
+    assert "preflight: runs/transactions" in out
+
+
 def test_facts_only_stops_after_the_facts_with_no_provider_call(
     project_with_registry: Path,
     local_canary: dict[str, Any],

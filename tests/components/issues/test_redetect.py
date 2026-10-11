@@ -43,7 +43,15 @@ TEX_PYTHON_HANDOFF = (
 
 
 def test_registered_check_ids_cover_every_shape_the_harvest_produced() -> None:
-    assert registered_check_ids() == ("BC-02", "BC-03", "BC-06", "NOT_PROCESSABLE")
+    # The four shapes the harvest produced, plus one id per detectable defect class
+    # (`classes.py`, G6-W07), which registers its shared redetector under its own class id.
+    from repository_presenter.components.issues.classes import REGISTRY
+
+    detectable = {c.id for c in REGISTRY.values() if c.detector is not None}
+    assert (
+        set(registered_check_ids()) == {"BC-02", "BC-03", "BC-06", "NOT_PROCESSABLE"} | detectable
+    )
+    assert detectable
 
 
 def test_unregistered_check_id_fails_closed() -> None:

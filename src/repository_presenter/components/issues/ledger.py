@@ -22,6 +22,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+# Importing the class registry registers its redetectors (`classes.py` -> `redetect.register`), so
+# any consumer that reads handoffs through the ledger can also re-check a class handoff without
+# importing the drafting module.
+from repository_presenter.components.issues import classes as _classes  # noqa: F401
 from repository_presenter.components.issues.model import (
     Handoff,
     IssueRef,
@@ -47,6 +51,7 @@ class LedgerEntry:
     last_observed_state: str
     triggering_check_id: str
     issue_ref: IssueRef | None
+    defect_class: str | None = None
 
     @property
     def key(self) -> LedgerKey:
@@ -62,6 +67,7 @@ class LedgerEntry:
             last_observed_state=handoff.status,
             triggering_check_id=handoff.triggering_check.id,
             issue_ref=handoff.issue_ref,
+            defect_class=handoff.defect_class,
         )
 
 
