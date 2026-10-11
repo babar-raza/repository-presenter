@@ -24,6 +24,7 @@ _H1 = re.compile(r"^#(?!#)[ \t]+\S")
 _H2 = re.compile(r"^##(?!#)[ \t]+\S")
 _OPEN = re.compile(r"<details\b", re.IGNORECASE)
 _CLOSE = re.compile(r"</details\s*>", re.IGNORECASE)
+_CODE_SPAN = re.compile(r"`[^`]*`")
 
 
 @detector("second_h1")
@@ -62,9 +63,12 @@ def unclosed_details(ctx: Context) -> DetectorResult:
     for line in ctx.lines:
         if line.in_fence:
             continue
+        # A tag named inside an inline code span is text, not markup (an API table row that
+        # documents `<details>`; measured on Aspose.HTML for Python).
+        text = _CODE_SPAN.sub(lambda m: " " * len(m.group(0)), line.text)
         for token in sorted(
-            [(m.start(), True) for m in _OPEN.finditer(line.text)]
-            + [(m.start(), False) for m in _CLOSE.finditer(line.text)]
+            [(m.start(), True) for m in _OPEN.finditer(text)]
+            + [(m.start(), False) for m in _CLOSE.finditer(text)]
         ):
             if token[1]:
                 stack.append(line.number)

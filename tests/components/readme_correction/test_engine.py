@@ -61,6 +61,7 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
         "claim_publication",
         "claim_test_files",
         "claim_version",
+        "failing_example",
         "missing_sections",
         "second_h1",
         "unclosed_details",

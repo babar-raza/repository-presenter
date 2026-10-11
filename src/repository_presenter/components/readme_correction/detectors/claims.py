@@ -124,6 +124,8 @@ def claim_identity(ctx: Context) -> DetectorResult:
         for target in dict.fromkeys(targets):
             if bc14._same_identity(target, identity.value) or bc14._pep503(target) in dependencies:
                 continue
+            if target.startswith(identity.value + "/"):
+                continue  # a package inside the module (go get module/v26/pkg): still the module
             candidate = bc14._stem(target)
             if not (
                 candidate and stem and (candidate.startswith(stem) or stem.startswith(candidate))

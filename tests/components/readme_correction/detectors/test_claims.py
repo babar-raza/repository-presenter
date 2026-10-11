@@ -97,3 +97,16 @@ def test_an_unpublished_statement_is_reported_never_rewritten(make_context: Any)
     result = claim_publication(make_context(readme))
     assert result.edits == ()
     assert len(result.findings) == 1 and result.findings[0].line == 1
+
+
+def test_a_package_path_inside_the_module_is_not_a_near_miss(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    # Aspose.Cells for Go: `go get <module>/v26/aspose/cells_foss` installs a package of the module.
+    module = "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+    facts = make_facts(
+        make_fact("package:name", module),
+        make_fact("install_command:go", f"go get {module}"),
+    )
+    readme = f"```bash\ngo get {module}/aspose/cells_foss\n```\n"
+    assert claim_identity(make_context(readme, facts)).edits == ()

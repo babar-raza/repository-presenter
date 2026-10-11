@@ -78,3 +78,11 @@ def test_a_structure_fix_must_cite_the_readme_line_and_may_only_insert_a_closing
         Edit(STRUCTURE_FIX, "t", 0, 1, "#", "##", (), "r")  # no locator
     with pytest.raises(InvalidEditError):
         Edit(STRUCTURE_FIX, "t", 3, 3, "", "free text", (), "r", locators=("README.md:1",))
+
+
+def test_a_tag_named_in_an_inline_code_span_is_text_not_an_opening(make_context: Any) -> None:
+    readme = (
+        "# P\n\n<details>\nx\n</details>\n\n"
+        "| `HTMLDetailsElement` | HTML `<details>` disclosure widget element. |\n\n## Next\n"
+    )
+    assert unclosed_details(make_context(readme)).edits == ()
