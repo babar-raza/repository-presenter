@@ -355,8 +355,9 @@ _TYPE_OBJECTIVE = (
 # no longer reads a verified repository path's directory segments as names the unit spells, so the
 # omission recovery stops declining on `Aspose.Words/Aspose.Words.csproj` (Words-.NET).
 # The same "33" (CUT-2, BC-12, G3-W08, lane L-bc; cut 2 is one release): unit_checks rewrites a
-# shortened, re-cased or re-separated spelling of the product name in a unit's running prose to the canonical name, in place, like the code
-# span and the echoed citation (identity.canonicalise_name_variants). Measured on the 2026-10-10
+# shortened, re-cased or re-separated spelling of the product name in a unit's running prose to
+# the canonical name, in place, like the code span and the echoed citation
+# (identity.canonicalise_name_variants). Measured on the 2026-10-10
 # baseline: 3D-.NET limitation:6 ("... usage in Aspose.3D FOSS.") and PSD-Python's
 # TestAsposeCompatibility row ("... between Aspose.PSD FOSS and the original ...") failed BC-12 and
 # three repairs did not converge. A technical identifier, a name beside a package/namespace cue, a
