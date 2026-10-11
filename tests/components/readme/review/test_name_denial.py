@@ -15,9 +15,11 @@ states an absence in ``absent``; the rule never reads the finding's ``text``
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.review.independent import review as review_module
 from repository_presenter.components.readme.review.independent.review import (
@@ -34,7 +36,7 @@ from repository_presenter.components.readme.review.independent.review import (
     second_read_decision,
     symbol_index,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument, read_facts
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT
@@ -762,6 +764,45 @@ def test_the_rule_is_a_registered_deterministic_one_and_records_plain_data() -> 
     import json
 
     json.dumps(document, sort_keys=True)  # review.json writes it as is
+
+
+# --- archived reviews: no `unsupported_names` -------------------------------------------------
+# Raw replies of the reviewer as sealed before the field existed (candidates/*/raw_calls.json):
+# they validate under the current schema and the name-denial rule does not apply to them.
+ARCHIVED_REVIEWS = (
+    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python/06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+    "aspose-font-foss__Aspose.Font-FOSS-for-Python/c520e3ebed3c36a56850cffb2b067afb29c5e2e9",
+)
+
+
+def _archived_replies(candidate: str) -> list[dict[str, Any]]:
+    raw = json.loads((REPO_ROOT / "candidates" / candidate / "raw_calls.json").read_text("utf-8"))
+    replies = [call["output"] for call in raw.values() if call["job"] == "independent_review"]
+    assert replies and all(reply["findings"] for reply in replies), candidate
+    return replies
+
+
+@pytest.mark.parametrize("candidate", ARCHIVED_REVIEWS)
+def test_an_archived_review_without_the_field_still_validates_and_the_rule_stays_out(
+    candidate: str,
+) -> None:
+    validator = Draft202012Validator(REVIEWER.manifest.output.schema_)
+    root = REPO_ROOT / "candidates" / candidate
+    facts = read_facts(root / "facts.json")
+    readme = (root / "README.md").read_text("utf-8")
+    by_id = {fact.id: fact for fact in facts.facts}
+    for reply in _archived_replies(candidate):
+        assert all("unsupported_names" not in finding for finding in reply["findings"])
+        assert [e.message for e in validator.iter_errors(reply)] == []
+        # No finding is a name denial without the field, whatever its text says.
+        assert all(name_denial_defect(f, by_id, readme) is None for f in reply["findings"])
+        document = _review(reply["findings"], facts, readme, verdict=reply["verdict"])
+        assert document["verdict_as_returned"] == reply["verdict"]
+        refuted = [f["refuted_by"]["rule"] for f in document["advisory"] if "refuted_by" in f]
+        assert NAME_DENIAL_RULE not in refuted
+        assert {f["id"] for f in (*document["findings"], *document["advisory"])} == {
+            f["id"] for f in reply["findings"]
+        }
 
 
 # --- the packet --------------------------------------------------------------------------------

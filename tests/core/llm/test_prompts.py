@@ -63,9 +63,10 @@ def test_the_review_and_authoring_prompts_carry_the_cut2_scope_rules() -> None:
 
 def test_the_review_prompt_lets_the_reviewer_see_and_trust_the_symbols_it_judges() -> None:
     """BC-10 wave 4, cause 5: the reviewer denied names its own citations proved. v13 adds the
-    bounded `symbol_index` to the packet and tells the reviewer where a name's fact is."""
+    bounded `symbol_index` to the packet and tells the reviewer where a name's fact is; v14 adds
+    the typed `unsupported_names` (a changed prompt carries a new version)."""
     manifest = load_manifests(REAL_PROMPTS)["independent_review"].manifest
-    assert manifest.version == "13"
+    assert manifest.version == "14"
     assert "symbol_index" in manifest.packet.names and "symbol_index" in manifest.placeholders()
     review = " ".join(manifest.system.split())
     assert "Names are checked mechanically too." in review
@@ -80,7 +81,9 @@ def test_the_review_prompt_takes_the_denied_names_as_a_typed_field() -> None:
     the names up and never reads the finding's text for them (RC8; tests/test_routing_fields.py)."""
     manifest = load_manifests(REAL_PROMPTS)["independent_review"].manifest
     finding = manifest.output.schema_["properties"]["findings"]["items"]
-    assert "unsupported_names" in finding["required"]
+    # Optional: a review recorded before v14, and a reply that leaves the field out, still
+    # validate; absent means the name-denial rule does not apply to that finding.
+    assert "unsupported_names" not in finding["required"]
     names = finding["properties"]["unsupported_names"]
     assert names["type"] == "array" and names["items"]["type"] == "string"
     assert names["maxItems"] >= 25  # the wave-4 Go F05 finding listed 25 names
