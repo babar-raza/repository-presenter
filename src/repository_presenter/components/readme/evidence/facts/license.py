@@ -72,7 +72,14 @@ def license_facts(
                 fact_id("third_party_notices", "file"),
                 "third_party_notices",
                 notices_path,
-                (Evidence(notices_path, "third-party notices file at the root"),),
+                (
+                    Evidence(
+                        notices_path,
+                        "third-party notices file at the root"
+                        if "/" not in notices_path
+                        else "third-party notices file for bundled material",
+                    ),
+                ),
             )
         ]
         if notices_path is not None

@@ -96,13 +96,16 @@ def _only(findings: list[Any]) -> Any:
     return findings[0]
 
 
-def test_the_registry_holds_exactly_the_sixteen_real_causes() -> None:
+def test_the_registry_holds_exactly_the_twenty_real_causes() -> None:
     """A new class is an explicit change here, so it is reviewed rather than slipped in."""
     assert [cls.id for cls in DEFERRAL_CLASSES] == [
         "NO_VERIFIED_QUICK_START",
         "INTERNAL_DETAIL",
         "BUILD_TEST_PATH_UNRECORDED",
         "NOTICES_WITHOUT_RECORD",
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "OWN_LICENSE_UNVERIFIED",
+        "DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES",
         "UNVERIFIED_EXAMPLE",
         "ENTERPRISE_NO_VERIFIED_TARGET",
         "ENTERPRISE_NON_PROSE",
@@ -115,6 +118,7 @@ def test_the_registry_holds_exactly_the_sixteen_real_causes() -> None:
         "API_LISTING_COVERED_BY_CORE_API",
         "NO_EVIDENCE_EITHER_WAY",
         "NOT_CARRIED_BY_NAMED_SECTION",
+        "INSTALL_SNIPPET_COVERED_BY_INSTALLATION",
     ]
     assert {cls.decision for cls in DEFERRAL_CLASSES} == {"BLOCK", "ADVISORY"}
 
@@ -696,12 +700,12 @@ _INSTALLATION = "Widget > Installation"
 _XML = "```xml\n<dependency><artifactId>widget</artifactId></dependency>\n```"
 
 
-def _carry_facts(*extra: Fact) -> FactsDocument:
+def _carry_facts(*extra: Fact, section: str = _INSTALLATION) -> FactsDocument:
     """A repository whose verified install command the Installation row prints; an inherited
     XML install block is not that command, so the row cannot carry it."""
     return _facts(
         _fact("install_command", "pip", "pip install widget"),
-        _unit(11, "code_block", _XML, _INSTALLATION),
+        _unit(11, "code_block", _XML, section),
         *extra,
     )
 
@@ -756,7 +760,8 @@ def test_a_unit_the_named_section_cannot_carry_is_an_advisory_deferral() -> None
 def test_a_look_alike_without_the_typed_prefix_stays_unclassified_and_blocks() -> None:
     """Negative control: the same words in the model's own rationale, or after other text, are
     free text and not the reconciler's typed marker; an unmatched cause fails closed."""
-    facts = _carry_facts()
+    # Outside Installation: under it, the same block is INSTALL_SNIPPET_COVERED_BY_INSTALLATION.
+    facts = _carry_facts(section="Widget > Usage")
     for rationale in (
         "The installation section cannot carry this block.",
         "Not carried by the section named; held for the owner.",
@@ -1043,3 +1048,206 @@ def test_a_real_symbol_in_a_code_span_still_names_a_verified_symbol(text: str) -
     )
     deferred = _deferred("inherited_unit:359.paragraph", "No fact confirms the behaviour.")
     assert _classify(facts, deferred).decision == "BLOCK"
+
+
+# CUT-2 (BC-05 v5 extension): the notices, licence, dependency, lead-in and install-snippet causes
+# the 2026-10-10 baseline and the first cut-2 wave left blocking. Each unit is trimmed from the
+# real transaction named in its docstring.
+
+_MIT = (
+    "This project is licensed under the MIT License. The MIT License permits use, copying,\n"
+    "modification, distribution, sublicensing, and commercial use, provided its copyright and\n"
+    "permission notice are retained. The software is provided without warranty."
+)
+_PSD = "Aspose.PSD.FOSS for .NET"
+
+
+def _license_fact() -> Fact:
+    return _fact("license", "spdx", "MIT")
+
+
+def test_the_projects_own_mit_paragraph_is_not_a_third_party_notice() -> None:
+    """PSD-.NET 85ed7eec inherited_unit:060: 'copyright and permission notice are retained' is the
+    MIT text, the License section's content. It blocked as unrecorded third-party notices."""
+    facts = _facts(_license_fact(), _unit(60, "paragraph", _MIT, f"{_PSD} > License"))
+    finding = _classify(
+        facts, _deferred("inherited_unit:060.paragraph", "Rendered from the license fact.")
+    )
+    assert (finding.class_id, finding.decision) == (
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "ADVISORY",
+    )
+
+
+def test_the_projects_license_heading_is_covered_by_the_license_section() -> None:
+    facts = _facts(_license_fact(), _unit(59, "heading", "## License", _PSD))
+    finding = _classify(facts, _deferred("inherited_unit:059.heading", "Superseded."))
+    assert (finding.class_id, finding.decision) == (
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "ADVISORY",
+    )
+
+
+def test_a_license_claim_with_no_license_fact_is_advisory_and_never_published() -> None:
+    """PSD-.NET and PSD-Python have no LICENSE file and declare none, so the README's 'MIT' is a
+    claim the tree does not show. Withheld and listed for the owner; not an extractor gap."""
+    facts = _facts(_unit(60, "paragraph", _MIT, f"{_PSD} > License"))
+    finding = _classify(facts, _deferred("inherited_unit:060.paragraph", "Rendered."))
+    assert (finding.class_id, finding.decision) == ("OWN_LICENSE_UNVERIFIED", "ADVISORY")
+
+
+_GO_LICENSE = (
+    "The library also bundles the Arimo, Tinos, Cousine, and Carlito font families under the SIL "
+    "Open Font License 1.1, used to render the PDF Standard-14 fonts - see "
+    "[fonts/LICENSE.txt](fonts/LICENSE.txt) (SPDX: `MIT AND OFL-1.1`). The MIT license above "
+    "covers the library's own code."
+)
+
+
+def test_bundled_material_under_the_license_heading_still_blocks_without_a_record() -> None:
+    """Negative control: PDF-Go 092 sits under License but documents bundled fonts, so the
+    own-license class never decides it; the attribution needs its record first."""
+    facts = _facts(
+        _license_fact(), _unit(92, "paragraph", _GO_LICENSE, "Aspose.PDF FOSS > License")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:092.paragraph", "Repeats."))
+    assert (finding.class_id, finding.decision, finding.stage) == (
+        "NOTICES_WITHOUT_RECORD",
+        "BLOCK",
+        "EXTRACTING",
+    )
+
+
+def test_bundled_material_with_a_notices_record_is_covered_by_the_license_section() -> None:
+    notices = _fact("third_party_notices", "file", "fonts/LICENSE.txt")
+    facts = _facts(
+        _license_fact(), notices, _unit(92, "paragraph", _GO_LICENSE, "Aspose.PDF FOSS > License")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:092.paragraph", "Repeats."))
+    assert finding.decision == "ADVISORY"
+
+
+def test_a_no_third_party_dependency_sentence_is_not_a_notice() -> None:
+    """Email-Cpp c844a467 inherited_unit:016: 'no third-party dependency is fetched to build it'
+    is a build statement. The bare words 'third-party' no longer mean attribution."""
+    facts = _facts(
+        _fact("build_test_asset", "tests", "tests/"),
+        _fact("install_command", "cmake", "cmake --build"),
+        _unit(
+            16,
+            "paragraph",
+            "The library target is `AsposeEmailFoss`; no third-party dependency is fetched to "
+            "build or test it.",
+            "Aspose.Email FOSS for C++ > Installation > Build",
+        ),
+    )
+    deferred = _deferred("inherited_unit:016.paragraph", RECOVERED_COVERAGE_RATIONALE + "Covered.")
+    assert _classify(facts, deferred).class_id == "NOT_CARRIED_BY_NAMED_SECTION"
+
+
+def test_a_third_party_notices_heading_without_a_record_still_blocks() -> None:
+    facts = _facts(_unit(88, "heading", "## Third-Party Notices", "Aspose.PDF FOSS for Go"))
+    finding = _classify(facts, _deferred("inherited_unit:088.heading", "Placeable."))
+    assert (finding.class_id, finding.decision) == ("NOTICES_WITHOUT_RECORD", "BLOCK")
+
+
+def test_a_dependencies_section_unit_is_covered_by_the_rendered_dependencies() -> None:
+    """PSD-Python dbc90f46 inherited_unit:021 and 023: lists under 'Dependencies' the model
+    deferred as 'rendered by the deterministic dependencies section'."""
+    facts = _facts(
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(
+            23,
+            "list",
+            "- `pytest` - the test runner used by the test modules. No version is pinned.",
+            "Aspose.PSD-FOSS for Python > Dependencies > Development Dependencies",
+        ),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:023.list", "Covered."))
+    assert (finding.class_id, finding.decision) == (
+        "DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES",
+        "ADVISORY",
+    )
+
+
+def test_prose_outside_a_dependencies_section_is_not_covered_by_it() -> None:
+    """Negative control: only the source heading decides, never a stray word in the text."""
+    facts = _facts(
+        _unit(5, "paragraph", "Plain prose about dependencies.", "Aspose.PSD-FOSS > Overview")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:005.paragraph", "Held."))
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+def test_a_lead_in_to_a_withheld_link_line_is_advisory() -> None:
+    """Font-Python adf4885a inherited_unit:087: 'see:' introduces a guide link the model omitted
+    as CONTRADICTED. The lead-in is withheld with it, whatever kind the next block is."""
+    facts = _facts(
+        _unit(
+            87,
+            "paragraph",
+            "For comprehensive documentation of the `web-optimize` command, see:",
+            "aspose-font > CLI Usage",
+        ),
+        _unit(88, "paragraph", "**[Guide](docs/one_command_web_optimizer.md)**"),
+    )
+    dispositions = [
+        _deferred("inherited_unit:087.paragraph", "The link is contradicted."),
+        _kept("inherited_unit:088.paragraph"),
+    ]
+    finding = _classify(facts, dispositions[0], dispositions[1])
+    assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+
+
+def test_a_lead_in_whose_next_block_is_placed_stays_unclassified() -> None:
+    """Negative control: a placed neighbour means the sentence's promise is kept."""
+    facts = _facts(
+        _unit(87, "paragraph", "For the guide, see:", "aspose-font > CLI Usage"),
+        _unit(88, "paragraph", "**[Guide](docs/guide.md)**"),
+    )
+    placed = {
+        "unit_id": "inherited_unit:088.paragraph",
+        "disposition": "KEEP_VERBATIM",
+        "destination_section": "documentation_resources",
+        "fact_ids": [],
+        "rationale": "Kept.",
+    }
+    finding = _classify(facts, _deferred("inherited_unit:087.paragraph", "Held."), placed)
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+_CMAKE = (
+    "```cmake\nadd_subdirectory(Aspose.Email-FOSS-for-Cpp)\n"
+    "target_link_libraries(app PRIVATE X)\n```"
+)
+
+
+def test_an_installation_snippet_that_is_not_a_verified_example_is_advisory() -> None:
+    """Email-Cpp c844a467 inherited_unit:013: a CMake integration snippet under Installation, with
+    a verified install_command. The model deferred it 'because no renderable section carries it'."""
+    facts = _facts(
+        _fact("install_command", "cmake", "git clone ..."),
+        _unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "No section carries it."))
+    assert (finding.class_id, finding.decision) == (
+        "INSTALL_SNIPPET_COVERED_BY_INSTALLATION",
+        "ADVISORY",
+    )
+
+
+def test_a_verified_example_under_installation_is_not_an_install_snippet() -> None:
+    """Negative control: a code block whose own example is SUPPORTED is the plan's to place."""
+    facts = _facts(
+        _fact("install_command", "cmake", "git clone ..."),
+        _example(1, "SUPPORTED", unit=13),
+        _unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "Held."))
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+def test_an_installation_snippet_without_a_verified_install_is_not_this_class() -> None:
+    facts = _facts(_unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"))
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "Held."))
+    assert finding.class_id == "INSTALL_STEPS_UNVERIFIED"
