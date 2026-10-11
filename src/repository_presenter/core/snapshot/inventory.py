@@ -8,6 +8,7 @@ Manifest detection belongs to the platform plugins of the facts stage, not here.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -30,6 +31,28 @@ NOTICES_FILENAMES = frozenset(
         "thirdpartynotices.txt",
         "thirdpartynotices.md",
     }
+)
+# Notices that a repository keeps beside its main licence rather than under a notices name: a root
+# file named for the bundled material it covers (``LICENSE-FONTS``, ``LICENSE_THIRD_PARTY``; never
+# ``LICENSE-MIT``, which is a dual-licence project's own) or a licence or notice
+# file inside a directory that holds material the project did not write (CUT-2: TeX-Python keeps
+# ``LICENSE-FONTS`` at the root, PDF-Go ``fonts/LICENSE.txt`` and ``third_party/*-NOTICE.txt``). The
+# README documents these as bundled-material attribution, so they are the third_party_notices
+# record; without one the attribution has nowhere to render (BC-05 NOTICES_WITHOUT_RECORD).
+_COVERING_LICENSE_FILE = re.compile(
+    r"^licen[cs]e[-_](?:fonts?|third[-_]?party|bundled|vendor(?:ed)?|deps|dependencies|assets|data"
+    r"|notices?)(?:[.]\w+)?$",
+    re.IGNORECASE,
+)
+NOTICES_DIRECTORIES: tuple[str, ...] = (
+    "third_party",
+    "third-party",
+    "thirdparty",
+    "vendor",
+    "fonts",
+)
+_NOTICE_BEARING_FILE = re.compile(
+    r"(?:^|[-_.])(?:notices?|licen[cs]es?|copying|ofl)(?:[-_.]|$)", re.IGNORECASE
 )
 COMMUNITY_FILENAMES: dict[str, frozenset[str]] = {
     "CONTRIBUTING": frozenset(
@@ -62,6 +85,26 @@ def _find_case_insensitive(directory: Path, names: frozenset[str]) -> Path | Non
     return None
 
 
+def _find_covering_notices(root: Path) -> Path | None:
+    """A licence or notice file kept for bundled material: a root ``LICENSE-<what>`` file first,
+    then the first file inside ``NOTICES_DIRECTORIES`` (in that order) that is named a notice or a
+    licence. Visited in name order, so the result is the same on every host."""
+    if not root.is_dir():
+        return None
+    for entry in sorted(root.iterdir(), key=lambda p: p.name):
+        if entry.is_file() and _COVERING_LICENSE_FILE.match(entry.name):
+            return entry
+    directories = {e.name.lower(): e for e in root.iterdir() if e.is_dir()}
+    for name in NOTICES_DIRECTORIES:
+        directory = directories.get(name)
+        if directory is None:
+            continue
+        for entry in sorted(directory.iterdir(), key=lambda p: p.name):
+            if entry.is_file() and _NOTICE_BEARING_FILE.search(entry.name):
+                return entry
+    return None
+
+
 def scan(root: Path) -> FileInventory:
     """Inventory the root of ``root``; a license may also sit in a ``License`` directory."""
     readme_path = _find_case_insensitive(root, README_FILENAMES)
@@ -81,5 +124,7 @@ def scan(root: Path) -> FileInventory:
         readme_path=readme_path,
         license_path=license_path,
         community_paths=community_paths,
-        notices_path=_find_case_insensitive(root, NOTICES_FILENAMES),
+        notices_path=(
+            _find_case_insensitive(root, NOTICES_FILENAMES) or _find_covering_notices(root)
+        ),
     )

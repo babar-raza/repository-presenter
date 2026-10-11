@@ -70,6 +70,46 @@ def test_third_party_notices_are_found_regardless_of_casing(tmp_path: Path) -> N
     assert scan(tmp_path).notices_path == tmp_path / "Third-Party-Notices.txt"
 
 
+def test_a_license_file_named_for_the_bundled_material_it_covers_is_the_notices_file(
+    tmp_path: Path,
+) -> None:
+    """TeX-Python 181015d2 keeps LICENSE-FONTS beside LICENSE; the README documents it as the
+    bundled fonts' attribution, so it is the third_party_notices record."""
+    (tmp_path / "LICENSE").write_text("MIT License\n", encoding="utf-8")
+    (tmp_path / "LICENSE-FONTS").write_text("Knuth\n", encoding="utf-8")
+    inventory = scan(tmp_path)
+    assert inventory.notices_path == tmp_path / "LICENSE-FONTS"
+    assert inventory.license_path == tmp_path / "LICENSE"
+
+
+def test_a_dual_license_file_is_not_a_notices_file(tmp_path: Path) -> None:
+    """Negative control: LICENSE-MIT and LICENSE-APACHE are the project's own, never attribution."""
+    (tmp_path / "LICENSE-MIT").write_text("MIT License\n", encoding="utf-8")
+    (tmp_path / "LICENSE-APACHE").write_text("Apache License\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path is None
+
+
+def test_a_license_inside_a_bundled_material_directory_is_the_notices_file(tmp_path: Path) -> None:
+    """PDF-Go cdf43df1: fonts/LICENSE.txt holds the bundled fonts' licence; third_party/ is
+    preferred to fonts/ and a notices-named root file to both."""
+    (tmp_path / "fonts").mkdir()
+    (tmp_path / "fonts" / "Arimo.ttf").write_text("x", encoding="utf-8")
+    (tmp_path / "fonts" / "LICENSE.txt").write_text("OFL\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "fonts" / "LICENSE.txt"
+    (tmp_path / "third_party").mkdir()
+    (tmp_path / "third_party" / "APACHE-2.0.txt").write_text("a", encoding="utf-8")
+    (tmp_path / "third_party" / "PDF417-TABLE-NOTICE.txt").write_text("n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "third_party" / "PDF417-TABLE-NOTICE.txt"
+    (tmp_path / "NOTICE").write_text("root\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "NOTICE"
+
+
+def test_a_directory_without_a_license_file_yields_no_notices(tmp_path: Path) -> None:
+    (tmp_path / "fonts").mkdir()
+    (tmp_path / "fonts" / "Arimo.ttf").write_text("x", encoding="utf-8")
+    assert scan(tmp_path).notices_path is None
+
+
 def test_a_missing_root_yields_an_empty_inventory(tmp_path: Path) -> None:
     inventory = scan(tmp_path / "nope")
     assert (inventory.readme_path, inventory.license_path, inventory.community_paths) == (
