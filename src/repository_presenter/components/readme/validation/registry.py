@@ -168,8 +168,10 @@ VALIDATION_FILENAME = "validation.json"
 # BC-14 refuses a "sole / only / first published version" claim the registry's version count
 # contradicts (each Check version moves by one). A bundle sealed under 20 re-checks under 21 and
 # shows as pending.
-# 22: CUT-4 (G3-W08, wave-3 triage and acceptance review): BC-03 judges a printed example by what the
-# verifier compiled, BC-04 also enforces the text-hygiene and audience guards, BC-05 checks a kept unit
+# 22: CUT-4 (G3-W08, wave-3 triage and acceptance review): BC-03 judges a printed example by what
+# the
+# verifier compiled, BC-04 also enforces the text-hygiene and audience guards, BC-05 checks a kept
+# unit
 # against the whole destination document and blocks silent deferrals, BC-07 judges the horizontal
 # At a Glance drawing by the width model and flags a dangling reference, BC-12 treats a name that
 # heads a longer dotted or scoped identifier as an identifier, BC-14 counts a registry-confirmed

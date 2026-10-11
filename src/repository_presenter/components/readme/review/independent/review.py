@@ -179,7 +179,8 @@ ACCEPT = "ACCEPT"
 # longer folds a first-read rejection, a rejection returned with no finding stands, and a
 # rejection overturned deterministically needs a second read (``REJECTION_REFUTED``). Changes
 # which findings block and what the verdict is.
-# 20: CUT-4 (G3-W08): a finding about a unit the plan omitted, deferred or superseded folds only with a
+# 20: CUT-4 (G3-W08): a finding about a unit the plan omitted, deferred or superseded folds only
+# with a
 # recorded refutation, and the asserting fact is cited in preference to a bare name.
 REVIEWER_LOGIC_VERSION = "20"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens

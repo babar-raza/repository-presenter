@@ -121,9 +121,11 @@ RENDERER_VERSION = "31"
 # the section's sentences, minus any command a placed inherited block already carries) and one
 # sentence on the CI matrix's operating systems and runtimes. A repository whose facts name
 # neither renders as before.
-# 33: CUT-4 (G3-W08): the At a Glance diagram is drawn by components/readme_diagram (horizontal mother
+# 33: CUT-4 (G3-W08): the At a Glance diagram is drawn by components/readme_diagram (horizontal
+# mother
 # blocks, no clipping), kept units drop only when fully stated, one-pass code-span wrapping, C++
-# CMake minimum and distribution, moved limitations tables print. A bundle sealed under 32 re-renders.
+# CMake minimum and distribution, moved limitations tables print. A bundle sealed under 32
+# re-renders.
 RENDERER_VERSION = "33"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"

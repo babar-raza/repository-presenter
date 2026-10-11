@@ -379,7 +379,8 @@ _TYPE_OBJECTIVE = (
 # 34: CUT-3 (G3-W08): the opening may state an audience or use case only when an accepted fact does
 # (composition/audience.py); a kept list states every item (composition/list_coverage.py). A bundle
 # sealed under 33 re-checks under 34 and shows as pending.
-# 35: CUT-4 (G3-W08): the re-ask names every violation and narrows to the failing slots, text hygiene
+# 35: CUT-4 (G3-W08): the re-ask names every violation and narrows to the failing slots, text
+# hygiene
 # and the audience guard run in the unit checks. A bundle sealed under 34 re-checks under 35.
 NORMALISATION_VERSION = "35"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
