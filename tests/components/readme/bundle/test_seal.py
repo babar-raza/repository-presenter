@@ -297,6 +297,31 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert len(document["policy"]["sha256"]) == 64 and document["policy"]["version"] == "1"
 
 
+def test_dependencies_record_only_the_fact_ids_the_sealed_artifacts_cite(tmp_path: Path) -> None:
+    """TC-INV-01: ``facts`` keeps every digest; ``consumed_fact_ids`` is the cited subset."""
+    transaction = _transaction(tmp_path)
+    (transaction / "plan.json").write_text(
+        json.dumps({"sections": [{"fact_ids": ["format:output.glb"]}]}), encoding="utf-8"
+    )
+    document = dependencies_document(_inputs(tmp_path, 3))
+    assert document["consumed_fact_ids"] == ["format:output.glb"]
+    assert sorted(document["facts"]) == ["format:output.glb", "identity:repository"]
+    # Cited in the dispositions or the content units counts too, as a key or a value.
+    (transaction / "content_units.json").write_text(
+        json.dumps({"units": [{"fact_ids": ["identity:repository", "not:a.fact"]}]}),
+        encoding="utf-8",
+    )
+    again = dependencies_document(_inputs(tmp_path, 3))
+    assert again["consumed_fact_ids"] == ["format:output.glb", "identity:repository"]
+
+
+def test_a_transaction_citing_no_artifact_names_no_fact_subset(tmp_path: Path) -> None:
+    transaction = _transaction(tmp_path)
+    for name in ("plan.json", "dispositions.json", "content_units.json", "investigation.json"):
+        (transaction / name).unlink()
+    assert "consumed_fact_ids" not in dependencies_document(_inputs(tmp_path, 3))
+
+
 def test_call_variance_surfaces_non_determinism_and_is_absent_without_it(tmp_path: Path) -> None:
     """RC-05 (RESEARCH_AND_GUIDELINES.md 27.2 RC5/SW6): the Aspose.Email Python
     source_reconciliation diagnosis took over 30 minutes of manual calls.jsonl reading; a
