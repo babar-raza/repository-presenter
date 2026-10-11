@@ -53,7 +53,7 @@ def test_real_registry_validates_against_its_schema() -> None:
 
 def test_real_registry_is_the_frozen_portfolio() -> None:
     registry = load_registry(REGISTRY)
-    assert len(registry.entries) == 43
+    assert len(registry.entries) == 44
     assert [e.repository for e in registry.entries] == sorted(
         (e.repository for e in registry.entries), key=str.casefold
     )
@@ -79,11 +79,11 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     # 2026-10-11 (owner decision via the interactive box, docs/DECISION_LOG.md): seven of the
     # eight aspose-email-foss/Aspose.JMAP-FOSS-for-* libraries (a new `jmap` family inside the
     # Email organization) admitted at mode dry_run - nothing is ever pushed. The eighth, Node.js,
-    # is held back: its ecosystem has no platform plugin (see
-    # tests/components/readme/extractors/platforms/test_registry.py). The registry and the
-    # reachable ceiling both move 36 to 43.
+    # followed once its ecosystem had a platform plugin (platforms/nodejs.py; the guard in
+    # tests/components/readme/extractors/platforms/test_registry.py keeps an entry from landing
+    # without one). The registry and the reachable ceiling both move 36 to 43, then 44.
     assert {e.mode for e in registry.entries} == {"full", "dry_run"}
-    assert len(enabled_entries(registry)) == 43
+    assert len(enabled_entries(registry)) == 44
 
 
 def test_the_jmap_family_is_admitted_at_dry_run_in_the_email_organization() -> None:
@@ -97,6 +97,7 @@ def test_the_jmap_family_is_admitted_at_dry_run_in_the_email_organization() -> N
         "net",
         "cpp",
         "java",
+        "nodejs",
     }
     assert all(e.platform == e.ecosystem for e in jmap)
     assert {e.mode for e in jmap} == {"dry_run"}

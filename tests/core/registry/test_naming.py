@@ -21,6 +21,9 @@ from repository_presenter.core.registry.naming import (
         ("Aspose.GIS.FOSS-for-.Net", "gis", "net"),
         ("Aspose.JMAP-FOSS-for-.NET", "jmap", "net"),
         ("Aspose.JMAP-FOSS-for-Cpp", "jmap", "cpp"),
+        # The dot in "Node.js" is part of the repository name; the platform is the slug.
+        ("Aspose.JMAP-FOSS-for-Node.js", "jmap", "nodejs"),
+        ("Aspose.JMAP-FOSS-for-NodeJS", "jmap", "nodejs"),
     ],
 )
 def test_governed_name_forms_classify(repo_name: str, family: str, platform: str) -> None:

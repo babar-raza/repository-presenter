@@ -9,10 +9,11 @@ publishes.
 That last one is the difference from every ecosystem before it. C# has `public`, Python has
 `__all__`, and TypeScript has neither at module scope: a file says `export` so its sibling can
 import it, and only the entry point the manifest declares decides what a consumer can reach. So
-the surface here is the tree's symbols filtered by `typescript_barrel`'s re-export closure -
-measured 2026-09-06, that is 81 names of 153 extracted types on Aspose.3D for TypeScript and 43 of
-its own count on Aspose.Cells; publishing the rest would put a package's internals in a public API
-reference.
+the surface here is the tree's symbols filtered by the entry point's re-export closure - measured
+2026-09-06, that is 81 names of 153 extracted types on Aspose.3D for TypeScript and 43 of its own
+count on Aspose.Cells; publishing the rest would put a package's internals in a public API
+reference. The npm-package half of that (manifest facts, the closure, the name-and-module filter)
+is shared with the Node.js plugin through `surface/npm_package.py`.
 
 Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared façades under
 `extractors/`, and its own helper modules.
@@ -20,22 +21,22 @@ Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared fa
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.extractors.platforms.typescript_barrel import (
-    IGNORED_DIRECTORIES,
     entry_barrel,
-    read_json,
-    reexported_bindings,
 )
 from repository_presenter.components.readme.extractors.platforms.typescript_examples import (
     verify_typescript_build,
     verify_typescript_examples,
 )
+from repository_presenter.components.readme.extractors.surface import npm_package
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
-from repository_presenter.components.readme.extractors.surface.manifest import read_identity
+from repository_presenter.components.readme.extractors.surface.npm_package import (
+    TYPESCRIPT_MODULES,
+)
 from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     repository_of,
@@ -48,7 +49,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
     MeasuredBuild,
 )
-from repository_presenter.core.facts import Evidence, Fact, fact_id, slug
+from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -89,172 +90,6 @@ TYPESCRIPT = EcosystemSpec(
 SPECS.setdefault(TYPESCRIPT.ecosystem, TYPESCRIPT)
 
 _PARSER_LANGUAGE = "typescript"
-# What `dependencies` a consumer of the published package installs, and what is only the
-# repository's own build. `peerDependencies` are required of the consumer, which is what makes
-# them required here; `optionalDependencies` are the Optional bucket the contract renders.
-_REQUIRED_SECTIONS = (
-    ("dependencies", "dependencies"),
-    ("peerDependencies", "peer dependency the consumer installs"),
-)
-_DEVELOPMENT_SECTION = "devDependencies"
-_OPTIONAL_SECTION = "optionalDependencies"
-
-
-def _dependency_facts(manifest: Path, where: str) -> list[Fact]:
-    """The dependency snapshot from the manifest's own sections.
-
-    `docs/README_CONTRACT.md` §2 row 9 wants every required requirement, or the verified-zero
-    marker citing the clause that proves it. The vendored reader returns dependency *names* for
-    JavaScript and no version and no development section at all, so the versions are read from the
-    manifest here - the same shape the .NET plugin uses to read a project file's package
-    references, and for the same reason: a reader installs a version, not a name.
-    """
-    declared = read_json(manifest)
-    facts: list[Fact] = []
-    required = 0
-    for section, detail in _REQUIRED_SECTIONS:
-        entries = declared.get(section)
-        if not isinstance(entries, dict):
-            continue
-        for name, version in sorted(entries.items()):
-            required += 1
-            facts.append(
-                Fact(
-                    fact_id("dependency", str(name)),
-                    "dependency",
-                    f"{name} {version}".strip(),
-                    (
-                        Evidence(
-                            where, f"declared by `{section}` in the package manifest ({detail})"
-                        ),
-                    ),
-                )
-            )
-    for section, prefix in ((_OPTIONAL_SECTION, "optional"), (_DEVELOPMENT_SECTION, "development")):
-        entries = declared.get(section)
-        if not isinstance(entries, dict):
-            continue
-        for name, version in sorted(entries.items()):
-            facts.append(
-                Fact(
-                    fact_id("dependency", prefix, str(name)),
-                    "dependency",
-                    f"{name} {version}".strip(),
-                    (Evidence(where, f"declared by `{section}` in the package manifest"),),
-                )
-            )
-    if not required:
-        facts.append(
-            Fact(
-                fact_id("dependency", "none"),
-                "dependency",
-                "none",
-                (Evidence(where, "no `dependencies` a consumer would install is declared"),),
-            )
-        )
-    return facts
-
-
-def _public_name(
-    value: str,
-    kind: str,
-    exported: Mapping[str, frozenset[str] | None],
-    where: str,
-    declaring: Mapping[str, frozenset[str]],
-) -> str:
-    """A symbol's name as a consumer of the package writes it, or empty when it has none.
-
-    The shared extractor qualifies a TypeScript symbol by the file it was declared in, because
-    that is the only qualification the grammar offers: `Scene` in `src/aspose/threed/Scene.ts`
-    arrives as `aspose.threed.Scene.Scene`. A consumer never writes that - the entry point
-    re-exports `Scene`, so `Scene` is the name, and a symbol the entry point does not re-export is
-    not part of the surface at all.
-
-    Re-export is a name *and* a module, so `where` - the file this symbol was declared in - is
-    checked against the module the entry point binds that name from, whenever the barrel names
-    one. Without it a second declaration of the same name anywhere under the entry point was
-    published as if the package exported it twice (`typescript_barrel.reexported_bindings`).
-
-    A top-level function is the one kind the façade hands back unqualified (`colToIndex`, not
-    `aspose_cells.util.colToIndex`), so requiring a dotted value dropped every exported function
-    a package has - eight of them in Aspose.Cells for TypeScript, each named in its own barrel.
-    Only a `module` entry is never a symbol; every other kind is judged by the binding above,
-    which is a stricter test than the dot ever was.
-    """
-    parts = value.split(".")
-    if kind == "module":
-        return ""
-    if kind == "method":
-        if len(parts) < 2:
-            return ""
-        owner, member = parts[-2], parts[-1]
-        return f"{owner}.{member}" if _binds(exported, owner, where, declaring) else ""
-    name = parts[-1]
-    return name if _binds(exported, name, where, declaring) else ""
-
-
-def _binds(
-    exported: Mapping[str, frozenset[str] | None],
-    name: str,
-    where: str,
-    declaring: Mapping[str, frozenset[str]],
-) -> bool:
-    """Whether the entry point publishes ``name`` as declared in the file ``where``.
-
-    The file only disqualifies a symbol when it holds a *rival* declaration of that name: an
-    inherited member is declared in the base class's own file (the façade reports
-    `AssetInfo.AssetInfo.toString` from `A3DObject.ts`, where `toString` is written) and is still
-    the exported type's member, while `BoundingBoxExtent.toString` from `utilities/BoundingBox.ts`
-    belongs to that file's own second, unexported class of the same name. `declaring` says which
-    files declare a type called ``name``, so the two are told apart by evidence rather than by
-    whether the member happens to sit in its owner's module.
-
-    Known limitation, deliberately not built for: a barrel that re-exports a name from *another*
-    barrel rather than from the declaring file binds the intermediate `index.ts`, and the
-    declaration one level deeper reads as a rival. Neither cohort repository does this - both name
-    the declaring module directly and use `export *` for directories - so following the chain is
-    machinery with no consumer yet (`project/loop-prompt.md` section 6 rule 1).
-    """
-    if name not in exported:
-        return False
-    modules = exported[name]
-    if modules is None or where in modules:
-        return True
-    return where not in declaring.get(name, frozenset())
-
-
-def _declaring_files(symbols: Sequence[Any]) -> dict[str, frozenset[str]]:
-    """Which files declare a type of each name, from the extractor's own reading of the tree."""
-    found: dict[str, set[str]] = {}
-    for symbol in symbols:
-        if symbol.symbol_kind in ("method", "module"):
-            continue
-        found.setdefault(symbol.value.split(".")[-1], set()).add(symbol.source_path)
-    return {name: frozenset(paths) for name, paths in found.items()}
-
-
-def _bindings_under(root: Path, barrel: Path) -> dict[str, frozenset[str] | None]:
-    """`reexported_bindings` with each module as the tree path a symbol's evidence carries.
-
-    A module that resolves outside the clone is no constraint this can check, so the name it
-    binds keeps the unconstrained reading rather than being dropped on a path comparison that
-    could never match.
-    """
-    base = root.resolve()
-    bound: dict[str, frozenset[str] | None] = {}
-    for name, modules in reexported_bindings(barrel).items():
-        if modules is None:
-            bound[name] = None
-            continue
-        paths: set[str] = set()
-        for module in modules:
-            try:
-                paths.add(module.resolve().relative_to(base).as_posix())
-            except ValueError:
-                paths.clear()
-                break
-        bound[name] = frozenset(paths) if paths else None
-    return bound
 
 
 class TypeScriptPlugin:
@@ -273,81 +108,13 @@ class TypeScriptPlugin:
         their own and are excluded outright - a dependency's manifest would otherwise name the
         package for us.
         """
-        candidates = [
-            path
-            for pattern in self.manifest_globs
-            for path in root.rglob(pattern)
-            if not any(part in IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
-        ]
-        if not candidates:
-            return None
-
-        def rank(path: Path) -> tuple[int, int, int, str]:
-            declared = read_json(path)
-            named = bool(str(declared.get("name", "")).strip())
-            configured = (path.parent / "tsconfig.json").is_file()
-            return (
-                0 if named else 1,
-                0 if configured else 1,
-                len(path.relative_to(root).parts),
-                str(path),
-            )
-
-        return min(candidates, key=rank)
+        return npm_package.detect_manifest(
+            root, self.manifest_globs, TYPESCRIPT_MODULES.config_names
+        )
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         """Identity, version, the declared Node engine, and the install command it implies."""
-        identity = read_identity(root, self.ecosystem, manifest)
-        where = manifest.relative_to(root).as_posix()
-        facts: list[Fact] = []
-        if identity.name:
-            facts.append(
-                Fact(
-                    fact_id("package", "name"),
-                    "package",
-                    identity.name,
-                    (Evidence(where, "package name declared by the manifest"),),
-                )
-            )
-            facts.append(
-                Fact(
-                    fact_id("install_command", "npm"),
-                    "install_command",
-                    f"npm install {identity.name}",
-                    (Evidence(where, "install command for the name declared by the manifest"),),
-                    polarity="UNRESOLVED",
-                    confidence=0.5,
-                )
-            )
-            facts.append(
-                Fact(
-                    fact_id("import_path", identity.name),
-                    "import_path",
-                    identity.name,
-                    (Evidence(where, "module specifier a consumer of the package imports"),),
-                )
-            )
-        if identity.version:
-            facts.append(
-                Fact(
-                    fact_id("package", "version"),
-                    "package",
-                    identity.version,
-                    (Evidence(where, "version declared by the manifest"),),
-                )
-            )
-        engine = str(identity.raw.get("engines_node", "")).strip()
-        if engine:
-            facts.append(
-                Fact(
-                    fact_id("package", "node_engine"),
-                    "package",
-                    engine,
-                    (Evidence(where, "Node runtime the manifest declares under `engines`"),),
-                )
-            )
-        facts.extend(_dependency_facts(manifest, where))
-        return facts
+        return npm_package.manifest_facts(self.ecosystem, root, manifest)
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """The symbols the package's entry point re-exports, read from the tree by the extractor.
@@ -360,44 +127,10 @@ class TypeScriptPlugin:
         barrel = entry_barrel(package)
         if barrel is None:
             return []
-        exported = _bindings_under(root, barrel)
-        where = barrel.relative_to(root).as_posix()
         symbols = surface_symbols(
             get_parser(_PARSER_LANGUAGE), _PARSER_LANGUAGE, barrel.parent, root, self.ecosystem
         )
-        declaring = _declaring_files(symbols)
-        facts: list[Fact] = []
-        taken: dict[str, int] = {}
-        for symbol in symbols:
-            name = _public_name(
-                symbol.value, symbol.symbol_kind, exported, symbol.source_path, declaring
-            )
-            if not name:
-                continue
-            key = slug(name)
-            count = taken.get(key, 0) + 1
-            taken[key] = count
-            attributes: dict[str, str] = {"symbol_kind": symbol.symbol_kind}
-            if symbol.signature:
-                attributes["signature"] = symbol.signature
-            if symbol.doc:
-                attributes["docstring"] = symbol.doc
-            facts.append(
-                Fact(
-                    fact_id("public_symbol", name if count == 1 else f"{name}-{count}"),
-                    "public_symbol",
-                    name,
-                    (
-                        Evidence(
-                            symbol.source_path,
-                            f"line {symbol.line}; {symbol.symbol_kind}; "
-                            f"re-exported by the package entry point `{where}`",
-                        ),
-                    ),
-                    attributes=attributes,
-                )
-            )
-        return facts
+        return npm_package.public_symbol_facts(root, barrel, symbols, TYPESCRIPT_MODULES)
 
     def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
         """Resolve the install claim against npm; the fact keeps its ID and gains evidence."""

@@ -63,7 +63,8 @@ def test_every_ecosystem_the_portfolio_uses_names_its_registry() -> None:
     # request at all, so install_command:go could never leave UNRESOLVED.
     assert registry_type("go") == "go_modules"
     assert registry_type("cpp") == "", "C++ has no package registry; the façade must not invent one"
-    assert set(REGISTRY_TYPES) == {"python", "net", "java", "typescript", "go", "rust"}
+    assert registry_type("nodejs") == "npm" and registry_type("typescript") == "npm"
+    assert set(REGISTRY_TYPES) == {"python", "net", "java", "typescript", "nodejs", "go", "rust"}
 
 
 def test_a_go_module_path_reaches_the_proxy_under_the_key_the_adapter_reads() -> None:

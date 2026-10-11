@@ -153,3 +153,26 @@ def test_an_unreachable_host_is_recorded_not_guessed(monkeypatch: pytest.MonkeyP
     facts = product_page_facts(ENTRY)
     assert all(fact.polarity == "UNRESOLVED" for fact in facts)
     assert facts[1].evidence[0].detail == "UNCHECKED; product homepage"
+
+
+def test_a_nodejs_repository_is_looked_up_under_the_portfolios_nodejs_slugs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The registry's platform for a Node.js library is `nodejs`; a table keyed `node` was never
+    consulted, so the lookup fell through to the platform name alone."""
+    entry = ENTRY.model_copy(
+        update={
+            "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js",
+            "family": "jmap",
+            "platform": "nodejs",
+            "ecosystem": "nodejs",
+        }
+    )
+    asked = _serve(monkeypatch, {"https://products.aspose.com/jmap/nodejs-java/"})
+    target = {fact.id: fact for fact in product_page_facts(entry)}[ENTERPRISE_FACT_ID]
+    assert target.value == "https://products.aspose.com/jmap/nodejs-java/"
+    assert asked[:3] == [
+        "https://products.aspose.com/jmap/nodejs/",
+        "https://products.aspose.com/jmap/nodejs-java/",
+        "https://products.aspose.com/jmap/nodejs-cpp/",
+    ]

@@ -21,11 +21,23 @@ from typing import Any, Literal, Protocol
 
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
     api_surface,
+    lang,
 )
 from repository_presenter.components.readme.extractors.surface.doc_text import (
     normalise_source_docs,
 )
 from repository_presenter.core.facts import slug
+
+# The vendored engine keys its per-language adapters by grammar name and registers one for
+# TypeScript only, although every `language in ("typescript", "javascript")` branch in it reads
+# JavaScript through the same code. Without an adapter under "javascript", a JSDoc block before an
+# `export class` is invisible to it: the declaration sits inside an `export_statement`, and it is
+# the TypeScript adapter's `doc_anchor` that steps through it (measured 2026-10-11 on
+# aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js: all 30 exported classes read as undocumented).
+# TypeScript's grammar is a superset of JavaScript's, so JavaScript is parsed by it and its
+# adapter is TypeScript's. Registered here, at the façade, rather than patched into the vendored
+# package; a language registered by an earlier import is left alone.
+lang.LANGUAGES.setdefault("javascript", lang.typescript)
 
 # G5-W02 (27.2 RC7). Bumped whenever this module's own mapping or extraction logic changes, the
 # same convention SHELL_VERSION/RENDERER_VERSION/NORMALISATION_VERSION already use for their own
