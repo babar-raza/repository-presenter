@@ -23,7 +23,12 @@ from repository_presenter.components.readme.validation.registry import (
     Candidate,
     validate_candidate,
 )
-from repository_presenter.components.readme_correction.model import Context
+from repository_presenter.components.readme_correction.apply import apply_edits
+from repository_presenter.components.readme_correction.model import (
+    STRUCTURE_FIX,
+    Context,
+    CorrectionResult,
+)
 
 
 def _failures(ctx: Context, readme: str, original: bytes, revision: str) -> dict[str, list[str]]:
@@ -50,34 +55,53 @@ def _failures(ctx: Context, readme: str, original: bytes, revision: str) -> dict
     }
 
 
-def validation_delta(ctx: Context, corrected: str, original: bytes) -> dict[str, Any]:
-    """Judge ``ctx.readme`` and ``corrected`` and report what the correction introduced/resolved.
+#: Structure fixes add no prose, but they change what the judges see: closing a ``<details>``
+#: exposes the maintainers' own sections to the prose checks, and promoting a second H1 to H2
+#: starts a new section in the judges' segmentation (measured on Aspose.Cells for Go, where it
+#: moved a line out of the deterministic Installation section and BC-04 began to judge a `v26`
+#: code span the maintainers had always written). A failure the judges find in text that was
+#: merely re-classified is *revealed*, not introduced, and is recorded as such.
+
+
+def validation_delta(ctx: Context, result: CorrectionResult, original: bytes) -> dict[str, Any]:
+    """Judge the live and the corrected README and report what the correction did to each check.
 
     ``introduced`` is empty exactly when no check fails more often after the correction than
-    before it; a detail that merely quotes a line the correction edited is not new when the check
-    already failed as many times before."""
+    before it (the comparison is against the live README with only the structure fixes applied,
+    so newly visible maintainer text is reported under ``revealed`` instead); a detail that merely
+    quotes a line the correction edited is not new when the check already failed as many times."""
     revision = ctx.facts.source_revision
     live = _failures(ctx, ctx.readme, original, revision)
-    after = _failures(ctx, corrected, original, revision)
-    introduced: list[dict[str, Any]] = []
-    for check_id in sorted(after):
-        before = live.get(check_id, [])
-        extra = len(after[check_id]) - len(before)
-        if extra > 0:
-            fresh = [detail for detail in after[check_id] if detail not in before]
-            introduced.append(
-                {"check": check_id, "extra": extra, "details": (fresh or after[check_id])[:extra]}
-            )
-    resolved = [
-        {"check": check_id, "fewer": len(live[check_id]) - len(after.get(check_id, []))}
-        for check_id in sorted(live)
-        if len(live[check_id]) > len(after.get(check_id, []))
-    ]
+    visible = [e for e in result.edits if e.kind == STRUCTURE_FIX]
+    if visible:
+        exposed, _spans = apply_edits(ctx.readme, visible)
+        base = _failures(ctx, exposed, original, revision)
+    else:
+        base = live
+    after = _failures(ctx, result.corrected, original, revision)
     return {
         "schema_version": 1,
         "judge": "validate_candidate",
         "live_failures": {key: len(value) for key, value in sorted(live.items())},
         "corrected_failures": {key: len(value) for key, value in sorted(after.items())},
-        "introduced": introduced,
-        "resolved": resolved,
+        "introduced": _increases(base, after),
+        "revealed": _increases(live, base),
+        "resolved": [
+            {"check": check_id, "fewer": len(live[check_id]) - len(after.get(check_id, []))}
+            for check_id in sorted(live)
+            if len(live[check_id]) > len(after.get(check_id, []))
+        ],
     }
+
+
+def _increases(before: dict[str, list[str]], after: dict[str, list[str]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for check_id in sorted(after):
+        known = before.get(check_id, [])
+        extra = len(after[check_id]) - len(known)
+        if extra > 0:
+            fresh = [detail for detail in after[check_id] if detail not in known]
+            out.append(
+                {"check": check_id, "extra": extra, "details": (fresh or after[check_id])[:extra]}
+            )
+    return out

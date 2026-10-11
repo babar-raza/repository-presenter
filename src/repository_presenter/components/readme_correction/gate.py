@@ -115,7 +115,7 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
         return "a run over the corrected README finds further corrections: the result is not final"
     if not again.edits:
         return "the bundle makes no correction; there is nothing to propose"
-    delta = validation_delta(ctx, again.corrected, original)
+    delta = validation_delta(ctx, again, original)
     if delta["introduced"]:
         introduced = ", ".join(item["check"] for item in delta["introduced"])
         return (

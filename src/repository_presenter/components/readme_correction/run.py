@@ -122,7 +122,7 @@ def produce_correction(
         )
     ctx = Context(entry, facts, text, tuple(list_tree_paths(clone.path)), snapshot.readme_path)
     result = correct(ctx)
-    delta = validation_delta(ctx, result.corrected, original)
+    delta = validation_delta(ctx, result, original)
     if delta["introduced"]:
         raise CorrectionError(
             "the correction introduces failing checks the live README did not have: "

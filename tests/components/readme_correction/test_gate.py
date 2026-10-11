@@ -57,7 +57,7 @@ MIT.
 def make_bundle(tmp_path: Path, make_context: Any, readme: str = README) -> Path:
     ctx = make_context(readme)
     result = correct(ctx)
-    delta = validation_delta(ctx, result.corrected, readme.encode())
+    delta = validation_delta(ctx, result, readme.encode())
     directory = tmp_path / "bundle"
     files.write_bundle(ctx, readme.encode(), result, delta, directory)
     return directory
