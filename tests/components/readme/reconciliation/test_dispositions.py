@@ -1504,8 +1504,14 @@ def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_n
     """Words-.NET (7c5acbf7 reseal, inherited_unit:020.paragraph): the sentence names the project
     file `Aspose.Words/Aspose.Words.csproj`, whose directory segment is also the verified module
     symbol `Aspose.Words`. Read as spelling that symbol, the omission was declined as unsafe and
-    S4 failed closed on "Then add a project reference ...". The extractor recorded the path as one
-    the pinned tree holds, so its segments are not names the sentence spells."""
+    S4 failed closed on "Then add a project reference ...". Two layers now agree on the outcome:
+    the extractor recorded the path as one the pinned tree holds, so its segments are not names
+    the sentence spells (the earlier stage: nothing to cite); and a unit BC-05 reads as naming a
+    verified symbol is deferred under the typed prefix instead of declined (this stage). Either
+    way the unit is deferred, never dropped, and BC-05 classifies it ADVISORY, not UNCLASSIFIED
+    BLOCK - the invariant is the outcome."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
     text = (
         "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
     )
@@ -1520,11 +1526,25 @@ def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_n
     facts = FactsDocument(
         FACTS.repository, FACTS.source_revision, (*base, _symbol("Aspose.Words", "module"), path)
     )
-    recovered = recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), facts)
-    assert recovered is not None
-    folded = next(e for e in recovered["dispositions"] if e["unit_id"].endswith("018.paragraph"))
-    assert folded["disposition"] == "DEFER_UNRESOLVED" and folded["fact_ids"] == []
-    # Negative control: the same sentence with the namespace named in prose is not unresolved.
+
+    def deferred(doc: FactsDocument) -> dict[str, Any]:
+        folded = _folded(recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), doc))
+        assert folded["disposition"] == "DEFER_UNRESOLVED" and folded["destination_section"] is None
+        findings = review_deferrals({"dispositions": [folded]}, doc)
+        assert [(f.unit_id, f.decision) for f in findings] == [
+            ("inherited_unit:018.paragraph", "ADVISORY")
+        ]
+        return folded
+
+    # Tree-verified path: the segment is not spelled, so there is nothing to cite.
+    # BC-05 still reads that segment as a verified symbol (a looser test than the extractor-side
+    # guard), so the deferral takes the typed prefix, which classifies ADVISORY; the no-evidence
+    # wording would be UNCLASSIFIED and block the candidate downstream.
+    original = deferred(facts)
+    assert original["fact_ids"] == []
+    assert original["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+    # The same sentence naming the namespace in prose does spell it: deferred under the typed
+    # prefix, citing the symbol, where this once declined and failed the transaction.
     spelled = Fact(
         "inherited_unit:018.paragraph",
         "inherited_unit",
@@ -1532,12 +1552,15 @@ def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_n
         (Evidence("README.md"),),
         attributes=path.attributes,
     )
-    declined = FactsDocument(
-        FACTS.repository,
-        FACTS.source_revision,
-        (*base, _symbol("Aspose.Words", "module"), spelled),
+    named = deferred(
+        FactsDocument(
+            FACTS.repository,
+            FACTS.source_revision,
+            (*base, _symbol("Aspose.Words", "module"), spelled),
+        )
     )
-    assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), declined) is None
+    assert named["fact_ids"] == ["public_symbol:aspose.words"]
+    assert named["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
 
 
 def test_recover_declines_when_any_uncited_omit_is_unsafe_even_if_another_is_safe() -> None:
