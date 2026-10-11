@@ -117,8 +117,7 @@ def format_claims(code: str) -> list[FormatClaim]:
         tree = ast.parse(code)
     except SyntaxError:
         return []
-    claims: list[FormatClaim] = []
-    seen: set[tuple[str, str]] = set()
+    found: dict[tuple[FormatDirection, str], tuple[int, list[str]]] = {}
     for statement in _reachable_nodes(tree):
         if not isinstance(statement, ast.stmt):
             continue
@@ -140,8 +139,11 @@ def format_claims(code: str) -> list[FormatClaim]:
             extension = _extension(node.value)
             if extension is None or extension in _SOURCE_SUFFIXES:
                 continue
-            if (direction, extension) in seen:
-                continue
-            seen.add((direction, extension))
-            claims.append(FormatClaim(extension, direction, statement.lineno))
+            _, literals = found.setdefault((direction, extension), (statement.lineno, []))
+            if node.value not in literals:
+                literals.append(node.value)
+    claims = [
+        FormatClaim(extension, direction, line, tuple(literals))
+        for (direction, extension), (line, literals) in found.items()
+    ]
     return sorted(claims, key=lambda claim: (claim.line, claim.direction, claim.extension))

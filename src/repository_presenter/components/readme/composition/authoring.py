@@ -45,6 +45,7 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.coverage import states_all
 from repository_presenter.components.readme.composition.list_coverage import (
     OWED_SECTIONS,
     kept_lists,
@@ -681,14 +682,26 @@ def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocume
     """
     if section not in _CARRY_SECTIONS:
         return []
-    known = {fact.id for fact in facts.facts if fact.kind == "inherited_unit"}
+    texts = {fact.id: fact.value for fact in facts.facts if fact.kind == "inherited_unit"}
+    # What a kept unit placed in this section prints as written: a superseded unit it already
+    # states (Slides-Python wave 6: the `SaveFormat` enum bullet and the README's own list of
+    # save-format limitations, both in Scope) is not owed to the authored units a second time.
+    kept = "\n\n".join(
+        texts[entry["unit_id"]]
+        for entry in dispositions.get("dispositions", [])
+        if entry.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+        and entry.get("destination_section") == section
+        and entry.get("unit_id") in texts
+        and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
+    )
     return [
         entry["unit_id"]
         for entry in dispositions.get("dispositions", [])
         if entry.get("disposition") == "SUPERSEDE_REDUNDANT"
         and entry.get("destination_section") == section
-        and entry.get("unit_id") in known
+        and entry.get("unit_id") in texts
         and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
+        and not (kept and states_all(kept, texts[entry["unit_id"]]))
     ]
 
 

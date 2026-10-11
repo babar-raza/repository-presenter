@@ -255,6 +255,21 @@ destination the plan includes, or the transaction fails closed naming the unit โ
 as a unit with no safe destination (one `VERIFIED_PRESERVE` unit was routed to `at_a_glance` while
 the plan excluded that section, and vanished).
 
+A kept unit belongs to the section its topic belongs in, and the renderer's own sections are not
+printed twice (wave-6 acceptance reviews, cause 4: 124 install and dependency units, 15 licence
+paragraphs and 17 API listings filed in sections whose rows (ยง2, 7, 10, 15, 16) hold capabilities,
+one example, links or limitations). The topic is read from the unit's source heading
+(`composition/source_topics.py`). S4 moves a unit about installing, building or the API out of a
+section that has no place for it to the topic's home (`destinations.rehomed`: Development and
+Testing for install and build material), and placement then reads a unit about installing against
+the Installation and Dependencies text, and one under the licence heading against the License
+text, as a second place that may state it: a sentence, a list item or a block those sections already
+state is not printed again (`coverage.uncovered`, `coverage.uncovered_block`), a release number
+never makes two declarations different, a shell command or a link is still demanded as the unit
+spells it (BC-08, BC-06), and a lead-in follows its block's fate. A unit no fact ties to its
+destination is judged against those renderer sections only. The must-carry gate does not owe an
+authored unit what a kept unit in the same section already states (`authoring.carried_units`).
+
 ## 4. Agentic decisions
 
 Judgment belongs to the LLM where a fixed rule cannot decide. Every decision is bounded by a typed

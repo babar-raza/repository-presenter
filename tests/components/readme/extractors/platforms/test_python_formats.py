@@ -78,3 +78,12 @@ def test_a_function_defined_but_never_called_claims_nothing() -> None:
     assert format_claims('def helper():\n    scene.save("dead.pdf")\n') == []
     called = 'def helper():\n    scene.save("live.glb")\n\nif condition:\n    helper()\n'
     assert format_claims(called) == [FormatClaim(".glb", "output", 2)]
+
+
+def test_a_claim_carries_every_literal_it_was_read_from() -> None:
+    """Two save targets of one extension are one claim, and both literals travel with it: the
+    fact builder discards a staged fixture only when it is one of the example's save targets."""
+    code = 'prs.save("output.pptx")\nprs.save("new.pptx")\nslides.Presentation("input.pptx")\n'
+    (claim,) = format_claims(code)
+    assert (claim.extension, claim.direction) == (".pptx", "output")
+    assert claim.literals == ("output.pptx", "new.pptx")

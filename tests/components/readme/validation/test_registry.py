@@ -3607,3 +3607,38 @@ def test_the_word_revision_in_a_products_own_domain_is_not_narration(
     assert not any(
         "internal narration 'this revision'" in str(f) for f in blocking_failures(document)
     )
+
+
+def test_a_list_about_installing_dropped_as_stated_by_the_renderers_sections_is_read_there() -> (
+    None
+):
+    """Placement counts the Installation and Dependencies text as the destination's own for a kept
+    list about installing (``Placement.read_with``); the independent net reads the same text, so
+    the two cannot disagree about what "states an item" means - and a list those sections do not
+    state is still named item by item."""
+    from repository_presenter.components.readme.composition.placement import Placement
+    from repository_presenter.components.readme.validation.registry import (
+        _dropped_list_failures,
+        _section_texts,
+    )
+
+    candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    texts = {**_section_texts(candidate.readme), "dependencies": JAVA3D_SCOPE_LIST}
+    scope = Placement(
+        _SCOPE_UNIT,
+        "scope_limitations",
+        JAVA3D_SCOPE_LIST,
+        "overlap",
+        ("installation", "dependencies"),
+        ("installation", "dependencies"),
+    )
+    assert _dropped_list_failures(candidate, scope, texts) == []
+    unread = Placement(
+        _SCOPE_UNIT,
+        "scope_limitations",
+        JAVA3D_SCOPE_LIST,
+        "overlap",
+        ("installation", "dependencies"),
+    )
+    (failure,) = _dropped_list_failures(candidate, unread, texts)
+    assert "of its 9 items" in failure.detail

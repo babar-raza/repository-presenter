@@ -1101,3 +1101,185 @@ def test_a_kept_lead_in_whose_block_is_not_rendered_after_it_is_dropped_not_left
         "Clone the repository and run the test suite:",
         "```bash\npytest\n```",
     ]
+
+
+# --- a kept unit about installing is read against the renderer's own sections (wave-6 cause 4) ---
+#
+# Installation and Dependencies cannot hold a kept unit, so the source's own Installation text was
+# filed in Quick Start, Scope and Limitations or Documentation and Resources (124 units in 44
+# bundles), tested against the wrong section and printed beside the text it repeats.
+
+INSTALL_HEADING = "Aspose.3D FOSS for Python > Installation"
+INSTALLATION_ROW = (
+    "Install the published package from PyPI:\n\n```bash\npip install aspose-3d-foss\n```"
+)
+DEPENDENCIES_ROW = (
+    "### Required Package Dependencies\n\nNo required third-party package dependencies.\n\n"
+    "### Native and System Requirements\n\n- Requires Python 3.10 or later "
+    "(`python_requires` in `setup.py`)."
+)
+
+
+def _install_unit(ordinal: int, kind: str, text: str, section: str = INSTALL_HEADING) -> Fact:
+    return Fact(
+        f"inherited_unit:{ordinal:03d}.{kind}",
+        "inherited_unit",
+        text,
+        (Evidence("README.md"),),
+        attributes={"section": section},
+    )
+
+
+def _install_facts(*units: Fact) -> FactsDocument:
+    return FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, *units))
+
+
+def _decide(
+    facts: FactsDocument, *entries: tuple[str, str], **sections: str
+) -> dict[str, Placement]:
+    dispositions = {"dispositions": [_entry(unit, section) for unit, section in entries]}
+    shown = _shown(**sections)
+    return {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python", _Asked(shown))}
+
+
+def test_install_prose_the_renderers_sections_state_is_dropped_wherever_it_was_filed() -> None:
+    stated = _install_unit(
+        20,
+        "paragraph",
+        "No required third-party package dependencies. Requires Python 3.10 or later.",
+    )
+    new = _install_unit(
+        21, "paragraph", "Wheels are built for CPython only; PyPy needs a source build."
+    )
+    facts = _install_facts(stated, new)
+    decisions = _decide(
+        facts,
+        (stated.id, "scope_limitations"),
+        (new.id, "scope_limitations"),
+        installation=INSTALLATION_ROW,
+        dependencies=DEPENDENCIES_ROW,
+        scope_limitations="The library cannot write VRML.",
+    )
+    dropped = decisions[stated.id]
+    assert dropped.outcome == "overlap" and dropped.read_with == ("installation", "dependencies")
+    # what neither section says is carried as written
+    carried = decisions[new.id]
+    assert carried.outcome == "placed" and carried.text == new.value
+    assert placed_texts(list(decisions.values())) == {"scope_limitations": [new.value]}
+
+
+def test_an_install_unit_is_not_dropped_for_what_the_destination_happens_to_say() -> None:
+    """The destination is not a haystack for a unit no fact ties to it (3D-.NET 014): the unit
+    shares identifiers with the long authored text, which says something else."""
+    unit = _install_unit(
+        22,
+        "paragraph",
+        "The repository also contains a separate console conversion tool (`src/converter/"
+        "Converter.csproj`) that references the library as a project; it is not published.",
+    )
+    facts = _install_facts(unit)
+    decisions = _decide(
+        facts,
+        (unit.id, "development_testing"),
+        installation=INSTALLATION_ROW,
+        dependencies=DEPENDENCIES_ROW,
+        development_testing=(
+            "Build the repository with the converter project and the console tool, which "
+            "references the library as a project, from src/converter/Converter.csproj; it is not "
+            "published."
+        ),
+    )
+    assert decisions[unit.id].outcome == "placed"
+
+
+def test_a_kept_block_the_document_prints_at_another_release_is_dropped_with_its_lead_in() -> None:
+    """PDF-Java: the Gradle block at 26.6.0 and the sentence that introduces it. The row prints the
+    line at 26.9.0, so the block is dropped, and a colon is not left introducing nothing."""
+    lead = _install_unit(23, "paragraph", "Gradle (Groovy DSL):")
+    block = _install_unit(
+        24, "code_block", "```groovy\nimplementation 'org.aspose:aspose-pdf-foss:26.6.0'\n```"
+    )
+    other_lead = _install_unit(25, "paragraph", "Gradle (Kotlin DSL):")
+    other_block = _install_unit(
+        26, "code_block", '```kotlin\nimplementation("org.aspose:aspose-pdf-foss:26.6.0")\n```'
+    )
+    facts = _install_facts(lead, block, other_lead, other_block)
+    decisions = _decide(
+        facts,
+        (lead.id, "quick_start"),
+        (block.id, "quick_start"),
+        (other_lead.id, "quick_start"),
+        (other_block.id, "quick_start"),
+        installation=("```groovy\nimplementation 'org.aspose:aspose-pdf-foss:26.9.0'\n```"),
+        quick_start="Open a document.",
+    )
+    assert decisions[block.id].outcome == "overlap"
+    assert decisions[lead.id].outcome == "overlap"  # follows its block
+    # the Kotlin line is not printed: the pair is carried
+    assert decisions[other_block.id].outcome == "placed"
+    assert decisions[other_lead.id].outcome == "placed"
+
+
+def test_a_lead_in_whose_block_is_placed_or_superseded_stays() -> None:
+    """Negative control for the lead-in rule: it follows a dropped block only."""
+    lead = _install_unit(27, "paragraph", "Then run the installer:", "Product > Zebra")
+    block = _install_unit(28, "code_block", "```bash\n./installer.sh\n```", "Product > Zebra")
+    facts = _install_facts(lead, block)
+    decisions = _decide(
+        facts,
+        (lead.id, "development_testing"),
+        (block.id, "development_testing"),
+        development_testing="Contributors run the suite.",
+    )
+    assert decisions[lead.id].outcome == "placed" and decisions[block.id].outcome == "placed"
+    alone = _decide(
+        _install_facts(lead),
+        (lead.id, "development_testing"),
+        development_testing="Contributors run the suite.",
+    )
+    assert alone[lead.id].outcome == "placed"
+
+
+def test_a_licence_paragraph_filed_in_scope_is_the_license_sections_and_dropped() -> None:
+    """15 of the 44 wave-6 bundles carried the source's licence paragraph in Scope and Limitations
+    beside the renderer's own License section (3D-TypeScript, Cells-Python acceptance reviews)."""
+    licence = _install_unit(
+        29,
+        "paragraph",
+        "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, "
+        "copying, modification, distribution, sublicensing, and commercial use, provided its "
+        "copyright and permission notice are retained. The software is provided without warranty.",
+        "Aspose.3D FOSS for Python > License",
+    )
+    credit = _install_unit(
+        30,
+        "paragraph",
+        "This project is a clean-room implementation written from the public file-format "
+        "specifications, with no reference to the commercial source.",
+        "Aspose.3D FOSS for Python > License",
+    )
+    facts = _install_facts(licence, credit)
+    decisions = _decide(
+        facts,
+        (licence.id, "scope_limitations"),
+        (credit.id, "scope_limitations"),
+        license=(
+            "This project is licensed under the [MIT License](LICENSE). The MIT License permits "
+            "use, copying, modification, distribution, sublicensing, and commercial use, provided "
+            "its copyright and permission notice are retained. The software is provided without "
+            "warranty."
+        ),
+        scope_limitations="The library cannot write VRML.",
+    )
+    assert decisions[licence.id].outcome == "overlap"
+    assert decisions[licence.id].read_with == ("license", "third_party_notices")
+    assert decisions[credit.id].outcome == "placed"
+
+
+def test_a_unit_before_any_text_exists_is_still_decided_on_the_fact_id_rule_alone() -> None:
+    """Planning and authoring pass no document: the topic rule needs text, so it never fires."""
+    unit = _install_unit(31, "paragraph", "Requires Python 3.10 or later.")
+    facts = _install_facts(unit)
+    dispositions = {"dispositions": [_entry(unit.id, "scope_limitations")]}
+    [decision] = placements(_plan(), dispositions, facts, "python")
+    assert decision.outcome == "placed" and decision.read_with == ()

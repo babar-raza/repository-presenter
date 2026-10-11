@@ -14,7 +14,17 @@ from repository_presenter.core.registry.models import RegistryEntry
 
 
 def product_name(entry: RegistryEntry) -> str:
-    return " ".join(part for part in entry.name.split("-") if part)
+    """``Aspose.3D-FOSS-for-Python`` -> ``Aspose.3D FOSS for Python``.
+
+    ``core/registry/naming.py`` admits a hyphen as well as a dot after ``Aspose`` (the portfolio's
+    ``Aspose-PDF-FOSS-for-Python`` and ``-for-Go``). The hyphen there is the same dot - the product
+    is Aspose.PDF - so the family name keeps it: spelled word by word it gave "Aspose PDF FOSS for
+    Python" in the H1, every prose mention and the Enterprise anchor (wave 6, PDF-Python), and BC-12
+    could not object because its canonical name is this function."""
+    parts = [part for part in entry.name.split("-") if part]
+    if len(parts) > 2 and parts[0] == "Aspose" and parts[2].upper() == "FOSS":
+        parts[:2] = [f"{parts[0]}.{parts[1]}"]
+    return " ".join(parts)
 
 
 def product_name_tokens(name: str) -> frozenset[str]:

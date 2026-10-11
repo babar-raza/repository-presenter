@@ -1366,6 +1366,11 @@ def _dropped_list_failures(
     # What the commercial edition adds is not a limitation of this one: the closing Enterprise
     # paragraph never states a kept list's items.
     section_text = texts.get(destination, "").split(ENTERPRISE_SENTENCE_LEAD, 1)[0]
+    # A list about installing is also stated by the renderer's Installation and Dependencies
+    # sections, whichever section it was sent to (``placement.Placement.read_with``): placement
+    # counted that text as the destination's own, so the independent check reads the same.
+    for other in placement.read_with:
+        section_text += "\n" + texts.get(other, "")
     missing = missing_items(
         placement.text,
         section_text,

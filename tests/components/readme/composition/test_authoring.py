@@ -4790,3 +4790,92 @@ def test_a_file_name_differing_in_case_is_never_restored() -> None:
         text, ["contributing.md", "layerblendingrangesdata.length"], pool
     )
     assert restored == "Read contributing.md and LayerBlendingRangesData.length."
+
+
+# ---- a unit a kept unit already carries is not owed again (wave-6 cause 4) --------------------
+#
+# Slides-Python, wave 6: reconciliation superseded the API Reference's enum bullet "`SaveFormat`:
+# Pptx, Pptm, ... plus additional values declared but not currently exportable" into
+# scope_limitations, and kept the README's own limitation list (which spells exactly those six
+# formats and the refusal) as written in the same section. The must-carry gate then made the
+# authored scope units restate the bullet, and the section printed the save-format limitation twice.
+
+_SAVE_FORMAT_BULLET = (
+    "- `SaveFormat`: `Pptx`, `Pptm`, `Ppsx`, `Ppsm`, `Potx`, `Potm`, plus additional values "
+    "declared "
+    "but\n  not currently exportable (see [Scope and Limitations](#scope-and-limitations))"
+)
+_KEPT_LIMITATIONS = (
+    "- Reading is limited to `.pptx`; `SaveFormat` declares additional values (`Ppt`, `Pdf`, "
+    "`Xps`,\n  `Tiff`, `Odp`, `Html`, `Swf`, `Otp`, and more), and only two save paths actually "
+    "write output:\n  the OOXML presentation family - `Pptx`, `Pptm`, `Ppsx`, `Ppsm`, `Potx`, "
+    "`Potm` "
+    "- through a\n  registered exporter, and `SaveFormat.MD` through a separate Markdown export "
+    "path; every other\n  `SaveFormat` value raises `ValueError` at save time, naming the formats "
+    "that do work.\n- VBA macros and digital signatures are not yet implemented."
+)
+
+
+def _kept_disposition(unit_id: str, section: str) -> dict[str, Any]:
+    return {
+        "unit_id": unit_id,
+        "disposition": "VERIFIED_PRESERVE",
+        "destination_section": section,
+        "fact_ids": [],
+        "rationale": "r",
+    }
+
+
+def test_a_superseded_unit_a_kept_unit_in_the_same_section_already_states_is_not_owed() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:109.001.list", "inherited_unit", _SAVE_FORMAT_BULLET),
+            _fact("inherited_unit:115.list", "inherited_unit", _KEPT_LIMITATIONS),
+            _fact(
+                "inherited_unit:116.list", "inherited_unit", "- A limitation nobody else states."
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:115.list", "scope_limitations"),
+            _scope_disposition("inherited_unit:116.list"),
+        ]
+    }
+    # the kept list prints verbatim and carries the save formats; only the unit nothing else states
+    # is still owed to the authored units
+    assert carried_units(dispositions, "scope_limitations", facts) == ["inherited_unit:116.list"]
+
+
+def test_a_kept_unit_in_another_section_does_not_discharge_the_obligation() -> None:
+    """Negative control: the kept list prints in Documentation and Resources, not in the section
+    the unit was superseded into, so scope_limitations still owes the unit; and a kept unit that
+    says something else does not discharge it either."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:109.001.list", "inherited_unit", _SAVE_FORMAT_BULLET),
+            _fact("inherited_unit:115.list", "inherited_unit", _KEPT_LIMITATIONS),
+            _fact("inherited_unit:117.list", "inherited_unit", "- Comment threads are classic."),
+        ),
+    )
+    elsewhere = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:115.list", "documentation_resources"),
+        ]
+    }
+    assert carried_units(elsewhere, "scope_limitations", facts) == ["inherited_unit:109.001.list"]
+    unrelated = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:117.list", "scope_limitations"),
+        ]
+    }
+    assert carried_units(unrelated, "scope_limitations", facts) == ["inherited_unit:109.001.list"]
