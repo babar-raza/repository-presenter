@@ -48,7 +48,7 @@ DOCUMENT = REPO_ROOT / "docs" / "README_STANDARD.md"
 
 # Rule, defect and decision identifiers: the document and common.yaml must name the same set.
 ID_TOKEN = re.compile(r"\b(?:PRC|STR|LNK|TON|DET|DEF|OD)-\d{2}\b")
-FREQUENCY_TAG = re.compile(r"(\d+)/(\d+) \(obs:([a-z0-9_]+)\)")
+FREQUENCY_TAG = re.compile(r"(\d+)/(\d+)(\s+)\(obs:([a-z0-9_]+)\)")
 OBS_TAG = re.compile(r"\(obs:([a-z0-9_]+)\)")
 PLACEHOLDER = render_tables.PLACEHOLDER
 STAT_TAG = re.compile(r"\[stat:([a-z0-9_]+)=(-?[0-9]+(?:\.[0-9])?)\]")
@@ -170,6 +170,33 @@ def check(
         rendered = render_tables.render_blocks(common, archetypes, assignments, observation_file)
         errors += _check_document(document, common, observation_file, rendered)
     return errors
+
+
+def refresh_tags(text: str, observation_file: dict[str, Any]) -> str:
+    """The document with every ``N/M (obs:ID)`` and ``[stat:ID=VALUE]`` set to its current value.
+
+    A tag naming an unknown id is left as written so the check reports it; the prose around a
+    tag is never touched, so a frequency that moves still needs its sentence read by a person.
+    """
+    counts = {o["id"]: (o["count"], o["of"]) for o in observation_file["observations"]}
+    values = {s["id"]: float(s["value"]) for s in observation_file["statistics"]}
+
+    def frequency(match: re.Match[str]) -> str:
+        ref = match.group(4)
+        if ref not in counts:
+            return match.group(0)
+        return f"{counts[ref][0]}/{counts[ref][1]}{match.group(3)}(obs:{ref})"
+
+    def statistic(match: re.Match[str]) -> str:
+        ref, written = match.group(1), match.group(2)
+        if ref not in values:
+            return match.group(0)
+        value = values[ref]
+        if "." not in written and value == int(value):  # keep an integer written as an integer
+            return f"[stat:{ref}={int(value)}]"
+        return f"[stat:{ref}={value:.1f}]"
+
+    return STAT_TAG.sub(statistic, FREQUENCY_TAG.sub(frequency, text))
 
 
 def load_all(data_dir: Path) -> tuple[Any, Any, Any, Any]:
@@ -455,7 +482,7 @@ def _check_document(
         for definition in observation_file["observations"]
     }
     for match in FREQUENCY_TAG.finditer(text):
-        count, of, ref = int(match.group(1)), int(match.group(2)), match.group(3)
+        count, of, ref = int(match.group(1)), int(match.group(2)), match.group(4)
         if ref not in counts:
             errors.append(f"{document.name}: {match.group(0)} names an unknown observation")
         elif counts[ref] != (count, of):
@@ -514,9 +541,8 @@ def main(argv: list[str] | None = None) -> int:
         common, archetypes, assignments, observation_file = load_all(args.data_dir)
         blocks = render_tables.render_blocks(common, archetypes, assignments, observation_file)
         text = args.document.read_text(encoding="utf-8").replace("\r\n", "\n")
-        args.document.write_text(
-            render_tables.apply_blocks(text, blocks), encoding="utf-8", newline="\n"
-        )
+        text = refresh_tags(render_tables.apply_blocks(text, blocks), observation_file)
+        args.document.write_text(text, encoding="utf-8", newline="\n")
     problems = check(args.data_dir, args.registry, args.document)
     if problems:
         print(f"{len(problems)} problem(s):")

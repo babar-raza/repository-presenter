@@ -220,7 +220,7 @@ governance tracks, two directories, no overlap.
   no write outside `data/readme_standard/` and the standard's own generated tables.
   - `survey_features.py` — one README (and optionally its clone) to a flat record of about 110
     measures; the same functions are the deterministic detectors the standard's defect table names.
-  - `build_survey.py` — reads clones of the registry repositories and writes
+  - `build_survey.py` — reads clones of the registry repositories (`--root` repeats) and writes
     `data/readme_standard/survey.json` (head commit and README SHA-256 per repository).
   - `observations.py` — the closed predicate language (`gte`, `contains`, `nonempty`, ...) that
     turns a condition in a data file into a count; no data file can run code.

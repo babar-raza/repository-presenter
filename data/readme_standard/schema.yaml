@@ -56,7 +56,7 @@ $defs:
       id: {$ref: "#/$defs/identifier"}
       note: {type: string, minLength: 8}
       feature: {type: string}
-      statistic: {enum: [min, max, median, mean]}
+      statistic: {enum: [count, min, max, median, mean]}
       among: {$ref: "#/$defs/condition_map"}
       value: {type: number}
 
@@ -319,6 +319,7 @@ $defs:
             - provenance_story
             - cli_reference
             - mcp_section
+            - no_aspose_product_pages
       notes: {type: string}
 
   assignments_file:

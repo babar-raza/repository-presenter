@@ -43,15 +43,33 @@ def test_all_registry_repositories_are_assigned_exactly_once() -> None:
         a["repository"]
         for a in yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
     ]
-    assert len(registered) == 36
+    assert len(registered) >= 43  # the 36 surveyed first plus the seven JMAP libraries
     assert Counter(assigned) == Counter(registered)
+
+
+def test_the_seven_jmap_libraries_are_assigned_with_the_family_condition() -> None:
+    assignments = yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
+    jmap = [a for a in assignments if a["family"] == "jmap"]
+    assert len(jmap) == 7
+    assert {a["ecosystem"] for a in jmap} == {
+        "net",
+        "cpp",
+        "go",
+        "java",
+        "python",
+        "rust",
+        "typescript",
+    }
+    assert all("no_aspose_product_pages" in a["special_structures"] for a in jmap)
+    assert {a["archetype"] for a in jmap} == {"std-source", "std-native"}
+    assert all(a["api_size_class"] == "none" for a in jmap)
 
 
 def test_the_command_line_reports_ok_on_the_committed_data(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     assert cp.main([]) == 0
-    assert "36 repositories assigned once each" in capsys.readouterr().out
+    assert "repositories assigned once each" in capsys.readouterr().out
 
 
 def test_every_archetype_has_a_member_and_every_member_an_archetype() -> None:
@@ -102,6 +120,18 @@ def copy(tmp_path: Path) -> Copy:
     clone = Copy(tmp_path)
     assert clone.check() == [], "the copy must start clean for a negative control to mean anything"
     return clone
+
+
+def current_frequency(observation: str) -> str:
+    """The committed count/of of an observation, so no test restates a measured number."""
+    document = yaml.safe_load((DATA / "observations.yaml").read_text("utf-8"))
+    found = next(o for o in document["observations"] if o["id"] == observation)
+    return f"{found['count']}/{found['of']}"
+
+
+def current_statistic(statistic: str) -> float:
+    document = yaml.safe_load((DATA / "observations.yaml").read_text("utf-8"))
+    return float(next(s for s in document["statistics"] if s["id"] == statistic)["value"])
 
 
 def has(problems: list[str], fragment: str) -> bool:
@@ -194,7 +224,7 @@ def test_a_tampered_observation_count_is_reported(copy: Copy) -> None:
         next(o for o in document["observations"] if o["id"] == "banner_present")["count"] = 5
 
     copy.edit_yaml("observations.yaml", tamper)
-    assert has(copy.check(), "banner_present declares 5/35")
+    assert has(copy.check(), "banner_present declares 5/")
 
 
 def test_a_tampered_statistic_is_reported(copy: Copy) -> None:
@@ -258,12 +288,14 @@ def test_a_placeholder_naming_an_unknown_observation_is_reported(copy: Copy) -> 
 
 def test_a_frequency_tag_that_disagrees_with_the_survey_is_reported(copy: Copy) -> None:
     copy.edit_document(r"\d+/\d+ \(obs:h1_exactly_one\)", "1/35 (obs:h1_exactly_one)")
-    assert has(copy.check(), "but observation h1_exactly_one is 34/35")
+    assert has(
+        copy.check(), f"but observation h1_exactly_one is {current_frequency('h1_exactly_one')}"
+    )
 
 
 def test_a_statistic_tag_that_disagrees_with_the_survey_is_reported(copy: Copy) -> None:
     copy.edit_document(r"\[stat:lines_max=[0-9.]+\]", "[stat:lines_max=99.0]")
-    assert has(copy.check(), "but statistic lines_max is 4612")
+    assert has(copy.check(), f"but statistic lines_max is {current_statistic('lines_max'):g}")
 
 
 def test_a_tag_naming_an_unknown_observation_is_reported(copy: Copy) -> None:
@@ -379,6 +411,35 @@ def test_counts_use_only_readme_bearing_rows_and_the_among_filter() -> None:
     assert observations.compute_statistic(rows, "x", "median") == 1.5
     assert observations.compute_statistic(rows, "x", "max") == 2.0
     assert observations.compute_statistic(rows, "missing", "min") is None
+
+
+def test_the_count_statistic_counts_readme_bearing_rows_with_the_feature() -> None:
+    rows = {
+        "a/a": {"readme": True, "x": 1},
+        "b/b": {"readme": True, "x": 9},
+        "c/c": {"readme": False},
+    }
+    assert observations.compute_statistic(rows, "x", "count") == 2.0
+    assert observations.compute_statistic(rows, "x", "count", {"x": {"gt": 5}}) == 1.0
+
+
+def test_refreshing_tags_rewrites_numbers_but_not_the_prose_around_them() -> None:
+    observation_file = {
+        "observations": [{"id": "alpha", "count": 3, "of": 7}],
+        "statistics": [{"id": "total", "value": 42.0}, {"id": "median", "value": 19.4}],
+    }
+    text = "was 9/10\n(obs:alpha) and 1/1 (obs:other), [stat:total=41] and [stat:median=20.0]."
+    assert cp.refresh_tags(text, observation_file) == (
+        "was 3/7\n(obs:alpha) and 1/1 (obs:other), [stat:total=42] and [stat:median=19.4]."
+    )
+
+
+def test_a_wrapped_frequency_tag_is_checked_like_any_other(copy: Copy) -> None:
+    copy.edit_document(
+        r"\d+/\d+\s*\n\(obs:order_follows_standard\)", "9/9\n(obs:order_follows_standard)"
+    )
+    expected = current_frequency("order_follows_standard")
+    assert has(copy.check(), f"but observation order_follows_standard is {expected}")
 
 
 def test_size_classes_have_the_documented_edges() -> None:
@@ -505,6 +566,34 @@ def test_unbalanced_details_are_counted_and_a_code_span_mention_is_not() -> None
     assert f["unclosed_details"] is True
     mentioned = measure(GOOD + "\nThe `<details>` element is HTML.\n")
     assert mentioned["unclosed_details"] is False
+
+
+def test_a_plain_statement_that_no_package_is_published_is_recognised() -> None:
+    text = GOOD.replace(
+        "## Installation\n",
+        "## Installation\n\nNo package has been published to PyPI yet; build from source.\n",
+    )
+    assert measure(text)["install_says_unpublished"] is True
+    assert measure(GOOD)["install_says_unpublished"] is False
+
+
+def test_a_prose_only_api_reference_has_no_listing() -> None:
+    api = (
+        "\n## API Reference\n\n"
+        "`Client` is the single entry point; `Mailbox` and `Email` model the objects.\n"
+    )
+    f = measure(GOOD.replace("## License", api + "\n## License"))
+    assert f["standard_h2_present"]["API Reference"] is True
+    assert (f["api_rows"], f["api_top_level_bullets"], f["api_in_details"]) == (0, 0, False)
+    assert f["aspose_links_total"] == 2
+
+
+def test_a_readme_with_no_aspose_link_measures_zero() -> None:
+    bare = GOOD.replace(BANNER, "").replace(
+        "https://products.aspose.com/demo/python/", "https://example.org/"
+    )
+    assert measure(bare)["aspose_links_total"] == 0
+    assert measure(bare)["banner"] is False
 
 
 def test_a_fence_without_a_language_is_counted() -> None:
@@ -680,6 +769,25 @@ def test_the_survey_builder_reads_the_committed_blob_and_marks_a_missing_readme(
     assert rows["o/Aspose.Demo-FOSS-for-Python"]["dead_relative_links"] == []
     assert rows["x/Aspose.Bare-FOSS-for-Python"]["readme"] is False
     assert len(rows["x/Aspose.Bare-FOSS-for-Python"]["head"]) >= 7
+
+
+def test_the_survey_builder_looks_for_clones_in_every_root_it_is_given(tmp_path: Path) -> None:
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    clone = second / "Aspose.Demo-FOSS-for-Python"
+    clone.mkdir(parents=True)
+    first.mkdir()
+    _git(clone, "init", "-q")
+    (clone / "README.md").write_bytes(GOOD.encode("utf-8"))
+    _git(clone, "add", "-A")
+    _git(clone, "commit", "-q", "-m", "init")
+    registry = tmp_path / "registry.json"
+    registry.write_text(
+        json.dumps({"entries": [{"repository": "o/Aspose.Demo-FOSS-for-Python"}]}), "utf-8"
+    )
+    survey = build_survey.build([first, second], registry, "2026-10-11")
+    assert survey["rows"]["o/Aspose.Demo-FOSS-for-Python"]["readme"] is True
+    assert build_survey.find_clone([first], "o/Aspose.Demo-FOSS-for-Python") is None
 
 
 def test_the_survey_builder_names_a_registry_repository_it_cannot_find(tmp_path: Path) -> None:

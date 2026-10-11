@@ -18,7 +18,7 @@ standard:
     AND COMPOSITION, LINKS, TONE, EVERYTHING, AND A SCHEMA FOR PRODUCT-WISE DIFFERENCES. WITH
     EVERY ITERATION WE NEED TO DO BETTER THAN WHAT IS CURRENTLY LIVE. (owner, 2026-10-11)
   survey: >-
-    36 registry repositories, 35 with a README, live default-branch heads captured 2026-10-11
+    the registry repositories with a README, live default-branch heads captured 2026-10-11
     (survey.json); measured by tools/readme_standard/survey_features.py
 
 precedence:
@@ -111,6 +111,9 @@ axes:
     provenance_story: a section telling where the code came from
     cli_reference: command-line usage documented as its own section
     mcp_section: an H2 documenting an MCP server
+    no_aspose_product_pages: >-
+      the family has no Aspose product, documentation or reference pages yet, so the README
+      carries no Aspose link, banner or Enterprise Edition paragraph (LNK-11)
 
 elements:
   - id: identity_h1
@@ -143,7 +146,7 @@ elements:
     heading: null
     order: 3
     requirement: optional
-    basis: [OBSERVED_COMMON]
+    basis: [OBSERVED_VARIANT]
     summary: A linked product banner between the badge row and the opening.
     observations: [banner_present, banner_image_on_products_org, banner_links_to_aspose,
       aspose_link_before_opening]
@@ -330,8 +333,9 @@ elements:
       The final paragraph of Scope and Limitations: one to three sentences relating the FOSS scope
       to the Enterprise Edition, with one link to the verified product page.
     condition: a verified aspose.com product target exists for the family and platform
-    observations: [enterprise_in_scope, enterprise_closes_scope, enterprise_once, enterprise_dont_apply,
-      enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
+    observations: [enterprise_in_scope_when_aspose_linked, enterprise_in_scope,
+      enterprise_closes_scope, enterprise_once, enterprise_dont_apply, enterprise_apply_only,
+      enterprise_see_for, enterprise_full_featured_anchor]
     forms:
       - "These limitations don't apply to [Aspose.<Family> for <Platform> — Enterprise Edition](url), which adds ..."
       - "These limitations apply only to <FOSS product> — they don't carry over to [..], which adds ..."
@@ -504,7 +508,7 @@ rules:
     owner_ref: "plans/idea.md L75-76"
   - id: STR-05
     element: banner
-    basis: [OBSERVED_COMMON]
+    basis: [OBSERVED_COMMON, OBSERVED_VARIANT]
     severity: advisory
     statement: >-
       A live banner stays exactly as written; a banner is never added. Its image comes from
@@ -600,9 +604,11 @@ rules:
     severity: blocking
     statement: >-
       API Reference keeps its visible intro and one collapsed block; the stated type count equals
-      the listed rows, every listed type is public, and no description is a stock sentence.
+      the listed rows, every listed type is public, and no description is a stock sentence. A
+      prose-only API Reference gains the collapsed listing built from the verified public
+      symbols, with its intro kept.
     detector: "existing: public_symbol facts, validation/claims; NEW: count, internal-type and boilerplate-row detectors (survey_features.api_*)"
-    observations: [api_present, api_collapsed, api_class_description_table, api_member_reference, api_states_type_count, api_count_mismatch, api_boilerplate_rows_over_20]
+    observations: [api_present, api_collapsed, api_class_description_table, api_member_reference, api_states_type_count, api_count_mismatch, api_boilerplate_rows_over_20, api_listing_absent]
     owner_ref: "plans/idea.md L105-107"
   - id: STR-15
     element: docs_resources
@@ -612,7 +618,7 @@ rules:
       Documentation & Resources lists the docs, knowledge-base and reference sites, repository
       files that help a reader, and an issues link; every target is verified.
     detector: "existing: BC-06 link resolution and ceilings (composition/link_budget.py)"
-    observations: [docs_present, docs_trio, docs_getting_started_guide, docs_how_to_guides_faq, docs_full_api_reference, docs_open_issue, docs_repo_relative, issues_link]
+    observations: [docs_present, docs_trio_when_aspose_linked, docs_trio, docs_getting_started_guide, docs_how_to_guides_faq, docs_full_api_reference, docs_open_issue, docs_repo_relative, issues_link]
     owner_ref: "plans/idea.md L51-58"
   - id: STR-16
     element: scope_limitations
@@ -730,10 +736,12 @@ rules:
     basis: [OBSERVED_COMMON]
     severity: advisory
     statement: >-
-      The Aspose link set is five links: the banner and the Enterprise Edition on the product
-      site, and the docs, knowledge-base and reference sites in Documentation & Resources.
+      Where the family has Aspose pages the Aspose link set is five links: the banner and the
+      Enterprise Edition on the product site, and the docs, knowledge-base and reference sites
+      in Documentation & Resources.
     detector: "existing: composition/link_budget.py ceilings; BC-06"
-    observations: [aspose_links_exactly_five, aspose_links_at_most_five]
+    observations: [aspose_links_exactly_five_when_aspose_linked, aspose_links_exactly_five,
+      aspose_links_at_most_five, aspose_links_none]
   - id: LNK-02
     element: docs_resources
     basis: [OBSERVED_COMMON, OWNER_RULE]
@@ -755,7 +763,8 @@ rules:
       paragraph; commercial, On-Premise, paid and full-version wordings that refer to the
       aspose.com product are replaced.
     detector: "existing: text_checks.edition_name, BC-06; NEW: commercial-substitute heuristic (survey_features.commercial_substitute_mentions)"
-    observations: [enterprise_once, banned_edition_names, commercial_substitute]
+    observations: [enterprise_once_when_aspose_linked, enterprise_once, banned_edition_names,
+      commercial_substitute]
     owner_ref: "plans/idea.md L51-53"
   - id: LNK-04
     element: enterprise_paragraph
@@ -766,7 +775,7 @@ rules:
       is added as 'These limitations don't apply to [Aspose.<Family> for <Platform> — Enterprise
       Edition](url), which adds ...' naming only what verified facts or policy state it adds.
     detector: "existing: enterprise_relationship section, BC-06; NEW: shape detector (survey_features.enterprise_shape)"
-    observations: [enterprise_in_scope, enterprise_closes_scope, enterprise_dont_apply, enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
+    observations: [enterprise_in_scope_when_aspose_linked, enterprise_in_scope, enterprise_closes_scope, enterprise_dont_apply, enterprise_apply_only, enterprise_see_for, enterprise_full_featured_anchor]
     owner_ref: "plans/idea.md L109 (see OD-02)"
   - id: LNK-05
     element: enterprise_paragraph
@@ -824,6 +833,18 @@ rules:
       or a planning directory is not presented as a user resource.
     detector: "NEW: survey_features.agent_file_links"
     observations: [agent_file_links]
+
+  - id: LNK-11
+    element: docs_resources
+    basis: [OBSERVED_VARIANT, OWNER_RULE]
+    severity: advisory
+    statement: >-
+      A README whose family has no Aspose product, documentation or reference page carries no
+      Aspose link, banner or Enterprise Edition paragraph; they are added when the product-page
+      fact turns verified, never inferred from the pattern of other families.
+    detector: "existing: evidence/facts/product_pages.py (a verified target, or none); NEW: survey_features.aspose_links_total"
+    observations: [aspose_links_none]
+    owner_ref: "plans/idea.md L57-58 (no verified target, the natural result is no link)"
 
   # ---- tone
   - id: TON-01
@@ -1119,18 +1140,17 @@ defect_classes:
     preserves: the sentence meaning
     rules: [LNK-03]
   - id: DEF-15
-    name: Enterprise Edition paragraph missing or repeated
+    name: Enterprise Edition paragraph missing or repeated in a README that links Aspose pages
     repositories:
       - aspose-cells-foss/Aspose.Cells-FOSS-for-Python
-      - aspose-font-foss/Aspose.Font-FOSS-for-Python
       - aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET
+      - aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
       - aspose-slides-foss/Aspose.Slides-FOSS-for-.NET
       - aspose-words-foss/Aspose.Words-FOSS-for-.NET
-      - aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
-    detector: {kind: new, ref: "enterprise mentions equal one and the paragraph closes Scope", measure: enterprise_mentions, where: {enterprise_mentions: {not: 1}}}
-    correction: Add the standard closing paragraph when a verified target exists and the README has a Scope section or an equivalent; collapse a duplicate into the closing paragraph.
+    detector: {kind: new, ref: "Aspose pages are linked and Enterprise Edition is not named exactly once", measure: enterprise_mentions, where: {aspose_links_total: {gte: 1}, enterprise_mentions: {not: 1}}}
+    correction: Add the standard closing paragraph when a verified target exists and the README has a Scope section or an equivalent; collapse a duplicate into the closing paragraph. A family with no Aspose pages (LNK-11) is not a case.
     preserves: the live commercial pointers' facts
-    rules: [LNK-03, LNK-04]
+    rules: [LNK-03, LNK-04, LNK-11]
   - id: DEF-16
     name: mislabeled Enterprise link
     repositories: [aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript]
@@ -1237,7 +1257,28 @@ defect_classes:
     detector: {kind: existing, ref: "snapshot: default branch has no README; processability gate"}
     correction: Author the standard skeleton from verified facts only if the tree carries a real public surface; otherwise insufficient_evidence.
     rules: [PRC-07]
-
+  - id: DEF-27
+    name: Dependencies section points at the manifest instead of listing it
+    repositories:
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+    detector: {kind: new, ref: "a dependency bucket that defers to the manifest file and names no dependency"}
+    correction: List the manifest's dependencies with their versions in the bucket and keep the pointer as one sentence.
+    preserves: the pointer sentence
+    rules: [STR-11, DET-02]
+  - id: DEF-28
+    name: API Reference without a listing
+    repositories:
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-.NET
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Go
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Python
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-Rust
+      - aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript
+    detector: {kind: new, ref: "API Reference holds prose only: no table rows and no member bullets", measure: api_rows, where: {standard_h2_present.API Reference: true, api_rows: 0, api_top_level_bullets: 0}}
+    correction: Keep the intro paragraph and add the collapsed Class | Description listing built from the verified public symbols, with the verified count; leave an undocumented type undescribed.
+    preserves: the intro paragraph and its error-handling description
+    rules: [STR-14, DET-04]
 open_decisions:
   - id: OD-01
     question: >-

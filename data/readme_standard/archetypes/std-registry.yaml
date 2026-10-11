@@ -1,4 +1,4 @@
-# Standard skeleton, library installed from a package registry. 16 of 36 repositories.
+# Standard skeleton, library installed from a package registry.
 schema_version: 1
 id: std-registry
 title: Standard skeleton, registry-published library
