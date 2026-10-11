@@ -36,6 +36,14 @@ Opening the maintainers wrote.
 mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0
 ```
 
+```xml
+<artifactId>aspose-3d-foss</artifactId>
+```
+
+```groovy
+implementation 'org.aspose:aspose-3d-foss'
+```
+
 ## Dependencies
 
 None.
@@ -258,3 +266,51 @@ def test_structure_fixes_are_proposable_evidenced_by_their_readme_lines(
     )
     assert "Broken markup repaired" in content.body and "`README.md:" in content.body
     assert "inserted `</details>` before line" in content.body
+
+
+def test_additions_are_proposable_with_their_tree_paths_as_evidence(
+    tmp_path: Path, make_context: Any
+) -> None:
+    readme = README.replace(
+        "## Scope and Limitations",
+        "## Documentation & Resources\n\n- **[API](https://example.com)** — reference.\n\n"
+        "## Scope and Limitations",
+    )
+    ctx = make_context(readme, tree=("README.md", "LICENSE", "pom.xml", "CHANGELOG.md"))
+    result = correct(ctx)
+    delta = validation_delta(ctx, result, readme.encode())
+    directory = tmp_path / "bundle"
+    files.write_bundle(ctx, readme.encode(), result, delta, directory)
+    candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
+    assert "- **[Changelog](CHANGELOG.md)** — release history." in candidate.readme_text
+    document = json.loads((directory / files.CORRECTIONS_NAME).read_text(encoding="utf-8"))
+    (added,) = [e for e in document["edits"] if e["detector"] == "add_doc_links"]
+    assert added["kind"] == "MISSING_INFO"
+    assert [(x["status"], x["value"]) for x in added["evidence"]] == [
+        ("TREE_PATH", "tree:CHANGELOG.md")
+    ]
+    content = compose_correction_pull_request(
+        bundle=directory,
+        repository=REPOSITORY,
+        candidate_hash="h" * 64,
+        source_revision="a" * 40,
+        policy_version="p1",
+    )
+    assert "Verified information added" in content.body and "`tree:CHANGELOG.md`" in content.body
+    assert "added at line" in content.body
+
+
+def test_a_locator_naming_a_path_the_tree_lacks_or_a_line_past_the_end_is_a_problem(
+    make_context: Any,
+) -> None:
+    from repository_presenter.components.readme_correction.gate import _locator_problem
+    from repository_presenter.components.readme_correction.model import Edit
+
+    ctx = make_context("one\ntwo\n")
+
+    def edit(*locators: str) -> Edit:
+        return Edit("MISSING_INFO", "t", 0, 0, "", "x\n", (), "r", locators=locators)
+
+    assert _locator_problem(edit("tree:CHANGELOG.md"), ctx, {"CHANGELOG.md"}) is None
+    assert "does not hold" in str(_locator_problem(edit("tree:GONE.md"), ctx, {"CHANGELOG.md"}))
+    assert "not a line" in str(_locator_problem(edit("README.md:9"), ctx, set()))

@@ -26,10 +26,16 @@ BROKEN_LINK = "BROKEN_LINK"
 #: Markup the README itself shows broken (a second H1, a ``<details>`` never closed): evidence is
 #: the README's own line, not a fact, and the fix is one heading marker or one closing tag.
 STRUCTURE_FIX = "STRUCTURE_FIX"
+#: Verified information the live README lacks, added to a section it already has (a build and
+#: test command, an install form, a link to a file the tree holds, the published-version badge).
+#: A pure insertion: no maintainer byte is replaced, no heading is introduced.
+MISSING_INFO = "MISSING_INFO"
 #: The closed set of correction kinds; nothing outside it can be applied or proposed.
 EDIT_KINDS: frozenset[str] = frozenset(
-    {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX}
+    {FALSE_CLAIM_FIX, MISSING_SECTION, BROKEN_LINK, STRUCTURE_FIX, MISSING_INFO}
 )
+#: An addition is a few lines, never a rewrite of a section.
+MAX_ADDITION = 4000
 #: A one-line fix touches a few words, never a sentence the maintainers wrote.
 MAX_SPAN = 200
 KIND_FIELD = "kind"
@@ -38,6 +44,18 @@ KIND_CORRECTION = "correction"
 
 class InvalidEditError(ValueError):
     """An edit that violates the closed shape of its kind; never constructed, never applied."""
+
+
+def _opens_heading(text: str) -> bool:
+    """Whether ``text`` has an ATX heading line outside a fenced block."""
+    inside = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(("```", "~~~")):
+            inside = not inside
+        elif not inside and line.startswith("#") and line.lstrip("#").startswith(" "):
+            return True
+    return False
 
 
 @dataclass(frozen=True)
@@ -57,7 +75,8 @@ class Edit:
     fact_ids: tuple[str, ...]
     rationale: str
     order: int = 0  # tie-break between insertions at one offset (shell order)
-    locators: tuple[str, ...] = ()  # ``README.md:<line>`` evidence of a STRUCTURE_FIX
+    #: ``README.md:<line>`` (a STRUCTURE_FIX) or ``tree:<path>`` (a file the pinned tree holds).
+    locators: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.kind not in EDIT_KINDS:
@@ -65,6 +84,9 @@ class Edit:
         if self.kind == STRUCTURE_FIX:
             if not self.locators:
                 raise InvalidEditError(f"{self.detector}: a structure fix cites the README line")
+        elif self.kind in {MISSING_INFO, MISSING_SECTION}:
+            if not (self.fact_ids or self.locators):
+                raise InvalidEditError(f"{self.detector}: an addition cites a fact or a tree path")
         elif not self.fact_ids:
             raise InvalidEditError(f"{self.detector}: an edit needs at least one evidence fact")
         if self.replacement == self.original:
@@ -72,6 +94,11 @@ class Edit:
         if self.kind == STRUCTURE_FIX and self.start == self.end:
             if self.original or self.replacement.strip() != "</details>":
                 raise InvalidEditError(f"{self.detector}: the only insertion is a closing tag")
+        elif self.kind == MISSING_INFO:
+            if self.start != self.end or self.original or not self.replacement.strip():
+                raise InvalidEditError(f"{self.detector}: an addition is inserted, never replaces")
+            if len(self.replacement) > MAX_ADDITION or _opens_heading(self.replacement):
+                raise InvalidEditError(f"{self.detector}: an addition is short and has no heading")
         elif self.kind == MISSING_SECTION:
             if self.start != self.end or self.original:
                 raise InvalidEditError(f"{self.detector}: a section is inserted, never replaces")

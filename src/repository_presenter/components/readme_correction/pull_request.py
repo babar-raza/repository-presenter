@@ -20,12 +20,14 @@ _TITLES = {
     "MISSING_SECTION": "add a README section its facts fill",
     "BROKEN_LINK": "repair a broken README link",
     "STRUCTURE_FIX": "repair broken README markup",
+    "MISSING_INFO": "add verified information the README lacks",
 }
 _LABELS = {
     "FALSE_CLAIM_FIX": "Claim the repository contradicts",
     "MISSING_SECTION": "Section added from verified facts",
     "BROKEN_LINK": "Broken link repaired",
     "STRUCTURE_FIX": "Broken markup repaired",
+    "MISSING_INFO": "Verified information added",
 }
 _SHOWN = 120
 
@@ -43,6 +45,11 @@ def _item(edit: dict[str, Any]) -> list[str]:
     if edit["kind"] == "MISSING_SECTION":
         heading = next(line for line in edit["replacement"].splitlines() if line.startswith("## "))
         change = f"inserted `{heading}` before line {edit['line']}"
+    elif edit["kind"] == "MISSING_INFO":
+        shown = next((ln for ln in edit["replacement"].splitlines() if ln.strip()), "")
+        extra = len([ln for ln in edit["replacement"].splitlines() if ln.strip()]) - 1
+        more = f" (+{extra} more line(s))" if extra > 0 else ""
+        change = f"added at line {edit['line']}: `{_clip(shown)}`{more}"
     elif not edit["original"]:
         change = f"inserted `{edit['replacement'].strip()}` before line {edit['line']}"
     else:

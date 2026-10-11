@@ -30,6 +30,8 @@ REPOSITORY = "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
 README = (
     "# Aspose.3D FOSS for Java\n\n## Installation\n\n```bash\n"
     "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0\n```\n\n"
+    "```xml\n<artifactId>aspose-3d-foss</artifactId>\n```\n\n"
+    "```groovy\nimplementation 'org.aspose:aspose-3d-foss'\n```\n\n"
     "## Dependencies\n\nNone.\n\n## Development and Testing\n\nRun it.\n\n## License\n\nMIT.\n"
 )
 

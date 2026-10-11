@@ -32,6 +32,7 @@ from repository_presenter.components.readme_correction.model import (
     KIND_FIELD,
     STRUCTURE_FIX,
     Context,
+    Edit,
 )
 from repository_presenter.core.authorization.refusals import Refusal, WriteRefusedError
 from repository_presenter.core.candidates import BundleError, ProposableCandidate, verify_bundle
@@ -48,7 +49,26 @@ _EVIDENCE_POLARITY = {
     "FALSE_CLAIM_FIX": "SUPPORTED",
     "MISSING_SECTION": "SUPPORTED",
     "BROKEN_LINK": "CONTRADICTED",
+    "MISSING_INFO": "SUPPORTED",
 }
+
+
+def _locator_problem(edit: Edit, ctx: Context, tree: set[str]) -> str | None:
+    """Why a locator an edit cites is not real: ``README.md:<line>`` must be a line of the live
+    README, ``tree:<path>`` a path the pinned tree holds."""
+    lines = len(ctx.readme.splitlines())
+    for locator in edit.locators:
+        if locator.startswith("tree:"):
+            wanted = locator[5:]
+            if wanted not in tree and not any(path.startswith(wanted) for path in tree):
+                return f"{edit.detector} cites {locator!r}, which the pinned tree does not hold"
+            continue
+        path, _, number = locator.rpartition(":")
+        if path != ctx.readme_path or not number.isdigit() or not 1 <= int(number) <= lines:
+            return f"{edit.detector} cites {locator!r}, which is not a line of the README"
+    if edit.kind == STRUCTURE_FIX and not edit.locators:
+        return f"{edit.detector} is a structure fix with no README line cited"
+    return None
 
 
 def _json(path: Path) -> Any:
@@ -99,14 +119,10 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
     for edit in again.edits:
         if edit.kind not in EDIT_KINDS:
             return f"edit kind {edit.kind!r} is outside the closed set"
-        if edit.kind == STRUCTURE_FIX:
-            lines = len(ctx.readme.splitlines())
-            for locator in edit.locators:
-                path, _, number = locator.rpartition(":")
-                if path != ctx.readme_path or not number.isdigit() or not 1 <= int(number) <= lines:
-                    return f"{edit.detector} cites {locator!r}, which is not a line of the README"
-            continue
-        wanted = _EVIDENCE_POLARITY[edit.kind]
+        problem = _locator_problem(edit, ctx, set(tree))
+        if problem is not None:
+            return problem
+        wanted = _EVIDENCE_POLARITY.get(edit.kind, "SUPPORTED")
         for fact_id in edit.fact_ids:
             fact = ctx.fact(fact_id)
             if fact is None or fact.polarity != wanted:

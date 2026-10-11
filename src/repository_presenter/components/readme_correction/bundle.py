@@ -59,9 +59,15 @@ def edit_record(ctx: Context, index: int, edit: Edit) -> dict[str, Any]:
                 "value": fact.value[:_VALUE_LIMIT] if fact is not None else None,
             }
         )
-    for locator in edit.locators:  # a structure fix's evidence is the README's own line
+    for locator in edit.locators:  # a structure fix cites the README line, an addition a tree path
+        in_tree = locator.startswith("tree:")
         evidence.append(
-            {"fact_id": None, "status": "README_TEXT", "kind": "readme_structure", "value": locator}
+            {
+                "fact_id": None,
+                "status": "TREE_PATH" if in_tree else "README_TEXT",
+                "kind": "tree_path" if in_tree else "readme_structure",
+                "value": locator,
+            }
         )
     return {
         "index": index,

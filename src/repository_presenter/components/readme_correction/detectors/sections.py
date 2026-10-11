@@ -21,8 +21,14 @@ from dataclasses import dataclass
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
 from repository_presenter.components.readme.composition.renderer import render_readme
+from repository_presenter.components.readme.evidence.facts.commands import (
+    BUILD_COMMAND_FACT_ID,
+    CI_MATRIX_FACT_ID,
+    TEST_COMMAND_FACT_ID,
+)
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.components.readme_correction.detectors import detector
+from repository_presenter.components.readme_correction.detectors.additions import doc_link_bullets
 from repository_presenter.components.readme_correction.model import (
     MISSING_SECTION,
     Context,
@@ -68,6 +74,25 @@ _NEEDS_PROSE = (
 )
 
 
+#: What would fill each prose section for the regeneration lane: the fact kinds it composes from.
+_FILLED_BY: dict[str, tuple[str, ...]] = {
+    "at_a_glance": ("capability", "format"),
+    "key_capabilities": ("capability", "public_symbol"),
+    "quick_start": ("example", "import_path"),
+    "api_reference": ("public_symbol",),
+    "documentation_resources": ("link_target",),
+    "scope_limitations": ("inherited_unit", "format"),
+}
+
+
+def _filled_by(ctx: Context, section_id: str) -> str:
+    parts = []
+    for kind in _FILLED_BY[section_id]:
+        count = sum(1 for f in ctx.facts.facts if f.kind == kind and f.polarity == "SUPPORTED")
+        parts.append(f"{count} SUPPORTED {kind} fact(s)" if count else f"no SUPPORTED {kind} fact")
+    return "would be filled from " + ", ".join(parts)
+
+
 def _spec(ctx: Context) -> EcosystemSpec:
     """The ecosystem's presentation spec; ``plugin_for`` registers it before anything asks."""
     plugin_for(ctx.entry.ecosystem)
@@ -95,9 +120,27 @@ def _dependency_ids(ctx: Context) -> tuple[str, ...]:
 def _development_ids(ctx: Context) -> tuple[str, ...]:
     return tuple(
         fact.id
-        for fact in (ctx.supported("build_test_asset:tests"), ctx.supported("build_test_asset:ci"))
+        for fact in (
+            ctx.supported(fact_id)
+            for fact_id in (
+                "build_test_asset:tests",
+                "build_test_asset:ci",
+                BUILD_COMMAND_FACT_ID,
+                TEST_COMMAND_FACT_ID,
+                CI_MATRIX_FACT_ID,
+            )
+        )
         if fact is not None
     )
+
+
+def _docs_locators(ctx: Context) -> tuple[str, ...]:
+    return tuple(f"tree:{path}" for _bullet, path in doc_link_bullets(ctx))
+
+
+def _docs_block(ctx: Context) -> str:
+    bullets = [bullet for bullet, _path in doc_link_bullets(ctx)]
+    return NL.join(["## Documentation & Resources", "", *bullets]) if bullets else ""
 
 
 def _license_ids(ctx: Context) -> tuple[str, ...]:
@@ -114,6 +157,8 @@ class Derivable:
     evidence: Callable[[Context], tuple[str, ...]]
     already_says: Callable[[Context], bool]
     required: bool = True  # a required section with no fact behind it is reported
+    render: Callable[[Context], str] | None = None  # not the renderer: built from the tree
+    locators: Callable[[Context], tuple[str, ...]] | None = None  # ``tree:`` evidence
 
 
 def _spells_install_command(ctx: Context) -> bool:
@@ -131,6 +176,14 @@ DERIVABLE: tuple[Derivable, ...] = (
     Derivable("dependencies", _dependency_ids, _never),
     Derivable("development_testing", _development_ids, _never, required=False),
     Derivable("license", _license_ids, _never),
+    Derivable(
+        "documentation_resources",
+        lambda _ctx: (),
+        _never,
+        required=False,
+        render=_docs_block,
+        locators=_docs_locators,
+    ),
 )
 
 
@@ -174,12 +227,16 @@ def missing_sections(ctx: Context) -> DetectorResult:
         reason = "the README has fewer than two H2 sections; no section is inserted into it"
         return DetectorResult(findings=(Finding("missing_sections", 1, "", reason),))
     used_offsets: set[int] = set()
+    inserted: set[str] = set()
     for item in DERIVABLE:
         sid = item.section_id
         if _present(ctx, sid) or item.already_says(ctx):
             continue
         evidence = item.evidence(ctx)
-        block = _rendered(ctx, sid) if evidence else ""
+        locators = item.locators(ctx) if item.locators else ()
+        block = ""
+        if evidence or locators:
+            block = item.render(ctx) if item.render else _rendered(ctx, sid)
         if not block:
             if item.required:
                 findings.append(
@@ -211,6 +268,7 @@ def missing_sections(ctx: Context) -> DetectorResult:
                 original="",
                 replacement=f"{lead}{block}{tail}",
                 fact_ids=evidence,
+                locators=locators,
                 rationale=(
                     f"the README has no {_SHELL[sid].heading} section; the template's is rendered "
                     "from the cited facts alone"
@@ -218,15 +276,16 @@ def missing_sections(ctx: Context) -> DetectorResult:
                 order=_ORDER[sid],
             )
         )
+        inserted.add(sid)
     for sid in _NEEDS_PROSE:
-        if not _present(ctx, sid):
+        if sid not in inserted and not _present(ctx, sid):
             findings.append(
                 Finding(
                     "missing_sections",
                     0,
                     "",
                     f"{_SHELL[sid].heading} is absent and needs authored prose; "
-                    "not derivable deterministically",
+                    f"not derivable deterministically; {_filled_by(ctx, sid)}",
                 )
             )
     return DetectorResult(edits=tuple(edits), findings=tuple(findings))

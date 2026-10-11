@@ -54,6 +54,10 @@ def build(make_context: Any, make_facts: Any, make_fact: Any) -> Context:
 
 def test_every_registered_detector_is_loaded_by_name() -> None:
     assert sorted(load_detectors()) == [
+        "add_dev_commands",
+        "add_doc_links",
+        "add_install_forms",
+        "add_version_badge",
         "broken_link",
         "claim_identity",
         "claim_license",
@@ -79,6 +83,8 @@ def test_each_kind_of_correction_is_made_and_nothing_else_changes(
         ("FALSE_CLAIM_FIX", "claim_license"),
         ("FALSE_CLAIM_FIX", "claim_test_files"),
         ("FALSE_CLAIM_FIX", "claim_version"),
+        ("MISSING_INFO", "add_install_forms"),
+        ("MISSING_SECTION", "missing_sections"),
         ("MISSING_SECTION", "missing_sections"),
         ("MISSING_SECTION", "missing_sections"),
         ("MISSING_SECTION", "missing_sections"),
@@ -121,6 +127,8 @@ def test_a_conformant_readme_yields_no_edit_and_no_diff(make_context: Any) -> No
     clean = (
         "# P\n\n## Installation\n\n"
         "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0\n\n"
+        "```xml\n<dependency>\n  <artifactId>aspose-3d-foss</artifactId>\n</dependency>\n```\n\n"
+        "```groovy\nimplementation 'org.aspose:aspose-3d-foss:26.7.0'\n```\n\n"
         "## Dependencies\n\nNone.\n\n## Development and Testing\n\n3 test files.\n\n"
         "## License\n\nMIT License.\n"
     )

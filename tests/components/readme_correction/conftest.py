@@ -78,9 +78,10 @@ def context(
     readme: str,
     facts: Iterable[Fact] | None = None,
     tree: Iterable[str] = ("README.md", "LICENSE", "pom.xml"),
+    repository: str = JAVA_REPOSITORY,
 ) -> Context:
-    document = FactsDocument(JAVA_REPOSITORY, REVISION, tuple(facts or base_facts()))
-    return Context(entry_for(), document, readme, tuple(tree))
+    document = FactsDocument(repository, REVISION, tuple(facts or base_facts()))
+    return Context(entry_for(repository), document, readme, tuple(tree))
 
 
 @pytest.fixture
