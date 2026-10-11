@@ -751,6 +751,11 @@ def _api_reference(context: RenderContext) -> list[str]:
     return lines
 
 
+# The opening words of the closing Enterprise paragraph (README_CONTRACT.md section 2 row 18):
+# validation reads a section's own limitations apart from what the commercial edition adds.
+ENTERPRISE_SENTENCE_LEAD = "These limitations don't apply to"
+
+
 def enterprise_anchor(name: str) -> str:
     """The Enterprise Edition anchor text for the product ``name``.
 
@@ -776,9 +781,32 @@ def _enterprise_paragraph(context: RenderContext) -> str:
     name = context.name.replace(" FOSS", "")
     if level == "family":
         name = name.split(" for ", 1)[0]
-    sentence = f"These limitations don't apply to [{enterprise_anchor(name)}]({target.value})."
-    adds = context.unit("enterprise_relationship", "context").strip()
+    sentence = f"{ENTERPRISE_SENTENCE_LEAD} [{enterprise_anchor(name)}]({target.value})."
+    adds = _sentence_start(context.unit("enterprise_relationship", "context").strip())
     return f"{sentence} {adds}" if adds else sentence
+
+
+_PLAIN_FIRST_WORD = re.compile(r"[a-z]+(?:['\u2019][a-z]+)?(?=\s|$)")
+_RELATIVE_OPENING = re.compile(r"(?:which|that)\s+(?=[a-z])")
+
+
+def _sentence_start(text: str) -> str:
+    """``text`` as the start of a sentence that follows a full stop.
+
+    The authoring objective tells the Enterprise unit to say "it adds ..." (the edition name and
+    link are printed in the sentence before it), and the coherence pass rewrote it that way in two
+    of the five wave-3 candidates (Cells .NET 941814fd, Cells Java c65329e7), leaving
+    ``...Enterprise Edition](url). it adds broader ...`` in the public README. The renderer owns
+    the join, so it owns the capital: a relative opening ("which adds ...") becomes "It adds ...",
+    and a plain lower-case first word is capitalised. A text that opens with a code span, an
+    identifier, a digit or an abbreviation ("e.g.") is left exactly as written.
+    """
+    relative = _RELATIVE_OPENING.match(text)
+    if relative is not None:
+        return "It " + text[relative.end() :]
+    if _PLAIN_FIRST_WORD.match(text) is None:
+        return text
+    return text[0].upper() + text[1:]
 
 
 def _oxford(items: list[str]) -> str:

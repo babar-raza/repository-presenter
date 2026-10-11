@@ -45,6 +45,12 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.list_coverage import (
+    OWED_SECTIONS,
+    kept_lists,
+    list_items,
+)
+from repository_presenter.components.readme.composition.placement import placements
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -568,6 +574,10 @@ class SectionTask:
     # reconciliation disposition names. A refusal quotes it back, so the re-ask carries what the
     # unit says, not only its ID (a bare ID let a second reply omit it unchanged).
     must_carry_text: Mapping[str, str] = field(default_factory=dict)
+    # The list units kept as written that placement dropped from this section and whose slots
+    # the plan does not bind, so the section's authored units owe every item (list_coverage.py,
+    # LST-01). A bound section is owed the lists the plan handed to a slot (slot_facts).
+    owed_lists: frozenset[str] = frozenset()
 
     @property
     def label(self) -> str:
@@ -1084,6 +1094,38 @@ def citable(task: SectionTask, slot: str) -> list[str]:
 _NEUTRAL_KINDS = ("identity:", "package:")
 
 
+def owed_list_units(
+    entry: RegistryEntry,
+    facts: FactsDocument,
+    dispositions: dict[str, Any],
+    plan: dict[str, Any],
+    section: str,
+    slot_facts: Mapping[str, frozenset[str]],
+) -> frozenset[str]:
+    """The list units kept as written that placement drops from ``section`` as covered by its own
+    content, in a section whose slots the plan does not bind (Development and Testing): nothing
+    else prints them, so the section's units owe every item (list_coverage.py, LST-01). A bound
+    section is owed the lists the plan handed to a slot instead (planning.plan_checks)."""
+    if section not in OWED_SECTIONS or slot_facts:
+        return frozenset()
+    kept = {
+        str(item.get("unit_id"))
+        for item in dispositions.get("dispositions", [])
+        if item.get("destination_section") == section
+        and item.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+        and str(item.get("unit_id", "")).endswith(".list")
+    }
+    if not kept:
+        return frozenset()
+    return frozenset(
+        decision.unit_id
+        for decision in placements(plan, dispositions, facts, entry.ecosystem)
+        if decision.unit_id in kept
+        and decision.destination == section
+        and decision.outcome == "overlap"
+    )
+
+
 def authoring_tasks(
     entry: RegistryEntry,
     facts: FactsDocument,
@@ -1178,6 +1220,26 @@ def authoring_tasks(
             if must_carry
             else ""
         )
+        owed = owed_list_units(entry, facts, dispositions, plan, section, slot_facts)
+        kept_lists_owed = kept_lists(
+            dispositions,
+            section,
+            set().union(*slot_facts.values()) | owed if slot_facts else owed,
+            facts,
+        )
+        # A list reconciliation kept as written is not printed beside the section's own content
+        # (placement.py drops it as covered), so every item must reach a unit; naming the lists in
+        # the objective is what makes the first reply state them (list_coverage.py, LST-01).
+        carry_rule += (
+            "Lists kept as written, every item of which your units must state - fold related "
+            "items into one unit, in plain words, and cite the list in it: "
+            + ", ".join(
+                f"{unit} ({len(list_items(text))} items)" for unit, text in kept_lists_owed.items()
+            )
+            + ". "
+            if kept_lists_owed
+            else ""
+        )
         if must_carry and section == "enterprise_relationship":
             # The inherited paragraph names the commercial product and links it, but the renderer
             # prints that name and link itself in the sentence before this unit (exactly once,
@@ -1216,6 +1278,7 @@ def authoring_tasks(
                 slot_render_lines=render_lines,
                 must_carry=must_carry,
                 must_carry_text=carried_substance(must_carry, facts),
+                owed_lists=owed,
             )
         )
         if section == "api_reference":

@@ -52,6 +52,11 @@ from repository_presenter.components.readme.composition.components.terminology i
     title_case_violations,
 )
 from repository_presenter.components.readme.composition.link_budget import slot_violations
+from repository_presenter.components.readme.composition.list_coverage import (
+    OWED_SECTIONS,
+    list_items,
+    missing_items,
+)
 from repository_presenter.components.readme.composition.placement import (
     Placement,
     placements,
@@ -61,6 +66,7 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
 )
 from repository_presenter.components.readme.composition.renderer import (
+    ENTERPRISE_SENTENCE_LEAD,
     RenderContext,
     api_reference_names,
     badge_slots,
@@ -1078,6 +1084,64 @@ def _check_units(candidate: Candidate) -> list[Failure]:
     return failures
 
 
+# The sections whose rendered text must state every item of a list kept as written that placement
+# dropped as covered by the section's own content: the authored limitation and summary slots, and
+# the one authored line per link of Documentation and Resources.
+_LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
+
+
+def _dropped_list_failures(
+    candidate: Candidate, placement: Placement, texts: Mapping[str, str]
+) -> list[Failure]:
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
+    own content "already covers that material" must in fact state every one of its items.
+
+    The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
+    stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
+    f69f75c7, LST-01: 3D Java lost five documentation links and three limitations, 3D TypeScript
+    six limitations, Cells Java one, 3D .NET one). An item of a Documentation and Resources list is
+    judged by the link it carries; any other by its subject words, as list_coverage judges the
+    authored reply. A list the plan never handed to a slot is a planning defect; one it handed and
+    the composer did not finish is a composing defect.
+    """
+    destination = placement.destination
+    if (
+        destination not in _LIST_OBLIGED
+        or not placement.unit_id.endswith(".list")
+        or len(list_items(placement.text)) < 2
+    ):
+        return []
+    by_link = destination == "documentation_resources"
+    # What the commercial edition adds is not a limitation of this one: the closing Enterprise
+    # paragraph never states a kept list's items.
+    section_text = texts.get(destination, "").split(ENTERPRISE_SENTENCE_LEAD, 1)[0]
+    missing = missing_items(
+        placement.text,
+        section_text,
+        by_link=by_link,
+        document_text=candidate.readme,
+    )
+    if not missing:
+        return []
+    handed = any(
+        placement.unit_id in (item.get("unit_ids") or [])
+        for item in candidate.plan.get("material_limitations", [])
+    )
+    unplanned = destination == "documentation_resources" or (
+        destination == "scope_limitations" and not handed
+    )
+    stage: CausalStage = "PLANNING" if unplanned else "COMPOSING"
+    shown = "; ".join(repr(" ".join(item.replace("**", "").split())[:120]) for item in missing)
+    return [
+        Failure(
+            stage,
+            f"{placement.unit_id}: kept as written in {destination}, but the section does not "
+            f"state {len(missing)} of its {len(list_items(placement.text))} items: {shown}",
+            destination,
+        )
+    ]
+
+
 def _check_dispositions(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
     inherited = {fact.id: fact for fact in candidate.facts.by_kind("inherited_unit")}
@@ -1118,8 +1182,11 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
                 )
             )
             continue
+        if placement.outcome == "overlap":
+            failures.extend(_dropped_list_failures(candidate, placement, texts))
+            continue  # the plan's own content covers it (the list's items are judged above)
         if placement.outcome != "placed":
-            continue  # owned by the plan or the renderer, or dropped for fact-ID overlap
+            continue  # owned by the plan or the renderer
         haystack = texts.get(destination, "") if destination in headed else candidate.readme
         if _normalized(placement.text) not in _normalized(haystack):
             failures.append(

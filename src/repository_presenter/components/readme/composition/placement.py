@@ -487,6 +487,11 @@ def placements(
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
+        if not overlap and unit_id in covered and not unit_id.endswith(".code_block"):
+            # The plan handed this very unit to a slot of the destination (a limitation's
+            # ``unit_ids``): the composer states it there, so printing it as written as well
+            # states it twice (Cells .NET 941814fd: the Scope list, LST-01).
+            overlap = (unit_id,)
         outcome: Outcome = "overlap" if overlap else "placed"
         text = unit.value
         # Item 114: resolved only for the text this candidate actually copies verbatim into the

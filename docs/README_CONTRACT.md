@@ -198,6 +198,19 @@ it if its `fact_ids` intersect the `fact_ids` of that section's own plan-driven 
 freshly-authored content wins, since it is what evidence-bound content-unit validation (§3) already
 checked. No section may show the same material twice regardless of which stage produced each copy.
 
+That exclusivity holds only if the planned content really states what it drops, so a dropped list is
+owed in full (wave-3 acceptance review of reseal `f69f75c7`, LST-01: one shared fact dropped a whole
+list while the section stated half of it, and BC-05 passed every such unit). A `VERIFIED_PRESERVE`/
+`VERIFIED_MOVE` list unit with two or more items that the plan hands to a limitation slot
+(`unit_ids`) is also dropped, never printed beside the bullets authored from it (Cells .NET stated its
+Scope list twice). Planning completes the hand-off: every `link_target` fact such a list cites into
+Documentation and Resources joins the plan's `links` when the plan already carries one of them, and
+a list placement drops from Scope and Limitations is added to every limitation's `unit_ids`. The
+authoring guard (`list_coverage.py`) then refuses a section whose units do not state every item of a
+list it was handed (or, in an unbound section such as Development and Testing, of a list placement
+dropped from it), and BC-05 fails the candidate naming each item the rendered section does not state —
+by the link it carries in Documentation and Resources, by its subject words elsewhere.
+
 Two more placement rules, both from the same G1 canary bundle: a placed unit inherits its section's
 visibility — in a `collapsible` section it renders inside the section's `<details>` block after the
 composed content, never appended outside it (17 inherited API units landed visible below a closed
