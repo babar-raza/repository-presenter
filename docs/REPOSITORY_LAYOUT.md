@@ -103,6 +103,7 @@ src/repository_presenter/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
         assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
+        commands.py             the build command, the test command and the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests
         repository_files.py     the file names an inherited unit spells that the pinned tree contains, recorded on the unit so prose may cite them (G7-W23)
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact

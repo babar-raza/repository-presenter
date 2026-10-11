@@ -31,7 +31,9 @@ from repository_presenter.core.facts import slug
 # 2 (TC-EXT-01, G3-W08 cut 2): PEP 508 requirements kept whole, src-layout import paths, dynamic
 # Python dependencies unresolved, relative manifest discovery, Maven identity from the project's
 # own POM children, install claims gated on registry ownership, unexposed Rust items dropped.
-EXTRACTOR_VERSION = "2"
+# 3 (TC-COV-02, G3-W08, cut 3): build_test_asset facts for the build command, the test command and
+# the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests.
+EXTRACTOR_VERSION = "3"
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 

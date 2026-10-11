@@ -50,6 +50,12 @@ from repository_presenter.components.readme.composition.placement import (
     renders_verbatim,
 )
 from repository_presenter.components.readme.evidence.facts.assets import CI_BADGE_FACT_ID
+from repository_presenter.components.readme.evidence.facts.commands import (
+    BUILD_COMMAND_FACT_ID,
+    CI_MATRIX_FACT_ID,
+    TEST_COMMAND_FACT_ID,
+    matrix_axes,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     banner_target,
@@ -100,6 +106,12 @@ RENDERER_VERSION = "29"
 # under a registry install; a multi-framework .NET project's runtime badge lists every target
 # framework. A repository with a single target and no published_version fact renders as before.
 RENDERER_VERSION = "31"
+# 32 (TC-COV-02, G3-W08, cut 3): Development and Testing prints the build and test commands the
+# clone's own workflow, package.json, Makefile or toolchain manifest names (a fenced block after
+# the section's sentences, minus any command a placed inherited block already carries) and one
+# sentence on the CI matrix's operating systems and runtimes. A repository whose facts name
+# neither renders as before.
+RENDERER_VERSION = "32"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -494,6 +506,43 @@ def _documentation_resources(context: RenderContext) -> list[str]:
     return lines
 
 
+def _join_and(parts: list[str]) -> str:
+    """``a``, ``a and b``, ``a, b and c``."""
+    if len(parts) <= 1:
+        return "".join(parts)
+    return f"{', '.join(parts[:-1])} and {parts[-1]}"
+
+
+_COMMAND_PROMPT = re.compile(r"^\s*(?:[$>]\s*)?")
+
+
+def _placed_command_lines(context: RenderContext) -> frozenset[str]:
+    """Every line of every inherited block already placed in Development and Testing, so a
+    command the renderer would print is not printed a second time beside the maintainers' own."""
+    lines: set[str] = set()
+    for text in context.placed.get("development_testing", []):
+        for line in text.splitlines():
+            lines.add(_COMMAND_PROMPT.sub("", line).strip())
+    return frozenset(lines)
+
+
+def _development_commands(context: RenderContext) -> tuple[str, list[str]]:
+    """TC-COV-02: the lead-in sentence and the commands of the build and test facts, in build
+    then test order, minus any a placed inherited block already carries. ``("", [])`` when the
+    facts name none, so a repository without them renders as before."""
+    present = _placed_command_lines(context)
+    roles: list[tuple[str, str]] = []
+    for role, fact_id_ in (("build", BUILD_COMMAND_FACT_ID), ("test", TEST_COMMAND_FACT_ID)):
+        fact = context.fact(fact_id_)
+        if fact is not None and fact.polarity == "SUPPORTED" and fact.value not in present:
+            roles.append((role, fact.value))
+    if not roles:
+        return "", []
+    names = {"build": "build", "test": "run the tests"}
+    lead = f"To {' and '.join(names[role] for role, _ in roles)} from a clone, run:"
+    return lead, ["```bash", *(command for _, command in roles), "```"]
+
+
 def _development_sentences(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 17: the suite-size sentence when a test-file count is
     verified, and the release sentence linking the publish workflow file when one exists;
@@ -508,6 +557,14 @@ def _development_sentences(context: RenderContext) -> list[str]:
         ]
         if counts:
             sentences.append(f"The suite covers {counts[-1]} test files under `{tests.value}`.")
+    matrix = context.fact(CI_MATRIX_FACT_ID)
+    if matrix is not None and matrix.polarity == "SUPPORTED" and matrix.evidence:
+        axes = matrix_axes(matrix)
+        path = matrix.evidence[0].path
+        if axes:
+            stem = path.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            parts = [f"{axis} ({', '.join(values)})" for axis, values in axes]
+            sentences.append(f"The [{stem} workflow]({path}) runs across {_join_and(parts)}.")
     ci = context.fact("build_test_asset:ci")
     if ci is not None and ci.polarity == "SUPPORTED":
         prefix = ci.value if ci.value.endswith("/") else ci.value + "/"
@@ -539,6 +596,9 @@ def renderer_sentences(
     """
     context = RenderContext(entry, facts, plan, units, dispositions)
     sentences = list(_development_sentences(context))
+    command_lead = _development_commands(context)[0]
+    if command_lead:
+        sentences.append(command_lead)
     if any(section.id == "api_reference" for section in context.included):
         kinds = [
             (fact.attributes or {}).get("symbol_kind", "")
@@ -1059,6 +1119,9 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         if facts_sentences:
             lines.append("")
             lines.append(" ".join(facts_sentences))
+        lead, commands = _development_commands(context)
+        if commands:
+            lines.extend(["", lead, "", *commands])
     elif sid == "enterprise_relationship":
         pass  # rendered as the closing paragraph of Scope and Limitations (row 18)
     elif sid == "third_party_notices":
