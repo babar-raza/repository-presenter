@@ -215,6 +215,22 @@ governance tracks, two directories, no overlap.
     `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
     of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
 
+- `readme_standard/` — the tooling of `docs/README_STANDARD.md`, written at the owner directive of
+  2026-10-11 (the live upstream README is the structure standard). Read-only: no network, no model,
+  no write outside `data/readme_standard/` and the standard's own generated tables.
+  - `survey_features.py` — one README (and optionally its clone) to a flat record of about 110
+    measures; the same functions are the deterministic detectors the standard's defect table names.
+  - `build_survey.py` — reads clones of the registry repositories and writes
+    `data/readme_standard/survey.json` (head commit and README SHA-256 per repository).
+  - `observations.py` — the closed predicate language (`gte`, `contains`, `nonempty`, ...) that
+    turns a condition in a data file into a count; no data file can run code.
+  - `render_tables.py` — renders the document's tables from `data/readme_standard/`.
+  - `check_profiles.py` — `python -X utf8 -m tools.readme_standard.check_profiles`: validates the
+    data against `schema.yaml`, proves all registry repositories are assigned exactly once,
+    recomputes every frequency, and checks the document's tags and tables; `--write-counts` and
+    `--write-doc` refresh the machine-maintained parts.
+  - Tests: `tests/test_readme_standard.py`.
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's

@@ -1,0 +1,80 @@
+# Standard skeleton, C++ library integrated through CMake. 4 of 36 repositories.
+schema_version: 1
+id: std-native
+title: Standard skeleton, native (C++) library
+summary: >-
+  The generated ten-section skeleton for a C++ library the reader integrates through CMake
+  (add_subdirectory, FetchContent, find_package), sometimes with a Windows-only prebuilt NuGet
+  package. Installation is the longest section of the portfolio and its toolchain floors are part
+  of Dependencies.
+mode: gap_fill
+install_channels: [native_build]
+elements:
+  identity_h1: required
+  badge_row: required
+  banner: preserve_only
+  opening: required
+  navigation: required
+  at_a_glance: expected
+  key_capabilities: required
+  installation: required
+  dependencies: required
+  quick_start: expected
+  feature_showcase: preserve_only
+  additional_examples: expected
+  project_structure: preserve_only
+  api_reference: required
+  docs_resources: expected
+  scope_limitations: required
+  enterprise_paragraph: conditional
+  development_testing: expected
+  third_party_notices: conditional
+  license: required
+element_notes:
+  dependencies: C++ standard, CMake minimum, test framework tag and bundled third-party code are listed; Cells C++ lacks the section
+  third_party_notices: PDF C++ keeps its section; bundled fonts and fetched test frameworks belong here
+channel_variant:
+  install_forms:
+    - "CMake add_subdirectory with target_link_libraries against the exported target"
+    - "find_package(<Package> CONFIG REQUIRED) against the installed package"
+    - "FetchContent_Declare with a pinned tag, not a branch"
+    - "NuGet package or release archive for Windows, stating which toolsets and platforms it covers"
+    - cmake configure, build and ctest commands with the preset or generator the repository uses
+  verification:
+    - exported target and package names equal the CMakeLists
+    - the pinned tag or version equals the manifest or the release
+    - the Windows-only claim equals the package contents (BC-02 receipt)
+  required_statements:
+    - the C++ standard and the minimum CMake version
+    - which install forms work on which platforms
+better_than_live:
+  - id: BTL-NAT-01
+    statement: Each install form is verified against the CMake files and the NuGet package contents, and platform limits are stated.
+    measured_by: target, package and tag equality against the repository; package listing against the Windows-only claim
+    rules: [STR-10, DET-01]
+    defect_classes: [DEF-05]
+  - id: BTL-NAT-02
+    statement: Dependencies carries the C++ standard, CMake floor, test framework version and bundled third-party code from the build files.
+    measured_by: bucket contents equal CMakeLists and FetchContent declarations
+    rules: [STR-11, DET-02]
+    defect_classes: [DEF-19]
+  - id: BTL-NAT-03
+    statement: Every example compiles with exactly the includes it shows.
+    measured_by: g++ or MSVC compile receipt (BC-03); a missing include is added
+    rules: [DET-03, STR-12, STR-13]
+    defect_classes: [DEF-20]
+  - id: BTL-NAT-04
+    statement: API rows name public header symbols only, with real descriptions where header documentation exists.
+    measured_by: row set equals the public_symbol facts; api_boilerplate_rows falls
+    rules: [STR-14, DET-04]
+    defect_classes: [DEF-10, DEF-11]
+  - id: BTL-NAT-05
+    statement: Directory trees and CMake blocks carry a fence language.
+    measured_by: fences_without_language is zero
+    rules: [STR-23]
+    defect_classes: [DEF-13]
+insertion_policy: >-
+  Insert a missing standard element beside its live neighbours from verified facts only; keep the
+  live Installation sub-headings (Build, Install, From a Release Archive) as written.
+voice_guidance: >-
+  Keep the live register; long Installation sections are not shortened.
