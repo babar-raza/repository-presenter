@@ -28,6 +28,7 @@ from repository_presenter.components.readme.composition.renderer import (
 )
 from repository_presenter.components.readme.extractors.platforms.cpp import CPP
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -2372,6 +2373,65 @@ def test_the_enterprise_paragraph_never_follows_its_full_stop_with_a_lower_case_
     assert scope.rstrip("\n").endswith(
         "(https://products.aspose.com/3d/python-net/). " + printed
     ), scope
+
+
+def test_an_example_is_printed_as_the_program_its_receipt_compiled() -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied `using` directives the README
+    never printed, so printed examples failed CS0103/CS0246. Every place the renderer prints a
+    verified example prints the receipt's prelude in front of it; an example that needed none is
+    printed exactly as before."""
+    prelude = {PRELUDE_ATTRIBUTE: "import math"}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(
+                f.id,
+                f.kind,
+                f.value,
+                f.evidence,
+                polarity=f.polarity,
+                attributes=prelude if f.id in {"example:001", "example:002"} else f.attributes,
+            )
+            for f in FACTS.facts
+        ),
+    )
+    plan = {**PLAN, "second_quick_start_example_id": "example:002", "additional_example_ids": []}
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "lead_in:2", "Build a scene.")],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    assert "```python\nimport math\nfrom aspose.threed import Scene\n" in readme
+    assert "```python\nimport math\nprint(2)\n```" in readme
+    plain = render_readme(ENTRY, FACTS, plan, units, DISPOSITIONS)
+    assert "import math" not in plain
+
+
+def test_a_moved_limitations_table_renders_every_row_in_scope() -> None:
+    """The Scope section prints a VERIFIED_MOVE'd limitations table as written, after the bullets
+    and before the Enterprise paragraph, with every row (Slides-.NET lost both of its tables)."""
+    table = (
+        "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |\n| SmartArt | missing |"
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:020.table", "inherited_unit", table)),
+    )
+    moved = {
+        "unit_id": "inherited_unit:020.table",
+        "disposition": "VERIFIED_MOVE",
+        "destination_section": "scope_limitations",
+        "fact_ids": ["package:name"],
+        "rationale": "r",
+    }
+    plan = {**PLAN, "material_limitations": [{"fact_ids": ["package:name"], "unit_ids": []}]}
+    readme = render_readme(
+        ENTRY, facts, plan, UNITS, {"dispositions": [*DISPOSITIONS["dispositions"], moved]}
+    )
+    scope = readme.split("## Scope", 1)[1].split("\n## ", 1)[0]
+    assert table in scope
 
 
 # --- C++ (wave-3 triage U7/U15): the CMake minimum and the NuGet distribution a registry confirmed

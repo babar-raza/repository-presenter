@@ -119,7 +119,8 @@ def _stems(text: str) -> set[str]:
 
 def stems(text: str) -> set[str]:
     """The word stems this module compares text by (``composition/coverage.py`` reads the same
-    test for a kept paragraph's sentences that BC-05 reads for a kept list's items)."""
+    test for a kept paragraph's sentences that BC-05 reads for a kept list's items, and
+    ``validation/content_presence.py`` judges a deferred unit against the finished README)."""
     return _stems(text)
 
 

@@ -797,6 +797,72 @@ def test_a_unit_the_plan_hands_to_a_limitation_slot_is_not_also_printed_verbatim
     assert placed_texts([decision]) == {"scope_limitations": [CELLS_NET_SCOPE_LIST]}
 
 
+def test_a_limitations_table_moved_into_scope_is_printed_not_dropped_as_overlap() -> None:
+    """Wave-3 acceptance review, Slides-.NET: the 'Not in the public API' and 'Save formats'
+    tables were VERIFIED_MOVEd to Scope, shared one fact (`format:input.obj` here, `package:name`
+    there) with a limitation slot, and were dropped as overlap; no slot is handed a table and
+    nothing judges its rows, so the section kept only the positive bullets."""
+    table = "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |"
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:020.table", "inherited_unit", table),
+            _fact("inherited_unit:021.list", "inherited_unit", "- a\n- b"),
+        ),
+    )
+    moved = {**_entry("inherited_unit:020.table", "scope_limitations", "format:input.obj")}
+    moved["disposition"] = "VERIFIED_MOVE"
+    dispositions = {
+        "dispositions": [
+            moved,
+            _entry("inherited_unit:021.list", "scope_limitations", "format:input.obj"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, facts, "python")}
+    assert decisions["inherited_unit:020.table"].outcome == "placed"
+    assert placed_texts(list(decisions.values()))["scope_limitations"] == [table]
+    # Controls: the same citation still drops a list (the slots state its items), and a table
+    # bound for the API Reference is still covered by the renderer's own table there.
+    assert decisions["inherited_unit:021.list"].outcome == "overlap"
+    api = {
+        **_entry("inherited_unit:020.table", "api_reference", "public_symbol:aspose.threed.scene")
+    }
+    api["disposition"] = "VERIFIED_MOVE"
+    only = placements(_plan(), {"dispositions": [api]}, facts, "python")
+    assert [p.outcome for p in only] == ["overlap"]
+    # A table the plan handed to a slot by ID is printed as well: the slot cannot be held to rows.
+    handed = _plan(
+        material_limitations=[
+            {"fact_ids": ["format:input.obj"], "unit_ids": ["inherited_unit:020.table"]}
+        ]
+    )
+    again = {p.unit_id: p for p in placements(handed, dispositions, facts, "python")}
+    assert again["inherited_unit:020.table"].outcome == "placed"
+
+
+def test_once_the_document_is_known_the_whole_content_test_decides_a_limitations_table() -> None:
+    """With text in hand (render, validator) ``coverage.uncovered`` decides, and it agrees: a Scope
+    that states nothing of the table places it whole, one that states every row drops it."""
+    table = "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |"
+    unit = "inherited_unit:020.table"
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (*FACTS.facts, _fact(unit, "inherited_unit", table))
+    )
+    moved = {
+        **_entry(unit, "scope_limitations", "format:input.obj"),
+        "disposition": "VERIFIED_MOVE",
+    }
+    dispositions = {"dispositions": [moved]}
+    silent = _shown(scope_limitations="Scenes load and save.")
+    [placed] = placements(_plan(), dispositions, facts, "python", _Asked(silent))
+    assert placed.outcome == "placed" and placed.text == table
+    stated = _shown(scope_limitations=table)
+    [dropped] = placements(_plan(), dispositions, facts, "python", _Asked(stated))
+    assert dropped.outcome == "overlap"
+
+
 # --- whole-content drop rule: a shared fact is a citation, not a statement ----------------------
 # The units are the real ones of the wave-3 transactions (reseal f69f75c7) that the fact-id rule
 # dropped and BC-08 then demanded back; `destinations` is the document with no kept unit placed.

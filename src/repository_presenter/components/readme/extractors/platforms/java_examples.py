@@ -495,6 +495,9 @@ def verify_java_examples(
                 stderr=_clip(_scrub(result.stderr, run_dir, source_root)),
                 detail=detail,
                 fixtures=(),
+                # What javac compiled beyond the snippet: printed in front of it, so the shown
+                # example is the program the receipt proves (the detail above is display-capped).
+                prelude="\n".join(supplied) if outcome == "EXECUTED" else "",
             )
         )
     return receipts

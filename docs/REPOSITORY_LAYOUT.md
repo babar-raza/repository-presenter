@@ -87,12 +87,15 @@ src/repository_presenter/
       audience.py              the section-authoring guard that an audience, use case, or spared cost in the opening is stated only when an accepted fact states it, with its last-resort deletion; called by unit_checks (BC-04 too)
       list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE) states every item, layered on unit_checks by repair/rounds.py
       list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE/MOVE) states every item, layered on unit_checks by repair/rounds.py; its item test also serves BC-05
+      text_hygiene.py          the section-authoring guard that an authored unit is not cut off mid-sentence, not written in another script, and not a pasted list; called by unit_checks (BC-04 too)
+      references.py            dangling references: a sentence pointing at a table, list, example or section the finished README does not have; called by BC-07
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
       glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
     validation/
       registry.py              versioned check registry
+      content_presence.py      whether the finished README states what a deferred unit said (its code spans, link destinations, versions and prose); BC-05 uses it to refuse an advisory deferral that hid a loss
       links/                   link resolution
         rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/
@@ -114,6 +117,7 @@ src/repository_presenter/
         assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
         commands.py             the build command, the test command and the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests
         repository_files.py     the file names an inherited unit spells that the pinned tree contains, recorded on the unit so prose may cite them (G7-W23)
+        registry_lag.py         the registry's current release lags this source tree (manifest newer, or unreleased changelog entries): the fact behind an upstream's version-skew warning, which reconciliation may then not omit
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation

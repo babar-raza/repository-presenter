@@ -17,7 +17,9 @@ status with the same verdict reopens nothing (TC-INV-02).
 
 from __future__ import annotations
 
+import re
 import time
+from collections.abc import Sequence
 
 import httpx
 
@@ -127,7 +129,12 @@ def enterprise_fact(entry: RegistryEntry, probes: list[ProbeRecord]) -> Fact:
             (Evidence(url, f"ambiguous platform targets: {variants}; enterprise target"),),
             polarity="UNRESOLVED",
             confidence=0.5,
-            attributes={"role": "enterprise", "level": "ambiguous"},
+            attributes={
+                "role": "enterprise",
+                "level": "ambiguous",
+                "platform": entry.platform,
+                "variants": ",".join(slug for slug, _ in live),
+            },
         )
     family_url = f"{ENTERPRISE_HOST}/{entry.family}/"
     status, _ = _status(family_url, probes)
@@ -181,6 +188,56 @@ def enterprise_target(facts: tuple[Fact, ...] | list[Fact]) -> Fact | None:
         if fact.id == ENTERPRISE_FACT_ID and fact.polarity == "SUPPORTED":
             return fact
     return None
+
+
+def enterprise_from_readme_link(facts: Sequence[Fact]) -> Fact | None:
+    """The Enterprise Edition target chosen by the upstream's own README, when the live lookup was
+    ambiguous: the one rule that picks between two live platform pages.
+
+    ``enterprise_fact`` refuses to choose between live variants (``python`` and ``python-net`` both
+    answer for Slides-Python) because nothing picks one. The maintainers did: their README links
+    one of them from its Enterprise Edition paragraph, and the link extractor read that page live
+    (RESOLVED). That is a verified target; leaving the fact unresolved dropped the paragraph from
+    the candidate (wave-3 acceptance review, Slides-Python). Only a link to one of the variants the
+    lookup itself found live, labelled as the Enterprise Edition, and unique among such links,
+    settles it; anything else stays unresolved. Returns None when nothing is settled."""
+    current = next((f for f in facts if f.id == ENTERPRISE_FACT_ID), None)
+    attributes = (current.attributes or {}) if current is not None else {}
+    if current is None or attributes.get("level") != "ambiguous":
+        return None
+    family = current.value.removeprefix(f"{ENTERPRISE_HOST}/").strip("/")
+    variants = set(filter(None, attributes.get("variants", "").split(",")))
+    chosen: dict[str, str] = {}
+    for fact in facts:
+        if fact.kind != "link_target" or fact.polarity != "SUPPORTED" or fact.id == current.id:
+            continue
+        if not any("enterprise" in (e.detail or "").lower() for e in fact.evidence):
+            continue
+        match = re.fullmatch(
+            rf"{re.escape(ENTERPRISE_HOST)}/{re.escape(family)}/([^/?#]+)/?", fact.value
+        )
+        if match is not None and match.group(1) in variants:
+            chosen[match.group(1)] = fact.value
+    if len(chosen) != 1:
+        return None
+    ((slug, url),) = chosen.items()
+    return Fact(
+        ENTERPRISE_FACT_ID,
+        "link_target",
+        url,
+        (
+            Evidence(
+                url,
+                f"RESOLVED; enterprise target; platform level; slug {slug}; "
+                "chosen by the README's own Enterprise Edition link",
+            ),
+        ),
+        attributes={
+            "role": "enterprise",
+            "level": "platform",
+            **({"platform": attributes["platform"]} if attributes.get("platform") else {}),
+        },
+    )
 
 
 def banner_target(facts: tuple[Fact, ...] | list[Fact]) -> tuple[Fact, Fact] | None:

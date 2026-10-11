@@ -146,3 +146,34 @@ def test_no_jdk_anywhere_still_reports_blocked_toolchain(
     assert [receipt.outcome for receipt in receipts] == ["NOT_VERIFIED"]
     assert receipts[0].detail == "BLOCKED_TOOLCHAIN: no Java compiler on this machine"
     assert fake.calls == []
+
+
+def test_the_imports_javac_needed_are_the_receipts_prelude(
+    isolated_machine: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The shown example is the program that compiled: every import the harness supplied is
+    recorded as the receipt's prelude, uncapped (the detail line lists at most eight). A snippet
+    that compiled as written has none, and a failed compile records none."""
+    tmp_path = isolated_machine
+    recorded = _javac(tmp_path / "jdk21" / "bin" / "javac.exe")
+    registry = tmp_path / "rp-toolchains" / "TOOLCHAIN_PATHS.txt"
+    registry.parent.mkdir()
+    registry.write_text(f"javac={recorded}\n", encoding="utf-8", newline="\n")
+    monkeypatch.setenv(REGISTRY_VARIABLE, str(registry))
+    monkeypatch.setattr(java_examples, "execute", _FakeJavac())
+
+    receipts = java_examples.verify_java_examples(
+        _source_root(tmp_path / "product"),
+        "17",
+        False,
+        (),
+        [ExampleCandidate(1, "java", 'Path p = Paths.get("a");', "README.md", 1, 3, "unit:001")],
+        tmp_path / "run",
+        60.0,
+    )
+
+    assert [receipt.outcome for receipt in receipts] == ["EXECUTED"]
+    lines = receipts[0].prelude.splitlines()
+    assert "import java.nio.file.Path;" in lines
+    assert "import java.nio.file.Paths;" in lines
+    assert "import java.util.*;" in lines  # the blanket package the harness always supplies

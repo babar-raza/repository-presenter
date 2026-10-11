@@ -480,6 +480,22 @@ def resolve_intra_document_anchors(text: str, planned_slugs: frozenset[str]) -> 
     return _INTRA_DOC_ANCHOR.sub(resolve, text)
 
 
+def _table_owes_its_rows(unit_id: str, destination: str, *, text_known: bool) -> bool:
+    """A kept table destined for Scope and Limitations is printed, never dropped on a shared fact.
+
+    The overlap rule presumes the destination's authored prose states what a dropped unit said.
+    A list handed to the limitation slots is held to every item (``list_coverage``, BC-05), but
+    no slot is handed a table and nothing judges its rows, so a limitations table moved there was
+    dropped on one shared fact (``package:name``, which nearly every unit cites) and the section
+    kept only the positive bullets: Slides-.NET lost its 'Not in the public API' and 'Save
+    formats' tables, 13 verified API gaps and 18 of 21 refused save formats (wave-3 acceptance
+    review, reseal f69f75c7). The rows are the limitation, so before any text exists (planning and
+    authoring, ``text_known`` False) the fact-id rule may not drop the table. Once the document
+    is known the whole-content test (``coverage.uncovered``) decides it from text, and places a
+    table the destination does not state; this rule then stands aside."""
+    return not text_known and unit_id.endswith(".table") and destination == "scope_limitations"
+
+
 def _entries_by_ordinal(dispositions: Mapping[str, Any]) -> dict[int, list[Mapping[str, Any]]]:
     """Every disposition keyed by the source-block ordinal of the unit it decides."""
     found: dict[int, list[Mapping[str, Any]]] = {}
@@ -597,9 +613,15 @@ def placements(
         overlap = (
             ()
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
+            or _table_owes_its_rows(unit_id, destination, text_known=destinations is not None)
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
-        if not overlap and unit_id in covered and not unit_id.endswith(".code_block"):
+        if (
+            not overlap
+            and unit_id in covered
+            and not unit_id.endswith(".code_block")
+            and not _table_owes_its_rows(unit_id, destination, text_known=destinations is not None)
+        ):
             # The plan handed this very unit to a slot of the destination (a limitation's
             # ``unit_ids``): the composer states it there, so printing it as written as well
             # states it twice (Cells .NET 941814fd: the Scope list, LST-01).
