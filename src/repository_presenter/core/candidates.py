@@ -461,6 +461,7 @@ class ProposableCandidate:
 REVIEW_FILENAME = "review.json"
 _ACCEPT = "ACCEPT"
 _REJECTION_REFUTED = "rejection_refuted_deterministically"
+_REJECTION_DEMOTED = "rejection_findings_demoted"
 
 #: ``(bundle_dir, repository_directory_name) -> reason`` - ``None`` when the bundle's ratified
 #: 30-point acceptance outcome is PASS, otherwise why it is not. Injected, never defaulted: the
@@ -482,10 +483,12 @@ def _review_refusal(bundle: Path, manifest: Mapping[str, Any]) -> tuple[Refusal,
     """Why the sealed review cannot be trusted as an independent ACCEPT, or None.
 
     A returned REJECT stands unless every first-read finding it rested on carries a recorded
-    deterministic refutation (``refuted_by``) - the rule ``review_document`` applies when it
-    writes the verdict (TC-REV-01). Read back here from the record itself, not trusted from the
-    ``verdict`` field alone: a bundle sealed before ``verdict_as_returned`` was recorded cannot show
-    that its ACCEPT was not a converted REJECT, so it is refused under its own code.
+    deterministic refutation (``refuted_by``) or a recorded demotion (``demoted``: the finding
+    blames a composition stage for text the renderer owns, so it is outside repair's scope) - the
+    rule ``review_document`` applies when it writes the verdict (TC-REV-01). Read back here from
+    the record itself, not trusted from the ``verdict`` field alone: a bundle sealed before
+    ``verdict_as_returned`` was recorded cannot show that its ACCEPT was not a converted REJECT,
+    so it is refused under its own code.
     """
     if REVIEW_FILENAME not in dict(manifest.get("files", {})):
         return Refusal.REVIEW_PREDATES_HONESTY_RECORD, (
@@ -507,27 +510,29 @@ def _review_refusal(bundle: Path, manifest: Mapping[str, Any]) -> tuple[Refusal,
         return Refusal.REVIEW_REJECTION_OVERRIDDEN, f"the sealed review verdict is {verdict!r}"
     if returned == _ACCEPT:
         return None
-    # The reviewer returned a rejection that now reads ACCEPT: only a deterministic refutation of
-    # every finding it rested on may stand behind that.
-    if review.get("verdict_basis") != _REJECTION_REFUTED:
+    # The reviewer returned a rejection that now reads ACCEPT: only a deterministic refutation or a
+    # recorded demotion of every finding it rested on may stand behind that.
+    if review.get("verdict_basis") not in (_REJECTION_REFUTED, _REJECTION_DEMOTED):
         return Refusal.REVIEW_REJECTION_OVERRIDDEN, (
             f"the reviewer returned {returned!r} and the verdict is ACCEPT, but the recorded basis "
-            f"is {review.get('verdict_basis')!r}, not a deterministic refutation"
+            f"is {review.get('verdict_basis')!r}, not a deterministic refutation or a demotion"
         )
     first_read = [
         record
         for record in review.get("advisory", [])
         if isinstance(record, dict) and "reader" not in record
     ]
-    unrefuted = [record for record in first_read if not record.get("refuted_by")]
-    if not first_read or unrefuted:
+    unsettled = [
+        record for record in first_read if not (record.get("refuted_by") or record.get("demoted"))
+    ]
+    if not first_read or unsettled:
         return Refusal.REVIEW_REJECTION_OVERRIDDEN, (
             f"the reviewer returned {returned!r} and the verdict is ACCEPT, but "
             + (
-                "no finding records a deterministic refutation"
+                "no finding records a deterministic refutation or a demotion"
                 if not first_read
-                else f"{len(unrefuted)} of its {len(first_read)} findings record no "
-                "deterministic refutation (refuted_by)"
+                else f"{len(unsettled)} of its {len(first_read)} findings record neither a "
+                "deterministic refutation (refuted_by) nor a demotion (demoted)"
             )
         )
     return None

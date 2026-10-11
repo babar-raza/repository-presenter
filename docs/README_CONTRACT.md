@@ -322,11 +322,17 @@ the fact or example IDs and exact phrases it says are missing; code, never the r
 every named ID or phrase present in that section's rendered text refutes it, an ID no SUPPORTED fact
 carries or a phrase in no original text is nothing to restore and refutes it too, any one truly
 absent upholds it and routes the repair to the named section, and a claim naming nothing checkable
-is advisory with its reason. A required row of §2 admits zero advisories left standing before
-`READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding nothing
-contradicted, against a section every candidate must have, blocks and is reported. A refuted
-finding is not deferred work — no revision could act on it — so it never blocks; `review.json`
-keeps it with the reason that refuted it. An optional row may carry one; the bundle records the
+is advisory with its reason. A finding that blames a composition stage (S6, S7, S8) for text the
+composer does not write — a section the shell marks deterministic or At a Glance, or a rendered
+API Reference row no content unit carries — names no stage repair can act on: it is demoted, kept
+in `advisory` under `demoted: {rule, section, stage, owner, reason, evidence}`, never called
+refuted, and still counted by the acceptance score. A finding that names S2 for a wrong fact, one
+that says something is missing that code cannot settle, and one about text a unit or a kept
+inherited unit carries are not demoted. A required row of §2 admits zero advisories left standing
+before `READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding
+nothing contradicted, against a section every candidate must have, blocks and is reported. A
+refuted or demoted finding is not deferred work — no revision could act on it — so it never
+blocks; `review.json` keeps it with the reason that refuted or demoted it. An optional row may carry one; the bundle records the
 advisory count either way.
 
 ## 7. Bundle layout

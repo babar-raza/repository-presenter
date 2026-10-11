@@ -2325,14 +2325,19 @@ def validate_candidate(
 
 
 def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Advisory findings against a section the contract marks Required, minus the refuted ones.
+    """Advisory findings against a section the contract marks Required, minus the refuted ones
+    and the demoted ones.
 
     An advisory is deferred repair work, not accepted work (project/loop-prompt.md section 6
     rule 5), so a required row carries none before READY_FOR_PROPOSAL (docs/README_CONTRACT.md
     section 6, docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5). A finding a deterministic check
     refuted is not deferred work: there is nothing to defer and no revision could act on it, so
-    it is recorded with its reason and counted, never blocking. What blocks is a finding left
-    standing - one nothing contradicted - because that is work this candidate still owes.
+    it is recorded with its reason and counted, never blocking. A finding demoted because it
+    blames a composition stage for text the renderer owns (``demoted``, review.py
+    ``unrepairable_demotion``) is the same: the section it names is outside repair's scope
+    (README_CONTRACT section 6), so there is no repair work to owe; it stays on the record and
+    in the acceptance score. What blocks is a finding left standing - one nothing contradicted
+    and a revision could act on - because that is work this candidate still owes.
 
     A ``single_reader_advisory`` is not owed work either: a second independent read of the same
     candidate under a different seed raised nothing equivalent, so the defect is one reader's
@@ -2346,6 +2351,7 @@ def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]
         if str(finding.get("section_id", "")) in REQUIRED_SECTIONS
         and not finding.get("reviewer_scope_defect")
         and not finding.get("single_reader_advisory")
+        and not finding.get("demoted")
     ]
 
 
