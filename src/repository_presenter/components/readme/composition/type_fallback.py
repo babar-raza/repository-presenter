@@ -14,7 +14,10 @@ byte and the other thirty-nine descriptions went down with it. The guard is righ
 sentence (it is an unevidenced claim); losing the batch for it is the defect.
 
 This module sits beside ``authoring.py`` rather than inside it so the change moves no governed
-constant; ``repair/rounds.py`` composes it after ``recover_section_authoring_output``.
+constant; ``repair/rounds.py`` composes it after ``recover_section_authoring_output``. The same
+composition also deletes, in the opening, an audience claim no accepted fact states
+(``audience.strip_audience_units``), because this is the one initial-draft ``recover=`` every
+section's authoring call passes.
 """
 
 from __future__ import annotations
@@ -23,6 +26,10 @@ import copy
 import dataclasses
 from typing import Any
 
+from repository_presenter.components.readme.composition.audience import (
+    strip_audience_units,
+    support_texts,
+)
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     recover_section_authoring_output,
@@ -119,8 +126,13 @@ def recover_section_authoring_with_type_fallback(
 ) -> dict[str, Any] | None:
     """``section_authoring``'s initial-draft ``recover=``: every correction
     ``recover_section_authoring_output`` makes, then the type-description fallback above on
-    whatever those left. ``None`` only when neither changed anything."""
+    whatever those left, then the deletion of an audience claim no accepted fact states
+    (``audience.strip_audience_units``; the opening only). ``None`` only when none changed
+    anything."""
     changed = recover_section_authoring_output(output, slot_titles=slot_titles) is not None
     if recover_unevidenced_type_descriptions(output, task=task, facts=facts, name=name) is not None:
+        changed = True
+    support = support_texts(task.accepted_ids, facts)
+    if strip_audience_units(output, support, task.section_id) is not None:
         changed = True
     return output if changed else None
