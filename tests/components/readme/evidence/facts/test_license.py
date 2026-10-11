@@ -8,8 +8,9 @@ from repository_presenter.components.readme.evidence.facts.license import (
     DECLARED_LICENSE_DETAIL,
     classify_license_text,
     license_facts,
+    settle_declared_license,
 )
-from repository_presenter.core.facts import Evidence
+from repository_presenter.core.facts import Evidence, Fact
 
 
 def test_classifies_known_license_texts() -> None:
@@ -90,3 +91,64 @@ def test_a_notices_file_is_a_fact_with_or_without_a_license(tmp_path: Path) -> N
         "license:spdx",
         "third_party_notices:file",
     ]
+
+
+def _license_pair(spdx: str = "MIT") -> list[Fact]:
+    return [
+        Fact("license:file", "license", "LICENSE", (Evidence("LICENSE"),)),
+        Fact(
+            "license:spdx",
+            "license",
+            spdx,
+            (Evidence("LICENSE", "license text states this license"),),
+        ),
+    ]
+
+
+def _declared(value: str) -> Fact:
+    return Fact(
+        "package:license",
+        "package",
+        value,
+        (Evidence("pyproject.toml", "license declared by the manifest"),),
+    )
+
+
+def test_a_custom_reference_the_manifest_declares_beside_an_mit_file_is_not_supported() -> None:
+    """Wave-3 acceptance review, Note-Python: `license = "LicenseRef-Aspose-Split"` beside an MIT
+    LICENSE became 'distributed under the LicenseRef-Aspose-Split license' in Scope. The file's
+    text is the licence a reader is given; the declaration stays as evidence of the conflict."""
+    facts = [*_license_pair(), _declared("LicenseRef-Aspose-Split")]
+    settled = {f.id: f for f in settle_declared_license(facts)}
+    declaration = settled["package:license"]
+    assert (declaration.polarity, declaration.value) == ("UNRESOLVED", "LicenseRef-Aspose-Split")
+    assert declaration.evidence[:1] == facts[2].evidence
+    assert "states MIT" in (declaration.evidence[-1].detail or "")
+    assert settled["license:spdx"].polarity == "SUPPORTED"  # the file's text still decides
+
+
+def test_a_different_recognised_licence_conflicts_and_an_agreeing_or_unclassifiable_one_stays() -> (
+    None
+):
+    different = settle_declared_license([*_license_pair(), _declared("Apache License Version 2.0")])
+    assert {f.id: f.polarity for f in different}["package:license"] == "UNRESOLVED"
+    # Controls: the same licence in other words, a dual-licence expression this module cannot
+    # classify, a repository with no licence file, and an unclassified licence file change nothing.
+    for value in ("MIT", "MIT License", "MIT OR Apache-2.0"):
+        facts = [*_license_pair(), _declared(value)]
+        assert settle_declared_license(facts) == facts
+    no_file = [_declared("LicenseRef-Aspose-Split")]
+    assert settle_declared_license(no_file) == no_file
+    unclassified = [
+        Fact("license:file", "license", "LICENSE", (Evidence("LICENSE"),)),
+        Fact(
+            "license:spdx",
+            "license",
+            "UNCLASSIFIED",
+            (Evidence("LICENSE"),),
+            polarity="UNRESOLVED",
+            confidence=0.0,
+        ),
+        _declared("LicenseRef-Aspose-Split"),
+    ]
+    assert settle_declared_license(unclassified) == unclassified

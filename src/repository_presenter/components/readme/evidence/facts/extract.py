@@ -17,14 +17,22 @@ from repository_presenter.components.readme.evidence.facts.commands import (
 )
 from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
-from repository_presenter.components.readme.evidence.facts.license import license_facts
+from repository_presenter.components.readme.evidence.facts.license import (
+    license_facts,
+    settle_declared_license,
+)
 from repository_presenter.components.readme.evidence.facts.links import link_facts
-from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    ENTERPRISE_FACT_ID,
+    enterprise_from_readme_link,
+    product_page_facts,
+)
 from repository_presenter.components.readme.evidence.facts.published_version import (
     PACKAGE_NAME_FACT_ID,
     pin_install_version,
     published_version_fact,
 )
+from repository_presenter.components.readme.evidence.facts.registry_lag import registry_lag_fact
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.components.readme.extractors.surface.doc_text import usable_symbol_docs
@@ -387,6 +395,12 @@ def extract_facts(
             clone_path, snapshot.license_path, snapshot.notices_path, declared, declared_in
         )
     )
+    # The manifest's declaration is held to the license file's own text (one licence, stated once).
+    facts[:] = settle_declared_license(facts)
+    # The registry's release lags this source tree (manifest ahead, or unreleased changelog work).
+    lag = registry_lag_fact(facts, clone_path, tree_paths)
+    if lag is not None:
+        facts.append(lag)
     ecosystem_spec = SPECS.get(entry.ecosystem)
     facts.extend(
         asset_facts(
@@ -416,6 +430,10 @@ def extract_facts(
         link_records, link_probes = link_facts(snapshot.readme_path, readme_bytes, tree_paths)
         facts.extend(link_records)
         probes.extend(link_probes)
+        # An ambiguous Enterprise Edition lookup is settled by the README's own verified link.
+        settled = enterprise_from_readme_link(facts)
+        if settled is not None:
+            facts[:] = [settled if fact.id == ENTERPRISE_FACT_ID else fact for fact in facts]
     document = FactsDocument(
         repository=entry.repository,
         source_revision=snapshot.source_revision,

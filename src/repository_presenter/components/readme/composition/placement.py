@@ -466,6 +466,19 @@ def resolve_intra_document_anchors(text: str, planned_slugs: frozenset[str]) -> 
     return _INTRA_DOC_ANCHOR.sub(resolve, text)
 
 
+def _table_owes_its_rows(unit_id: str, destination: str) -> bool:
+    """A kept table destined for Scope and Limitations is printed, never dropped as overlap.
+
+    The overlap rule presumes the destination's authored prose states what a dropped unit said.
+    A list handed to the limitation slots is held to every item (``list_coverage``, BC-05), but
+    no slot is handed a table and nothing judges its rows, so a limitations table moved there was
+    dropped on one shared fact (``package:name``, which nearly every unit cites) and the section
+    kept only the positive bullets: Slides-.NET lost its 'Not in the public API' and 'Save
+    formats' tables, 13 verified API gaps and 18 of 21 refused save formats (wave-3 acceptance
+    review, reseal f69f75c7). The rows are the limitation, so the table renders as written."""
+    return unit_id.endswith(".table") and destination == "scope_limitations"
+
+
 def placements(
     plan: dict[str, Any], dispositions: dict[str, Any], facts: FactsDocument, ecosystem: str
 ) -> list[Placement]:
@@ -511,9 +524,15 @@ def placements(
         overlap = (
             ()
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
+            or _table_owes_its_rows(unit_id, destination)
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
-        if not overlap and unit_id in covered and not unit_id.endswith(".code_block"):
+        if (
+            not overlap
+            and unit_id in covered
+            and not unit_id.endswith(".code_block")
+            and not _table_owes_its_rows(unit_id, destination)
+        ):
             # The plan handed this very unit to a slot of the destination (a limitation's
             # ``unit_ids``): the composer states it there, so printing it as written as well
             # states it twice (Cells .NET 941814fd: the Scope list, LST-01).

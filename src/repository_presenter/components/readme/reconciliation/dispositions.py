@@ -57,6 +57,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.evidence.facts.registry_lag import REGISTRY_LAG_FACT_ID
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
@@ -624,6 +625,33 @@ OMIT_VERIFIED_EXAMPLE = "omit_verified_example"
 OMIT_NAMES_SUPPORTED = "omit_names_supported"
 UNCOVERED_SUPERSESSION = "uncovered_supersession"
 SUPPORTED_OMISSION = "supported_omission"
+OMIT_VERSION_SKEW = "omit_version_skew"
+
+# A sentence warning that the registry's release lags this source tree ("The PyPI release predates
+# the source tree behind this page", "the changes under [Unreleased] are not in that release"). Two
+# conditions, so a sentence that merely mentions a release or a changelog is not one: a lag word,
+# and a release/registry word beside it. Run over the 46 distinct fact sets of the 41 sealed
+# bundles it matches only Slides-Python's two warnings.
+_SKEW_WARNING = re.compile(
+    r"\b(?:predate[sd]?|lags?\s+behind|behind\s+the\s+(?:source|repository|main|latest)"
+    r"|ahead\s+of\s+the\s+(?:release|published|registry|pypi|npm|nuget|maven|crates)"
+    r"|newer\s+than\s+(?:the\s+)?(?:release|published|registry|pypi|npm|nuget|maven|crates)"
+    r"|unreleased|not\s+(?:yet\s+)?(?:in|part\s+of|included\s+in)\s+(?:that|the|this)\s+"
+    r"(?:published\s+)?(?:release|version|package|build))\b",
+    re.IGNORECASE,
+)
+_SKEW_CONTEXT = re.compile(
+    r"\b(?:release|registry|pypi|npm|nuget|maven|crates\.io|published|package|version)\b",
+    re.IGNORECASE,
+)
+
+
+_SKEW_KINDS = frozenset({"paragraph", "list", "blockquote"})
+
+
+def is_version_skew_warning(text: str) -> bool:
+    """Whether ``text`` warns that the registry's release lags the source tree."""
+    return bool(_SKEW_WARNING.search(text) and _SKEW_CONTEXT.search(text))
 
 
 @dataclass(frozen=True)
@@ -676,6 +704,8 @@ class _Coverage:
     commands: frozenset[str]
     lead: frozenset[str]
     commands_blocks: frozenset[str]
+    # ``package:registry_lag``'s evidence, when the registry's release lags this source tree.
+    lag: str = ""
 
     def text(self, unit_id: str) -> str:
         unit = self.units.get(unit_id)
@@ -791,6 +821,12 @@ def coverage_context(facts: FactsDocument) -> _Coverage:
         commands=_rendered_commands(facts),
         lead=_lead_paragraphs(units),
         commands_blocks=frozenset(command_block_units(facts)),
+        lag="; ".join(
+            f"{e.path}: {e.detail}"
+            for f in facts.facts
+            if f.id == REGISTRY_LAG_FACT_ID and f.polarity == "SUPPORTED"
+            for e in f.evidence
+        ),
     )
 
 
@@ -951,6 +987,15 @@ def _omission_gap(unit_id: str, entry: Mapping[str, Any], ctx: _Coverage) -> tup
         if polarity == "SUPPORTED":
             return (OMIT_VERIFIED_EXAMPLE, f"its example {example_id} is verified")
         return None
+    if ctx.lag and kind in _SKEW_KINDS and is_version_skew_warning(ctx.text(unit_id)):
+        # Whatever it cites: the model compared version numbers that agree ("contradicted by
+        # package:version and package:published_version both being 26.8.0", Slides-Python) when
+        # the claim is about what lies between them, and the facts verify it.
+        return (
+            OMIT_VERSION_SKEW,
+            f"it warns that the registry's release lags this source tree, which "
+            f"{REGISTRY_LAG_FACT_ID} verifies ({ctx.lag})",
+        )
     if entry.get("fact_ids") or kind in _PROSE_UNIT_KINDS:
         # A cited reason stands; an uncited prose omission is placement_errors' own rule.
         return None
@@ -1645,6 +1690,10 @@ _OMISSION_ACTION = {
     "renders every verified example there) or place it; do not omit a verified example",
     OMIT_NAMES_SUPPORTED: "Cite the facts that support it and place it, or choose "
     "DEFER_UNRESOLVED if no fact settles its claim",
+    OMIT_VERSION_SKEW: "The warning is the maintainers' own and true: keep it "
+    "(VERIFIED_PRESERVE or VERIFIED_MOVE into scope_limitations, where the limits of the "
+    "registry release belong) so a reader who installs from the registry is told what that "
+    "release lacks; do not omit it",
 }
 _QUOTE_LIMIT = 600
 

@@ -360,3 +360,45 @@ def test_the_registry_judge_routes_the_exclusivity_finding_to_its_section() -> N
     )
     [failure] = _check_claims(candidate)
     assert failure.stage == "COMPOSING" and failure.section == "api_reference"
+
+
+# --- rule (e): the licence is stated once, by the licence fact (wave-3 acceptance, Note-Python) ---
+LICENSE_FACTS = (
+    _fact("package:name", "package", "aspose-note-foss"),
+    _fact("license:spdx", "license", "MIT", "license text states this license"),
+)
+
+
+def test_a_scope_sentence_naming_a_license_reference_beside_an_mit_license_is_flagged() -> None:
+    readme = (
+        "# Aspose.Note FOSS\n\nIt supports Python 3.10 and later, and is distributed under the "
+        "LicenseRef-Aspose-Split license.\n\n## License\n\n"
+        "This project is licensed under the [MIT License](LICENSE).\n"
+    )
+    [finding] = claim_findings(readme, _facts(*LICENSE_FACTS))
+    assert finding.stage == "COMPOSING" and finding.line == 2
+    assert "LicenseRef-Aspose-Split" in finding.detail and "states MIT" in finding.detail
+
+
+def test_a_different_recognised_license_is_flagged_and_the_facts_own_is_not() -> None:
+    other = "The package is released under the Apache License 2.0 terms.\n"
+    assert claim_findings(other, _facts(*LICENSE_FACTS)) == []  # not classifiable: left alone
+    different = "The project is licensed under the BSD 3-Clause license.\n"
+    [finding] = claim_findings(different, _facts(*LICENSE_FACTS))
+    assert "BSD-3-Clause" in finding.detail
+    same = "The project is distributed under the MIT license.\n"
+    assert claim_findings(same, _facts(*LICENSE_FACTS)) == []
+
+
+def test_the_license_rule_is_silent_without_a_supported_license_fact_or_inside_a_fence() -> None:
+    readme = "Distributed under the LicenseRef-Aspose-Split license.\n"
+    assert claim_findings(readme, _facts(LICENSE_FACTS[0])) == []
+    unclassified = _fact("license:spdx", "license", "UNCLASSIFIED", polarity="UNRESOLVED")
+    assert claim_findings(readme, _facts(LICENSE_FACTS[0], unclassified)) == []
+    fenced = "```text\nLicenseRef-Aspose-Split\n```\n"
+    assert claim_findings(fenced, _facts(*LICENSE_FACTS)) == []
+
+
+def test_a_sentence_about_a_dependencys_or_fonts_license_is_not_the_projects_statement() -> None:
+    readme = "The optional PDF dependency is distributed under the BSD 3-Clause license.\n"
+    assert claim_findings(readme, _facts(*LICENSE_FACTS)) == []

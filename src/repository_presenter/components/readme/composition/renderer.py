@@ -62,6 +62,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.examples import printed_example
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
 from repository_presenter.core.registry.models import RegistryEntry
@@ -1072,7 +1073,7 @@ def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[st
     # the heading it becomes is the template's, so capitalisation is applied here, not asked of
     # the model (verification V2 item 8: 20 of 29 sealed bundles carried sentence-case headings).
     heading = to_title_case(task, context.abbreviations)
-    return ["", f"### {heading}", "", *_code_block(context.spec.fence, example.value)]
+    return ["", f"### {heading}", "", *_code_block(context.spec.fence, printed_example(example))]
 
 
 def _section_body(context: RenderContext, section: Section) -> list[str]:
@@ -1114,13 +1115,13 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         example = context.fact(plan.get("quick_start_example_id", ""))
         if example is not None:
             lines.append("")
-            lines.extend(_code_block(context.spec.fence, example.value))
+            lines.extend(_code_block(context.spec.fence, printed_example(example)))
         second = context.fact(plan.get("second_quick_start_example_id") or "")
         if second is not None:
             lines.append("")
             lines.append(context.unit(sid, "lead_in:2"))
             lines.append("")
-            lines.extend(_code_block(context.spec.fence, second.value))
+            lines.extend(_code_block(context.spec.fence, printed_example(second)))
     elif sid == "additional_examples":
         # README_CONTRACT.md section 2 row 12: one lead-in; one flagship example visible under
         # its own task-named heading when the plan selects one; then a single details block

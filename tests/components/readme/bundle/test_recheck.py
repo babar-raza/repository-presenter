@@ -36,6 +36,7 @@ from repository_presenter.components.readme.bundle.recheck import (
 from repository_presenter.components.readme.bundle.seal import code_dependencies
 from repository_presenter.components.readme.composition import audience
 from repository_presenter.components.readme.composition.renderer import render_patch
+from repository_presenter.components.readme.validation import deferrals
 from repository_presenter.core.candidates import BundleError, verify_bundle
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import find_entry, load_registry
@@ -164,11 +165,21 @@ def _without_the_audience_rule(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(audience, "AUDIENCE_SECTIONS", frozenset())
 
 
+def _without_the_deferral_escalations(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The committed BarCode-Python bundle was sealed before an advisory deferral had to be backed
+    by the README: its Enterprise Edition paragraph, whose link the upstream's own README verified,
+    was deferred as "no verified target" and never rendered. A test about a currency state that is
+    not that rule switches it off here; ``test_a_sealed_deferral_the_readme_does_not_back_...``
+    pins what the rule does to this very bundle."""
+    monkeypatch.setattr(deferrals, "ESCALATIONS", {})
+
+
 def test_constants_bumped_with_no_behavior_change_leave_the_bundle_rechecked_current(
     fixture: Fixture, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The point of the whole design: a version moved, nothing the bundle consumed changed."""
     _without_the_audience_rule(monkeypatch)
+    _without_the_deferral_escalations(monkeypatch)
     fixture.move("components", "renderer", to="0")
     fixture.move("components", "normalisation", to="0")
     fixture.move("validator_version", to="0")
@@ -264,6 +275,22 @@ def test_a_sealed_opening_naming_an_unsupported_audience_gives_update_required(
     assert any("audience" in failure for failure in _scope(result, "authoring").failures)
 
 
+def test_a_sealed_deferral_the_readme_does_not_back_gives_update_required(
+    fixture: Fixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Wave-3 acceptance review: an advisory deferral that hid a true loss. The sealed bundle
+    deferred its Enterprise Edition paragraph for want of a target although the upstream's own link
+    was verified; the validator scope finds it when the validator moves, and the bundle needs the
+    extraction fix and a recompose rather than a silent pass."""
+    _without_the_audience_rule(monkeypatch)
+    fixture.move("validator_version", to="0")
+    fixture.move("validators", "BC-05", to="0")
+    result = fixture.recheck()
+    assert (result.currency, result.cost) == (UPDATE_REQUIRED, "recompose")
+    failures = _scope(result, "validator").failures
+    assert any("ENTERPRISE_NO_VERIFIED_TARGET" in failure for failure in failures)
+
+
 def test_a_presentation_only_difference_is_the_cheap_rerender_only_update(
     fixture: Fixture, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -323,6 +350,7 @@ def test_a_check_the_sealed_record_lacks_is_run_and_its_failure_is_reported(
 ) -> None:
     """BC-12 failed on 3 sealed bundles and was never reported: the record had no BC-12 row."""
     _without_the_audience_rule(monkeypatch)
+    _without_the_deferral_escalations(monkeypatch)
     fixture.move("validators", "BC-12", to=None)
     validation = json.loads((fixture.bundle / "validation.json").read_text(encoding="utf-8"))
     validation["checks"] = [c for c in validation["checks"] if c["id"] != "BC-12"]

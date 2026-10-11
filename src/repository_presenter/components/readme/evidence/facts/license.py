@@ -120,3 +120,56 @@ def license_facts(
             )
         )
     return facts + notices
+
+
+_CUSTOM_REFERENCE = re.compile(r"^LicenseRef-", re.IGNORECASE)
+
+
+def settle_declared_license(facts: list[Fact]) -> list[Fact]:
+    """The manifest's licence declaration, held to the licence file's own text.
+
+    A repository whose LICENSE text states one licence while its manifest declares another
+    (Note-Python: an MIT LICENSE beside ``license = "LicenseRef-Aspose-Split"``) has two answers to
+    one question, and only the file's text is the licence a reader is given. The declaration
+    stays in the facts as evidence of the conflict but is no longer SUPPORTED, so nothing can cite
+    it as the project's licence: the candidate's Scope read "distributed under the LicenseRef-
+    Aspose-Split license" beside the License section's MIT (wave-3 acceptance review).
+
+    Only a declaration that names a different recognised licence, or a custom ``LicenseRef-``
+    reference no reader can resolve, conflicts; an expression this module cannot classify (a
+    dual licence, ``MIT OR Apache-2.0``) is not contradicted by anything and is left alone. A
+    repository with no licence file keeps its declaration as the ``license:spdx`` fact
+    (``license_facts``), so there is nothing to settle there."""
+    spdx = next((f for f in facts if f.id == fact_id("license", "spdx")), None)
+    has_file = any(f.id == fact_id("license", "file") for f in facts)
+    if spdx is None or not has_file or spdx.polarity != "SUPPORTED" or spdx.value == "UNCLASSIFIED":
+        return facts
+    settled: list[Fact] = []
+    for fact in facts:
+        declared = fact.value if fact.id == fact_id("package", "license") else None
+        known = classify_declaration(declared) if declared else None
+        conflicts = declared is not None and (
+            (known is not None and known != spdx.value) or _CUSTOM_REFERENCE.match(declared)
+        )
+        if not conflicts or fact.polarity != "SUPPORTED":
+            settled.append(fact)
+            continue
+        settled.append(
+            Fact(
+                fact.id,
+                fact.kind,
+                fact.value,
+                (
+                    *fact.evidence,
+                    Evidence(
+                        spdx.evidence[0].path,
+                        f"the license file's text states {spdx.value}; the manifest's "
+                        "declaration is not the license a reader is given",
+                    ),
+                ),
+                polarity="UNRESOLVED",
+                confidence=0.5,
+                attributes=fact.attributes,
+            )
+        )
+    return settled

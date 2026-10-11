@@ -43,6 +43,7 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -2889,3 +2890,73 @@ def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before()
         readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
     )
     assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []
+
+
+def test_bc03_holds_a_printed_example_to_the_program_its_receipt_compiled(tmp_path: Path) -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied a `using` that the README never
+    printed, so three of seven printed examples did not compile. The renderer now prints the
+    receipt's prelude in front of the snippet, and BC-03 accepts that fence and only that fence: a
+    fence that drops the supplied lines is no longer the verified program."""
+    prelude = "import math"
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(
+                fact.id,
+                fact.kind,
+                fact.value,
+                fact.evidence,
+                polarity=fact.polarity,
+                attributes={PRELUDE_ATTRIBUTE: prelude} if fact.id == "example:001" else None,
+            )
+            for fact in BASE_FACTS
+        ),
+    )
+    candidate = _candidate(facts=facts)
+    assert f"```python\n{prelude}\n{EXAMPLE}" in candidate.readme
+    assert "BC-03" not in {
+        f["id"] for f in blocking_failures(validate_candidate(candidate, tmp_path, ()))
+    }
+
+    stripped = _candidate(candidate.readme.replace(f"{prelude}\n", "", 1), facts=facts)
+    failing = _failed(validate_candidate(stripped, tmp_path, ()), "BC-03")
+    assert "not a planned verified example" in failing["details"][0]
+
+
+def test_bc07_refuses_a_sentence_that_points_at_a_table_the_readme_does_not_have(
+    tmp_path: Path,
+) -> None:
+    """Wave-3 acceptance review: Cells-.NET kept 'the table below' with no table, Slides-.NET kept
+    'Every example below' after its last example. Authored prose is routed to its section."""
+    dangling = "\nThe table below summarizes the supported surface.\n"
+    failing = _failed(
+        validate_candidate(_candidate(_candidate().readme + dangling), tmp_path, ()), "BC-07"
+    )
+    detail = next(d for d in failing["details"] if "dangling reference" in d)
+    assert "no table follows it" in detail
+    assert failing["causal_stage"] == "COMPOSING"
+    # Control: the same sentence with its table is a promise something keeps.
+    kept = dangling + "\n| Area | Status |\n| --- | --- |\n| Scenes | supported |\n"
+    passing = validate_candidate(_candidate(_candidate().readme + kept), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(passing)}
+
+
+def test_bc07_routes_a_kept_sentence_whose_referent_was_dropped_to_reconciliation(
+    tmp_path: Path,
+) -> None:
+    """A placed inherited paragraph is verbatim: only reconciliation can drop or rewrite it."""
+    sentence = "The table below summarizes the supported surface."
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(f.id, f.kind, sentence, f.evidence, polarity=f.polarity)
+            if f.id == "inherited_unit:002.paragraph"
+            else f
+            for f in BASE_FACTS
+        ),
+    )
+    failing = _failed(validate_candidate(_candidate(facts=facts), tmp_path, ()), "BC-07")
+    assert failing["causal_stage"] == "RECONCILING"
+    assert any("inherited_unit:002.paragraph is kept as written" in d for d in failing["details"])
