@@ -18,7 +18,7 @@ import hashlib
 import json
 import os
 import re
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from types import MappingProxyType
@@ -382,6 +382,10 @@ _TYPE_OBJECTIVE = (
 # 35: CUT-4 (G3-W08): the re-ask names every violation and narrows to the failing slots, text
 # hygiene
 # and the audience guard run in the unit checks. A bundle sealed under 34 re-checks under 35.
+# Also in 35 (L-q1, wave-4 triage causes 1 and 4; no further bump, the cut is unreleased): a kept
+# list's unstated item is no longer a refusal (placement prints it), the stray-identifier check
+# judges a slash-joined pair name by name, and the title-restatement test sees lowerCamel and
+# I-prefixed members and matches whole words.
 NORMALISATION_VERSION = "35"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
@@ -609,9 +613,10 @@ class SectionTask:
     # reconciliation disposition names. A refusal quotes it back, so the re-ask carries what the
     # unit says, not only its ID (a bare ID let a second reply omit it unchanged).
     must_carry_text: Mapping[str, str] = field(default_factory=dict)
-    # The list units kept as written that placement dropped from this section and whose slots
-    # the plan does not bind, so the section's authored units owe every item (list_coverage.py,
-    # LST-01). A bound section is owed the lists the plan handed to a slot (slot_facts).
+    # The list units kept as written that placement drops from this section when its own content
+    # covers them, in a section whose slots the plan does not bind: the objective names them so
+    # the units fold their items in (list_coverage.py, LST-01); an item they leave out is printed
+    # as written. A bound section is told of the lists the plan handed to a slot (slot_facts).
     owed_lists: frozenset[str] = frozenset()
 
     @property
@@ -1138,9 +1143,10 @@ def owed_list_units(
     slot_facts: Mapping[str, frozenset[str]],
 ) -> frozenset[str]:
     """The list units kept as written that placement drops from ``section`` as covered by its own
-    content, in a section whose slots the plan does not bind (Development and Testing): nothing
-    else prints them, so the section's units owe every item (list_coverage.py, LST-01). A bound
-    section is owed the lists the plan handed to a slot instead (planning.plan_checks)."""
+    content, in a section whose slots the plan does not bind (Development and Testing): the
+    objective names them, so the section's units fold their items in and placement prints the rest
+    (list_coverage.py, LST-01). A bound section is told of the lists the plan handed to a slot
+    instead (planning.plan_checks)."""
     if section not in OWED_SECTIONS or slot_facts:
         return frozenset()
     kept = {
@@ -1262,12 +1268,17 @@ def authoring_tasks(
             set().union(*slot_facts.values()) | owed if slot_facts else owed,
             facts,
         )
-        # A list reconciliation kept as written is not printed beside the section's own content
-        # (placement.py drops it as covered), so every item must reach a unit; naming the lists in
-        # the objective is what makes the first reply state them (list_coverage.py, LST-01).
+        # A list reconciliation kept as written is dropped by placement.py only for the items the
+        # section's own content states, and printed as written for the rest. Naming the lists in
+        # the objective is what makes the first reply fold their items into the units where they
+        # fit (list_coverage.py, LST-01); an item it leaves out is printed, never refused, so a
+        # list longer than its slots, or an item naming an identifier no fact carries, cannot
+        # deadlock the authoring call (wave-4 triage, cause 1).
         carry_rule += (
-            "Lists kept as written, every item of which your units must state - fold related "
-            "items into one unit, in plain words, and cite the list in it: "
+            "Lists kept as written, whose items your units may fold into plain words where they "
+            "fit (cite the list in that unit); any item you leave out is printed as written "
+            "after your units, so never spell an identifier you were not given just to cover an "
+            "item: "
             + ", ".join(
                 f"{unit} ({len(list_items(text))} items)" for unit, text in kept_lists_owed.items()
             )
@@ -1459,6 +1470,63 @@ def identifier_tokens(text: str) -> set[str]:
     # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
     # as the contract's canonical abbreviations are, never an identifier.
     return {token for token in found if not (token.isupper() and token.isalnum())}
+
+
+# The final segment of a name that is a file, not a member: a token ending in one is a path.
+_FILE_SUFFIXES = frozenset(
+    {"cs", "csproj", "sln", "md", "txt", "json", "yml", "yaml", "xml", "toml", "cfg", "ini", "lock"}
+    | {"gradle", "kts", "java", "py", "js", "ts", "go", "rs", "cpp", "h", "hpp", "html", "css"}
+    | {"sh", "mod", "sum", "pom", "dat", "csv"}
+)
+_BARE_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+_DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+\Z")
+
+
+def slash_alternatives(token: str) -> list[tuple[str, str]] | None:
+    """The names a slash-joined shorthand stands for, each as ``(judged, shown)``; ``None`` when
+    ``token`` is a path instead.
+
+    Prose writes alternatives with a slash - ``Scene.Open/Scene.Save``, ``NurbsCurve.Evaluate/
+    EvaluateAt``, ``maven.compiler.source/target`` - and ``_MODULE_PATH`` reads each as ONE
+    slash-delimited module path, which no fact spells, although every half is a name of its own
+    (wave-4 triage, cause 4: 3D .NET, PDF Java, HTML Python, Cells Java were refused for the pair
+    while both names were accepted; the refusal named neither half, so the re-ask could not tell
+    which was wrong). A bare half borrows the first name's namespace and is judged as
+    ``maven.compiler.target`` but shown as the whole token, the only place the model wrote it.
+    A half with a hyphen, a leading digit or a file suffix makes the whole a path
+    (``github.com/aspose-pdf-foss/x``, ``Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj``): it is judged as
+    the single token it always was, so no path is accepted for its halves.
+    """
+    parts = token.split("/")
+    if len(parts) < 2 or not all(parts) or not _DOTTED_NAME.match(parts[0]):
+        return None
+    namespace = parts[0].rsplit(".", 1)[0]
+    names = [(parts[0], parts[0])]
+    for part in parts[1:]:
+        if _BARE_NAME.match(part):
+            names.append((f"{namespace}.{part}", token))
+        elif _DOTTED_NAME.match(part):
+            names.append((part, part))
+        else:
+            return None
+    if any(judged.rsplit(".", 1)[-1].lower() in _FILE_SUFFIXES for judged, _ in names):
+        return None
+    return names
+
+
+def stray_identifiers(tokens: Iterable[str], unaccepted: Callable[[str], bool]) -> list[str]:
+    """The identifiers among ``tokens`` that ``unaccepted`` refuses, sorted, each once.
+
+    A slash-joined shorthand for alternatives (:func:`slash_alternatives`) is judged name by name:
+    the refusal names the half no fact spells instead of the pair, and names nothing when both
+    halves are accepted. When neither half is, the shorthand is refused as the single token it was.
+    """
+    found: list[str] = []
+    for token in sorted(filter(unaccepted, tokens)):
+        names = slash_alternatives(token)
+        bad = [shown for judged, shown in names if unaccepted(judged)] if names else []
+        found.extend(bad if names and len(bad) < len(names) else [token])
+    return sorted(dict.fromkeys(found))
 
 
 def mask_allowed_values(text: str, allowed: Iterable[str]) -> str:
@@ -1957,13 +2025,30 @@ def unit_example_action_mismatches(unit: Mapping[str, Any], facts: FactsDocument
     return errors
 
 
+# Member names that title_terms (identifier_tokens) cannot see: a lowerCamel method of a Java or
+# TypeScript API (setCustomPropertyValue) and an I-prefixed interface (IDocumentProperties). They
+# are member-level detail all the same.
+_MEMBER_NAME = re.compile(
+    r"\b(?:[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)+|I[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)*)\b"
+)
+
+
 def restates_own_title(text: str, title: str, facts: FactsDocument) -> bool:
-    """Whether ``text`` says nothing its slot ``title`` does not: the title appears in it and no
-    identifier or format term beyond the title's own does (the item 99/106 rule ``unit_checks``
-    applies, shared with S8's ``recover_coherence_title_restatements`` so both judge one way)."""
-    return title.lower() in text.lower() and not (
-        title_terms(text, facts) - title_terms(title, facts)
-    )
+    """Whether ``text`` says nothing its slot ``title`` does not: the title appears in it as whole
+    words and no identifier or format term beyond the title's own does (the item 99/106 rule
+    ``unit_checks`` applies, shared with S8's ``recover_coherence_title_restatements`` so both
+    judge one way).
+
+    Wave-4 triage, section 6: ``Document properties`` was found in a unit that went on to name
+    ``IDocumentProperties`` and ``setCustomPropertyValue`` (Slides-Java), yet it was refused as a
+    stutter in three identical replies, because the terms test only saw PascalCase and dotted
+    names - the item-106 carve-out was measured on .NET alone. A lowerCamel or I-prefixed member
+    name counts as detail too. And ``Email submission`` is not found in ``Email submissions``
+    (JMAP-Java): a title is restated when its words are, not when its letters happen to be."""
+    if not re.search(rf"(?<![A-Za-z0-9]){re.escape(title.lower())}(?![A-Za-z0-9])", text.lower()):
+        return False
+    added = title_terms(text, facts) | set(_MEMBER_NAME.findall(text))
+    return not (added - title_terms(title, facts) - set(_MEMBER_NAME.findall(title)))
 
 
 def restated_command_lines(text: str, lines: Iterable[str]) -> list[str]:
@@ -2209,13 +2294,17 @@ def unit_checks(
             if task.section_id == "scope_limitations"
             else [fact_id for fact_id in unit_fact_ids if fact_id in task.must_carry],
         )
-        strays = sorted(
-            token
-            for token in identifier_tokens(mask_allowed_values(text, allowed))
-            if not identifier_allowed(token, allowed, members, methods)
-            and token not in nouns
-            and token not in cited_inherited
-            and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
+
+        def unaccepted(token: str, cited: frozenset[str] = cited_inherited) -> bool:
+            return (
+                not identifier_allowed(token, allowed, members, methods)
+                and token not in nouns
+                and token not in cited
+                and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
+            )
+
+        strays = stray_identifiers(
+            identifier_tokens(mask_allowed_values(text, allowed)), unaccepted
         )
         if strays:
             pool = (

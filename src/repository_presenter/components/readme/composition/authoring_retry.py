@@ -20,7 +20,10 @@ the rest of the unit-level remedy:
   those slots, with the complete defect list and the unit each one replaces), so it is not a third
   equivalent attempt, and the accepted units are kept exactly as the second reply gave them.
   Whatever the merged reply gets wrong is judged by the ordinary checks; a rejection that names no
-  slot (a must-carry unit nobody cited) cannot be narrowed and fails as before.
+  slot (a must-carry unit nobody cited) cannot be narrowed and fails as before. A slot the second
+  reply returned exactly as the first did (:func:`repeated_slots`) was not changed by being told,
+  so for it the narrowed ask changes the evidence - it says the unit was returned twice and
+  rejected twice, and what changing it means - instead of putting the same question a third time.
 * :func:`recover_restating_sentences` - the deterministic last resort that removes a sentence only
   when it restates something the page already prints (the slot's title; a command the renderer
   prints verbatim beside the unit). It never rewrites a word and never touches a unit that does
@@ -55,12 +58,22 @@ from repository_presenter.core.llm.jobs import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest
 
 _SLOT_SET_ERROR = "units must fill exactly these slots once each"
-# list_coverage names the slots that owe a kept list's items:
-# "Fold each into a unit citing X (a, b)".
-_LIST_SLOTS = re.compile(r"Fold each into a unit citing \S+ \((?P<slots>[^)]*)\)")
 # Accepted units are shown to the narrowed ask so it does not repeat them; a long section shows
 # the first of them only, which is all a sentence-level repeat needs.
 _ACCEPTED_SHOWN_CHARS = 6000
+# Said to the narrowed ask for units the model returned unchanged after the re-ask told it what was
+# wrong (wave 4, Slides-Java and Slides-Cpp: the same text in all three replies). The model is told
+# the rule it keeps meeting and what changing the unit means for each kind of refusal, so the third
+# reply answers a different request instead of being the same answer a third time.
+_REPEATED_NOTE = (
+    "Your first two replies gave {slots} exactly as shown above, and both were rejected for the "
+    "reasons listed below, so that text is not to be returned again: it fails the job. Change each "
+    "unit named. Where a reason says an identifier is not an accepted fact value, delete the "
+    "clause that uses it, or say the same thing in plain words with no identifier in it (a reason "
+    "that names an accepted spelling near it offers that spelling instead); where a reason says "
+    "the unit restates its title or a command, say what the title or command does not, or leave "
+    "the sentence out."
+)
 # A sentence ends at ``.``/``!``/``?`` that follows a word and precedes a capital, a digit, a quote
 # or an opening bracket. A full stop standing alone ("ruff check . to lint") or followed by a
 # lower-case word ("e.g. the") ends nothing: cutting there would leave half a sentence behind.
@@ -68,17 +81,12 @@ _SENTENCE_BREAK = re.compile(r"(?<=\S[.!?])(\s+)(?=[A-Z0-9\"'(\[`])")
 
 
 def _slots_of(task: SectionTask, error: str) -> list[str] | None:
-    """The slots one rejection concerns: a unit's own refusal names it, a kept list names the units
-    that owe it. ``None`` when the rejection names no slot (a must-carry unit nobody cited, a
-    schema error), which no narrowed ask can address."""
+    """The slot one rejection concerns: a unit's own refusal names it. ``None`` when the rejection
+    names no slot (a must-carry unit nobody cited, a schema error), which no narrowed ask can
+    address."""
     for slot in sorted(task.slots, key=len, reverse=True):
         if error.startswith(f"unit {slot}: "):
             return [slot]
-    listed = _LIST_SLOTS.search(error)
-    if listed is not None:
-        named = [name.strip() for name in listed.group("slots").split(",")]
-        owed = [slot for slot in named if slot in task.slots]
-        return owed or None
     return None
 
 
@@ -154,9 +162,12 @@ def _objective(
     slots: Sequence[str],
     content: str,
     rejection: Sequence[str],
+    repeated: Sequence[str] = (),
 ) -> str:
     """The task's objective, re-stated for ``slots`` alone and followed by the correction: the
-    complete defect list, the unit each slot is to replace, and the units already accepted."""
+    complete defect list, the unit each slot is to replace, and the units already accepted. For
+    the slots the model returned unchanged after being told (``repeated``) the correction says
+    so: the same question put a third time is not a new attempt."""
     base = str(task.packet.get("objective", ""))
     objective = base.replace(slots_clause(task.slots), slots_clause(slots), 1)
     if objective == base and len(slots) != len(task.slots):
@@ -191,6 +202,8 @@ def _objective(
             "Already accepted, shown so that you do not repeat it:\n"
             + _listing(accepted, _ACCEPTED_SHOWN_CHARS)
         )
+    if repeated:
+        parts.append(_REPEATED_NOTE.format(slots=", ".join(repeated)))
     parts.append(reasons)
     return "\n\n".join(parts)
 
@@ -201,6 +214,7 @@ def _narrowed_task(
     slots: Sequence[str],
     content: str,
     rejection: Sequence[str],
+    repeated: Sequence[str] = (),
 ) -> SectionTask:
     wanted = tuple(slot for slot in task.slots if slot in set(slots))
     packet = dict(task.packet)
@@ -209,7 +223,7 @@ def _narrowed_task(
         for record in task.packet.get("slots", [])
         if isinstance(record, dict) and record.get("slot") in set(wanted)
     ]
-    packet["objective"] = _objective(task, manifest, wanted, content, rejection)
+    packet["objective"] = _objective(task, manifest, wanted, content, rejection, repeated)
     return dataclasses.replace(task, packet=packet, slots=wanted)
 
 
@@ -244,14 +258,24 @@ def _merge(task: SectionTask, merged: str, narrowed: str, slots: Sequence[str]) 
     return json.dumps({"units": units, "omitted": list(omitted.values())})
 
 
+def repeated_slots(first: str, second: str, slots: Sequence[str]) -> list[str]:
+    """The ``slots`` whose unit ``second`` gives exactly as ``first`` did - text, facts and all.
+    The universal re-ask quoted the complete defect list, so a unit returned unchanged was not
+    changed by being told: asking for it again with the same defects is the third equivalent
+    attempt (Slides-Java, Slides-Cpp, wave 4: the same text three times)."""
+    before = {str(unit.get("slot")): unit for unit in _units(first) or []}
+    after = {str(unit.get("slot")): unit for unit in _units(second) or []}
+    return [slot for slot in slots if slot in before and before[slot] == after.get(slot)]
+
+
 def authoring_narrowing(task: SectionTask, manifest: LoadedManifest) -> Narrowing:
     """The ``narrow`` argument of ``run_job`` for one section_authoring task: after the job's two
     asks, one more for only the slots whose units are still refused (see the module docstring)."""
 
     def ask(
-        slots: Sequence[str], content: str, rejection: Sequence[str]
+        slots: Sequence[str], content: str, rejection: Sequence[str], repeated: Sequence[str]
     ) -> tuple[Mapping[str, Any], dict[str, Any]]:
-        narrowed = _narrowed_task(task, manifest, slots, content, rejection)
+        narrowed = _narrowed_task(task, manifest, slots, content, rejection, repeated)
         return narrowed.packet, bound_authoring_citations(
             authoring_schema(manifest, narrowed), narrowed
         )
@@ -261,6 +285,7 @@ def authoring_narrowing(task: SectionTask, manifest: LoadedManifest) -> Narrowin
         ask=ask,
         merge=lambda merged, narrowed, slots: _merge(task, merged, narrowed, slots),
         subject="the units still failing",
+        repeated=repeated_slots,
     )
 
 
