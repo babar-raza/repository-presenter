@@ -13,7 +13,7 @@ def readme(filler: int) -> str:
     lines += ["mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.5.0", "```", ""]
     lines += ["## Notes", ""] + [f"Maintainer line {n}." for n in range(filler)]
     lines += ["", "## Development and Testing", "", "Run it the usual way.", "", "## License", ""]
-    return "\n".join(lines + ["MIT.", ""])
+    return "\n".join([*lines, "MIT.", ""])
 
 
 def commands(make_fact: Any) -> list[Any]:
