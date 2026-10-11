@@ -427,8 +427,20 @@ def reconciliation_narrowing(
         }
         return [unit_id for unit_id in by_id if unit_id in silent | refused]
 
+    def repeated(first: str, second: str, parts: Sequence[str]) -> list[str]:
+        """The units the second reply answered exactly as the first did."""
+        before, after = _entries_by_unit(first), _entries_by_unit(second)
+        return [
+            unit_id
+            for unit_id in parts
+            if unit_id in before and unit_id in after and before[unit_id] == after[unit_id]
+        ]
+
     def ask(
-        unit_ids: Sequence[str], content: str, rejection: Sequence[str]
+        unit_ids: Sequence[str],
+        content: str,
+        rejection: Sequence[str],
+        returned_twice: Sequence[str] = (),
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         wanted = frozenset(unit_ids)
         units = [fact for fact in batch_units if fact.id in wanted]
@@ -448,6 +460,12 @@ def reconciliation_narrowing(
             refusals = _refusals(unit.id, rejection)
             if refusals:
                 record["refused_because"] = refusals
+            if unit.id in returned_twice:
+                record["returned_twice"] = (
+                    "this unit was answered the same way twice and refused both times: a third "
+                    "identical answer will be refused again, so change the disposition or the "
+                    "destination"
+                )
             nearest = nearest_holdable(unit.id, heading, holdable, root)
             if nearest is not None:
                 record["nearest_section_that_can_hold_it"] = nearest
@@ -467,6 +485,7 @@ def reconciliation_narrowing(
         ask=ask,
         merge=lambda merged, narrowed, units: _replace_units(merged, narrowed, units),
         subject="the units still refused or silent",
+        repeated=repeated,
     )
 
 
