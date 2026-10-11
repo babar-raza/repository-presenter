@@ -355,6 +355,9 @@ def test_report_only_candidates_stay_in_the_bundle_and_out_of_the_pull_request(
     assert result.effected and result.pr_created
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
     assert "CHANGELOG.md" not in pull["body"]
-    assert pull["title"] == "docs(readme): 3 verified corrections"
+    assert pull["title"] == (
+        "docs(readme): show the current release (2.0.0) in the install snippets, "
+        "add the Dependencies section and add the published-version badge"
+    )
     branch_readme = rehearsal.rest.file(REPOSITORY, presenter_branch_name(), "README.md")
     assert branch_readme is not None and "CHANGELOG.md" not in branch_readme

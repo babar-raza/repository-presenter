@@ -211,7 +211,7 @@ def test_a_diagram_redraw_says_what_is_unchanged_and_claims_no_render_without_a_
     body = content.body
     assert "is drawn top-down (`flowchart TD`)" in body
     assert "redrawn left to right so text no longer clips" in body
-    assert "all 9 labels, the 3 group titles and the chain" in body
+    assert "All 9 labels, the 3 group titles and the chain" in body
     assert "(compared by script)" in body and "`flowchart LR`" in body
     assert "headless browser" not in body  # no render record, so no claim about one
     for phrase in FORBIDDEN:

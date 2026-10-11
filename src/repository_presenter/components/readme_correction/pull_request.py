@@ -25,6 +25,7 @@ from repository_presenter.components.readme_diagram.parse import parse
 
 _SHOWN = 120
 _PREFIX = "docs(readme): "
+_TITLE_LIMIT = 140
 
 
 def _clip(text: str) -> str:
@@ -64,21 +65,22 @@ def _headings(edits: list[dict[str, Any]]) -> list[str]:
     ]
 
 
-def _phrase(category: str, edits: list[dict[str, Any]]) -> str:
+def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
+    """The change(s) of one category, each a phrase that completes "this pull request will ..."."""
     if category == "version":
         versions = sorted({e["replacement"] for e in edits})
         if len(versions) == 1:
-            return f"show the current release ({versions[0]}) in the install snippets"
-        return "update the pinned release in the install snippets"
+            return [f"show the current release ({versions[0]}) in the install snippets"]
+        return ["update the pinned release in the install snippets"]
     if category == "claims":
-        return f"correct {len(edits)} claim(s) the repository contradicts"
+        return [f"correct {len(edits)} claim(s) the repository contradicts"]
     if category == "structure":
-        parts = {
+        known = {
             "unclosed_details": "close an unclosed <details> block",
             "second_h1": "demote a stray second H1",
         }
-        found = [parts[e["detector"]] for e in edits if e["detector"] in parts]
-        return " and ".join(dict.fromkeys(found)) or "repair broken README markup"
+        found = [known[e["detector"]] for e in edits if e["detector"] in known]
+        return list(dict.fromkeys(found)) or ["repair broken README markup"]
     if category == "sections":
         names = _headings(edits)
         navigation = any(e["kind"] == "MISSING_INFO" for e in edits)
@@ -87,11 +89,11 @@ def _phrase(category: str, edits: list[dict[str, Any]]) -> str:
             if names
             else "extend the contents list"
         )
-        return what + (" and its Navigation item" if navigation and names else "")
+        return [what + (" and its Navigation item" if navigation and names else "")]
     if category == "link":
-        return "repair a broken README link"
+        return ["repair a broken README link"]
     if category == "diagram":
-        return "lay out the At a Glance diagram left to right"
+        return ["lay out the At a Glance diagram left to right"]
     additions = {
         "add_version_badge": "add the published-version badge",
         "add_dependency_groups": "add the dependency groups the README lacks",
@@ -100,7 +102,11 @@ def _phrase(category: str, edits: list[dict[str, Any]]) -> str:
     added = [
         additions.get(e["detector"], "add verified information the README lacks") for e in edits
     ]
-    return " and ".join(dict.fromkeys(added))
+    return list(dict.fromkeys(added))
+
+
+def _phrase(category: str, edits: list[dict[str, Any]]) -> str:
+    return " and ".join(_parts(category, edits))
 
 
 def _groups(edits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -112,10 +118,12 @@ def _groups(edits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
 
 
 def title_of(edits: list[dict[str, Any]]) -> str:
+    """The change in a sentence, or its count when the sentence would not fit a title."""
     groups = _groups(edits)
-    phrases = [_phrase(name, group) for name, group in groups.items()]
-    if len(phrases) <= 2:
-        return _PREFIX + " and ".join(phrases)
+    parts = [part for name, group in groups.items() for part in _parts(name, group)]
+    sentence = ", ".join(parts[:-1]) + " and " + parts[-1] if len(parts) > 1 else parts[0]
+    if len(parts) <= 3 and len(_PREFIX + sentence) <= _TITLE_LIMIT:
+        return _PREFIX + sentence
     return f"{_PREFIX}{len(edits)} verified corrections"
 
 
@@ -134,9 +142,9 @@ def _diagram_counts(edit: dict[str, Any]) -> str:
     try:
         glance = parse(edit["replacement"]).glance
     except NotAGlanceError:
-        return "every label, group title and edge"
+        return "Every label, group title and edge"
     labels = len(glance.labels)
-    return f"all {labels} labels, the {len(glance.titles)} group titles and the chain"
+    return f"All {labels} labels, the {len(glance.titles)} group titles and the chain"
 
 
 def _bullet(edit: dict[str, Any]) -> list[str]:
@@ -288,8 +296,8 @@ def compose_correction_pull_request(
         *_render_lines(document),
     ]
     changes: list[str] = []
-    for edit in edits:
-        changes += _bullet(edit)
+    for edit in sorted(edits, key=lambda e: (e["kind"] == "DIAGRAM_FIX", e["start"])):
+        changes += _bullet(edit)  # the content changes first, the diagram last
     body = "\n".join(
         [
             *[p + "\n" for p in _lead(groups, source_revision)],
