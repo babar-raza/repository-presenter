@@ -7,25 +7,28 @@ For each enabled registry entry it reads the repository's current default-branch
 compares it with the revision the repository's ``CURRENT`` sealed bundle names. Each repository
 receives exactly one status:
 
-- ``CURRENT``: the head equals the bundle's source revision and every upstream file the candidate
-  depends on still has the blob id recorded at seal time.
-- ``DRIFTED``: the head differs, so the bundle is behind upstream and due a re-run; or the head
-  equals the bundle's revision but a recorded dependency's blob id changed (content drift).
-- ``UNKNOWN``: the head matches but content cannot be judged: the bundle records no upstream blob
-  ids (sealed before they were recorded, so it reads UNKNOWN until re-sealed), or the upstream
-  tree could not be read or is truncated. Fail closed: never CURRENT, never DRIFTED.
+- ``CURRENT``: the bundle still reflects everything it consumed. Either the head equals the
+  bundle's source revision, or the head moved but no path the README consumed changed (the row's
+  ``change`` says ``IRRELEVANT_CHANGE``: a release-bump commit is not a reseal).
+- ``DRIFTED``: a consumed path changed (``change`` ``RELEVANT_CHANGE``): the README, a manifest, a
+  file a fact cites, or, at the 30-day freshness check, a registry reading the facts recorded.
+- ``UNKNOWN``: whether a consumed path changed cannot be decided (an unreadable or truncated tree,
+  a bundle with neither recorded blob ids nor readable facts). Fail closed: never CURRENT, never
+  DRIFTED.
 - ``NO_BUNDLE``: no usable sealed bundle (none, a ``CURRENT`` that names none, or one failing
   integrity verification). ``detail`` says which.
 - ``UNREACHABLE``: the head could not be read. The failure is recorded and the run continues with
   the remaining repositories; one repository never aborts the others.
 
-Content drift is computed only over the files the candidate's own facts cite (plus README, license
-and notices), from the git blob ids ``components/readme/bundle/seal.py`` recorded in the manifest.
-An unrelated file change never drifts a repository. The status is a deterministic fact about
-upstream and local disk, so no LLM is involved (``AGENTS.md``, Agentic and Deterministic Boundary).
-Nothing here writes to any repository, and the only credential is the read-only token the caller
-passes in. ``observe_drift`` takes its GitHub readers as arguments, so tests inject fakes and never
-reach the network.
+Relevance is decided by ``relevance.py`` (``classify_change``): over the files the candidate's own
+facts cite (plus README, license and notices), from the git blob ids ``components/readme/bundle/
+seal.py`` recorded in the manifest, or, for a bundle sealed without them, from the sealed facts'
+cited paths against the sealed-revision and head trees. An unrelated file change never drifts a
+repository. ``freshness.py`` re-reads the package registry for a bundle older than 30 days. The
+status is a deterministic fact about upstream and local disk, so no LLM is involved (``AGENTS.md``,
+Agentic and Deterministic Boundary). Nothing here writes to any repository, and the only
+credential is the read-only token the caller passes in. ``observe_drift`` takes its GitHub readers
+as arguments, so tests inject fakes and never reach the network.
 """
 
 from __future__ import annotations
@@ -38,10 +41,24 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
 
+from repository_presenter.components.monitor.freshness import (
+    FreshnessResult,
+    freshness_check,
+    freshness_due,
+)
+from repository_presenter.components.monitor.relevance import (
+    Classification,
+    LiveObservation,
+    SealedScope,
+    classify_change,
+    load_scope,
+    needs_head_tree,
+    needs_sealed_tree,
+    read_sealed_facts,
+)
 from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     CURRENT_FILENAME,
-    UPSTREAM_BLOBS_FIELD,
     BundleError,
     verify_bundle,
 )
@@ -58,11 +75,19 @@ from repository_presenter.core.secrets import redact
 
 Status = Literal["CURRENT", "DRIFTED", "UNKNOWN", "NO_BUNDLE", "UNREACHABLE"]
 STATUSES: tuple[Status, ...] = ("CURRENT", "DRIFTED", "UNKNOWN", "NO_BUNDLE", "UNREACHABLE")
+CHANGES: tuple[str, ...] = (
+    "NO_CHANGE",
+    "IRRELEVANT_CHANGE",
+    "RELEVANT_CHANGE",
+    "UNKNOWN",
+    "UNREACHABLE",
+)
 SCHEMA_VERSION = 1
 _REVISION = re.compile(r"^[0-9a-f]{40}$")
 
 HeadReader = Callable[..., DefaultBranchRead]
 TreeReader = Callable[..., TreeRead]
+RegistryObserve = Callable[..., Any]
 
 
 @dataclass(frozen=True)
@@ -76,6 +101,9 @@ class RepositoryDrift:
     branch: str | None
     bundle_revision: str | None
     detail: str | None = None
+    # The relevance class (``relevance.ChangeClass``) behind ``status``; ``None`` where no
+    # classification ran (no bundle, unreachable head), and absent from evidence older than this.
+    change: str | None = None
 
 
 def observe_drift(
@@ -85,10 +113,24 @@ def observe_drift(
     token: str,
     read_head: HeadReader = fetch_default_branch_sha,
     read_tree: TreeReader = fetch_tree,
+    freshness_observe: RegistryObserve | None = None,
+    now: datetime | None = None,
 ) -> list[RepositoryDrift]:
-    """Observe each entry in order. A failure on one entry is recorded, never raised past it."""
+    """Observe each entry in order. A failure on one entry is recorded, never raised past it.
+
+    ``freshness_observe`` (the registry probe) enables the 30-day freshness check for bundles
+    older than ``FRESHNESS_MAX_AGE``; left ``None`` the check does not run and no registry is read.
+    """
     return [
-        observe_repository(root, entry, token=token, read_head=read_head, read_tree=read_tree)
+        observe_repository(
+            root,
+            entry,
+            token=token,
+            read_head=read_head,
+            read_tree=read_tree,
+            freshness_observe=freshness_observe,
+            now=now,
+        )
         for entry in entries
     ]
 
@@ -100,6 +142,8 @@ def observe_repository(
     token: str,
     read_head: HeadReader,
     read_tree: TreeReader = fetch_tree,
+    freshness_observe: RegistryObserve | None = None,
+    now: datetime | None = None,
 ) -> RepositoryDrift:
     """Read one repository's head, then classify it against its ``CURRENT`` sealed bundle."""
     repository = entry.repository
@@ -118,50 +162,94 @@ def observe_repository(
         return RepositoryDrift(
             repository, entry.mode, "NO_BUNDLE", read.sha, read.branch, None, problem
         )
-    if read.sha != bundle_revision:
-        return RepositoryDrift(
-            repository, entry.mode, "DRIFTED", read.sha, read.branch, bundle_revision, None
-        )
-    status, detail = _content_status(
-        repository, read.sha, manifest, token=token, read_tree=read_tree
+    bundle = bundle_directory(root, repository) / bundle_revision
+    scope = load_scope(bundle, bundle_revision, manifest)
+    classification = classify_change(
+        scope,
+        _read_live(repository, read.sha, scope, token=token, read_tree=read_tree),
     )
-    return RepositoryDrift(
-        repository, entry.mode, status, read.sha, read.branch, bundle_revision, detail
-    )
-
-
-def _content_status(
-    repository: str,
-    revision: str,
-    manifest: Mapping[str, Any],
-    *,
-    token: str,
-    read_tree: TreeReader,
-) -> tuple[Status, str | None]:
-    """Judge the dependencies of a bundle whose revision is still the head.
-
-    Compares each upstream blob id the manifest recorded at seal time with the same path's blob id
-    at ``revision``. Only recorded paths are compared, so an unrelated file change is never drift.
-    """
-    recorded = manifest.get(UPSTREAM_BLOBS_FIELD)
     if (
-        not isinstance(recorded, dict)
-        or not recorded
-        or not all(isinstance(k, str) and isinstance(v, str) for k, v in recorded.items())
+        freshness_observe is not None
+        and classification.change in ("NO_CHANGE", "IRRELEVANT_CHANGE")
+        and freshness_due(manifest.get("sealed_at"), now=now)
     ):
-        return "UNKNOWN", "the sealed bundle records no upstream blob ids; re-seal to record them"
+        classification = _with_freshness(
+            classification, bundle, entry.ecosystem, scope, freshness_observe
+        )
+    return RepositoryDrift(
+        repository,
+        entry.mode,
+        _STATUS_OF_CHANGE[classification.change],
+        read.sha,
+        read.branch,
+        bundle_revision,
+        None if classification.change == "NO_CHANGE" else classification.detail,
+        classification.change,
+    )
+
+
+# A head that moved without touching anything the README consumed leaves the bundle CURRENT: the
+# README is still true of the new head, so nothing is due (``change`` keeps the distinction).
+_STATUS_OF_CHANGE: dict[str, Status] = {
+    "NO_CHANGE": "CURRENT",
+    "IRRELEVANT_CHANGE": "CURRENT",
+    "RELEVANT_CHANGE": "DRIFTED",
+    "UNKNOWN": "UNKNOWN",
+    "UNREACHABLE": "UNREACHABLE",
+}
+
+
+def _read_tree(repository: str, revision: str, *, token: str, read_tree: TreeReader) -> TreeRead:
     try:
-        tree = read_tree(repository, revision, token=token)
+        return read_tree(repository, revision, token=token)
     except Exception as exc:  # per-repository isolation, as for the head read
-        return "UNKNOWN", redact(f"upstream tree unreadable: {type(exc).__name__}: {exc}", [token])
-    if tree.error is not None:
-        return "UNKNOWN", redact(f"upstream tree unreadable: {tree.error}", [token])
-    if tree.truncated:
-        return "UNKNOWN", "upstream tree listing is truncated; dependency content cannot be judged"
-    changed = sorted(path for path, blob in recorded.items() if tree.blob_shas.get(path) != blob)
-    if changed:
-        return "DRIFTED", "upstream content changed at the head revision: " + ", ".join(changed)
-    return "CURRENT", None
+        message = redact(f"{type(exc).__name__}: {exc}", [token])
+        return TreeRead(repository, revision, error=message)
+
+
+def _read_live(
+    repository: str, head: str, scope: SealedScope, *, token: str, read_tree: TreeReader
+) -> LiveObservation:
+    """Read only the trees the classification needs: the head's when blob ids are recorded or the
+    head moved, the sealed revision's only to decide a moved head with no recorded blob ids."""
+    head_tree = (
+        _read_tree(repository, head, token=token, read_tree=read_tree)
+        if needs_head_tree(scope, head)
+        else None
+    )
+    sealed_tree = (
+        _read_tree(repository, scope.revision, token=token, read_tree=read_tree)
+        if needs_sealed_tree(scope, head)
+        else None
+    )
+    return LiveObservation(head, head_tree, sealed_tree)
+
+
+def _with_freshness(
+    classification: Classification,
+    bundle: Path,
+    ecosystem: str,
+    scope: SealedScope,
+    observe: RegistryObserve,
+) -> Classification:
+    """Fold the 30-day registry re-check into an otherwise unchanged classification.
+
+    Only a RELEVANT reading changes it; an inconclusive or unchanged one leaves it as it was.
+    """
+    facts = read_sealed_facts(bundle)
+    if facts is None:
+        return classification
+    result: FreshnessResult = freshness_check(
+        ecosystem, facts, observe=observe, consumed_fact_ids=scope.consumed_fact_ids
+    )
+    if result.change != "RELEVANT_CHANGE":
+        return classification
+    return Classification("RELEVANT_CHANGE", f"freshness: {result.detail}")
+
+
+def bundle_directory(root: Path, repository: str) -> Path:
+    """The repository's candidate directory (``CURRENT`` and one directory per revision)."""
+    return root / CANDIDATES_DIRNAME / repository.replace("/", "__")
 
 
 def current_bundle(
@@ -175,7 +263,7 @@ def current_bundle(
     counting, so a superseded revision directory left behind can never stand in for the current
     bundle.
     """
-    directory = root / CANDIDATES_DIRNAME / repository.replace("/", "__")
+    directory = bundle_directory(root, repository)
     pointer = directory / CURRENT_FILENAME
     if not pointer.is_file():
         return None, None, "no CURRENT pointer"
@@ -209,6 +297,11 @@ def drift_document(
             status: sum(1 for observation in ordered if observation.status == status)
             for status in STATUSES
         },
+        # Additive (schema_version 1 is unchanged): how many rows each relevance class has.
+        "changes": {
+            change: sum(1 for observation in ordered if observation.change == change)
+            for change in CHANGES
+        },
         "repositories": [asdict(observation) for observation in ordered],
     }
 
@@ -225,6 +318,9 @@ def write_drift_document(document: dict[str, Any], path: Path) -> Path:
 MAX_DRIFT_AGE = timedelta(hours=12)
 _CLOCK_SKEW = timedelta(minutes=5)
 _CONTRACT_STATUS = {"CURRENT": "CURRENT", "DRIFTED": "DRIFTED"}
+# A row that carries its relevance class hands the plan that class where it decides the work; a
+# row without one (older evidence) keeps the status mapping above, so its selection is unchanged.
+_CONTRACT_CHANGE = frozenset({"RELEVANT_CHANGE", "IRRELEVANT_CHANGE"})
 
 
 @dataclass(frozen=True)
@@ -306,6 +402,8 @@ def assemble_drift_contract(
             row = rows[name]
             # NO_BUNDLE and UNREACHABLE are never work for a sealing run: they map to UNKNOWN.
             status = _CONTRACT_STATUS.get(str(row.get("status")), "UNKNOWN")
+            if row.get("change") in _CONTRACT_CHANGE and status in ("CURRENT", "DRIFTED"):
+                status = str(row["change"])
             record: dict[str, Any] = {"repository": name, "status": status}
             # The observed upstream head, when this run actually read one (G7-W06 #1009): lets
             # the sealing plan's failure memory tell a fresh commit apart from the same stuck

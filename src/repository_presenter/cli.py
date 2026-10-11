@@ -183,6 +183,9 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     plugin_for,
     verify_build,
 )
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe as observe_registry,
+)
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
 )
@@ -1405,6 +1408,7 @@ def run_monitor(
         token=token,
         read_head=fetch_default_branch_sha,
         read_tree=fetch_tree,
+        freshness_observe=observe_registry,
     )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
     document = drift_document(observations, observed_at=observed_at, owner=owner)

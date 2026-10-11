@@ -562,3 +562,43 @@ def test_a_non_string_source_revision_fails_closed() -> None:
         parse_drift_contract(
             _contract({"repository": "owner/name", "status": DRIFTED, "source_revision": 1})
         )
+
+
+def test_a_relevant_change_is_work_and_an_irrelevant_one_never_is() -> None:
+    # TC-REF-01: the monitor's relevance classes. A release-bump head move (IRRELEVANT_CHANGE) is
+    # never selected, so it cannot reseal; a consumed-path change (RELEVANT_CHANGE) selects like
+    # DRIFTED, under the same cap, registry and cooldown rules.
+    records = [
+        DriftRecord(_repo("alpha"), "RELEVANT_CHANGE"),
+        DriftRecord(_repo("bravo"), "IRRELEVANT_CHANGE"),
+        DriftRecord(_repo("charlie"), DRIFTED),
+        DriftRecord(_repo("delta"), "RELEVANT_CHANGE"),
+        DriftRecord(_repo("echo"), "RELEVANT_CHANGE"),
+    ]
+
+    plan = plan_sealing_run(records, _registry())
+
+    assert plan.selected == (_repo("alpha"), _repo("charlie"), _repo("delta"))
+    assert plan.deferred == (_repo("echo"),)
+
+
+def test_a_relevant_change_inside_the_failure_cooldown_is_skipped_like_drift() -> None:
+    now = datetime(2026, 10, 11, 12, 0, tzinfo=UTC)
+    failed = SealingAttempt(_repo("alpha"), OUTCOME_FAILED, now - timedelta(hours=1), "a" * 40)
+    records = [DriftRecord(_repo("alpha"), "RELEVANT_CHANGE", "a" * 40)]
+
+    plan = plan_sealing_run(records, _registry(), [failed], now=now)
+
+    assert plan.selected == ()
+    assert [s.repository for s in plan.skipped] == [_repo("alpha")]
+
+
+def test_the_contract_accepts_the_relevance_statuses_and_still_refuses_unknown_ones() -> None:
+    row = {"repository": _repo("alpha"), "status": "IRRELEVANT_CHANGE"}
+    assert parse_drift_contract({"schema_version": 1, "repositories": [row]})[0].status == (
+        "IRRELEVANT_CHANGE"
+    )
+    with pytest.raises(ConfigError, match="unknown status"):
+        parse_drift_contract(
+            {"schema_version": 1, "repositories": [{**row, "status": "SOMETHING_ELSE"}]}
+        )

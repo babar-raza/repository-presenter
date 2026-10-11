@@ -4,24 +4,33 @@ under which model. Read-only and deterministic; no provider call and no GitHub c
 Input is the drift monitor's output through its file contract (``DRIFT_CONTRACT_VERSION``), never
 the monitor's code: the drift monitor (``monitor.yml``) is a separate producer, so this
 module depends only on the JSON shape below. A record is one repository and one status; only
-``DRIFTED`` records ever become work. Output is the matrix the scheduled workflow fans out over.
+``DRIFTED`` or ``RELEVANT_CHANGE`` records ever become work. Output is the matrix the scheduled
+workflow fans out over.
 
 Contract (``schema_version`` 1)::
 
     {"schema_version": 1,
-     "repositories": [{"repository": "owner/name", "status": "DRIFTED" | "CURRENT" | "UNKNOWN",
+     "repositories": [{"repository": "owner/name",
+                        "status": "DRIFTED" | "RELEVANT_CHANGE" | "IRRELEVANT_CHANGE"
+                                  | "CURRENT" | "UNKNOWN",
                         "source_revision": "<40-hex>" | null}]}
+
+``RELEVANT_CHANGE`` and ``IRRELEVANT_CHANGE`` are additive (G7-W06 TC-REF-01): the drift monitor's
+relevance class (``components/monitor/relevance.py``) for a head that moved. ``RELEVANT_CHANGE``
+(a path the README consumed changed) is work exactly like ``DRIFTED``; ``IRRELEVANT_CHANGE`` (the
+head moved, nothing consumed did, e.g. a release-bump commit) is never selected, so a version bump
+does not reseal. Evidence without these values selects exactly as before.
 
 ``source_revision`` is additive and optional (omitted or ``null`` on older evidence): the upstream
 head the status was observed against, when the monitor's own evidence carried one. It is read for
 exactly one purpose below: telling a fresh commit apart from the same stuck drift a failed seal
 already saw.
 
-Selection rules, in order: only ``DRIFTED``; only a repository the registry lists and whose mode is
-not ``disabled`` (the registry is the allow-list, a drifted but unlisted repository is never
-sealed); a repository the sealing history's own record shows FAILED within the cooldown, with no
-new commit since, is skipped (``SEALING_FAILURE_COOLDOWN``, below) rather than retried every run
-for nothing; sorted by repository name for a deterministic order; at most
+Selection rules, in order: only ``DRIFTED`` or ``RELEVANT_CHANGE``; only a repository the registry
+lists and whose mode is not ``disabled`` (the registry is the allow-list, a drifted but unlisted
+repository is never sealed); a repository the sealing history's own record shows FAILED within the
+cooldown, with no new commit since, is skipped (``SEALING_FAILURE_COOLDOWN``, below) rather than
+retried every run for nothing; sorted by repository name for a deterministic order; at most
 ``MAX_REPOSITORIES_PER_RUN`` taken, the rest deferred to a later run.
 
 Failure memory (G7-W06 follow-up, #1009): the plan job has no failure memory on its own - every
@@ -74,7 +83,10 @@ from repository_presenter.core.registry.models import Registry
 
 DRIFT_CONTRACT_VERSION = 1
 DRIFTED = "DRIFTED"
-DRIFT_STATUSES = frozenset({DRIFTED, "CURRENT", "UNKNOWN"})
+RELEVANT_CHANGE = "RELEVANT_CHANGE"
+DRIFT_STATUSES = frozenset({DRIFTED, RELEVANT_CHANGE, "IRRELEVANT_CHANGE", "CURRENT", "UNKNOWN"})
+# The statuses that become sealing work; IRRELEVANT_CHANGE, CURRENT and UNKNOWN never do.
+WORK_STATUSES = frozenset({DRIFTED, RELEVANT_CHANGE})
 MAX_REPOSITORIES_PER_RUN = 3
 SEALING_MODEL = "qwen3-next"
 SEALING_PAUSED_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
@@ -341,7 +353,7 @@ def plan_sealing_run(
     latest = _latest_attempts(history)
     revisions = {record.repository: record.source_revision for record in records}
     drifted = sorted(
-        (record.repository for record in records if record.status == DRIFTED),
+        (record.repository for record in records if record.status in WORK_STATUSES),
     )
     eligible: list[tuple[str, str]] = []
     not_admitted: list[str] = []
