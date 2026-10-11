@@ -316,6 +316,72 @@ def _maven_pom_urls(package_name: str, version: str | None, fetch: Fetch | None)
     return tuple(found)
 
 
+_NUGET_REGISTRATION = "https://api.nuget.org/v3/registration5-semver1/{id}/index.json"
+
+
+def _json_get(fetch: Fetch | None, url: str) -> dict[str, Any]:
+    """One registry document as an object; anything unreadable is an empty one (fail closed)."""
+    try:
+        response = (fetch or package_registries.default_fetch)(url)
+        if response is None or getattr(response, "status_code", None) != 200:
+            return {}
+        body = response.body
+        return _json_object(body.encode("utf-8") if isinstance(body, str) else body)
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
+def _nuget_catalog_entry(
+    registration: dict[str, Any], latest: str | None, fetch: Fetch | None
+) -> dict[str, Any]:
+    """The registration's ``catalogEntry`` for ``latest`` (else the last one listed).
+
+    The vendored adapter reads the first entry, the oldest release; the current release is the one
+    a reader installs, so its record is the one that names the source. A page the registration
+    lists without its items is fetched once.
+    """
+    entries: list[dict[str, Any]] = []
+    pages = registration.get("items")
+    for page in pages if isinstance(pages, list) else []:
+        if not isinstance(page, dict):
+            continue
+        if not isinstance(page.get("items"), list) and isinstance(page.get("@id"), str):
+            page = _json_get(fetch, page["@id"])
+        for item in page.get("items") or []:
+            entry = item.get("catalogEntry") if isinstance(item, dict) else None
+            if isinstance(entry, dict):
+                entries.append(entry)
+    for entry in entries:
+        if latest and entry.get("version") == latest:
+            return entry
+    return entries[-1] if entries else {}
+
+
+def _nuget_source_urls(
+    package_name: str, latest: str | None, reads: _RegistryReads | None, fetch: Fetch | None
+) -> tuple[str, ...]:
+    """The source URL a NuGet package declares for itself, or none.
+
+    The package's own ``repository`` element (type, url, commit) names its source exactly, but the
+    registration ``catalogEntry`` omits it: it lives on the catalog leaf that entry's ``@id``
+    points to. It is preferred over ``projectUrl``, which is free text (a docs site, a vendor
+    page) and is read only when the package declares no repository. ``licenseUrl`` is a licence
+    page and is never a source URL. A leaf or registration that cannot be read declares nothing:
+    "ownership not confirmed", never a guess.
+    """
+    url = _NUGET_REGISTRATION.format(id=package_name.lower())
+    body = reads.bodies.get(url) if reads is not None else None
+    entry = _nuget_catalog_entry(_json_object(body or b""), latest, fetch)
+    leaf_id = entry.get("@id")
+    if isinstance(leaf_id, str) and leaf_id.startswith("https://"):
+        repository = _json_get(fetch, leaf_id).get("repository")
+        source = repository.get("url") if isinstance(repository, dict) else None
+        if isinstance(source, str) and source.strip():
+            return (source.strip(),)
+    project = entry.get("projectUrl")
+    return (project.strip(),) if isinstance(project, str) and project.strip() else ()
+
+
 def observe(
     ecosystem: str,
     package_name: str,
@@ -391,6 +457,10 @@ def observe(
     if repository and published and not ambiguous:
         if kind == "maven":
             urls = _maven_pom_urls(package_name, _maven_release(body), fetch)
+        elif kind == "nuget":
+            # Never the probe's own project_url: its NuGet adapter falls back from an empty
+            # projectUrl to licenseUrl, a nuget.org licence page that names no repository.
+            urls = _nuget_source_urls(package_name, latest, reads, fetch)
         elif live.get("project_url"):
             urls = (str(live["project_url"]),)
         matched = match_repository(urls, repository, resolve_url) if urls else None

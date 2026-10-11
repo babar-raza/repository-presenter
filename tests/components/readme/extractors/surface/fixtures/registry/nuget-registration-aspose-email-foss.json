@@ -1,0 +1,22 @@
+{
+  "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.email.foss/index.json",
+  "count": 1,
+  "items": [
+    {
+      "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.email.foss/index.json#page/26.7.0/26.7.0",
+      "count": 1,
+      "items": [
+        {
+          "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.email.foss/26.7.0.json",
+          "catalogEntry": {
+            "@id": "https://api.nuget.org/v3/catalog0/data/2026.07.02.16.29.26/aspose.email.foss.26.7.0.json",
+            "authors": "Aspose.Email FOSS Contributors",
+            "id": "Aspose.Email.Foss",
+            "licenseUrl": "https://www.nuget.org/packages/Aspose.Email.Foss/26.7.0/license",
+            "version": "26.7.0"
+          }
+        }
+      ]
+    }
+  ]
+}

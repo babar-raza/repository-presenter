@@ -1,0 +1,22 @@
+{
+  "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.3d.foss/index.json",
+  "count": 1,
+  "items": [
+    {
+      "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.3d.foss/index.json#page/26.1.0/26.1.0",
+      "count": 1,
+      "items": [
+        {
+          "@id": "https://api.nuget.org/v3/registration5-semver1/aspose.3d.foss/26.1.0.json",
+          "catalogEntry": {
+            "@id": "https://api.nuget.org/v3/catalog0/data/2026.06.22.08.17.24/aspose.3d.foss.26.1.0.json",
+            "authors": "Aspose",
+            "id": "Aspose.3D.FOSS",
+            "licenseUrl": "https://www.nuget.org/packages/Aspose.3D.FOSS/26.1.0/license",
+            "version": "26.1.0"
+          }
+        }
+      ]
+    }
+  ]
+}
