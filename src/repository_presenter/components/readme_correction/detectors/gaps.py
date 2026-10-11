@@ -23,6 +23,10 @@ from repository_presenter.components.readme_correction.model import (
 )
 
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_NO_DEPENDENCIES = re.compile(
+    r"(?i)\b(?:pure[- ]managed|pure[- ]python|dependency[- ]free|zero (?:runtime )?dependencies"
+    r"|no (?:runtime |third[- ]party |external |native )*dependencies)\b"
+)
 _SAMPLE = 8
 
 
@@ -94,6 +98,26 @@ def report_gaps(ctx: Context) -> DetectorResult:
             )
         )
 
+    required = [
+        fact
+        for fact in ctx.facts.by_kind("dependency")
+        if fact.polarity == "SUPPORTED"
+        and fact.id != "dependency:none"
+        and not fact.id.startswith(("dependency:development.", "dependency:optional."))
+    ]
+    for line in ctx.lines:
+        match = None if line.in_fence or not required else _NO_DEPENDENCIES.search(line.text)
+        if match is not None:
+            findings.append(
+                Finding(
+                    "report_gaps",
+                    line.number,
+                    line.text.strip()[:120],
+                    f"the README says {match.group(0)!r}, but the facts list {len(required)} "
+                    f"required dependenc(ies): {_sample([f.id for f in required])}",
+                    tuple(f.id for f in required[:_SAMPLE]),
+                )
+            )
     enterprise = ctx.fact("link_target:product.enterprise")
     if enterprise is not None and "enterprise edition" not in lowered:
         findings.append(

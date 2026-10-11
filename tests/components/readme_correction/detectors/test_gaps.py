@@ -65,3 +65,19 @@ def test_a_readme_that_says_everything_the_facts_hold_has_no_gaps(
     )
     result = report_gaps(make_context("# P\n\nScene reads .stl files.\n", facts))
     assert result.findings == ()
+
+
+def test_a_no_dependencies_claim_beside_required_dependency_facts_is_reported(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    facts = make_facts(
+        make_fact("dependency:skiasharp", "SkiaSharp 2.88.8", evidence=(("x.csproj", None),)),
+        drop=["dependency:none"],
+    )
+    readme = "# P\n\nBuilt as pure managed code.\n\nAlso fine: dependency-free docs.\n"
+    result = report_gaps(make_context(readme, facts))
+    lines = [f.line for f in result.findings if f.line]
+    assert lines == [3, 5]
+    assert "dependency:skiasharp" in result.findings[0].reason
+    clean = report_gaps(make_context(readme, make_facts()))  # only dependency:none: no conflict
+    assert not [f for f in clean.findings if f.line]
