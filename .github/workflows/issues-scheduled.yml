@@ -35,6 +35,13 @@
 # test_workflow_app_tokens.py pins this); checkout does not persist the checkout token; and no
 # step ever sees a write token unless the gate variable is set.
 #
+# Bounded and paced (TC-ISS-09/11): per target repository the filing step files at most
+# --daily-cap issues per UTC day and none while --open-cap of this system's issues are open there,
+# counted from the target repository itself (the issues carrying the fingerprint marker), so a
+# second run the same day cannot exceed them; successive writes of one run are --pace-seconds
+# apart. A create whose response was lost is reconciled by searching for the marker before any
+# second POST (components/issues/file.py). Raising a cap is a reviewed change to this file.
+#
 # Dedup across runs: this workflow does not commit handoff status back to the repository. Instead
 # the body of every filed issue carries the handoff's fingerprint marker, and each filing first
 # searches the target for that marker (components/issues/file.py). A fresh checkout therefore
@@ -66,9 +73,11 @@ jobs:
     outputs:
       matrix: ${{ steps.targets.outputs.matrix }}
     steps:
+      # Full history: a handoff's age is when git first saw its file.
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -84,6 +93,11 @@ jobs:
       - id: targets
         name: Repositories with a pending or filed handoff (compact JSON)
         run: echo "matrix=$(repository-presenter issue-targets)" >> "$GITHUB_OUTPUT"
+
+      # The issue funnel (PENDING, APPROVED, FILED, RESOLVED) and a warning annotation for every
+      # handoff waiting on the owner longer than the limit. Offline: no credential, no network.
+      - name: Issue funnel and aged handoffs
+        run: repository-presenter issue-funnel --max-pending-days 14
 
   analyse:
     name: Analyse ${{ matrix.target.repo }} (read-only)
@@ -139,7 +153,7 @@ jobs:
           report="$RUNNER_TEMP/issue-report.txt"
           rc=0
           repository-presenter file-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" > "$report" 2>&1 || rc=$?
-          repository-presenter redetect-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" >> "$report" 2>&1 || rc=$?
+          repository-presenter redetect-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" --resume-out "$RUNNER_TEMP/resume-contract.json" >> "$report" 2>&1 || rc=$?
           cat "$report"
           {
             echo "### ${REPO} (dry run, read-only)"
@@ -156,6 +170,17 @@ jobs:
           name: issue-report-${{ matrix.target.owner }}__${{ matrix.target.name }}
           path: ${{ runner.temp }}/issue-report.txt
           if-no-files-found: warn
+
+      # The lifecycle's hand-off to sealing (core/sealing_plan.py::read_resume_contract): the
+      # repositories whose blocking upstream defect is resolved, so the candidate it blocked is
+      # planned again whatever the drift monitor says. A run artifact only; nothing is written.
+      - name: Keep the resume contract
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-contract-${{ matrix.target.owner }}__${{ matrix.target.name }}
+          path: ${{ runner.temp }}/resume-contract.json
+          if-no-files-found: ignore
 
   file-and-close:
     name: File and close ${{ matrix.target.repo }} (owner-gated write)
@@ -187,12 +212,18 @@ jobs:
 
       # Committed files only, no network and no credential: how many handoffs for this target hold
       # a valid owner approval (plus FILED ones awaiting a possible close).
+      # While the owner has enabled update comments, a FILED handoff is also something this job
+      # may act on (an update comment), so it counts without a close approval.
       - name: Count handoffs this job may act on (approval records, read from this commit)
         id: approvals
         env:
+          REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED: ${{ vars.REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED }}
           REPO: ${{ matrix.target.repo }}
           APPROVALS_REF: ${{ github.sha }}
-        run: echo "count=$(repository-presenter file-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" --count-writable)" >> "$GITHUB_OUTPUT"
+        run: |
+          extra=""
+          if [ "$REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED" = "1" ]; then extra="--with-updates"; fi
+          echo "count=$(repository-presenter file-upstream-defects --repo "$REPO" --approvals-ref "$APPROVALS_REF" --count-writable $extra)" >> "$GITHUB_OUTPUT"
 
       - name: Mint a read token scoped to this target repository
         if: ${{ steps.approvals.outputs.count != '0' }}
@@ -229,7 +260,10 @@ jobs:
           GH_ISSUES_WRITE_TOKEN: ${{ steps.write-token.outputs.token }}
           REPO: ${{ matrix.target.repo }}
           APPROVALS_REF: ${{ github.sha }}
-        run: repository-presenter file-upstream-defects --repo "$REPO" --file --approvals-ref "$APPROVALS_REF"
+        run: >-
+          repository-presenter file-upstream-defects --repo "$REPO" --file
+          --approvals-ref "$APPROVALS_REF"
+          --daily-cap 3 --open-cap 5 --pace-seconds 10
 
       # A close is a write to a product repository and is gated like a filing and more: the registry
       # entry must be mode full, the owner must have committed a close approval naming this exact
@@ -245,3 +279,18 @@ jobs:
           REPO: ${{ matrix.target.repo }}
           APPROVALS_REF: ${{ github.sha }}
         run: repository-presenter redetect-upstream-defects --repo "$REPO" --close --approvals-ref "$APPROVALS_REF"
+
+      # Evidence changed on a filed issue: one update comment, never a second issue and never a
+      # repeat (components/issues/lifecycle.py keeps it idempotent through a marker on the
+      # comment). Gated like a filing, and additionally by the owner's separate comments switch,
+      # which is only ever mirrored here (its value), never set by the workflow.
+      - name: "Update filed issues whose evidence changed (gated: kill switch, comments switch, registry, token provenance, live issue marker)"
+        if: ${{ steps.approvals.outputs.count != '0' }}
+        env:
+          REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED: "1"
+          REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED: ${{ vars.REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED }}
+          GH_TOKEN: ${{ steps.read-token.outputs.token }}
+          GH_ISSUES_WRITE_TOKEN: ${{ steps.write-token.outputs.token }}
+          REPO: ${{ matrix.target.repo }}
+          APPROVALS_REF: ${{ github.sha }}
+        run: repository-presenter redetect-upstream-defects --repo "$REPO" --comment --approvals-ref "$APPROVALS_REF"

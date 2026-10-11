@@ -56,6 +56,16 @@ still correctly skipped - nothing changed, so there is nothing new to spend a ca
 while still being retried on the very next cycle once the window passes, with no dependency on
 however many cycles happened to run in between.
 
+Resuming a blocked candidate (TC-ISS-10): a candidate blocked by an upstream defect (a filed or
+pending handoff, ``components/issues/``) is planned again as soon as the issue lifecycle's redetect
+says the defect no longer fires, whatever the drift monitor says (a fix upstream is a change the
+README may now consume, and the monitor may have judged the head irrelevant before). The producer
+is the lifecycle (``redetect-upstream-defects --resume-out``); this module reads only its JSON file
+contract (``RESUME_CONTRACT_VERSION``), the way it reads the drift contract, and passes it to
+``plan_sealing_run(resumed=...)``. A resumed repository is still subject to the registry allow-list,
+the per-run cap and the failure cooldown, and a resume is one-shot: a repository whose latest
+attempt SEALED at the resolved revision is not resumed again.
+
 Sealing uses ``SEALING_MODEL`` alone (owner rule: never switch models). ``require_sealing_model``
 refuses a run whose prompt manifests route anywhere else or whose ``GPT_OSS_MODEL`` override names
 another model; the workflow never sets that override at all.
@@ -92,6 +102,7 @@ SEALING_MODEL = "qwen3-next"
 SEALING_PAUSED_VARIABLE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
 SEALING_PAUSED_NOTICE = "sealing paused by owner variable"
 
+RESUME_CONTRACT_VERSION = 1
 SEALING_HISTORY_CONTRACT_VERSION = 1
 OUTCOME_SEALED = "SEALED"
 OUTCOME_FAILED = "FAILED"
@@ -105,6 +116,17 @@ class DriftRecord:
     repository: str
     status: str
     source_revision: str | None = None
+
+
+@dataclass(frozen=True)
+class ResumeRecord:
+    """One repository whose blocking upstream defect is resolved: the candidate may seal again.
+    ``resolved_revision`` is the head the resolution was observed at; ``handoff_id`` names the
+    handoff, for the log."""
+
+    repository: str
+    resolved_revision: str | None = None
+    handoff_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -145,6 +167,9 @@ class SealingPlan:
     not_admitted: tuple[str, ...]
     disabled: tuple[str, ...]
     skipped: tuple[SkippedRepository, ...] = ()
+    # The selected repositories chosen because a blocking upstream defect was resolved, not
+    # because the drift monitor flagged them.
+    resumed: tuple[str, ...] = ()
 
 
 def parse_drift_contract(raw: Any) -> tuple[DriftRecord, ...]:
@@ -194,6 +219,59 @@ def read_drift_contract(path: Path) -> tuple[DriftRecord, ...]:
     except ValueError as exc:
         raise ConfigError(f"drift monitor output is not valid JSON: {path}: {exc}") from exc
     return parse_drift_contract(raw)
+
+
+def parse_resume_contract(raw: Any) -> tuple[ResumeRecord, ...]:
+    """Validate a decoded resume contract; fail closed on anything not exactly this shape.
+
+    Contract (``schema_version`` 1)::
+
+        {"schema_version": 1,
+         "repositories": [{"repository": "owner/name",
+                            "resolved_revision": "<40-hex>" | null,
+                            "handoff_id": "<owner>__<name>__<hex>" | null}]}
+    """
+    if not isinstance(raw, dict):
+        raise ConfigError("resume contract is not a JSON object")
+    if raw.get("schema_version") != RESUME_CONTRACT_VERSION:
+        raise ConfigError(
+            f"resume contract schema_version {raw.get('schema_version')!r} is not "
+            f"{RESUME_CONTRACT_VERSION}"
+        )
+    items = raw.get("repositories")
+    if not isinstance(items, list):
+        raise ConfigError("resume contract has no repositories list")
+    records: list[ResumeRecord] = []
+    seen: set[str] = set()
+    for item in items:
+        if not isinstance(item, dict):
+            raise ConfigError("resume contract repository entry is not an object")
+        repository = item.get("repository")
+        if not isinstance(repository, str) or repository.count("/") != 1:
+            raise ConfigError(f"resume contract entry has no owner/name repository: {item!r}")
+        revision, identifier = item.get("resolved_revision"), item.get("handoff_id")
+        for label, value in (("resolved_revision", revision), ("handoff_id", identifier)):
+            if value is not None and not isinstance(value, str):
+                raise ConfigError(f"resume contract entry {repository} has a non-string {label}")
+        if repository in seen:
+            raise ConfigError(f"resume contract names {repository} more than once")
+        seen.add(repository)
+        records.append(ResumeRecord(repository, revision, identifier))
+    return tuple(records)
+
+
+def read_resume_contract(path: Path) -> tuple[ResumeRecord, ...]:
+    """Read the lifecycle's resume file. A missing or malformed file reads as no resume, never a
+    failure: resuming only brings sealing forward, so failing closed on it would stop the sealing
+    that drift selection alone still does."""
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ()
+    try:
+        return parse_resume_contract(raw)
+    except ConfigError:
+        return ()
 
 
 def parse_sealing_history_contract(raw: Any) -> tuple[SealingAttempt, ...]:
@@ -338,6 +416,7 @@ def plan_sealing_run(
     cap: int = MAX_REPOSITORIES_PER_RUN,
     now: datetime | None = None,
     cooldown: timedelta = SEALING_FAILURE_COOLDOWN,
+    resumed: Iterable[ResumeRecord] = (),
 ) -> SealingPlan:
     """Select at most ``cap`` drifted, admitted, enabled repositories, in sorted order.
 
@@ -346,6 +425,10 @@ def plan_sealing_run(
     that failure, unless the drift record's own ``source_revision`` shows a new commit since. Pass
     ``now`` (always timezone-aware) in tests for a deterministic clock; production code leaves it
     to default to the real time.
+
+    ``resumed`` (see the module docstring) adds repositories whose blocking upstream defect is
+    resolved to the candidates, whatever their drift status; they pass the same registry, cooldown
+    and cap rules, and a repository that already sealed at the resolved revision is not taken again.
     """
     if cap < 1:
         raise ConfigError(f"a sealing run needs a cap of at least 1, not {cap}")
@@ -355,11 +438,16 @@ def plan_sealing_run(
     drifted = sorted(
         (record.repository for record in records if record.status in WORK_STATUSES),
     )
+    resume_by_repository = {item.repository: item for item in resumed}
+    for repository, item in resume_by_repository.items():
+        revisions.setdefault(repository, item.resolved_revision)
+    candidates = sorted(set(drifted) | set(resume_by_repository))
     eligible: list[tuple[str, str]] = []
+    resumed_only: set[str] = set()
     not_admitted: list[str] = []
     disabled: list[str] = []
     skipped: list[SkippedRepository] = []
-    for repository in drifted:
+    for repository in candidates:
         entry = find_entry(registry, repository)
         if entry is None:
             not_admitted.append(repository)
@@ -367,10 +455,27 @@ def plan_sealing_run(
         if entry.mode == "disabled":
             disabled.append(repository)
             continue
+        only_resumed = repository not in drifted
+        last = latest.get(entry.repository)
+        if (
+            only_resumed
+            and last is not None
+            and last.outcome == OUTCOME_SEALED
+            and last.source_revision is not None
+            and last.source_revision == resume_by_repository[repository].resolved_revision
+        ):
+            skipped.append(
+                SkippedRepository(
+                    entry.repository,
+                    f"resume already satisfied: sealed at {last.source_revision}, the revision "
+                    "the blocking defect was resolved at",
+                )
+            )
+            continue
         skip = _cooldown_skip(
             entry.repository,
             revisions.get(repository),
-            latest.get(entry.repository),
+            last,
             now=clock,
             cooldown=cooldown,
         )
@@ -378,6 +483,8 @@ def plan_sealing_run(
             skipped.append(skip)
             continue
         eligible.append((entry.repository, entry.mode))
+        if only_resumed:
+            resumed_only.add(entry.repository)
     taken = eligible[:cap]
     return SealingPlan(
         selected=tuple(repository for repository, _ in taken),
@@ -386,6 +493,7 @@ def plan_sealing_run(
         not_admitted=tuple(not_admitted),
         disabled=tuple(disabled),
         skipped=tuple(skipped),
+        resumed=tuple(repository for repository, _ in taken if repository in resumed_only),
     )
 
 
