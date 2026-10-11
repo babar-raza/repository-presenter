@@ -311,3 +311,53 @@ def test_prose_only_gaps_name_the_facts_that_would_fill_them(make_context: Any) 
     assert "Key Capabilities is absent and needs authored prose" in reasons
     assert "would be filled from no SUPPORTED capability fact" in reasons
     assert "no SUPPORTED example fact" in reasons
+
+
+# ------------------------------------------------------------------------ dependency groups
+def dependency_facts(make_fact: Any) -> list[Any]:
+    return [
+        make_fact("dependency:fpdf2-2.7.5", "fpdf2>=2.7.5", evidence=(("pyproject.toml", None),)),
+        make_fact(
+            "dependency:development.dev.pytest-9.0.2",
+            "pytest>=9.0.2",
+            evidence=(("pyproject.toml", "declared in extra 'dev'"),),
+        ),
+        make_fact("package:python_requires", ">=3.10", evidence=(("pyproject.toml", None),)),
+    ]
+
+
+def test_dependency_groups_the_readme_never_mentions_are_added_with_only_their_missing_entries(
+    make_context: Any, make_fact: Any
+) -> None:
+    from repository_presenter.components.readme_correction.detectors.additions import (
+        add_dependency_groups,
+    )
+
+    readme = (
+        "# P\n\n## Dependencies\n\n### Required Package Dependencies\n\n- `fpdf2>=2.7.5`\n\n"
+        "## License\n\nMIT.\n"
+    )
+    ctx = make_context(readme, dependency_facts(make_fact), repository=WORDS)
+    (edit,) = add_dependency_groups(ctx).edits
+    corrected = applied(ctx, [edit])
+    assert corrected.count("fpdf2") == 1  # the group and entry the README has are untouched
+    assert "### Development Dependencies\n\n- `pytest>=9.0.2` (extra `dev`)" in corrected
+    assert "### Native and System Requirements\n\n- Requires Python 3.10 or later" in corrected
+    assert corrected.index("pytest") < corrected.index("## License")
+    again = make_context(corrected, dependency_facts(make_fact), repository=WORDS)
+    assert add_dependency_groups(again).edits == ()
+
+
+def test_a_dependency_the_readme_names_anywhere_is_not_listed_again(
+    make_context: Any, make_fact: Any
+) -> None:
+    from repository_presenter.components.readme_correction.detectors.additions import (
+        add_dependency_groups,
+    )
+
+    readme = (
+        "# P\n\nTests use pytest on Python 3.10.\n\n## Dependencies\n\nfpdf2 is required.\n\n"
+        "## License\n\nMIT.\n"
+    )
+    ctx = make_context(readme, dependency_facts(make_fact), repository=WORDS)
+    assert add_dependency_groups(ctx).edits == ()

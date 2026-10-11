@@ -54,6 +54,7 @@ def build(make_context: Any, make_facts: Any, make_fact: Any) -> Context:
 
 def test_every_registered_detector_is_loaded_by_name() -> None:
     assert sorted(load_detectors()) == [
+        "add_dependency_groups",
         "add_dev_commands",
         "add_doc_links",
         "add_install_forms",
@@ -129,7 +130,8 @@ def test_a_conformant_readme_yields_no_edit_and_no_diff(make_context: Any) -> No
         "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0\n\n"
         "```xml\n<dependency>\n  <artifactId>aspose-3d-foss</artifactId>\n</dependency>\n```\n\n"
         "```groovy\nimplementation 'org.aspose:aspose-3d-foss:26.7.0'\n```\n\n"
-        "## Dependencies\n\nNone.\n\n## Development and Testing\n\n3 test files.\n\n"
+        "## Dependencies\n\nNone. Requires Java 21.\n\n"
+        "## Development and Testing\n\n3 test files.\n\n"
         "## License\n\nMIT License.\n"
     )
     result = correct(make_context(clean))

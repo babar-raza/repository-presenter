@@ -133,6 +133,90 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
     )
 
 
+# ------------------------------------------------------------------------------- Dependencies
+DEPENDENCIES_HEADING = re.compile(r"dependenc|requirement|prerequisite", re.IGNORECASE)
+_BULLET_KEY = re.compile(r"^- `([^`]+)`")
+_ZERO = re.compile(
+    r"(?i)\b(?:no|zero|without)\s+(?:required\s+|third[- ]party\s+|runtime\s+)*dependenc"
+)
+
+
+_NONE = re.compile(r"(?i)\bnone\b")
+
+
+def _bullet_token(line: str) -> str | None:
+    """What a rendered dependency bullet is about: its package name, or its floor version."""
+    match = _BULLET_KEY.match(line)
+    if match is not None:
+        return re.split(r"[<>=!~ \[]", match.group(1), maxsplit=1)[0].lower()
+    floor = re.search(r"(\d+(?:\.\d+)*)", line)
+    return floor.group(1) if line.startswith("- Requires") and floor else None
+
+
+@detector("add_dependency_groups")
+def add_dependency_groups(ctx: Context) -> DetectorResult:
+    """Dependency groups the README's Dependencies section never mentions, from the dependency
+    facts: a group (Required, Optional, Native and System, Development) the README has no heading
+    for, with only the entries whose package or floor version the README names nowhere."""
+    section = find_section(ctx, DEPENDENCIES_HEADING)
+    point = None if section is None else append_point(ctx, section)
+    if section is None or point is None:
+        return DetectorResult()
+    body = _render_section(ctx, "dependencies", ctx.facts.facts)
+    if not body:
+        return DetectorResult()
+    headings = {ln.text.strip("# ").strip().lower() for ln in ctx.lines if ln.text.startswith("#")}
+    readme = ctx.readme.lower()
+    section_text = chr(10).join(line.text for line in section.lines)
+    groups: list[tuple[str, list[str]]] = []
+    for line in body.splitlines():
+        if line.startswith("### "):
+            groups.append((line, []))
+        elif groups and line.strip():
+            groups[-1][1].append(line)
+    block: list[str] = []
+    for heading, lines in groups:
+        if heading[4:].strip().lower() in headings:
+            continue
+        kept = []
+        for line in lines:
+            token = _bullet_token(line)
+            if not line.startswith("- "):  # the "no required dependencies" statement
+                if not (_ZERO.search(ctx.readme) or _NONE.search(section_text)):
+                    kept.append(line)
+            elif token is not None and token not in readme:
+                kept.append(line)
+        if kept:
+            block += [heading, "", *kept, ""]
+    if not block:
+        return DetectorResult()
+    cited = tuple(
+        sorted(
+            f.id for f in ctx.facts.facts if f.kind == "dependency" and f.polarity == "SUPPORTED"
+        )
+    )[:20]
+    floor = spec_for_ecosystem(ctx).floor_fact_id
+    if floor and ctx.supported(floor) is not None:
+        cited += (floor,)
+    return DetectorResult(
+        edits=(
+            Edit(
+                kind=MISSING_INFO,
+                detector="add_dependency_groups",
+                start=point.offset,
+                end=point.offset,
+                original="",
+                replacement=addition_text(ctx, point, block[:-1], continue_list=False),
+                fact_ids=cited,
+                rationale=(
+                    f"'{section.title}' names none of the dependency information of the cited "
+                    "facts for the groups added"
+                ),
+            ),
+        )
+    )
+
+
 # --------------------------------------------------------------------------------- Installation
 def _chunks(body: str) -> list[tuple[str, str, list[str]]]:
     """``(lead, language, fence lines)`` of each fenced block in ``body``, with the paragraph

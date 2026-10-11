@@ -47,13 +47,14 @@ class InvalidEditError(ValueError):
 
 
 def _opens_heading(text: str) -> bool:
-    """Whether ``text`` has an ATX heading line outside a fenced block."""
+    """Whether ``text`` has an H1 or H2 heading line outside a fenced block: an addition may carry
+    a sub-heading (H3 and deeper) of the section it joins, never a section of its own."""
     inside = False
     for line in text.splitlines():
         stripped = line.strip()
         if stripped.startswith(("```", "~~~")):
             inside = not inside
-        elif not inside and line.startswith("#") and line.lstrip("#").startswith(" "):
+        elif not inside and (line.startswith("# ") or line.startswith("## ")):
             return True
     return False
 
