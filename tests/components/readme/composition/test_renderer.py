@@ -2084,7 +2084,7 @@ def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
     assert section == [
         "```mermaid",
         '%%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false, "nodeSpacing": 22, '
-        '"rankSpacing": 26, "padding": 10, "useMaxWidth": true}}}%%',
+        '"rankSpacing": 26, "padding": 10, "useMaxWidth": true, "wrappingWidth": 400}}}%%',
         "flowchart LR",
         '  subgraph StartingPoints["Starting Points"]',
         "    direction TB",

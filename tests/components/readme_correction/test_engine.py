@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import subprocess
-import sys
 from typing import Any
 
 import pytest
@@ -11,6 +9,8 @@ import pytest
 from repository_presenter.components.readme_correction.detectors import load_detectors
 from repository_presenter.components.readme_correction.engine import correct, is_stable
 from repository_presenter.components.readme_correction.model import Context
+
+NL = chr(10)
 
 README = """# Product
 
@@ -145,14 +145,38 @@ def test_a_conformant_readme_yields_no_edit_and_no_diff(make_context: Any) -> No
     assert result.edits == [] and result.corrected == clean
 
 
-def test_the_correction_path_loads_no_model_client() -> None:
-    code = (
-        "import sys\n"
-        "import repository_presenter.components.readme_correction.engine as engine\n"
-        "engine.load_detectors()\n"
-        "banned = ('repository_presenter.core.llm.transport', 'openai')\n"
-        "bad = [m for m in sys.modules if m.startswith(banned)]\n"
-        "sys.exit(1 if bad else 0)\n"
-    )
-    done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=False)
-    assert done.returncode == 0, done.stderr
+def test_the_correction_path_names_no_model_client_and_reaches_no_network(
+    make_context: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Zero provider calls by construction. The shared validator's own import graph may load a
+    client library, so what is held is that this package never names one and that a whole run
+    (detectors, settle, validation) opens no socket - a provider call would need one."""
+    import ast
+    import socket
+    from pathlib import Path
+
+    import repository_presenter.components.readme_correction as package
+
+    banned = ("openai", "anthropic", "httpx", "requests", "repository_presenter.core.llm")
+    for path in Path(package.__file__).parent.rglob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names = (
+                [a.name for a in node.names]
+                if isinstance(node, ast.Import)
+                else [node.module or ""]
+                if isinstance(node, ast.ImportFrom)
+                else []
+            )
+            assert not [n for n in names if n.startswith(banned)], (path.name, names)
+
+    def refuse(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("the correction path opened a network connection")
+
+    monkeypatch.setattr(socket.socket, "connect", refuse)
+    monkeypatch.setattr(socket, "create_connection", refuse)
+    from repository_presenter.components.readme_correction.settle import correct_settled
+
+    readme = "# Aspose.3D FOSS for Java" + NL + NL + "## Installation" + NL + NL + "x" + NL
+    ctx = make_context(readme)
+    result, delta = correct_settled(ctx, readme.encode())
+    assert delta["introduced"] == [] and result.corrected

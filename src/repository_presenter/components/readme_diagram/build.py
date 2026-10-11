@@ -19,9 +19,10 @@ Why the diagram is drawn this way (each point measured in a real render, Mermaid
   one font: any wider font clips them. ``htmlLabels: false`` (both the root and the ``flowchart``
   key, for 11.4 to 12.1) draws SVG text in a box sized from the text, which survives a font swap.
 * **No re-wrapping.** Every label is broken into ``<br/>`` lines by ``geometry.wrap_label`` inside
-  a pixel budget that stays under Mermaid's own 200 px wrap width, so the renderer never wraps it
-  again. (``wrappingWidth`` is deliberately not set: in 12.1 its mere presence reverses the order of
-  the two capability columns.)
+  a pixel budget that stays under the wrap width, so the renderer never wraps it again. Mermaid 11
+  wraps at 200 px; Mermaid 12 wraps SVG text at about 15 characters and splits words, so
+  ``wrappingWidth`` is set to ``WRAPPING_WIDTH_PX`` (in 12.1 the two capability columns are then
+  drawn in the renderer's own order, as they already were in 20 of 23 live diagrams).
 * **Characters Mermaid would eat.** ``<u8>`` in a label is dropped as an HTML tag. ``<`` and ``>``
   are written ``#lt;`` and ``#gt;``, which draw correctly from Mermaid 11.14; before 11.14 SVG
   labels show any ``&``, ``<`` or ``>`` as its entity text (a Mermaid bug, measured 11.4 to 11.13),
@@ -39,6 +40,12 @@ from collections.abc import Sequence
 from repository_presenter.components.readme_diagram.geometry import wrap_label
 from repository_presenter.components.readme_diagram.model import Glance
 
+#: Mermaid 12 re-wraps SVG text labels at about 15 characters on top of the hard ``<br/>`` breaks,
+#: and breaks inside a word ("password-protec / ted)"); 11.x does not. A wrapping width wider than
+#: any label line (the budgets below are 200 px) leaves the builder's own breaks as the only ones
+#: on every release (measured on 11.4.1, 11.12.0, 11.17.2 and 12.1.0: 0 re-wraps, 0 split words,
+#: lines unchanged on 11.x).
+WRAPPING_WIDTH_PX = 400
 #: ``htmlLabels`` is set at the root and under ``flowchart``: from 11.17 the root key alone gives
 #: all-SVG labels, but 11.4 to 11.12 draw the group titles as HTML unless both are set (measured).
 INIT: dict[str, object] = {
@@ -49,6 +56,7 @@ INIT: dict[str, object] = {
         "rankSpacing": 26,
         "padding": 10,
         "useMaxWidth": True,
+        "wrappingWidth": WRAPPING_WIDTH_PX,
     },
 }
 #: The line budget, in modelled pixels, for one capability column and for two: two columns share

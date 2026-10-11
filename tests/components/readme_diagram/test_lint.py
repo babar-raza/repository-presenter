@@ -70,7 +70,8 @@ def test_after_the_rebuild_no_live_diagram_has_a_defect(live: dict[str, str]) ->
         advisories.update(advisory.code for advisory in report.advisories)
     # What a rewrite must keep, the label's own text: it is reported, never changed.
     assert advisories[LABEL_ENTITY_RISK] == 1
-    assert advisories[LABEL_TOKEN_WIDE] >= 2
+    # With the wrapping width at 400 px no live label holds a single word wider than it.
+    assert advisories[LABEL_TOKEN_WIDE] == 0
 
 
 def test_a_diagram_built_by_the_builder_is_conforming() -> None:

@@ -278,3 +278,56 @@ def test_the_shipped_pins_are_the_releases_the_investigation_measured(
 ) -> None:
     run = rc.measure(renderer, {"x": build_body(GLANCE)}, package="mermaid")
     assert run.mermaid == "11.17.2"
+
+
+# ---- a word split across two lines --------------------------------------------------------------
+def test_a_word_broken_across_two_lines_is_told_from_a_break_between_words() -> None:
+    label = "An existing XLSX workbook (including password-protected)"
+    assert (
+        rc.split_words(label, ["An existing XLSX", "workbook (including", "password-protected)"])
+        == []
+    )
+    broken = rc.split_words(
+        label, ["An existing XLSX", "workbook (including", "password-protec", "ted)"]
+    )
+    assert broken == ["password-protec", "ted)"]
+
+
+def test_a_node_drawn_with_a_split_word_fails_the_entry_on_any_release() -> None:
+    entry = _entry()
+    node = next(n for n in entry["native"]["nodes"] if n["id"] == "c1")
+    label = node_ids(GLANCE)["c1"]
+    node["line_texts"] = [label[:6], label[6:]]  # breaks "Capability" in the middle
+    assert any("breaks a word across lines" in f for f in rc.check_entry(entry, GLANCE))
+    node["line_texts"] = [" ".join(label.split()[:2]), " ".join(label.split()[2:])]
+    assert not any("breaks a word" in f for f in rc.check_entry(entry, GLANCE))
+
+
+def test_no_live_diagram_rebuilt_splits_a_word_on_any_installed_release(
+    renderer: rc.Renderer, live: dict[str, str]
+) -> None:
+    glances = {name: parse(body).glance for name, body in live.items()}
+    for package in rc.installed_packages(renderer):
+        run = rc.measure(
+            renderer,
+            {n: build_body(g) for n, g in glances.items()},
+            package=package,
+            fonts=("Arial",),
+        )
+        splits = {
+            name: rc._split_failures(entry, glances[name]) for name, entry in run.entries.items()
+        }
+        assert {n: s for n, s in splits.items() if s} == {}, package
+
+
+def test_without_the_wrapping_width_mermaid_12_breaks_words_and_the_check_sees_it(
+    renderer: rc.Renderer, live: dict[str, str]
+) -> None:
+    if "mermaid_12_1_0" not in rc.installed_packages(renderer):
+        pytest.skip("mermaid 12.1.0 is not installed in the tool directory")
+    glances = {name: parse(body).glance for name, body in live.items()}
+    old = {n: build_body(g).replace(', "wrappingWidth": 400', "") for n, g in glances.items()}
+    assert all("wrappingWidth" not in body for body in old.values())
+    run = rc.measure(renderer, old, package="mermaid_12_1_0", fonts=("Arial",))
+    broken = [n for n, e in run.entries.items() if rc._split_failures(e, glances[n])]
+    assert broken, "the negative control found no split word: the check would not bite"

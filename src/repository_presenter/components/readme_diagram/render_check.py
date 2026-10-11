@@ -192,6 +192,43 @@ def _squash(text: str) -> str:
     return re.sub(r"\s+", "", html.unescape(text))
 
 
+def split_words(label: str, drawn_lines: list[str]) -> list[str]:
+    """The words of ``label`` that ``drawn_lines`` (what the browser drew, line by line) break in
+    the middle: the lines read back as words differ from the label's words by a split token
+    ("password-protec" / "ted)"). Empty when every break falls between words."""
+    wanted = label.split()
+    drawn = " ".join(drawn_lines).split()
+    if drawn == wanted:
+        return []
+    pieces = set(drawn) - set(wanted)
+    return sorted(pieces) or ["(words differ)"]
+
+
+def _split_failures(entry: Mapping[str, Any], glance: Glance) -> list[str]:
+    """Every label (node or group title) drawn with a word broken across two lines, on this
+    release. Nodes are held to their own label, group titles to one of the diagram's titles."""
+    native = entry["native"]
+    failures: list[str] = []
+    expected = node_ids(glance)
+    for node in native["nodes"]:
+        lines = node.get("line_texts")
+        label = expected.get(node["id"])
+        if not lines or label is None:
+            continue
+        broken = split_words(html.unescape(label), [html.unescape(line) for line in lines])
+        if broken:
+            failures.append(f"{node['id']} breaks a word across lines: {broken}")
+    titles = [html.unescape(title).split() for title in glance.titles]
+    for cluster in native["clusters"]:
+        lines = cluster.get("line_texts")
+        if not lines or not titles:
+            continue
+        drawn = " ".join(html.unescape(line) for line in lines).split()
+        if drawn and drawn not in titles:
+            failures.append(f"{cluster['id'] or 'cluster'} breaks a word across lines: {drawn}")
+    return failures
+
+
 def _column_failures(
     group: str, ids: list[str], nodes: Mapping[str, Mapping[str, Any]]
 ) -> list[str]:
@@ -291,6 +328,7 @@ def check_entry(
             failures.append("the second capability column is not to the right of the first")
         elif not columns_in_order and first_right > second_left and second_right > first_left:
             failures.append("the two capability columns are not side by side")
+    failures += _split_failures(entry, glance)
     failures += _model_failures(entry, glance)
     failures += [f"native: {item} exceeds its box" for item in spills(native)]
     for font, snapshot in entry["stress"].items():

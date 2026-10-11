@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "about": "Owner-recorded reasons not to open a correction pull request yet. A hold changes nothing in the bundle; it tells whoever sends pull requests to pair this one with an issue first (components/readme_correction/send.py).",
+  "holds": [
+    {
+      "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+      "reason_code": "UPSTREAM_SOURCE_DOES_NOT_PARSE",
+      "reason": "35 of 45 source files do not parse at the pinned revision (an independent review counted 102 of 119 .py files at head 181015d2): the library cannot be imported, so polishing its README should wait for, or be paired with, the upstream-defect issue.",
+      "pair_with": "the upstream-defect issue for the unparsable sources",
+      "recorded": "2026-10-11"
+    },
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+      "reason_code": "README_ADVERTISES_UNSUPPORTED_FORMATS",
+      "reason": "the At a Glance diagram, whose labels the redraw republishes verbatim, advertises U3D, RVM, AMF and HTML5, but IOService switches only on OBJ, STL, glTF, FBX, 3MF, COLLADA, PLY and 3DS and throws otherwise.",
+      "pair_with": "an issue naming the formats the code rejects, opened with the pull request",
+      "recorded": "2026-10-11"
+    }
+  ]
+}

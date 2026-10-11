@@ -18,6 +18,7 @@ from repository_presenter.components.readme_diagram.build import (
     BUDGET_ONE_COLUMN_PX,
     BUDGET_TWO_COLUMNS_PX,
     INIT,
+    WRAPPING_WIDTH_PX,
     encode_text,
     line_budget_px,
     node_ids,
@@ -46,15 +47,17 @@ def test_the_diagram_opens_with_the_init_line_and_flows_left_to_right() -> None:
     assert build_block(GLANCE) == ["```mermaid", *lines, "```"]
 
 
-def test_the_init_line_draws_svg_text_under_both_keys_and_leaves_wrapping_to_the_builder() -> None:
+def test_the_init_line_draws_svg_text_under_both_keys_and_widens_the_renderers_wrapping() -> None:
     directive = init_directive()
     assert directive.startswith("%%{init: ") and directive.endswith("}%%")
     config = json.loads(directive.removeprefix("%%{init: ").removesuffix("}%%"))
     assert config == INIT
     assert config["htmlLabels"] is False
     assert config["flowchart"]["htmlLabels"] is False
-    # Setting wrappingWidth reverses the order of the two capability columns in Mermaid 12.1.
-    assert "wrappingWidth" not in config["flowchart"]
+    # Mermaid 12 re-wraps SVG labels at ~15 characters and splits words; a width above every label
+    # line leaves the builder's own <br/> breaks as the only ones (measured on four releases).
+    assert config["flowchart"]["wrappingWidth"] == WRAPPING_WIDTH_PX == 400
+    assert max(BUDGET_ONE_COLUMN_PX, BUDGET_TWO_COLUMNS_PX) < WRAPPING_WIDTH_PX
 
 
 def test_the_three_blocks_and_the_product_are_declared_in_chain_order() -> None:
