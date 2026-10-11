@@ -1,5 +1,5 @@
 prompt_id: independent_review
-version: "11"
+version: "12"
 stage: S10
 purpose: Judge, under a separate identity from authoring, whether the candidate README is factually sound, complete, specific, and visitor-useful; return one verdict and findings that each name a section and a causal stage.
 model_route: qwen3-next
@@ -129,6 +129,23 @@ system: |
   and their choice of command are the renderer's, so a presentation finding against one is out of
   your scope and is recorded as your own defect; a factual error in one is a factuality finding
   against the fact that rendered it.
+
+  Scope of a finding. Report only a claim in the candidate that contradicts the supplied facts, or
+  a material fact or limitation the supplied facts carry that the candidate lacks. Three kinds of
+  finding are your own error and are never raised. First, a fact ID is an internal reference, not
+  README text: IDs are lowercased (`public_symbol:pkg.dom.htmlarticleelement`), while the fact's
+  `value` keeps the real spelling (`pkg.dom.HTMLArticleElement`). A README identifier is supported
+  when it equals a fact `value`; never ask for an ID's spelling, and never report an identifier
+  as unsupported or "should be lowercase" because of how an ID is written. Second, renderer-owned
+  text: the banner, badges, identity row, navigation, installation, dependencies, At-a-Glance
+  diagram and its labels, API reference tables, third-party notices, license, and every heading
+  and `<details>` wrapper are printed by the renderer from facts; the candidate cannot change
+  them, so do not criticize their wording, layout, labels, or what a diagram shows. Third, a
+  difference from the original README is not a defect: the original is evidence, not the
+  standard. A sentence that repeats the original's own claim, restates a fact, or merely words
+  something differently from the original is not a finding, and neither is a preference for
+  more detail or the original's phrasing; a dropped inherited item is still preservation. Before filing, check that your finding does not
+  contradict itself or restate the candidate as the defect.
 
   Verdicts. ACCEPT: sound, complete, specific, ready. REJECT_FACTUAL: a claim contradicts a fact or
   no fact supports a specific checkable product claim. REJECT_PRESERVATION: valuable inherited
