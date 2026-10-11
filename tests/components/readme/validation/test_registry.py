@@ -21,10 +21,18 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.link_budget import LinkAllocationPolicy
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.composition.renderer import (
+    RenderContext,
+    _installation,
     api_reference_names,
     collapse_document_blank_runs,
     render_readme,
 )
+from repository_presenter.components.readme.evidence.facts.unpublished import (
+    README_STATEMENT_PHRASE,
+    documented_source_install,
+)
+from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.extractors.surface.registry import observe
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
@@ -47,12 +55,16 @@ from repository_presenter.components.readme_diagram import Glance, build_body, p
 from repository_presenter.components.readme_diagram.rebuild import mermaid_fences
 from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
+    DOCUMENTED_COMMAND_ATTRIBUTE,
+    REGISTRY_STATE_ATTRIBUTE,
+    SOURCE_BASIS_ATTRIBUTE,
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Evidence,
     Fact,
     FactsDocument,
 )
+from repository_presenter.core.package_registry import fact_registry_reading
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
 from support import JAVA3D_DOCS_LIST, JAVA3D_SCOPE_LIST, REPO_ROOT
@@ -3193,3 +3205,357 @@ def test_bc12_still_fails_a_misspelled_product_name_in_prose(
     details = _bc12_details(suffix, readme)
     assert details, sentence
     assert all(f"product name {found!r} is not the canonical name" in d for d in details), details
+
+
+# --- wave 6, BC-02: an unpublished package is a verified state, not a refusal ---------------------
+# Eleven of the 44 wave-6 rows died at BC-02 with one sentence over three different causes. The
+# rows below are recorded from that reseal (cut 8fbf2166): the install fact the facts stage built,
+# the maintainers' README, the checkout's root files. The gate must pass the ones whose package is
+# honestly unpublished and keep refusing every other cause - each with its own class.
+
+_UNPUBLISHED_ROWS: dict[str, Any] = json.loads(
+    (
+        Path(__file__).parents[1] / "evidence" / "facts" / "fixtures" / "unpublished_rows.json"
+    ).read_text("utf-8")
+)
+
+
+def _unpub_fact(raw: dict[str, Any]) -> Fact:
+    return Fact(
+        raw["id"],
+        raw["kind"],
+        raw["value"],
+        tuple(Evidence(e["path"], e["detail"]) for e in raw["evidence"]),
+        polarity=raw["polarity"],
+        confidence=raw["confidence"],
+        attributes=raw["attributes"],
+    )
+
+
+def _unpub_entry(name: str) -> RegistryEntry:
+    registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text("utf-8"))
+    raw = next(
+        e for e in registry["entries"] if e["repository"] == _UNPUBLISHED_ROWS[name]["repository"]
+    )
+    return RegistryEntry.model_validate(raw)
+
+
+def _unpub_siblings(name: str) -> list[Fact]:
+    row = _UNPUBLISHED_ROWS[name]
+    return [_unpub_fact(r) for r in (row["package_name_fact"], row["build_command_fact"]) if r]
+
+
+def _unpub_install(name: str, *, admitted: bool) -> Fact:
+    """The install fact of a recorded row: as the reseal recorded it, or as the facts stage now
+    builds it (the Go proxy's empty list read as the answer it is, then the documented checkout)."""
+    row = _UNPUBLISHED_ROWS[name]
+    install = _unpub_fact(row["install_fact"])
+    if not admitted:
+        return install
+    if name == "jmap-go":
+        answer = SimpleNamespace(status_code=200, body=b"")
+        reading = observe(
+            "go",
+            row["package_name_fact"]["value"],
+            fetch=lambda url, **_: answer,
+            sleep=lambda _s: None,
+        )
+        polarity, confidence, detail = reading.install_verdict()
+        install = dataclasses.replace(
+            install,
+            polarity=polarity,
+            confidence=confidence,
+            evidence=(install.evidence[0], Evidence(reading.evidence_url or "", detail)),
+        )
+    plugin_for(row["ecosystem"])
+    return documented_source_install(
+        install,
+        _unpub_entry(name),
+        facts=_unpub_siblings(name),
+        tree_paths=row["root_paths"],
+        readme_path="README.md",
+        readme_text=row["readme_installation"],
+        registry_less=row["ecosystem"] == "cpp",
+    )
+
+
+def _unpub_candidate(name: str, install: Fact, readme: str | None = None) -> Candidate:
+    row = _UNPUBLISHED_ROWS[name]
+    entry = _unpub_entry(name)
+    facts = FactsDocument(
+        row["repository"],
+        REVISION,
+        (
+            _fact("identity:repository", "identity", row["repository"]),
+            install,
+            *_unpub_siblings(name),
+        ),
+    )
+    if readme is None:
+        installation = "\n".join(_installation(RenderContext(entry, facts, {}, {}, {})))
+        readme = f"## Installation\n\n{installation}\n"
+    return Candidate(
+        entry,
+        facts,
+        PLAN,
+        UNITS,
+        DISPOSITIONS,
+        readme,
+        ORIGINAL,
+        REVISION,
+        hashlib.sha256(ORIGINAL).hexdigest(),
+        tuple(row["root_paths"]),
+        TASKS,
+    )
+
+
+_ADMITTED_ROWS = ["jmap-java", "jmap-go", "jmap-cpp", "jmap-rust", "jmap-python", "cells-rust"]
+
+
+@pytest.mark.parametrize("name", _ADMITTED_ROWS)
+def test_bc_02_passes_the_recorded_unpublished_rows_once_the_install_is_a_documented_checkout(
+    name: str,
+) -> None:
+    """The wave-6 rows whose package is unpublished by the registry's own answer and the
+    maintainers' own README: BC-02 passes the documented source checkout, and the rendered
+    Installation says so plainly and gives the clone plus the repository's own build."""
+    install = _unpub_install(name, admitted=True)
+    candidate = _unpub_candidate(name, install)
+    assert _check_install(candidate) == []
+    assert "from a source checkout" in candidate.readme
+    assert install.value in candidate.readme
+    registry_command = (install.attributes or {}).get("registry_command")
+    if registry_command:
+        assert registry_command not in candidate.readme
+
+
+@pytest.mark.parametrize(
+    ("name", "marker"),
+    [
+        ("jmap-java", "PACKAGE_ABSENT"),
+        ("jmap-rust", "PACKAGE_ABSENT"),
+        ("jmap-python", "PACKAGE_ABSENT"),
+        ("cells-rust", "PACKAGE_ABSENT"),
+        ("jmap-go", "RETRY_REGISTRY_READ"),
+        ("jmap-cpp", "NO_REGISTRY"),
+        ("3d-python", ""),
+        ("page-python", ""),
+    ],
+)
+def test_bc_02_still_refuses_the_rows_as_the_reseal_recorded_them_each_with_its_own_class(
+    name: str, marker: str
+) -> None:
+    """Without the admission the install fact is non-SUPPORTED and BC-02 refuses at EXTRACTING -
+    but the sentence now says which cause it is: an absent package, a registry that gave no answer
+    (a retry, not a defect of the candidate), a registry-less ecosystem, or an ownerless name."""
+    install = _unpub_install(name, admitted=False)
+    candidate = _unpub_candidate(name, install, readme="## Installation\n\nx\n")
+    failures = _check_install(candidate)
+    assert failures and failures[0].stage == "EXTRACTING"
+    detail = failures[0].detail
+    assert detail.startswith(f"{install.id} is {install.polarity}: ")
+    classes = {"PACKAGE_ABSENT", "RETRY_REGISTRY_READ", "NO_REGISTRY"}
+    assert {c for c in classes if c in detail} == ({marker} if marker else set()), detail
+
+
+def test_bc_02_refuses_a_documented_checkout_whose_admission_is_not_all_on_the_fact() -> None:
+    """Mutation controls: a fact that merely claims the documented shape is held to the three
+    records that admit it - the registry's own answer, the maintainers' statement, and a build the
+    repository documents - so none can be dropped, swapped or rewritten without BC-02 noticing."""
+    install = _unpub_install("jmap-rust", admitted=True)
+    attributes = install.attributes or {}
+    steps = attributes[DOCUMENTED_COMMAND_ATTRIBUTE]
+    assert attributes[SOURCE_BASIS_ATTRIBUTE] == "documented"
+
+    def refused(mutant: Fact) -> str:
+        failures = _check_install(_unpub_candidate("jmap-rust", mutant))
+        assert failures and failures[0].stage == "EXTRACTING", mutant
+        return " | ".join(f.detail for f in failures)
+
+    def without(phrase: str) -> tuple[Evidence, ...]:
+        return tuple(e for e in install.evidence if phrase not in (e.detail or ""))
+
+    assert "README is not recorded as saying it is unpublished" in refused(
+        dataclasses.replace(install, evidence=without(README_STATEMENT_PHRASE))
+    )
+    assert "documents no build to state" in refused(
+        dataclasses.replace(install, evidence=without("documented source build"))
+    )
+    unread = dataclasses.replace(
+        install,
+        evidence=(
+            install.evidence[0],
+            Evidence("https://crates.io/x", "package registry: crates-io could not be read"),
+            *install.evidence[2:],
+        ),
+    )
+    assert "does not show the package unpublished" in refused(unread)
+    assert "does not show the package unpublished" in refused(
+        dataclasses.replace(install, attributes={**attributes, REGISTRY_STATE_ATTRIBUTE: "found"})
+    )
+    invented = "cargo install --path ."
+    assert "the repository documents 'cargo build'" in refused(
+        dataclasses.replace(
+            install,
+            value=install.value.replace(steps, invented),
+            attributes={**attributes, DOCUMENTED_COMMAND_ATTRIBUTE: invented},
+        )
+    )
+    assert "does not end with the documented steps" in refused(
+        dataclasses.replace(install, value=install.value.replace(steps, "cargo build --release"))
+    )
+    assert "is a source_checkout kind" in refused(
+        dataclasses.replace(install, attributes={**attributes, "install_kind": "source"})
+    )
+
+
+def test_bc_02_refuses_a_readme_that_prints_the_registry_install_of_an_unpublished_package() -> (
+    None
+):
+    """Negative control (3): the registry says there is nothing to install, so the page may not
+    tell a reader to run the command the manifest implied - not exactly, not re-spelled, not
+    inline - while the documented checkout beside it stays accepted."""
+    cases = {
+        "jmap-rust": ["cargo add aspose-jmap-foss", "cargo add aspose-jmap-foss@0.1.0"],
+        "jmap-python": [
+            "pip install aspose-jmap-foss",
+            "python -m pip install aspose-jmap-foss==0.1.0",
+        ],
+        "jmap-go": ["go get github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go"],
+        "jmap-java": [
+            "mvn dependency:get -Dartifact=com.aspose:aspose-jmap-foss:0.1.0",
+            "mvn dependency:get -Dartifact=com.aspose:aspose-jmap-foss:0.1.0 -Dtransitive=false",
+        ],
+    }
+    for name, commands in cases.items():
+        honest = _unpub_candidate(name, _unpub_install(name, admitted=True))
+        assert _check_install(honest) == [], name
+        for command in commands:
+            readme = honest.readme + f"\n```bash\n{command}\n```\n"
+            failures = _check_install(dataclasses.replace(honest, readme=readme))
+            assert [f.stage for f in failures] == ["COMPOSING"], (name, command, failures)
+            assert command in failures[0].detail
+    honest = _unpub_candidate("jmap-rust", _unpub_install("jmap-rust", admitted=True))
+    inline = dataclasses.replace(
+        honest, readme=honest.readme + "\nRun `cargo add aspose-jmap-foss`.\n"
+    )
+    assert [f.stage for f in _check_install(inline)] == ["COMPOSING"]
+    # A git or path dependency is not a registry install: it is accepted.
+    toml = '```toml\n[dependencies]\naspose-jmap-foss = { git = "https://github.com/x/y" }\n```\n'
+    assert _check_install(dataclasses.replace(honest, readme=honest.readme + "\n" + toml)) == []
+
+
+def test_a_kept_inherited_registry_command_routes_to_its_disposition_not_to_the_section() -> None:
+    """The README's own `pip install aspose-3d-foss` block, kept verbatim by a VERIFIED_PRESERVE,
+    cannot be changed by the Installation section's author; the earliest cause is the keep. The
+    failure names the unit and its stage so the repair re-asks the disposition."""
+    registry = Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-3d-foss",
+        (
+            Evidence("setup.py", "distribution name declared by the manifest"),
+            Evidence(
+                "https://pypi.org/pypi/aspose-3d-foss/json",
+                "package registry: distribution not found",
+            ),
+        ),
+        polarity="CONTRADICTED",
+    )
+    plugin_for("python")
+    documented = documented_source_install(
+        registry,
+        ENTRY,
+        facts=[],
+        tree_paths=["LICENSE", "setup.py"],
+        readme_path="README.md",
+        readme_text="No package has been published to PyPI yet; build the library from source.",
+        registry_less=False,
+    )
+    assert documented.polarity == "SUPPORTED" and documented.value.endswith("\npip install .")
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(documented if f.id == "install_command:pip" else f for f in BASE_FACTS),
+    )
+    assert _check_install(_candidate(facts=facts)) == [], "superseded: nothing prints the command"
+
+    kept = copy.deepcopy(DISPOSITIONS)
+    kept["dispositions"][3] = {
+        **kept["dispositions"][3],
+        "disposition": "VERIFIED_PRESERVE",
+        "destination_section": "installation",
+    }
+    failures = _check_install(_candidate(facts=facts, dispositions=kept))
+    assert [(f.stage, f.unit) for f in failures] == [
+        ("RECONCILING", "inherited_unit:004.code_block")
+    ]
+    assert "pip install aspose-3d-foss" in failures[0].detail
+
+
+def test_bc_02_is_unchanged_for_a_registry_install_that_is_published() -> None:
+    """The registry-kind path is untouched: a published, corroborated package keeps its registry
+    command, and no registry-command check applies without a recorded unpublished state."""
+    assert _check_install(_candidate()) == []
+
+
+def test_bc_02_accepts_a_registry_less_install_the_readme_replaces_with_a_distribution() -> None:
+    """Aspose.PDF for C++ (row 34): no registry, and the upstream CMake configure fails on the
+    runner, so install_command:cmake is UNRESOLVED forever - yet the Installation states the NuGet
+    package a registry confirmed and prints no command. The UNRESOLVED fact is not a claim the
+    page makes, so it is not refused; it is the moment the page prints its command."""
+    row = _UNPUBLISHED_ROWS["pdf-cpp"]
+    install = _unpub_fact(row["install_fact"])
+    distribution = _unpub_fact(row["distribution_facts"][0])
+    entry = _unpub_entry("pdf-cpp")
+    facts = FactsDocument(
+        row["repository"],
+        REVISION,
+        (
+            _fact("identity:repository", "identity", row["repository"]),
+            install,
+            distribution,
+            *_unpub_siblings("pdf-cpp"),
+        ),
+    )
+    installation = "\n".join(_installation(RenderContext(entry, facts, {}, {}, {})))
+    assert installation == f"The library is published on NuGet as `{distribution.value}`."
+    candidate = Candidate(
+        entry, facts, PLAN, UNITS, DISPOSITIONS, f"## Installation\n\n{installation}\n", ORIGINAL,
+        REVISION, hashlib.sha256(ORIGINAL).hexdigest(), tuple(row["root_paths"]), TASKS,
+    )  # fmt: skip
+    assert _check_install(candidate) == []
+
+    # Negative controls: print the unverified CMake command, state no distribution, or lean on a
+    # distribution no registry confirmed - each is the refusal it always was.
+    printed = dataclasses.replace(
+        candidate, readme=candidate.readme + f"\n```bash\n{install.value}\n```\n"
+    )
+    assert "NO_REGISTRY" in _check_install(printed)[0].detail
+    silent = dataclasses.replace(candidate, readme="## Installation\n\nSee the website.\n")
+    assert "NO_REGISTRY" in _check_install(silent)[0].detail
+    unconfirmed = dataclasses.replace(
+        candidate,
+        facts=dataclasses.replace(
+            facts,
+            facts=tuple(
+                dataclasses.replace(f, polarity="UNRESOLVED") if f is distribution else f
+                for f in facts.facts
+            ),
+        ),
+    )
+    assert "NO_REGISTRY" in _check_install(unconfirmed)[0].detail
+
+
+def test_a_registry_having_ecosystems_unresolved_install_is_not_excused_by_a_distribution() -> None:
+    """The excuse is the registry-less ecosystem's alone: an unreadable or ownerless registry
+    reading is still refused, whatever else the facts hold."""
+    install = _unpub_install("jmap-go", admitted=False)
+    assert fact_registry_reading(install) == "unreadable"
+    row = _UNPUBLISHED_ROWS["pdf-cpp"]
+    stray = _unpub_fact(row["distribution_facts"][0])
+    candidate = _unpub_candidate("jmap-go", install, readme=f"## Installation\n\n`{stray.value}`\n")
+    candidate = dataclasses.replace(
+        candidate, facts=dataclasses.replace(candidate.facts, facts=(*candidate.facts.facts, stray))
+    )
+    assert "RETRY_REGISTRY_READ" in _check_install(candidate)[0].detail

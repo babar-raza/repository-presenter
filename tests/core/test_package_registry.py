@@ -6,12 +6,17 @@ import pytest
 
 from repository_presenter.core import package_registry
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.package_registry import (
+    RETRYABLE_READINGS,
     RegistryObservation,
+    fact_registry_reading,
     install_verdict,
     observe_distribution,
+    ownership_clause,
     points_at_repository,
     register_observer,
+    registry_reading,
 )
 
 
@@ -93,3 +98,64 @@ def test_only_a_corroborated_published_distribution_supports_an_install_claim() 
     assert verdict(repository_matched=None) == ("UNRESOLVED", 0.5)
     assert verdict(published=False, repository_matched=None) == ("CONTRADICTED", 1.0)
     assert verdict(conclusive=False, published=None) == ("UNRESOLVED", 0.5)
+
+
+# --- the class of a registry reading (BC-02, wave 6) ---------------------------------------------
+# The details are the ones the wave-6 reseal recorded on the install facts of the eleven BC-02 rows.
+
+
+@pytest.mark.parametrize(
+    ("detail", "reading"),
+    [
+        ("package registry: distribution not found on maven", "not_published"),  # JMAP-Java
+        ("package registry: distribution not found on cargo", "not_published"),  # JMAP-Rust
+        ("package registry: distribution not found", "not_published"),  # JMAP-Python (core read)
+        ("package registry: distribution not found on nuget", "not_published"),  # GIS
+        ("package registry: go_modules could not be read", "unreadable"),  # JMAP-Go as recorded
+        ("package registry unreachable: ConnectError", "unreadable"),  # core observation, outage
+        ("package registry: nuget answered ambiguously", "ambiguous"),
+        ("package registry: none could not be read", "no_registry"),  # JMAP-Cpp: C++ has none
+        ("package registry: found on pypi", "published"),
+        ("package registry: found; manifest version published", "published"),
+        (
+            "package registry: a distribution of this name exists, but " + ownership_clause(False),
+            "ownership_unconfirmed",
+        ),  # 3D-Python
+        (
+            "package registry: a distribution of this name exists, but " + ownership_clause(None),
+            "ownership_unconfirmed",
+        ),  # Page-Python
+        ("install command for the coordinate the `pom.xml` manifest declares", None),
+        ("source build for the CMake project; C++ has no package registry to install from", None),
+        ("", None),
+        (None, None),
+    ],
+)
+def test_a_registry_detail_is_classified_by_what_the_registry_did_say(
+    detail: str | None, reading: str | None
+) -> None:
+    assert registry_reading(detail) == reading
+
+
+def test_only_an_unanswered_read_is_a_retry_and_an_absent_package_is_not() -> None:
+    assert {"unreadable", "ambiguous"} == RETRYABLE_READINGS
+    assert "not_published" not in RETRYABLE_READINGS
+    assert "ownership_unconfirmed" not in RETRYABLE_READINGS
+
+
+def test_an_install_facts_reading_is_its_last_registry_line() -> None:
+    fact = Fact(
+        "install_command:cargo",
+        "install_command",
+        "cargo add aspose-jmap-foss",
+        (
+            Evidence("Cargo.toml", "install command for the crate name the manifest declares"),
+            Evidence("https://crates.io/x", "package registry: distribution not found on cargo"),
+        ),
+        polarity="CONTRADICTED",
+    )
+    assert fact_registry_reading(fact) == "not_published"
+    manifest_only = Fact(
+        "install_command:cargo", "install_command", "cargo add x", (Evidence("Cargo.toml", "m"),)
+    )
+    assert fact_registry_reading(manifest_only) is None

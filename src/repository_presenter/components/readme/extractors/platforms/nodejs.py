@@ -71,6 +71,7 @@ NODEJS = EcosystemSpec(
         "[![npm](https://img.shields.io/npm/v/{package}.svg)](https://www.npmjs.com/package/"
         "{package})"
     ),
+    source_dependencies="npm install",
     verify_command="npm ls {module}",
     # `import_pattern` is deliberately left at the default (`import x`), which a quoted specifier
     # never matches, so no Verify-the-install block is rendered - the same state TypeScript is in.

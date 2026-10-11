@@ -14,11 +14,19 @@ A transient answer is asked again before it is called unreadable. `observe()` re
 under `RETRY_POLICIES["package_registry"]` for every registry alike (G4-W17 arrival item 57: only
 `python_registry.py` retried, and lane F measured 5 of 10 NuGet reads unreadable in one run, each
 failing BC-02 at EXTRACTING for a package that is published); a registry that stays down still
-yields the inconclusive reading, never an exception.
+yields the inconclusive reading, never an exception. That includes a connection that dies in a way
+the vendored fetch does not translate (a TLS or protocol error raised mid-read): it is a missing
+answer, replayed and then unread, never a crash and never "the package is absent".
+
+Two readings are the registry's answer that nothing is published, and are read as such (wave 6,
+the JMAP libraries): a 404, and the Go proxy's 200 with an empty version list - a module with no
+tagged release. The vendored Go adapter files the second under "ambiguous"; it cannot be edited
+here (`_vendor` is unmodified by rule), so the façade reads the body the probe itself fetched.
 """
 
 from __future__ import annotations
 
+import http.client
 import json
 import re
 import time
@@ -184,7 +192,13 @@ class _RegistryReads:
         self.bodies = {}
 
     def __call__(self, url: str, *args: Any, **kwargs: Any) -> Any:
-        response = self._fetch(url, *args, **kwargs)
+        try:
+            response = self._fetch(url, *args, **kwargs)
+        except (OSError, http.client.HTTPException):
+            # The vendored fetch already turns a refused, timed-out or unresolvable connection into
+            # None; a TLS failure or a connection cut mid-response can still escape it. Either is
+            # an answer we did not get (ssl.SSLError is an OSError; IncompleteRead is not).
+            response = None
         if self.attempt >= self._max_attempts:
             self._keep(url, response)
             return response
@@ -482,6 +496,14 @@ def observe(
     live = result.get("live") or {}
     published = live.get("published")
     ambiguous = bool(live.get("ambiguous", True))
+    if kind == "go_modules" and ambiguous and reads is not None:
+        listed_body = reads.bodies.get(str(live.get("evidence_url")))
+        if listed_body is not None and not listed_body.strip():
+            # `@v/list` answered 200 and listed no version: the module has no tagged release, so
+            # nothing is published (Aspose.JMAP-FOSS-for-Go: "No versioned tag has been published
+            # yet"). The adapter calls this ambiguous "conservatively"; the proxy has said all it
+            # can say, and "could not be read" would send a retry at a question already answered.
+            published, ambiguous = False, False
     latest: str | None = None
     body: bytes | None = None
     listed: tuple[str, ...] = ()

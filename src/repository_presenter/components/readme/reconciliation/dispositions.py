@@ -69,6 +69,7 @@ from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
     DECLARED_SYMBOL_KINDS,
+    REGISTRY_COMMAND_ATTRIBUTE,
     Fact,
     FactsDocument,
     bounded_records,
@@ -114,6 +115,39 @@ def command_block_units(facts: FactsDocument) -> set[str]:
         first = fact.value.splitlines()[0].strip().lower() if fact.value.strip() else ""
         if fact.id.endswith(".code_block") and first[3:].strip() in _COMMAND_FENCES:
             found.add(fact.id)
+    return found
+
+
+def unpublished_registry_blocks(facts: FactsDocument) -> dict[str, str]:
+    """Inherited command blocks that print the registry install of an unpublished package, by
+    unit ID, with the install fact that records the package as unpublished (BC-02, wave 6).
+
+    The install fact of a package its registry reads as absent and its maintainers call unpublished
+    is the source checkout, and keeps the command the manifest would have implied
+    (``registry_command``). A README block carrying that command tells a reader to run something
+    that cannot succeed, so it is neither kept nor superseded by the Installation row (which prints
+    the checkout): it is the one command block that is rightly omitted, whatever build or install
+    facts exist. A block that also carries another command (a build step beside the install) is
+    not wholly the registry install and is left to BC-02, which names it for a rewrite.
+    """
+    implied = {
+        fact.id: set(_command_lines(str((fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE))))
+        for fact in facts.by_kind("install_command")
+        if fact.polarity == "SUPPORTED" and (fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE)
+    }
+    if not implied:
+        return {}
+    blocks = command_block_units(facts)
+    found: dict[str, str] = {}
+    for unit in facts.by_kind("inherited_unit"):
+        if unit.id not in blocks:
+            continue
+        lines = set(_command_lines(unit.value))
+        install_id = next(
+            (fid for fid, commands in sorted(implied.items()) if lines and lines <= commands), ""
+        )
+        if install_id:
+            found[unit.id] = install_id
     return found
 
 
@@ -1449,6 +1483,7 @@ def normalize(
     contradicted = code_units_by_polarity(facts, "CONTRADICTED")
     contradicted_links = contradicted_link_hrefs(facts)
     commands = command_block_units(facts)
+    unpublished = unpublished_registry_blocks(facts)
     units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     install_ids = sorted(
         f.id for f in facts.by_kind("install_command") if f.polarity == "SUPPORTED"
@@ -1466,6 +1501,20 @@ def normalize(
         destination = entry.get("destination_section")
         disposition = entry.get("disposition")
         cited = set(entry.get("fact_ids") or [])
+        if unit in unpublished:
+            # The registry says nothing is published, so this command cannot be run, and the
+            # Installation row prints the source checkout in its place. Omitted, never kept in
+            # Development and Testing (BC-02, wave 6: JMAP-Rust and JMAP-Python kept it there).
+            if disposition != "OMIT_UNSUPPORTED":
+                entry["rationale"] = (
+                    "The registry lists no such package, so this install command cannot be run; "
+                    "the Installation section states that the package is unpublished and gives "
+                    "the source checkout."
+                )
+            entry["disposition"] = "OMIT_UNSUPPORTED"
+            entry["destination_section"] = None
+            entry["fact_ids"] = sorted(cited | {unpublished[unit]})
+            continue
         if disposition in PLACING and unit in unresolved:
             entry["disposition"] = "DEFER_UNRESOLVED"
             entry["destination_section"] = None
@@ -1998,6 +2047,7 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     holdable = holdable_sections(facts)
     contradicted = contradicted_code_units(facts)
     commands = command_block_units(facts)
+    unpublished = unpublished_registry_blocks(facts)
     inherited = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     unit_text = {unit_id: fact.value for unit_id, fact in inherited.items()}
     build_facts = sorted(
@@ -2034,7 +2084,12 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
                 f"the shell can hold; the unit's exact text is {text}.{candidate_clause} Cite the "
                 "supporting fact IDs or place the unit; do not omit it without a cited reason"
             )
-        if disposition == "OMIT_UNSUPPORTED" and unit in commands and build_facts:
+        if (
+            disposition == "OMIT_UNSUPPORTED"
+            and unit in commands
+            and build_facts
+            and unit not in unpublished
+        ):
             # A command block is the maintainers' own build, test, or install command, not a
             # claim a fact could refute; with build or install facts recorded it is kept.
             errors.append(
