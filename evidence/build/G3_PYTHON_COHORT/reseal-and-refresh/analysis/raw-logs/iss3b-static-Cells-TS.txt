@@ -1,0 +1,27 @@
+# key: static-Cells-TS
+# repository clone: Aspose.Cells-FOSS-for-TypeScript
+# head: fc186507e5b7124f4664aa6035f25cfd3112367d
+# utc: 2026-10-11T17:49:37Z
+
+$ grep -n '"license"\|"description"\|"repository"\|"engines"' package.json; echo grep-exit=$?
+[exit 0]
+grep-exit=1
+
+$ grep -c 'Class in the Cells TYPESCRIPT API' README.md
+[exit 0]
+24
+
+$ head -12 package.json
+[exit 0]
+{
+  "name": "excel-cells",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@zip.js/zip.js": "^2.8.21",
+    "@xmldom/xmldom": "^0.8.10",
+    "adm-zip": "^0.5.16"
+  },

@@ -1,0 +1,18 @@
+# key: pypi-Slides-Python
+# repository clone: Aspose.Slides-FOSS-for-Python
+# head: 4e63447ba79d1c27a5192844847d9f872c5b92ad
+# utc: 2026-10-11T18:16:47Z
+
+$ "<scratch>/venvs/slidespy/Scripts/python.exe" -m pip install -q aspose-slides-foss 2>&1 | tail -1; "<scratch>/venvs/slidespy/Scripts/python.exe" -m pip show aspose-slides-foss | sed -n 2p
+[exit 0]
+Version: 26.8.0
+
+$ cd "<scratch>\work\slidespy" && "<scratch>/venvs/slidespy/Scripts/python.exe" -I -c "from aspose.slides_foss import Hyperlink" 2>&1 | tail -2
+[exit 0]
+    from aspose.slides_foss import Hyperlink
+ImportError: cannot import name 'Hyperlink' from 'aspose.slides_foss' (<scratch>\venvs\slidespy\Lib\site-packages\aspose\slides_foss\__init__.py)
+
+$ grep -n -m1 '^version' pyproject.toml; grep -n -i 'predates the source tree' README.md | cut -c1-200
+[exit 0]
+11:version = "26.8.0"
+134:**The PyPI release predates the source tree behind this page.** `pip install` gets `26.8.0`, and

@@ -1,0 +1,19 @@
+# key: crates-Cells-Rust
+# repository clone: Aspose.Cells-FOSS-for-Rust
+# head: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+# utc: 2026-10-11T18:31:53Z
+
+$ grep -n -E '^name|^version' Cargo.toml | head -3
+[exit 0]
+2:name = "aspose-cells-foss-rust"
+3:version = "26.7.0"
+14:name = "aspose_cells_foss_rust"
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://crates.io/api/v1/crates/aspose-cells-foss-rust
+[exit 35]
+000
+
+$ grep -n -i 'not yet published\|crates.io' README.md | head -4 | cut -c1-200
+[exit 0]
+105:Aspose.Cells FOSS for Rust is not yet published to [crates.io](https://crates.io/) (see
+674:- Not yet published to crates.io — see [Installation](#installation) for the current

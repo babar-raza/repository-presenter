@@ -1,0 +1,101 @@
+import sys, shutil, os
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+PYEXE = r"C:/Users/babar/AppData/Local/Programs/Python/Python313/python.exe"
+VEN = SP / "venvs"
+VEN.mkdir(exist_ok=True)
+WORK = SP / "work"
+WORK.mkdir(exist_ok=True)
+which = sys.argv[1:]
+
+
+def venv(name):
+    p = VEN / name
+    if not (p / "Scripts" / "python.exe").exists():
+        sh(f'"{PYEXE}" -m venv "{p}"', timeout=300)
+    return str(p / "Scripts" / "python.exe").replace("\\", "/")
+
+
+def case_cellspy():
+    clone = "Aspose.Cells-FOSS-for-Python"
+    py = venv("cellspy")
+    w = WORK / "cellspy"
+    shutil.rmtree(w, ignore_errors=True)
+    w.mkdir()
+    L = Log("csv-encoding-Cells-Python", clone)
+    L.run("git log -3 --format='%h %an %ad %s' --date=short; git show --stat --format= HEAD | tail -4")
+    L.run(f'"{py}" -m pip install -q -e . pytest 2>&1 | tail -1', timeout=900)
+    L.run(f'"{py}" -c "import locale,sys; print(locale.getpreferredencoding(False), sys.flags.utf8_mode)"')
+    L.run("sed -n 29,31p aspose/cells_foss/csv_handler.py")
+    cmd = (
+        "from aspose.cells_foss import Workbook; wb = Workbook(); ws = wb.get_active_worksheet(); "
+        "ws.cells['A1'].value = '\u4f60\u597d'; wb.save_as_csv('o.csv')"
+    )
+    (w / "csv_repro.py").write_text(cmd + "\n", encoding="utf-8")
+    L.run(f'cd "{w}" && PYTHONUTF8=0 PYTHONPATH="{CLONES / clone}" "{py}" csv_repro.py 2>&1 | tail -4', cwd=w, env={"PYTHONUTF8": "0"})
+    L.run(f'cd "{w}" && PYTHONUTF8=1 PYTHONPATH="{CLONES / clone}" "{py}" csv_repro.py 2>&1 | tail -2; echo "---o.csv:"; cat o.csv', cwd=w, env={"PYTHONUTF8": "1"})
+    L.save()
+    L2 = Log("tests-input-dir-Cells-Python", clone)
+    L2.run("git ls-files | grep -E '(^|/)input/' | wc -l")
+    L2.run(f'PYTHONPATH=. "{py}" -m pytest -q examples/test_xlsx_to_json.py examples/test_xlsx_to_markdown.py 2>&1 | tail -8', timeout=900)
+    L2.save()
+    L3 = Log("wheel-Cells-Python", clone)
+    L3.run("sed -n 44,56p pyproject.toml")
+    L3.run(f'"{py}" -m pip install -q build 2>&1 | tail -1; "{py}" -m pip wheel . --no-deps -w "{w}/whl" 2>&1 | tail -2', timeout=900)
+    L3.run(f'"{py}" -c "import zipfile,glob,collections; z=zipfile.ZipFile(glob.glob(r\'{w}/whl/*.whl\')[0]); c=collections.Counter(n.split(\'/\')[0] for n in z.namelist()); print(dict(c))"')
+    L3.save()
+
+
+def case_pdfpy():
+    clone = "Aspose-PDF-FOSS-for-Python"
+    py = venv("pdfpy")
+    L = Log("stdout-logging-PDF-Python", clone)
+    L.run("sed -n 8,13p src/aspose_pdf/engine/logging.py")
+    L.run(f'"{py}" -m pip install -q -e . 2>&1 | tail -2', timeout=900)
+    code = "from aspose_pdf import Document\nwith Document('tests/fixtures_4pages.pdf') as d:\n    pass\n"
+    (WORK / "pdfpy_stdout.py").write_text(code, encoding="utf-8")
+    L.run(f'"{py}" "{WORK}/pdfpy_stdout.py" 2>/dev/null', timeout=300)
+    L.run(f'"{py}" "{WORK}/pdfpy_stdout.py" 2>&1 >/dev/null | head -3; echo "[stderr above]"')
+    L.save()
+
+
+def case_wordspy():
+    clone = "Aspose.Words-FOSS-for-Python"
+    py = venv("wordspy")
+    L = Log("pdfplumber-Words-Python", clone)
+    L.run(f'"{py}" -m pip install -q --ignore-requires-python -e ".[dev]" 2>&1 | tail -2', timeout=1200)
+    L.run("grep -n 'requires-python' pyproject.toml; grep -n -A6 'optional-dependencies' pyproject.toml | head -12")
+    L.run("grep -n 'import pdfplumber' ApiExamples/loading_markdown.py")
+    L.run(f'"{py}" -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini 2>&1 | tail -8', timeout=1800)
+    L.save()
+
+
+def case_page():
+    clone = "Aspose.Page-FOSS-for-Python"
+    py = venv("page")
+    L = Log("version-txt-Page-Python", clone, note="sparse checkout of the non-data files; testdata/resources not fetched")
+    L.run("git ls-files local | wc -l; ls local 2>&1 | head -2")
+    L.run("git show HEAD:.gitignore | grep -n '^local/'")
+    L.run("sed -n 35p setup.py; sed -n 45p package.py")
+    L.run(f'"{py}" -m pip install . --no-deps 2>&1 | tail -6', timeout=900)
+    L.run("sed -n 96,104p README.md")
+    L.save()
+    L2 = Log("mcp-run-Page-Python", clone)
+    L2.run(f'"{py}" -m pip install -q fastmcp skia-python 2>&1 | tail -1', timeout=1800)
+    L2.run(f'"{py}" -m pip show fastmcp | sed -n 1,2p')
+    L2.run("sed -n 25,38p src/aspose/page/mcp/server.py")
+    L2.run(f'PYTHONPATH=src "{py}" -c "from aspose.page.mcp import server; server.run()" 2>&1 < /dev/null | tail -4', timeout=120)
+    L2.run("grep -n 'dependencies\|fastmcp' pyproject.toml | head")
+    L2.save()
+    L3 = Log("tools-package-Page-Python", clone)
+    L3.run("git checkout HEAD -- tests/test_codex_hook_post_metrics.py tests/test_metrics_api_v1.py 2>&1 | tail -1")
+    L3.run("git grep -n -E '^(from|import) tools' HEAD -- tests; git ls-tree -r --name-only HEAD tests/tools; git ls-tree --name-only HEAD tools")
+    L3.run(f'"{py}" -m pip install -q pytest 2>&1 | tail -1; PYTHONPATH=src "{py}" -m pytest --collect-only -q tests/test_metrics_api_v1.py tests/test_codex_hook_post_metrics.py 2>&1 | tail -8', timeout=600)
+    L3.run("grep -n 'metrics_api_v1' Makefile | head -4")
+    L3.save()
+
+
+if __name__ == "__main__":
+    for name in which:
+        globals()["case_" + name]()
+    print("done", which)

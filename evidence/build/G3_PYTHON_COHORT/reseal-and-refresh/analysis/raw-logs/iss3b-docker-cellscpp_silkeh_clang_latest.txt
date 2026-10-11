@@ -1,0 +1,49 @@
+# repository clone: Aspose.Cells-FOSS-for-Cpp
+# head: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+# utc: 2026-10-11T17:47:56Z
+# image: silkeh/clang:latest
+# command: docker run --rm -v <clone>:/src:ro silkeh/clang:latest bash -c 'apt-get install cmake ninja-build; cd /src/Aspose.Cells.Foss.Cpp && cmake -S . -B /tmp/b -G Ninja && cmake --build /tmp/b -- -k 0'
+Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77)
+cmake version 3.31.6
+cmake-configure-exit=0
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (1.9s)
+-- Generating done (0.7s)
+-- Build files have been written to: /tmp/b
+build-exit=1
+error-lines: 23
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp.o
+/usr/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -std=c++17 -Wall -Wextra -Werror -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp:85:36: error: suspicious concatenation of string literals in an array initialization; did you mean to separate the elements with a comma? [-Werror,-Wstring-concatenation]
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/DisplayTextDateFormatSupport.cpp:88:73: error: suspicious concatenation of string literals in an array initialization; did you mean to separate the elements with a comma? [-Werror,-Wstring-concatenation]
+2 errors generated.
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o
+/usr/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -std=c++17 -Wall -Wextra -Werror -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/NumberFormat.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/NumberFormat.cpp:30:17: error: trigraph ignored [-Werror,-Wtrigraphs]
+1 error generated.
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/WorkbookProperties.cpp.o
+/usr/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -std=c++17 -Wall -Wextra -Werror -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/WorkbookProperties.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/WorkbookProperties.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/WorkbookProperties.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/WorkbookProperties.cpp
+/src/Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/WorkbookProperties.h:83:26: error: private field '_workbookModel' is not used [-Werror,-Wunused-private-field]
+1 error generated.
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o
+/usr/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -std=c++17 -Wall -Wextra -Werror -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookStyles.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookStyles.cpp:233:6: error: unused function 'IsNullOrWhiteSpace' [-Werror,-Wunused-function]
+1 error generated.
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o
+/usr/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -std=c++17 -Wall -Wextra -Werror -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:24: error: no member named 'numeric_limits' in namespace 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:42: error: expected '(' for function-style cast or type construction
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:43: error: no member named 'max' in the global namespace; did you mean 'std::max'?
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:27: error: no member named 'numeric_limits' in namespace 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:45: error: expected '(' for function-style cast or type construction
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:46: error: no member named 'max' in the global namespace; did you mean 'std::max'?
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:24: error: no member named 'numeric_limits' in namespace 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:42: error: expected '(' for function-style cast or type construction
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:43: error: no member named 'min' in the global namespace; did you mean 'std::min'?
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:27: error: no member named 'numeric_limits' in namespace 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:45: error: expected '(' for function-style cast or type construction
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:46: error: no member named 'min' in the global namespace; did you mean 'std::min'?
+12 errors generated.
+ninja: build stopped: cannot make progress due to previous errors.
+# end 2026-10-11T17:48:30Z

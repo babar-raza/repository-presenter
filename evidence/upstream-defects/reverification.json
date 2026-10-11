@@ -2,229 +2,373 @@
   "schema_version": 1,
   "entries": [
     {
-      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365",
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__49f081e65253ebcee17315a27b935d4b3170e54daa2002739be809da43346e32",
       "verdict": "CONFIRMED",
-      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
-      "verified_at": "2026-10-09T21:35:00Z",
-      "evidence_digest": "sha256:b01bfc931bff8bccfb57d02c80cc4aac3f0e46a3aecfd89c506b2d5f9ae769f2",
-      "method": "gh api commits/main; docker gcc:13/14/15 and silkeh/clang cmake+ninja build of Aspose.Cells.Foss.Cpp and of the README Tests path; 2026-10-09T21:35Z",
-      "note": "The first observation (2026-09-10) used WinLibs GCC 16.2; the project's later MSVC fallback makes its own install fact pass, which is why this handoff's earlier install_command wording was stale. The upstream build failure itself reproduces at the live head. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:b91ba4d38eab55b55c43f45645546e21eddd629c2056d64884fb586869590feb",
+      "method": "dotnet test src/test/Aspose.ThreeD.Tests (net10.0): Failed 53, Passed 130, Total 183; 47 FileNotFoundException for testdata/ fixtures; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-testdata-3D-NET.txt",
+      "note": "Re-verified at the live head."
     },
     {
-      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
-      "verified_at": "2026-10-09T21:35:00Z",
-      "evidence_digest": "sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907",
-      "method": "gh api commits/main; source read of XlsxWorkbookSerializerCommon.cpp:29-37,965-968; docker gcc:13/14/15 and silkeh/clang cmake+ninja build; 2026-10-09T21:35Z",
-      "note": "Corrects the earlier handoff: the missing include also fails on GCC, not only Clang. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__ad94a06d764bba1cf7ddca1205c95d9724ce15f7931daf444bc88596d30aaf34",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:efe5064760566bb2ec59181206215d16accaeca83a6e5dd9caf80945b1849e62",
+      "method": "dotnet build of the README fence (lines 166-172): CS1503 reproduces; git history of README.md: the line first appears in the presenter's commit 042a1e5f (2026-08-19); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-fromfile-3D-NET.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "A second README observation (Quick Start uses Vector3 from Aspose.ThreeD.Utilities, a namespace the README never names) was judged borderline and is not part of this handoff. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
     },
     {
-      "handoff_id": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp__7f0f338845c043416a7a18a79c32d3d99d03378e63d02874a06777674c8031bf",
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0",
       "verdict": "CONFIRMED",
-      "live_head_sha": "c844a467cf7f2503819b655f4d6ceaef91056c40",
-      "verified_at": "2026-10-09T21:35:00Z",
-      "evidence_digest": "sha256:ad947123b9047cdfea304b8b79f2cb7928d40b57d60317d6e4f53c34b693abef",
-      "method": "gh api commits/master; docker ubuntu:24.04 g++-12/13/14, gcc:14/15, clang 18/22 default cmake build; 2026-10-09T21:35Z",
-      "note": "Found by the C++ re-verification lane while building the library; not on the presenter's own candidate list. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:cee6c1a8cdc97a48c0889c78d0d24b8d33d4addda0e4973442cfb09bc4e4b56e",
+      "method": "dotnet run (SDK 10.0.401) of a probe over the 45 public FileFormat fields (Save(path, format)): 1 ok, 44 NotImplementedException; Save(path) by extension works for 9 extensions; README Quick Start fence compiles only with using Aspose.ThreeD.Utilities and then throws; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-quickstart-3D-NET.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-formats-probe-3D-NET.txt",
+      "note": "Independently reproduced; the existing 3D-.NET handoff covers a different README example (Scene.FromFile CS1503). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. Text re-drafted 2026-10-11: the original report covered only FBX7400Binary; the probe shows the failure is general to the FileFormat constants. Text re-drafted 2026-10-11: the original report covered only FBX7400Binary; the probe shows the failure is general to the FileFormat constants. Text re-drafted 2026-10-11: the original report covered only FBX7400Binary; the probe shows the failure is general to the FileFormat constants."
     },
     {
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__094c41630d8b8ea6ca8d886b2e354d5e6f84767ace53daf43142bf7bb068aca8",
       "verdict": "CONFIRMED",
       "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-      "verified_at": "2026-10-09T21:10:00Z",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:95b17abef070b5d4cbd3b0acfb48d7b258b15a3f70827ccbc9a11d9467e9bcd0",
-      "method": "gh api commits/master; fresh venv, README.md:274-286 verbatim; Python 3.13.15; 2026-10-09T21:10Z",
+      "method": "pip install -e . (Python 3.13.15) in a venv; README fence (lines 275-285) run in an empty directory: TypeError at ObjExporter.py:50; STL save of the same scene works; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-repro-3D-Python-obj.txt",
       "note": "The presenter's own disposition text said NotImplementedError; the path form raises TypeError. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
-      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__dc90b68174c5172f097bdf4902f3e72b964ca2c0810fe4e395f91d3a871e40ad",
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__18934ab2f040bbba231f10051580213a75983419374363d9e55966bfdae7bc71",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:0f6bfded99607451dd8df249a9f2739ca85d61da3d9bb3d4b0a6f9ef802812f0",
+      "method": "pip install -e . in a venv then python -m unittest discover tests/: Ran 123, FAILED (errors=5, skipped=5); FileNotFoundError for examples/; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-unittest-3D-Python.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__52d17222c2290fa93602bb8ca7631c7908d4b8b1cd9edc076e6161f8eebf316f",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:b240d8d0a3ed5524e46bd2b535b12abe9bf5af54020d5a40d6b99b86fd221c5b",
+      "method": "grep url= setup.py; curl HTTP status of the old and the real repository URL; PyPI JSON API for aspose-3d-foss; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-seturl-3D-Python.txt",
+      "note": "Found by the cut-2 ownership work (the PyPI Homepage is copied from setup.py). The old address 404s through both the web and the API; the real repository answers 200."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__9264bf053b4e2805a4c3638b3c8f7cca9774b697538428bc470cca3fc9389b00",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:048b34be2f80af2220d914a05cf06bec8f9cdbd30d1dcd4ecbb81e62d6797443",
+      "method": "docker node:22 tsc --strict on the README fence (lines 144-154): TS2339 reproduces; git history of README.md: the line first appears in the presenter's commit 66cb26df (2026-09-18); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-threedts_readme_tsc.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "The earlier 3D-TS handoff about npm publication (BC-02) is a different, non-defect finding and is flagged separately. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__a6f52c1a0cd2425fdc67e15964b43da031e2817dd111dd6ea706defcc9034d8d",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:67f8ef2f115b51437902966a34f780e450b74175fb2cb2b2431fee14441d30ea",
+      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z; npm registry GET for @aspose/3d (404) and README search for 'no published package'; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-3D-TS.txt; npm registry GET for @aspose/3d (404) and README search for 'no published package'; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-3D-TS.txt; npm registry GET for @aspose/3d (404) and README search for 'no published package'; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-3D-TS.txt",
+      "note": "README.md lines 93-104 document 'Install from source' (git clone, npm install, npm run build) and never claim an npm registry install; the unpublished @aspose/3d name (registry.npmjs.org/@aspose%2f3d HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect, as the handoff's own claim concedes"
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__cd25aa80234dbc4a77a6437bcd1a14fd72cbb9093603e934478ea627a68a465c",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:9a2b66c1f82946e00a13b078ff8d0a095e1d85e8bf47c34ce67380db4ffcb2cb",
+      "method": "git ls-files (no root license file); gh api repos/<r> --jq .license (null); package.json declares MIT; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-3D-TS.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__ee780fd392f4a2ab4e130a137ed32f715e2224f8a77dd327a44aa67588754c00",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:2e1a773319d74055eaac3f9741a606551793c27afd2c32eb4e55818f2b20446a",
+      "method": "docker node:22: npm install then npx jest: 4 failed, 93 passed, 97 total; per-test failure causes read from the jest output; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-threedts_detail.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET__7e755ed823c912f7f789979f5c3c28e9927b3fd266c402684fdad4944645dbe0",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "941814fd138dc28cf47123d48194f329f283498d",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:64f7c9f0b8275ff72bc8994b5da53377a1357b2da970d2b926b7e971195fcfe4",
+      "method": "dotnet build of a net10.0 console project with the README Create a Chart fence (lines 242-256) plus using Aspose.Cells_FOSS: CS0200; Chart.cs:47 is get-only; gh pr view 3 (presenter PR deleting the line) is still OPEN; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-chartname-Cells-NET.txt",
+      "note": "The presenter's six CS0246 'Workbook not found' failures for this repository were a missing using; they are not part of this handoff. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. Held for the owner: the presenter's own open pull request #3 (2026-09-19) already deletes the line; file only if it is closed unmerged. The failing line is the maintainers' (first in V26.9.0). Held for the owner: the presenter's own open pull request #3 (2026-09-19) already deletes the line; file only if it is closed unmerged. The failing line is the maintainers' (first in V26.9.0). Held for the owner: the presenter's own open pull request #3 (2026-09-19) already deletes the line; file only if it is closed unmerged. The failing line is the maintainers' (first in V26.9.0)."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET__cf626176830570f7edf1e9b39c13f3516ea9fc52d1e7f1af3b1ef9c595d1e103",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "941814fd138dc28cf47123d48194f329f283498d",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:ee3c44ddfe548551702b1ed4ff1a2876f8005e534bae03dd7838d76fe203b58f",
+      "method": "git ls-files (only License/LICENSE.txt, License/SkiaSharp.LICENSE.txt, License/ThirdPartyNotices.txt); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-Cells-NET.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907",
+      "method": "docker gcc:13, gcc:14, gcc:15 and silkeh/clang:latest: cmake -G Ninja then cmake --build -- -k 0 on Aspose.Cells.Foss.Cpp; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_13.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_14.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_15.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_silkeh_clang_latest.txt",
+      "note": "Corrects the earlier handoff: the missing include also fails on GCC, not only Clang. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:87bcad6474114d3e29a6080cbd532e4f64f6329e95daf9525c726af9341728fe",
+      "method": "docker gcc:13 g++ -std=c++17 -fsyntax-only on the README snippet: no match for operator[] reproduces; adding WorksheetCollection.h fixes it; git history: the snippet first appears in the presenter's commit 9f852d0f (2026-08-13); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-snippet_cellscpp.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "Independently reproduced; the include fix compiles. The presenter's own receipt also recorded this example as a compile failure. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:7a5cd343358cb65c171215647e2556bc53761d941d6e743a4fdd163628c85adc",
+      "method": "git ls-files (only License/LICENSE.txt); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-Cells-Cpp.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:b01bfc931bff8bccfb57d02c80cc4aac3f0e46a3aecfd89c506b2d5f9ae769f2",
+      "method": "docker gcc:13, gcc:14, gcc:15 and silkeh/clang:latest: default cmake build of Aspose.Cells.Foss.Cpp (-Wall -Wextra -Werror); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_13.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_14.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_gcc_15.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellscpp_silkeh_clang_latest.txt",
+      "note": "The first observation (2026-09-10) used WinLibs GCC 16.2; the project's later MSVC fallback makes its own install fact pass, which is why this handoff's earlier install_command wording was stale. The upstream build failure itself reproduces at the live head. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java__83a93576d2d9bf0c962af4030e78193395db8a73efc2c15a4af1fdbb8bd0a116",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "c65329e7257b1311abb9686d7e4957a8cc002955",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:ce572f45461a96a50bb89fcd5d28ed1f9cd0defd6c2bc73d57b832e5893c72bc",
+      "method": "git ls-files (License/LICENSE.txt and a generated docs/apidocs/legal/LICENSE); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-Cells-Java.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Python__a2e2612a201108c13992c6849816313a71cb486f22489fc443d9cb6f3558241a",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "952317cad8db1880ed85be9814c24e9303930d49",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:421649599c1241a7dd47ff61181553a8c57dc80fba15b80b5ca815163f7a6755",
+      "method": "git ls-files (only License/LICENSE.txt and License/ThirdPartyNotices.txt); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-Cells-Python.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript__5dc560bf15112ac5723507b6dfb1ce68af8cee7925035d8bf8a3c44afb0e3d80",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:94abc9b050ee6783e53d7f2eac5293ae05b37e73794b8d083c7a62cf940531ce",
+      "method": "git ls-files (only License/LICENSE.txt); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-Cells-TS.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript__c04f74bf0b3610a0f3c6d4b25a5c9c2fb9c3501df52aba71f356b6ccf2f0b55c",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:bb7f29c1ef939fbc27aca330662cd46d4a5bc91b0550d3b4330a647109017f87",
+      "method": "docker node:22 (v22.23.3, TypeScript from the lockfile): npm install then npx tsc --noEmit: 3 errors, exit 2; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-cellsts_tsc.txt",
+      "note": "The presenter recorded 12 errors at this revision; only 3 reproduce with a fresh install (no lockfile), so dependency drift may account for the difference. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+    },
+    {
+      "handoff_id": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp__7f0f338845c043416a7a18a79c32d3d99d03378e63d02874a06777674c8031bf",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:ad947123b9047cdfea304b8b79f2cb7928d40b57d60317d6e4f53c34b693abef",
+      "method": "docker ubuntu:24.04 g++-12/13/14 (clang++-18 accepts), gcc:14 and gcc:15 (clang 22 accepts): default cmake build, 9 translation units fail; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-emailcpp_ubuntu24.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-emailcpp_gcc_14.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-emailcpp_gcc_15.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-emailcpp_silkeh_clang_latest.txt",
+      "note": "Found by the C++ re-verification lane while building the library; not on the presenter's own candidate list. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+    },
+    {
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__0dcf93042da33a32bf454f3be75f82733b2595926f376f4f0d987a8e3d2c3ec1",
       "verdict": "CONFIRMED",
       "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
-      "verified_at": "2026-10-09T21:10:00Z",
-      "evidence_digest": "sha256:524ac181d0313f42e48ed1894cf90f08b20552dec77b851a21d2cc58e99ee17f",
-      "method": "gh api commits/main; fresh venv pip install .; README.md:128-141 verbatim; 2026-10-09T21:10Z",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:735acd2448cbeb57f018d50afceea58abcee7b4b4cbcc7d941128d99a567f5b5",
+      "method": "grep README.md for the link; gh api contents/docs (404); git ls-files shows no docs/ directory; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-link-Font-Python.txt",
       "note": "Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
       "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__52ba0e1d48408fc60df34aac9ca19022a6ebb684f8df28370d4dc27ed859f555",
       "verdict": "CONFIRMED",
       "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
-      "verified_at": "2026-10-09T21:10:00Z",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:9972521d1d9b0ea7e55018321be6914c82eff4a69f659b236d47cc79096b41dd",
-      "method": "gh api commits/main; fresh venv pip install .; README.md:295-418 verbatim plus probe; 2026-10-09T21:10Z",
+      "method": "pip install . in a venv; README fence (lines 296-417) run against testdata/Roboto-VariableFont_wdth,wght.ttf: KeyError 'subset'; probe prints False True; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-repro-Font-Python.txt",
       "note": "Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
       "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__a241746e33239b027fb534be6ce8d6fb164a985028d3223bae1e467dc4d8f995",
       "verdict": "CONFIRMED",
       "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
-      "verified_at": "2026-10-09T21:36:00Z",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:7363394e14ed471bb356295c7ba9749655aa84d7419b3112c8bb3e63e9318d6a",
-      "method": "gh api commits/main; curl pypi json; pip download; README/pyproject read; 2026-10-09T21:36Z",
-      "note": "Matches the BC-02 CONTRADICTED install_command:pip the presenter recorded for this repository (2026-09, revision c4c453b8). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "method": "grep README.md:539; curl pypi.org/pypi/aspose-font/json (404) and aspose-font-foss (404); pip download aspose-font --no-deps fails; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-pypi-Font-Python.txt",
+      "note": "Matches the BC-02 CONTRADICTED install_command:pip the presenter recorded for this repository (2026-09, revision c4c453b8). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. Held for the owner: the release is two days old, so re-check PyPI after 2026-10-16 and file only if it is still 404. Held for the owner: the release is two days old, so re-check PyPI after 2026-10-16 and file only if it is still 404. Held for the owner: the release is two days old, so re-check PyPI after 2026-10-16 and file only if it is still 404."
     },
     {
-      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__0dcf93042da33a32bf454f3be75f82733b2595926f376f4f0d987a8e3d2c3ec1",
+      "handoff_id": "aspose-font-foss__Aspose.Font-FOSS-for-Python__dc90b68174c5172f097bdf4902f3e72b964ca2c0810fe4e395f91d3a871e40ad",
       "verdict": "CONFIRMED",
       "live_head_sha": "adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6",
-      "verified_at": "2026-10-09T21:36:00Z",
-      "evidence_digest": "sha256:735acd2448cbeb57f018d50afceea58abcee7b4b4cbcc7d941128d99a567f5b5",
-      "method": "gh api commits/main; gh api contents/docs; recursive git tree listing; 2026-10-09T21:36Z",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:524ac181d0313f42e48ed1894cf90f08b20552dec77b851a21d2cc58e99ee17f",
+      "method": "pip install . in a venv; README fence (lines 129-140) run: TypeError unexpected keyword argument 'instance_names'; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-repro-Font-Python.txt",
       "note": "Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
-      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__ad94a06d764bba1cf7ddca1205c95d9724ce15f7931daf444bc88596d30aaf34",
+      "handoff_id": "aspose-gis-foss__Aspose.GIS.FOSS-for-.Net__9cdfad3e29d44966612e07a80c1173f20d7a83efe60e7896f6dbbf764beb4b2b",
       "verdict": "CONFIRMED",
-      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
-      "verified_at": "2026-10-09T21:15:00Z",
-      "evidence_digest": "sha256:efe5064760566bb2ec59181206215d16accaeca83a6e5dd9caf80945b1849e62",
-      "method": "gh api commits/main; dotnet build of README snippet against the live-head library; .NET SDK 10.0.401; 2026-10-09T21:15Z",
-      "note": "A second README observation (Quick Start uses Vector3 from Aspose.ThreeD.Utilities, a namespace the README never names) was judged borderline and is not part of this handoff. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "live_head_sha": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:ef1c92100156789824d3be3a7f72e1ebe29d4d9114e8a9eb06c5c6bb668dc82f",
+      "method": "git ls-files (no license file anywhere); gh api repos/<r> --jq .license (null); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-GIS.txt",
+      "note": "Re-verified at the live head."
     },
     {
-      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET__7e755ed823c912f7f789979f5c3c28e9927b3fd266c402684fdad4944645dbe0",
+      "handoff_id": "aspose-gis-foss__Aspose.GIS.FOSS-for-.Net__cd17e99e5b924e39cb912f5172384faba928d0c133cd7a1cf58e0fb991024875",
       "verdict": "CONFIRMED",
-      "live_head_sha": "941814fd138dc28cf47123d48194f329f283498d",
-      "verified_at": "2026-10-09T21:15:00Z",
-      "evidence_digest": "sha256:64f7c9f0b8275ff72bc8994b5da53377a1357b2da970d2b926b7e971195fcfe4",
-      "method": "gh api commits/master; dotnet build of README snippet against the live-head library; .NET SDK 10.0.401; 2026-10-09T21:15Z",
-      "note": "The presenter's six CS0246 'Workbook not found' failures for this repository were a missing using; they are not part of this handoff. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "live_head_sha": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:7c21e23df5b0ca7838972c2c22ab0276710a312c13a8419349ce7b92aca67d87",
+      "method": "dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release (SDK 10.0.401): 369 Error(s), 45 Warning(s); 57 unresolved type names, 41 declared nowhere; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-build-GIS-NET.txt",
+      "note": "Re-verified at the live head."
     },
     {
-      "handoff_id": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET__2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a",
-      "verdict": "FIXED_OR_CHANGED",
-      "live_head_sha": "6ebb2091ad016a46489bef65eaad0f1eb9843e1a",
-      "verified_at": "2026-10-10T16:11:25Z",
-      "evidence_digest": "sha256:9f7ac62bad3e03b5619717de3806f3c9c1bcd2eb9b0316b96bd51301ad035578",
-      "method": "gh api commits/main; git log a7c7314b..HEAD -- README.md; grep of README.md for 'dotnet add package' and 'nuget'; 2026-10-10T16:11:25Z",
-      "note": "Commit 6ebb209 ('Refresh README: verified examples and documentation links', 2026-10-10) removed the install command and the NuGet badge this handoff cites; the README no longer claims the package is on NuGet (still 404). The claim does not hold at the live head."
-    },
-    {
-      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__9264bf053b4e2805a4c3638b3c8f7cca9774b697538428bc470cca3fc9389b00",
+      "handoff_id": "aspose-gis-foss__Aspose.GIS.FOSS-for-.Net__d0228692b9e5eafd74b12217b8ac6e2396ef6f6b279689993a5060c0e7a91a38",
       "verdict": "CONFIRMED",
-      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-09T21:30:00Z",
-      "evidence_digest": "sha256:048b34be2f80af2220d914a05cf06bec8f9cdbd30d1dcd4ecbb81e62d6797443",
-      "method": "gh api commits/master; docker node:22 npm install/build and tsc on the README snippet; 2026-10-09T21:30Z",
-      "note": "The earlier 3D-TS handoff about npm publication (BC-02) is a different, non-defect finding and is flagged separately. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
-    },
-    {
-      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript__c04f74bf0b3610a0f3c6d4b25a5c9c2fb9c3501df52aba71f356b6ccf2f0b55c",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "fc186507e5b7124f4664aa6035f25cfd3112367d",
-      "verified_at": "2026-10-09T21:30:00Z",
-      "evidence_digest": "sha256:bb7f29c1ef939fbc27aca330662cd46d4a5bc91b0550d3b4330a647109017f87",
-      "method": "gh api commits/master; docker node:22 npm install and npx tsc --noEmit; 2026-10-09T21:30Z",
-      "note": "The presenter recorded 12 errors at this revision; only 3 reproduce with a fresh install (no lockfile), so dependency drift may account for the difference. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "live_head_sha": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:de0d8332197ec4d67a81c741f969cce649eccdc4efe9e374c694884848f98693",
+      "method": "git ls-files (no README); gh api repos/<r>/readme is 404; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-license-GIS.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-hygiene-GIS.txt",
+      "note": "Re-verified at the live head."
     },
     {
       "handoff_id": "aspose-html-foss__Aspose.HTML-FOSS-for-Python__ae9f06b95a4cc18609d64276e4a831bf9260ed6ea9c613f36cf2876478ea849a",
       "verdict": "CONFIRMED",
       "live_head_sha": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
-      "verified_at": "2026-10-09T21:36:00Z",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:56c7cf2bee1c3f8afc89c659104740d637c768e14442f02d68d97c3950fb5839",
-      "method": "gh api commits/main; pip install --target <dir> . in a fresh venv (pip 26.2.1, Python 3.13); curl pypi json; 2026-10-09T21:36Z",
+      "method": "pip install . in a venv: BackendUnavailable for setuptools.backends.legacy; grep build-backend pyproject.toml; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-w3c-fixture-HTML-Python.txt",
       "note": "Re-verified at the live head; the PyPI 404 is context only (the README documents a clone-and-PYTHONPATH install, not a PyPI install). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
-      "handoff_id": "aspose-tex-foss__Aspose.TeX-FOSS-for-Python__c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188",
+      "handoff_id": "aspose-html-foss__Aspose.HTML-FOSS-for-Python__b1d0d16bdbb847208cc25f6ed456ea264711591a083b31965233a2b844ca936d",
       "verdict": "CONFIRMED",
-      "live_head_sha": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
-      "verified_at": "2026-10-10T16:11:25Z",
-      "evidence_digest": "sha256:085fcb7e351f42e50d9d6b04fe002cef46eda71f0451af87172745ba5dda2a27",
-      "method": "gh api commits/main; python -I ast_parse_all.py over every .py file and an import of aspose_tex in a shallow clone at the live head; 2026-10-10T16:11:25Z",
-      "note": "Re-measured 2026-10-10: 102 of 119 files fail (the earlier text said 35 of 45, only src/aspose_tex/); the package root cannot be imported. Text re-drafted for the issue-text quality gate."
+      "live_head_sha": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:deb867f5b820fbd7be9f61ab9c3e610b1b60436ec3f82feebab980f184c6cdf2",
+      "method": "pytest 9.1.1 --collect-only -q: ModuleNotFoundError tests.test_css.w3c; Interrupted: 1 error during collection; 12296 tests collected; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-w3c-fixture-HTML-Python.txt",
+      "note": "Re-verified at the live head."
     },
     {
-      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__a6f52c1a0cd2425fdc67e15964b43da031e2817dd111dd6ea706defcc9034d8d",
-      "verdict": "NOT_A_DEFECT",
-      "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-09T20:48:00Z",
-      "evidence_digest": "sha256:67f8ef2f115b51437902966a34f780e450b74175fb2cb2b2431fee14441d30ea",
-      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z",
-      "note": "README.md lines 93-104 document 'Install from source' (git clone, npm install, npm run build) and never claim an npm registry install; the unpublished @aspose/3d name (registry.npmjs.org/@aspose%2f3d HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect, as the handoff's own claim concedes"
-    },
-    {
-      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-TypeScript__ef667e7d94656f902b0f73fa8f9338d5bfc886e11d2a9cb00ff6f6f6e41cb1f2",
-      "verdict": "NOT_A_DEFECT",
-      "live_head_sha": "c672b3918318ccd0c13bc9dc619620cac2674c9e",
-      "verified_at": "2026-10-09T20:48:00Z",
-      "evidence_digest": "sha256:a38610a97cb7450a37dc9ceba391acbe3f3be3e73a26c5948b1a1988863841d6",
-      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z",
-      "note": "README documents a source install (git clone, npm install, npm run build; README lines 272-280) and never claims an npm registry install; the unpublished @asposefoss/pdf name (HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect; the live head has also moved from a8661f8b"
-    },
-    {
-      "handoff_id": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
-      "verified_at": "2026-10-10T15:42:38Z",
-      "evidence_digest": "sha256:87bcad6474114d3e29a6080cbd532e4f64f6329e95daf9525c726af9341728fe",
-      "method": "docker gcc:13 (g++ 13.5.0) -std=c++17 -fsyntax-only on README.md:175-186 wrapped in main(); git ls-remote/gh api head check 2026-10-10",
-      "note": "Independently reproduced; the include fix compiles. The presenter's own receipt also recorded this example as a compile failure. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
-    },
-    {
-      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET__af8da7604bac416b51bcc33b5afd7292d30a36f1bec4dcb6cd06d5fdae21b7d0",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "52b0f00ebf28a0b4173921725ff170685ec2c502",
-      "verified_at": "2026-10-10T15:52:33Z",
-      "evidence_digest": "sha256:e42195757447ec5f1bcdd889de8f0bbb23b0498bb4e1d59524645ba0512c9740",
-      "method": "dotnet 10.0.401: README Quick Start verbatim as a net10.0 console app, plus control run without the format argument; head check 2026-10-10",
-      "note": "Independently reproduced; the existing 3D-.NET handoff covers a different README example (Scene.FromFile CS1503). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
+      "handoff_id": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET__2c99dc76f86474b8b3152f1ad3e03cb333a8ae65e7fae627a453af7cdfc0371a",
+      "verdict": "FIXED_OR_CHANGED",
+      "live_head_sha": "6ebb2091ad016a46489bef65eaad0f1eb9843e1a",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:9f7ac62bad3e03b5619717de3806f3c9c1bcd2eb9b0316b96bd51301ad035578",
+      "method": "gh api commits/main; git log a7c7314b..HEAD -- README.md; grep of README.md for 'dotnet add package' and 'nuget'; 2026-10-10T16:11:25Z; README grep at the live head (no dotnet add / nuget claim any more); re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-imaging-readme-Imaging-NET.txt; README grep at the live head (no dotnet add / nuget claim any more); re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-imaging-readme-Imaging-NET.txt; README grep at the live head (no dotnet add / nuget claim any more); re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-imaging-readme-Imaging-NET.txt",
+      "note": "Commit 6ebb209 ('Refresh README: verified examples and documentation links', 2026-10-10) removed the install command and the NuGet badge this handoff cites; the README no longer claims the package is on NuGet (still 404). The claim does not hold at the live head."
     },
     {
       "handoff_id": "aspose-note-foss__Aspose.Note-FOSS-for-Python__6532670d5efd3bebe8be1dae3dfc04c1fd93552edaf757bb49b06c0ae0bcf33f",
       "verdict": "CONFIRMED",
-      "live_head_sha": "17b5d7fe200297fdc135e6f95f4f16b82e8fc31c",
-      "verified_at": "2026-10-10T15:16:21Z",
+      "live_head_sha": "0fd1cf7bcadb279a6dd73ddcba3d5241376badd3",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:0520756651ee322ec2aebf49806f69b54b41320ea5c46bdd1e0e422438a785ad",
-      "method": "pip install -e . in a fresh venv (Python 3.13.15) and README Quick Start verbatim against testfiles/SimpleTable.one; head check 2026-10-10",
+      "method": "pip install -e . in a venv; README Quick Start fence (lines 105-110) run on testfiles/SimpleTable.one: AttributeError 'NoneType' object has no attribute 'TitleText'; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-quickstart-Note-Python.txt",
       "note": "Independently reproduced against the repository's own fixture. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
     },
     {
-      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp__f49213f4a887679a4e759853fc3ae11dd8454f537c1b117dbc12dfc7aeaf9629",
+      "handoff_id": "aspose-page-foss__Aspose.Page-FOSS-for-Python__486929860c3b990c3c83fb904a0265e71cb4bb6e0cfa28d603a9f7f22b512e8d",
       "verdict": "CONFIRMED",
-      "live_head_sha": "4b83c9fec1e37fd205156770161f6843bac00ceb",
-      "verified_at": "2026-10-10T15:53:10Z",
-      "evidence_digest": "sha256:f43aa3b46ad2a9ddf5768329512f765501a1723d9dabcfa3cd4ee3ab2552f767",
-      "method": "docker gcc:13 (g++ 13.5.0) -std=c++20 -fsyntax-only on README.md:360-377 wrapped in main(), with and without the missing include; head check 2026-10-10",
-      "note": "Independently reproduced; the include fix compiles. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
-    },
-    {
-      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp__a1a661efcfab00f5b9b180265b354e0441aef49a024158a5082c10d57b96e8b2",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "4b83c9fec1e37fd205156770161f6843bac00ceb",
-      "verified_at": "2026-10-10T15:53:10Z",
-      "evidence_digest": "sha256:8f6e471048bec0bc01cc82438928af59542f1afd36c6801f475c4c71b6b92680",
-      "method": "docker gcc:13 (g++ 13.5.0) -std=c++20 -fsyntax-only on the README.md:253 block wrapped in main(), with and without the single-entry header; head check 2026-10-10",
-      "note": "Independently reproduced; the single-entry header compiles it. Distinct from the TIFF block (different missing headers). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
-    },
-    {
-      "handoff_id": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp__8b8b2cae91e5dc2049a5be857e132d30a473f6a0df2dfd284c20361964df413b",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "469ce77a07b988c49deb930632b8276c89ec6b66",
-      "verified_at": "2026-10-10T15:47:55Z",
-      "evidence_digest": "sha256:4fc761243e9868343387e2bba27f94b0df90e2daf9ad3c22728a52b09b80052a",
-      "method": "docker gcc:13 (g++ 13.5.0, pugixml 1.13) -std=c++20 -fsyntax-only on each README C++ block wrapped in main(); head check 2026-10-10",
-      "note": "Independently reproduced; 6 of 10 blocks fail, the Quick Start compiles once slide.h is included. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged."
-    },
-    {
-      "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-Python__52d17222c2290fa93602bb8ca7631c7908d4b8b1cd9edc076e6161f8eebf316f",
-      "verdict": "CONFIRMED",
-      "live_head_sha": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-      "verified_at": "2026-10-11T08:05:00Z",
-      "evidence_digest": "sha256:b240d8d0a3ed5524e46bd2b535b12abe9bf5af54020d5a40d6b99b86fd221c5b",
-      "method": "gh api commits/master; shallow clone at the head; grep -n 'url=' setup.py; curl HTTP status of the old and the real repository URL; PyPI JSON API for aspose-3d-foss (home_page, project_urls); 2026-10-11 (raw-logs/metadata-url-3D-Python.txt)",
-      "note": "Found by the cut-2 ownership work (the PyPI Homepage is copied from setup.py). The old address 404s through both the web and the API; the real repository answers 200."
+      "live_head_sha": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:885e5947f26e893e07e8513d61f373cc7b839ec1df65b9e55c08b3fd626036e6",
+      "method": "pip install . --no-deps on the sparse clone: FileNotFoundError local/Version.txt; git ls-files local is empty; .gitignore line 9; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-version-txt-Page-Python.txt",
+      "note": "Re-verified at the live head."
     },
     {
       "handoff_id": "aspose-page-foss__Aspose.Page-FOSS-for-Python__94ba0b5f79a36df0dbf3a748fdf6fb496c5831795d47ebbe687e386f2f10420a",
       "verdict": "CONFIRMED",
       "live_head_sha": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
-      "verified_at": "2026-10-11T08:05:00Z",
+      "verified_at": "2026-10-11T18:33:26Z",
       "evidence_digest": "sha256:a307d891155531489b385621ac2d3b7b313dbf31f3a6ed681268aeb8746b59ee",
-      "method": "gh api commits/main; shallow clone at the head; grep -n -i url pyproject.toml setup.py; grep -c '^[project.urls]' pyproject.toml; PyPI JSON API for aspose-page-foss (home_page, project_urls); 2026-10-11 (raw-logs/metadata-url-Page-Python.txt)",
+      "method": "git show HEAD:pyproject.toml and setup.py (no url, no [project.urls]); PyPI JSON API for aspose-page-foss (home_page None, project_urls None); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-metadata-url-Page-Python.txt",
       "note": "Found by the cut-2 ownership work (no registry URL corroborates the package as this repository's own). The registry metadata is the release's; the repository files confirm the cause."
+    },
+    {
+      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp__a1a661efcfab00f5b9b180265b354e0441aef49a024158a5082c10d57b96e8b2",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "4b83c9fec1e37fd205156770161f6843bac00ceb",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:8f6e471048bec0bc01cc82438928af59542f1afd36c6801f475c4c71b6b92680",
+      "method": "docker gcc:13 g++ -std=c++20 -fsyntax-only on the README create-from-scratch block: incomplete type reproduces; the block was made stand-alone by the presenter's README refresh c559fc3d (2026-09-18); the maintainers' later header change (57695cd3) also removed transitive includes; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-snippet_pdfcpp.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "Independently reproduced; the single-entry header compiles it. Distinct from the TIFF block (different missing headers). Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+    },
+    {
+      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp__f49213f4a887679a4e759853fc3ae11dd8454f537c1b117dbc12dfc7aeaf9629",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "4b83c9fec1e37fd205156770161f6843bac00ceb",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:f43aa3b46ad2a9ddf5768329512f765501a1723d9dabcfa3cd4ee3ab2552f767",
+      "method": "docker gcc:13 g++ -std=c++20 -fsyntax-only on the README TIFF block: incomplete type reproduces; same history as a1a661ef; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-snippet_pdfcpp.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "Independently reproduced; the include fix compiles. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+    },
+    {
+      "handoff_id": "aspose-pdf-foss__Aspose.PDF-FOSS-for-TypeScript__ef667e7d94656f902b0f73fa8f9338d5bfc886e11d2a9cb00ff6f6f6e41cb1f2",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "c672b3918318ccd0c13bc9dc619620cac2674c9e",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:a38610a97cb7450a37dc9ceba391acbe3f3be3e73a26c5948b1a1988863841d6",
+      "method": "live README read (gh api repos/<r>/readme) and registry probes (curl); 2026-10-09T20:48Z; npm registry GET for @asposefoss/pdf (404) and README source-install section; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-PDF-TS.txt; npm registry GET for @asposefoss/pdf (404) and README source-install section; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-PDF-TS.txt; npm registry GET for @asposefoss/pdf (404) and README source-install section; re-read 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-npm-registry-PDF-TS.txt",
+      "note": "README documents a source install (git clone, npm install, npm run build; README lines 272-280) and never claims an npm registry install; the unpublished @asposefoss/pdf name (HTTP 404 at 2026-10-09T20:48Z) is a fact, not a defect; the live head has also moved from a8661f8b"
+    },
+    {
+      "handoff_id": "aspose-psd-foss__Aspose.PSD-FOSS-for-.NET__0f1273fb42bc7e04814962acf4d3dcf702605ff8ff7ab0048dd99ef92f075cd1",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "85ed7eec7c801d8b5c97aa099f018d3b98df2981",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:6dc640947f5d51719380823a911e5ab86ed85a03a01ffdacd3d4d9dd27fd10c6",
+      "method": "grep csproj for Authors/PackageProjectUrl/RepositoryUrl; curl HTTP status of the yourorg URL (404) and the real repository (200); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-placeholders-PSD-NET.txt",
+      "note": "Re-verified at the live head."
+    },
+    {
+      "handoff_id": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp__8b8b2cae91e5dc2049a5be857e132d30a473f6a0df2dfd284c20361964df413b",
+      "verdict": "NOT_A_DEFECT",
+      "live_head_sha": "469ce77a07b988c49deb930632b8276c89ec6b66",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:4fc761243e9868343387e2bba27f94b0df90e2daf9ad3c22728a52b09b80052a",
+      "method": "docker gcc:13 (pugixml 1.13) g++ -std=c++20 -fsyntax-only on the README blocks: 6 of 10 fail without slide.h; the maintainers' README before the presenter's PR 6ed44d59 listed slide.h in nine places; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-snippet_slidescpp.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-provenance.txt",
+      "note": "Independently reproduced; 6 of 10 blocks fail, the Quick Start compiles once slide.h is included. Issue text re-drafted 2026-10-10 for the issue-text quality gate; evidence and claim unchanged. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve. The failing README text was written by the presenter's own merged README pull request, not by the maintainers; the correction belongs to the README correction lane. Not an upstream defect: do not approve."
+    },
+    {
+      "handoff_id": "aspose-tex-foss__Aspose.TeX-FOSS-for-Python__c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:085fcb7e351f42e50d9d6b04fe002cef46eda71f0451af87172745ba5dda2a27",
+      "method": "pip install -e . in a venv then import aspose_tex; ast.parse over every .py file at the live head (102 of 119, src/aspose_tex 35 of 45); re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-ast-TeX-Python.txt",
+      "note": "Re-measured 2026-10-10: 102 of 119 files fail (the earlier text said 35 of 45, only src/aspose_tex/); the package root cannot be imported. Text re-drafted for the issue-text quality gate."
+    },
+    {
+      "handoff_id": "aspose-words-foss__Aspose.Words-FOSS-for-Python__bb3b52f47c0b3e3629816be19707cb9e0bf14404d2133e082fd688454b9f935e",
+      "verdict": "CONFIRMED",
+      "live_head_sha": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+      "verified_at": "2026-10-11T18:33:26Z",
+      "evidence_digest": "sha256:51e7ad9dc8148eee2a4668ceee8b0d162c3a6a8fbdb2564bb5cb75050cb050d9",
+      "method": "docker python:3.12: pip install -e '.[dev]' then pytest ApiExamples: 1 failed, 26 passed; pdfplumber not installed; re-verified 2026-10-11 (lane iss3b); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-docker-wordspy_py312.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss3b-pdfplumber-Words-Python.txt",
+      "note": "Re-verified at the live head."
     }
   ]
 }

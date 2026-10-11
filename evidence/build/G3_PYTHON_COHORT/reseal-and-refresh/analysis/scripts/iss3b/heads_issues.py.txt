@@ -1,0 +1,39 @@
+import json, os, subprocess, sys, datetime
+reg = json.load(open(sys.argv[1]))["entries"]
+out = sys.argv[2]
+tok = subprocess.run(["gh","auth","token"],capture_output=True,text=True).stdout.strip()
+env = dict(os.environ, GH_TOKEN=tok)
+def gh(path, paginate=False):
+    cmd = ["gh","api",path] + (["--paginate"] if paginate else [])
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
+    if r.returncode != 0:
+        return None, r.stderr.strip()[:200]
+    try:
+        txt = r.stdout
+        if paginate and txt.startswith("[") and "][" in txt:
+            txt = txt.replace("][", ",")
+        return json.loads(txt), None
+    except Exception as e:
+        return None, str(e)
+res = {}
+now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+for e in reg:
+    r = e["repository"]
+    info, err = gh(f"repos/{r}")
+    row = {"queried_at": now}
+    if info is None:
+        row["error"] = err; res[r] = row; continue
+    row.update(default_branch=info["default_branch"], archived=info["archived"], has_issues=info["has_issues"],
+               license=(info.get("license") or {}).get("spdx_id"), size_kb=info["size"], pushed_at=info["pushed_at"],
+               open_issues_count=info["open_issues_count"], fork=info["fork"])
+    c, err = gh(f"repos/{r}/commits/{info['default_branch']}")
+    row["head"] = c["sha"] if c else f"ERR {err}"
+    row["head_date"] = c["commit"]["committer"]["date"] if c else None
+    iss, err = gh(f"repos/{r}/issues?state=open&per_page=100", paginate=True)
+    if iss is None:
+        row["issues_error"] = err
+    else:
+        row["open_issues"] = [{"number": i["number"], "title": i["title"], "user": i["user"]["login"], "created": i["created_at"][:10], "labels": [l["name"] for l in i["labels"]], "is_pr": "pull_request" in i} for i in iss]
+    res[r] = row
+json.dump(res, open(out, "w"), indent=1)
+print("done", len(res))

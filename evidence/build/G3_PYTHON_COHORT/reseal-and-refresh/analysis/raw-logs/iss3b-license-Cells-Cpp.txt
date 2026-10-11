@@ -1,0 +1,28 @@
+# key: license-Cells-Cpp
+# repository clone: Aspose.Cells-FOSS-for-Cpp
+# head: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+# utc: 2026-10-11T17:48:07Z
+
+$ git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?
+[exit 0]
+root-match-exit=1
+
+$ git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8
+[exit 0]
+License/LICENSE.txt
+
+$ gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp --jq '"license=" + (.license|tostring)'
+[exit 0]
+license=null
+
+$ grep -n -i -E 'licen[sc]e|MIT' README.md | head -5
+[exit 0]
+3:[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/blob/main/License/LICENSE.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/graphs/contributors) [![Issues](https://img.shields.io/github/issues/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues)
+7:Aspose.Cells FOSS for C++ is a free, open-source, MIT-licensed C++ library for creating, loading,
+22:- [Scope and Limitations](#scope-and-limitations)
+24:- [License](#license)
+543:## Scope and Limitations
+
+$ gh api 'repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues?state=open&per_page=100' --jq '.[] | "#\(.number) \(.title)"'; echo open-issues-listed
+[exit 0]
+open-issues-listed

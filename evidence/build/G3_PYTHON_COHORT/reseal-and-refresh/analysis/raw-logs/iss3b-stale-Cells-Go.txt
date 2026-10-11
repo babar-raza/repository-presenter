@@ -1,0 +1,42 @@
+# key: stale-Cells-Go
+# repository clone: Aspose.Cells-FOSS-for-Go
+# head: 99c789e9175f2b12ad82bafeeba148ddcc1367fb
+# utc: 2026-10-11T17:49:33Z
+
+$ sed -n '59p;83,84p' README.md
+[exit 0]
+      c3["Formulas with a built-in SUM/AVERAGE/MAX/MIN engine"]
+- Formulas are stored with `Cell.SetFormula` and evaluated by the built-in `CalculateFormula`
+  engine, which supports `SUM`, `AVERAGE`, `MAX`, and `MIN` over single cells or A1-style ranges.
+
+$ grep -o -E 'case "[A-Z]+"' aspose/cells_foss/formula_engine.go | sort -u | tr '
+' ' '
+[exit 0]
+case "ABS" case "AND" case "AVERAGE" case "CONCAT" case "COUNT" case "COUNTIF" case "IF" case "LEFT" case "LEN" case "LOWER" case "MAX" case "MID" case "MIN" case "NOT" case "OR" case "POWER" case "RIGHT" case "ROUND" case "SQRT" case "SUM" case "UPPER" case "VLOOKUP"
+
+$ for s in AddChart AddPivotTable AddConditionalFormatting SetVBAProject; do echo $s: $(grep -c $s README.md); done
+[exit 0]
+AddChart: 0
+AddPivotTable: 0
+AddConditionalFormatting: 0
+SetVBAProject: 0
+
+$ sed -n 105p README.md
+[exit 0]
+# Requires **Go 1.24.5+** (see `go.mod`). Depends only on the Go standard library — no third-party modules.
+
+$ git ls-files 'examples/outputfiles/*'
+[exit 0]
+examples/outputfiles/.gitkeep
+examples/outputfiles/employees.csv
+examples/outputfiles/exported.csv
+
+$ grep -n 'outputfiles' .gitignore AGENTS.md
+[exit 0]
+.gitignore:31:examples/outputfiles/*.xlsx
+AGENTS.md:24:- Never commit generated `.xlsx` files or contents from `outputfiles/`
+AGENTS.md:53:`go run ./<name>/`, not `go test`. Examples write to `examples/outputfiles/`.
+AGENTS.md:71:- Commit generated files from `outputfiles/`
+AGENTS.md:104:  outputfiles/                  # Output from examples/ (gitignored, never commit)
+AGENTS.md:160:    wb.Save("outputfiles/example.xlsx")
+AGENTS.md:170:- [ ] No generated `.xlsx` files or `outputfiles/` artifacts are included

@@ -1,0 +1,29 @@
+# repository clone: Aspose.Words-FOSS-for-Python
+# head: 2d2efee2787cb9e56d071d17f8d7b740dce8b784
+# utc: 2026-10-11T18:19:03Z
+# image: python:3.12
+Unable to find image 'python:3.12' locally
+3.12: Pulling from library/python
+1d5ee7e42ed8: Pulling fs layer
+ee0642b8714b: Pulling fs layer
+99ceb936471f: Pulling fs layer
+1d5ee7e42ed8: Download complete
+00e03f064950: Download complete
+99ceb936471f: Download complete
+ee0642b8714b: Download complete
+ee0642b8714b: Pull complete
+99ceb936471f: Pull complete
+1d5ee7e42ed8: Pull complete
+fa0769adc84a: Download complete
+Digest: sha256:63828510c8b5ccce3bf0d6fabd6f3d17d4effa1ffe690f80a67c8e2d394e03ee
+Status: Downloaded newer image for python:3.12
+Python 3.12.15
+[notice] To update, run: pip install --upgrade pip
+E       ModuleNotFoundError: No module named 'pdfplumber'
+
+ApiExamples/loading_markdown.py:163: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED ApiExamples/loading_markdown.py::LoadingMarkdown::test_save_markdown_with_base64_image_to_docx_and_pdf
+1 failed, 26 passed in 5.02s
+pdfplumber-grep-exit=1
+# end

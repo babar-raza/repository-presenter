@@ -1,0 +1,45 @@
+# repository | default branch | head | head date | license (GitHub) | issues enabled | open issues (non-PR) | open PRs | read 2026-10-11 (gh api GET)
+aspose-3d-foss/Aspose.3D-FOSS-for-.NET | main | 52b0f00ebf28a0b4173921725ff170685ec2c502 | 2026-09-12 | MIT | True | - | -
+aspose-3d-foss/Aspose.3D-FOSS-for-Java | main | 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3 | 2026-09-23 | MIT | True | - | -
+aspose-3d-foss/Aspose.3D-FOSS-for-Python | master | 65b1f577c0f16d0d9112bb6c1153d3024543ac02 | 2026-09-03 | MIT | True | - | -
+aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript | master | 66cb26df3b031f0bf6976d4e88dc89721983afa4 | 2026-09-18 | None | True | - | -
+aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python | main | 06eca5c01e13ed6d59a640f1cf330c1c5a57d151 | 2026-08-15 | MIT | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET | master | 941814fd138dc28cf47123d48194f329f283498d | 2026-09-01 | None | True | #1 Aspose.Cells.FOSS Unavailable on nuget.org | #3
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp | main | 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2 | 2026-08-13 | None | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go | main | 99c789e9175f2b12ad82bafeeba148ddcc1367fb | 2026-10-02 | MIT | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java | master | c65329e7257b1311abb9686d7e4957a8cc002955 | 2026-09-23 | None | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-Python | main | 952317cad8db1880ed85be9814c24e9303930d49 | 2026-10-11 | None | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust | master | 1a6004af47b1ef15385f9d36d381a8172428cc7e | 2026-08-14 | MIT | True | - | -
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript | master | fc186507e5b7124f4664aa6035f25cfd3112367d | 2026-08-14 | None | True | - | -
+aspose-email-foss/Aspose.Email-FOSS-for-.Net | main | 59125b4732df0eedbc4d4c2ab978698ed4348eb7 | 2026-08-15 | MIT | True | - | -
+aspose-email-foss/Aspose.Email-FOSS-for-Cpp | master | c844a467cf7f2503819b655f4d6ceaef91056c40 | 2026-09-12 | MIT | True | - | -
+aspose-email-foss/Aspose.Email-FOSS-for-Python | master | 10a906b48c0c11005c4d93b524e4431901c9717c | 2026-08-15 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-.NET | main | 0d5cf17e0e9ee185eea2847f6587b918ac0eb016 | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp | main | 559c962081323468039dc75cf38676499f32b20e | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Go | main | 327dda39116ba02657fa49ec6dbeb69965628447 | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Java | main | f0d6ba73dc92db4b3effaa7c1fa76682e2d09fd4 | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js | main | 93f22fb57ba83484d14af5af2017590a0f5bf55f | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Python | main | f2137fa6bade0002c317e3a73081f2a0b5173a23 | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-Rust | main | d7286100735e6d518837fde8639e8de694a08ef6 | 2026-09-26 | MIT | True | - | -
+aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript | main | d8fdf9e8f3367424c3a900271eb3bd0b99c6195e | 2026-09-26 | MIT | True | - | -
+aspose-font-foss/Aspose.Font-FOSS-for-Python | main | adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6 | 2026-10-09 | MIT | True | - | -
+aspose-gis-foss/Aspose.GIS.FOSS-for-.Net | main | b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4 | 2026-09-29 | None | True | - | -
+aspose-html-foss/Aspose.HTML-FOSS-for-Python | main | bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11 | 2026-09-12 | MIT | True | - | -
+aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET | main | 6ebb2091ad016a46489bef65eaad0f1eb9843e1a | 2026-10-10 | MIT | True | - | -
+aspose-note-foss/Aspose.Note-FOSS-for-Python | main | 0fd1cf7bcadb279a6dd73ddcba3d5241376badd3 | 2026-10-10 | MIT | True | #4 struct.error in function _parse_property_set | #3
+aspose-page-foss/Aspose.Page-FOSS-for-Python | main | 43cef367cd0b2cf00cc03064ca9d29d1ff507967 | 2026-09-19 | MIT | True | - | -
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go | main | cdf43df10c8c565ecaa978428b1fe66ad6685f8d | 2026-09-30 | MIT | True | #11 PDF/A: trailer /ID is only written for encrypted documents (veraPDF 6.; #10 RemoveUnusedObjects deletes objects referenced only from the catalog (; #9 RemoveDuplicateStreams hashes unreachable streams — a RemoveUnusedObje | -
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Python | main | 8f0edbe6930f300088fc72f64711be3265a723d1 | 2026-10-09 | MIT | True | - | #4
+aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET | main | 10a363830fea952c29df20fdb37d35ad3a881433 | 2026-10-01 | MIT | True | #4 Silent glyph loss in embedded TrueType subsets when separate Documents; #3 Compatibility issues with older versions | -
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp | main | 4b83c9fec1e37fd205156770161f6843bac00ceb | 2026-09-30 | MIT | True | - | -
+aspose-pdf-foss/Aspose.PDF-FOSS-for-Java | main | 736cedaa2922e4952f429364bdb9a4bbb1d97863 | 2026-10-07 | MIT | True | #6 Flaky test: PdfSignatureTest.testVerifySignedPdf intermittently fails  | #10, #7
+aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript | main | c672b3918318ccd0c13bc9dc619620cac2674c9e | 2026-10-09 | MIT | True | - | -
+aspose-psd-foss/Aspose.PSD-FOSS-for-.NET | main | 85ed7eec7c801d8b5c97aa099f018d3b98df2981 | 2026-10-10 | None | True | #5 Add a LICENSE file and merge real source to main | -
+aspose-psd-foss/Aspose.PSD-FOSS-for-Python | main | dbc90f46f7ef405748885aaf44cecd6e74461e8d | 2026-10-10 | None | True | #4 Add a LICENSE file and merge real source to main; #1 Do you have an estimated timeline for when Aspose.PSD FOSS for Python  | -
+aspose-slides-foss/Aspose.Slides-FOSS-for-.NET | main | 86c441b5d81e707f2ea9e01b197dbb6ff7a3859b | 2026-09-23 | MIT | True | - | -
+aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp | main | 469ce77a07b988c49deb930632b8276c89ec6b66 | 2026-10-06 | MIT | True | #4 Table cell portion formatting is discarded on save (no <a:rPr> written | -
+aspose-slides-foss/Aspose.Slides-FOSS-for-Java | main | 620a2614418854b4a18966a361e6907ddc88c7cb | 2026-09-23 | MIT | True | - | -
+aspose-slides-foss/Aspose.Slides-FOSS-for-Python | main | 4e63447ba79d1c27a5192844847d9f872c5b92ad | 2026-09-23 | MIT | True | - | -
+aspose-tex-foss/Aspose.TeX-FOSS-for-Python | main | 181015d2eee3e19f8af3d84e4a932ac84ad47c7c | 2026-09-02 | MIT | True | - | -
+aspose-words-foss/Aspose.Words-FOSS-for-.NET | master | 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c | 2026-09-01 | MIT | True | - | -
+aspose-words-foss/Aspose.Words-FOSS-for-Python | main | 2d2efee2787cb9e56d071d17f8d7b740dce8b784 | 2026-08-17 | MIT | True | #3 Chinese text is lost in PDF and text extraction; standard RTF fails to | -

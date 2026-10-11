@@ -71,10 +71,13 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # heads (docs/DECISION_LOG.md, this date; evidence/upstream-defects/reverification.json).
     # 2026-10-10 (TC-ISS-01, G6-W01): six more, from the deduplicated review inventory, each
     # re-verified by command at the live head (analysis/issue-inventory.md).
+    # 2026-10-11 (lane iss3b, G6-W01): two package-metadata handoffs from the cut-2 work, then
+    # sixteen more, each re-verified by command at the live head (seven library, build, install or
+    # test findings and nine found by the defect-class detectors).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 26
+    assert len(paths) == 42
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 26
+    assert len(ledger) == 42
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",

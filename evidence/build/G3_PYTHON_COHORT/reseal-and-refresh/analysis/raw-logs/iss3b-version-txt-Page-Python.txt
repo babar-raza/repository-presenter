@@ -1,0 +1,40 @@
+# key: version-txt-Page-Python
+# repository clone: Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-11T18:08:11Z
+# note: sparse checkout of the non-data files; testdata/resources not fetched
+
+$ git ls-files local | wc -l; ls local 2>&1 | head -2
+[exit 0]
+0
+ls: cannot access 'local': No such file or directory
+
+$ git show HEAD:.gitignore | grep -n '^local/'
+[exit 0]
+9:local/
+
+$ sed -n 35p setup.py; sed -n 45p package.py
+[exit 0]
+        "version": (ROOT / "local" / "Version.txt").read_text(encoding="utf-8").strip(),
+    value = (ROOT / "local" / "Version.txt").read_text(encoding="utf-8").strip()
+
+$ "<scratch>/venvs/page/Scripts/python.exe" -m pip install . --no-deps 2>&1 | tail -6
+[exit 0]
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      FileNotFoundError: [Errno 2] No such file or directory: '<scratch>\\clones\\Aspose.Page-FOSS-for-Python\\local\\Version.txt'
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+ERROR: Failed to build 'file:///<scratch>/clones/Aspose.Page-FOSS-for-Python' when getting requirements to build wheel
+
+$ sed -n 96,104p README.md
+[exit 0]
+git clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git
+cd Aspose.Page-FOSS-for-Python
+python package.py build
+python package.py verify
+```
+
+The wheel version comes from `local/Version.txt`. `verify` installs it with all dependencies
+in `.package-venv` and tests PS/XPS to PDF/PNG conversion. To upload the built wheel, use
+`python package.py publish-test` for TestPyPI or `python package.py publish` for PyPI; these

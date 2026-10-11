@@ -1,0 +1,13 @@
+# key: npm-registry-3D-TS
+# repository clone: Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-11T18:24:06Z
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'https://registry.npmjs.org/@aspose%2f3d'
+[exit 23]
+404
+
+$ grep -n '"name"' package.json | head -2; grep -n -i 'no published package' README.md | cut -c1-200
+[exit 0]
+2:  "name": "@aspose/3d",
+127:Installation — there is no published package to import by name yet):

@@ -1,0 +1,39 @@
+# key: repro-3D-Python-obj
+# repository clone: Aspose.3D-FOSS-for-Python
+# head: 65b1f577c0f16d0d9112bb6c1153d3024543ac02
+# utc: 2026-10-11T17:54:40Z
+
+$ "<scratch>/venvs/3dpy/Scripts/python.exe" -m pip install -q -e . 2>&1 | tail -3
+[exit 0]
+
+
+# README.md lines 275-285 (the 'Position a Node With Transform' fence) saved as ex.py and run in an empty directory
+
+$ sed -n 275,285p README.md
+[exit 0]
+from aspose.threed import Scene
+from aspose.threed.entities import Cylinder
+from aspose.threed.utilities import Vector3
+
+scene = Scene()
+cylinder = Cylinder()
+node = scene.root_node.create_child_node("Post", entity=cylinder.to_mesh())
+node.transform.translation = Vector3(0.0, 1.0, 0.0)
+node.transform.scaling = Vector3(0.5, 2.0, 0.5)
+
+scene.save("post.obj")
+
+$ cd "<scratch>\work\3dpy" && "<scratch>/venvs/3dpy/Scripts/python.exe" ex.py 2>&1 | tail -8
+[exit 0]
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>\clones\Aspose.3D-FOSS-for-Python\aspose\threed\formats\obj\ObjExporter.py", line 25, in export
+    self._write_obj(scene, stream, options)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>\clones\Aspose.3D-FOSS-for-Python\aspose\threed\formats\obj\ObjExporter.py", line 50, in _write_obj
+    stream.write(content)
+    ~~~~~~~~~~~~^^^^^^^^^
+TypeError: a bytes-like object is required, not 'str'
+
+$ cd "<scratch>\work\3dpy" && "<scratch>/venvs/3dpy/Scripts/python.exe" -c "from aspose.threed import Scene; from aspose.threed.entities import Box; s=Scene(); s.root_node.create_child_node('b', entity=Box().to_mesh()); s.save('o.stl'); print('stl ok')" 2>&1 | tail -3
+[exit 0]
+stl ok

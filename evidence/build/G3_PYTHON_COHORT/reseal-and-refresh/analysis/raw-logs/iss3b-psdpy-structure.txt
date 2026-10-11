@@ -1,0 +1,64 @@
+# key: psdpy-structure
+# repository clone: Aspose.PSD-FOSS-for-Python
+# head: dbc90f46f7ef405748885aaf44cecd6e74461e8d
+# utc: 2026-10-11T17:49:14Z
+
+$ ls
+[exit 0]
+README.md
+aspose_psd_foss
+aspose_psd_foss_test
+
+$ git ls-files | head -5; git ls-files | wc -l
+[exit 0]
+.gitignore
+README.md
+aspose_psd_foss/__init__.py
+aspose_psd_foss/bigendianbitconverter.py
+aspose_psd_foss/bigendianreader.py
+94
+
+$ ls pyproject.toml setup.py setup.cfg 2>&1 | head
+[exit 0]
+ls: cannot access 'pyproject.toml': No such file or directory
+ls: cannot access 'setup.py': No such file or directory
+ls: cannot access 'setup.cfg': No such file or directory
+
+$ wc -c README.md; cat README.md | head -20
+[exit 0]
+23407 README.md
+# Aspose.PSD-FOSS for Python
+
+![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg) [![Contributors](https://img.shields.io/github/contributors/aspose-psd-foss/Aspose.PSD-FOSS-for-Python.svg)](https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-Python/graphs/contributors)
+
+[![Aspose.PSD-FOSS for Python](https://products.aspose.org/media/psd/python/banner-readme.png)](https://products.aspose.org/psd/python/)
+
+Aspose.PSD-FOSS is a free, open-source Python library for loading, inspecting, and making a
+limited set of layer-metadata edits to PSD/PSB files, then saving the result back without
+rendering. It is for PSD/PSB inspection and small, targeted layer-property edits — not a
+rendering engine, a raster editor, or an open-source replacement for the full commercial
+Aspose.PSD product.
+
+## Navigation
+
+- [At a Glance](#at-a-glance)
+- [Key Capabilities](#key-capabilities)
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Quick Start](#quick-start)
+- [Additional Examples](#additional-examples)
+
+$ wc -l aspose_psd_foss/__init__.py
+[exit 0]
+0 aspose_psd_foss/__init__.py
+
+$ git ls-files | grep '/obj/'
+[exit 0]
+aspose_psd_foss/obj/debug/net10_0/aspose_psd_foss_assemblyinfo.py
+aspose_psd_foss/obj/debug/net10_0/aspose_psd_foss_globalusings_g.py
+aspose_psd_foss_test/obj/debug/net10_0/aspose_psd_foss_test_assemblyinfo.py
+aspose_psd_foss_test/obj/debug/net10_0/aspose_psd_foss_test_globalusings_g.py
+
+$ git log -3 --format='%h %ad %s' --date=short
+[exit 0]
+dbc90f4 2026-10-10 Refresh README: verified examples and documentation links (#5)

@@ -1,0 +1,39 @@
+# key: hygiene-GIS
+# repository clone: Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-11T17:49:09Z
+
+$ git ls-files | grep -c '/obj/'
+[exit 0]
+14
+
+$ git ls-files | grep '/obj/' | head -16
+[exit 0]
+Aspose.GIS.FOSS.Tests/obj/Aspose.GIS.FOSS.Tests.csproj.nuget.dgspec.json
+Aspose.GIS.FOSS.Tests/obj/Aspose.GIS.FOSS.Tests.csproj.nuget.g.props
+Aspose.GIS.FOSS.Tests/obj/Aspose.GIS.FOSS.Tests.csproj.nuget.g.targets
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.AssemblyInfo.cs
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.AssemblyInfoInputs.cache
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.GeneratedMSBuildEditorConfig.editorconfig
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.GlobalUsings.g.cs
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.assets.cache
+Aspose.GIS.FOSS.Tests/obj/Debug/net10.0/Aspose.GIS.FOSS.Tests.csproj.AssemblyReference.cache
+Aspose.GIS.FOSS.Tests/obj/project.assets.json
+Aspose.GIS.FOSS.Tests/obj/project.nuget.cache
+Aspose.GIS.FOSS/obj/Debug/net10.0/Aspose.GIS.FOSS.csproj.CoreCompileInputs.cache
+Aspose.GIS.FOSS/obj/Debug/net10.0/Aspose.GIS.FOSS.csproj.FileListAbsolute.txt
+
+$ grep -n -E '^(obj|bin)' .gitignore; echo gitignore-grep-exit=$?
+[exit 0]
+gitignore-grep-exit=1
+
+$ ls -a | head -30
+[exit 0]
+.
+..
+.git
+.gitignore
+Aspose.GIS.FOSS
+Aspose.GIS.FOSS.Tests
+Aspose.GIS.FOSS.slnx

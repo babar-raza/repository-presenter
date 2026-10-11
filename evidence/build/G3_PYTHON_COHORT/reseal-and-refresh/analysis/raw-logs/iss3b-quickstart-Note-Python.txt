@@ -1,0 +1,49 @@
+# key: quickstart-Note-Python
+# repository clone: Aspose.Note-FOSS-for-Python
+# head: 0fd1cf7bcadb279a6dd73ddcba3d5241376badd3
+# utc: 2026-10-11T17:55:12Z
+
+$ "<scratch>/venvs/note/Scripts/python.exe" -m pip install -q -e . 2>&1 | tail -3
+[exit 0]
+
+
+$ git ls-files | grep -i 'SimpleTable.one'
+[exit 0]
+testfiles/SimpleTable.one
+
+# README.md Quick Start fence = lines 105-110
+
+$ sed -n 105,110p README.md
+[exit 0]
+from aspose.note import Document
+
+doc = Document("SimpleTable.one")
+print(doc.DisplayName)
+for page in doc:
+    print(page.Title.TitleText.Text)
+
+$ cd "<scratch>\work\note" && "<scratch>/venvs/note/Scripts/python.exe" ex.py 2>&1 | tail -6
+[exit 0]
+SimpleTable
+Traceback (most recent call last):
+  File "<scratch>\work\note\ex.py", line 6, in <module>
+    print(page.Title.TitleText.Text)
+          ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'TitleText'
+
+$ cd "<scratch>\work\note" && "<scratch>/venvs/note/Scripts/python.exe" -c "from aspose.note import Document; d=Document('SimpleTable.one'); print([type(p.Title).__name__ for p in d])"
+[exit 0]
+['NoneType']
+
+$ grep -n 'Title' README.md | sed -n 1,10p
+[exit 0]
+60:- Read page metadata through `Page.Title`, `Page.Author`, `Page.CreationTime`, and `Page.Level`, plus revision history via `PageHistory` and `Document.GetPageHistory()`.
+110:    print(page.Title.TitleText.Text)
+307:| `Title` | A page's title — `TitleText`, `TitleDate`, and `TitleTime`, each a `RichText`. |
+349:  - `VisitDocumentStart/End`, `VisitPageStart/End`, `VisitTitleStart/End`, `VisitOutlineStart/End`, `VisitOutlineElementStart/End`, `VisitRichTextStart/End`, `VisitImageStart/End`
+352:- Container nodes (`Document`, `Page`, `Title`, `Outline`, `OutlineElement`, `Image`, `Table`, `TableRow`, `TableCell`)
+361:  - `Title: Title | None`, `Author: str | None`
+364:- `Title`
+365:  - `TitleText: RichText | None`, `TitleDate: RichText | None`, `TitleTime: RichText | None`
+385:  - `TextStyle.Default()`, `.DefaultMsOneNoteTitleTextStyle()`, `.DefaultMsOneNoteTitleDateStyle()`, `.DefaultMsOneNoteTitleTimeStyle()`
+388:  - `AlternativeTextTitle`, `AlternativeTextDescription`, `HyperlinkUrl`, `Tags: list[NoteTag]`

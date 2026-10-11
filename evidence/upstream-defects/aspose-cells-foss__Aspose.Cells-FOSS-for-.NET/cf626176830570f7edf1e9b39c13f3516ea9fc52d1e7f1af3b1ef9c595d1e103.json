@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "source_revision": "941814fd138dc28cf47123d48194f329f283498d",
+  "defect_fingerprint": "sha256:cf626176830570f7edf1e9b39c13f3516ea9fc52d1e7f1af3b1ef9c595d1e103",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only 941814fd138dc28cf47123d48194f329f283498d",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "License/LICENSE.txt",
+      "detail": "the only license file in the tree"
+    },
+    {
+      "path": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj",
+      "detail": "declares license MIT"
+    }
+  ],
+  "claim": "At revision 941814fd138dc28cf47123d48194f329f283498d, aspose-cells-foss/Aspose.Cells-FOSS-for-.NET has no license file at its root (the only one is License/LICENSE.txt).",
+  "suggested_issue_title": "Aspose.Cells FOSS for .NET: the license file is only in License/, not at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `941814fd138dc28cf47123d48194f329f283498d` the repository has no license file at its root, only `License/LICENSE.txt`.\n\n## Environment\n\n- Repository: aspose-cells-foss/Aspose.Cells-FOSS-for-.NET\n- Revision: `941814fd138dc28cf47123d48194f329f283498d` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only 941814fd138dc28cf47123d48194f329f283498d\ngh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe only license file is `License/LICENSE.txt`; the root listing has none, so the repository page shows no license. `src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj` declares the license as `MIT`.\n\n<!-- repository-presenter-defect: sha256:cf626176830570f7edf1e9b39c13f3516ea9fc52d1e7f1af3b1ef9c595d1e103 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

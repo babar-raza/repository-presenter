@@ -1,0 +1,7 @@
+{
+  "page-run-mcp": ["aspose-page-foss/Aspose.Page-FOSS-for-Python", "main", "README.md", "Run the MCP Server"],
+  "page-version-txt": ["aspose-page-foss/Aspose.Page-FOSS-for-Python", "main", "README.md", "local/Version.txt"],
+  "page-package-build": ["aspose-page-foss/Aspose.Page-FOSS-for-Python", "main", "README.md", "python package.py build"],
+  "3dts-packaging-defect": ["aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "master", "README.md", "real npm packaging defect"],
+  "cellspy-csv": ["aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "main", "README.md", "save_as_csv"]
+}

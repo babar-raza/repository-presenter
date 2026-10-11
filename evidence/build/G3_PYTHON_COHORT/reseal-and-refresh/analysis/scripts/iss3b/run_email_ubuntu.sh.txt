@@ -1,0 +1,21 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+clone=Aspose.Email-FOSS-for-Cpp
+head=$(git -C "$SP/clones/$clone" rev-parse HEAD)
+out="$SP/full/emailcpp_ubuntu24.txt"
+{
+echo "# repository clone: $clone"; echo "# head: $head"; echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "# image: ubuntu:24.04"
+docker run --rm -v "$SP/clones/$clone:/src:ro" ubuntu:24.04 bash -c '
+apt-get update -qq >/dev/null 2>&1; apt-get install -y -qq cmake ninja-build g++-12 g++-13 g++-14 clang-18 >/dev/null 2>&1
+cmake --version | head -1
+for cxx in g++-12 g++-13 g++-14 clang++-18; do
+  echo "=== $cxx: $($cxx --version | head -1)"
+  rm -rf /tmp/b; CXX=$cxx cmake -S /src -B /tmp/b -G Ninja > /tmp/cfg.txt 2>&1; echo configure-exit=$?
+  cmake --build /tmp/b -- -k 0 > /tmp/build.txt 2>&1; echo build-exit=$?
+  echo "translation-units-failed: $(grep -c "^FAILED:" /tmp/build.txt)"
+  grep -m2 "changes meaning" /tmp/build.txt | cut -c1-260
+done'
+echo "# end $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} > "$out" 2>&1
+echo done > "$SP/full/email_ubuntu_done.txt"

@@ -1,0 +1,37 @@
+import json, subprocess, sys
+from pathlib import Path
+from repository_presenter.components.issues.classes import build_observation, detect_all
+from repository_presenter.components.issues.draft import draft_class_handoff
+from repository_presenter.components.issues.quality import HandoffQualityError, issue_quality_findings
+from repository_presenter.components.issues.model import handoff_to_dict
+sp = Path(sys.argv[1]); out = Path(sys.argv[2])
+heads = json.load(open(sp/"heads_issues.json"))
+res = {}
+for repo, row in heads.items():
+    name = repo.split("/")[1]
+    clone = sp/"clones"/name
+    head = subprocess.run(["git","-C",str(clone),"rev-parse","HEAD"],capture_output=True,text=True).stdout.strip()
+    tree = subprocess.run(["git","-C",str(clone),"ls-tree","-r","--name-only","-z","HEAD"],capture_output=True).stdout.decode("utf-8","replace").split("\0")
+    tree = tuple(p for p in tree if p)
+    def read(path, clone=clone):
+        r = subprocess.run(["git","-C",str(clone),"show",f"HEAD:{path}"],capture_output=True)
+        if r.returncode != 0: return None
+        if len(r.stdout) > 1_000_000: return None
+        return r.stdout.decode("utf-8","replace")
+    obs = build_observation(repo, head, tree, read)
+    findings = detect_all(obs)
+    entries = []
+    for f in findings:
+        item = {"class": f.defect_class, "statement": f.statement, "signature": f.signature}
+        try:
+            h = draft_class_handoff(f, observation=obs)
+            item["quality"] = "pass"; item["handoff"] = handoff_to_dict(h)
+        except HandoffQualityError as e:
+            item["quality"] = "FAIL: " + "; ".join(str(x) for x in e.findings)
+        entries.append(item)
+    res[repo] = {"head": head, "tree_files": len(tree), "unreadable": list(obs.unreadable), "findings": entries}
+json.dump(res, open(out,"w"), indent=1)
+for repo, r in res.items():
+    print(repo.split("/")[1][:34].ljust(34), r["head"][:8], "files=%d"%r["tree_files"], "unreadable=%s"%r["unreadable"][:3])
+    for e in r["findings"]:
+        print("    ", e["class"], "|", e["statement"][:110], "|", e["quality"][:80])

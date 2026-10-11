@@ -1,0 +1,28 @@
+# key: pypi-Font-Python
+# repository clone: Aspose.Font-FOSS-for-Python
+# head: adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6
+# utc: 2026-10-11T17:56:01Z
+
+$ grep -n 'aspose-font\[mcp\]' README.md; grep -n '^name' pyproject.toml
+[exit 0]
+539:pip install "aspose-font[mcp]"
+6:name = "aspose-font"
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://pypi.org/pypi/aspose-font/json
+[exit 23]
+404
+
+$ cd "<scratch>\work\font" && "<scratch>/venvs/font/Scripts/python.exe" -m pip download aspose-font --no-deps -d dl 2>&1 | tail -3
+[exit 0]
+ERROR: Could not find a version that satisfies the requirement aspose-font (from versions: none)
+ERROR: No matching distribution found for aspose-font
+
+$ curl -s -o /dev/null -w '%{http_code}\n' https://pypi.org/pypi/aspose-font-foss/json
+[exit 23]
+404
+
+$ git ls-remote --tags origin | sed 's#.*refs/tags/##' | grep -v '\^' | tail -3
+[exit 0]
+26.9.2
+26.9.3
+26.9.4

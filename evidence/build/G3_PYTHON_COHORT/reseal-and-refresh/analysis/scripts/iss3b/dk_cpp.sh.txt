@@ -1,0 +1,16 @@
+#!/bin/bash
+# usage: dk_cpp.sh <key> <image> <clone-name> <cmake-subdir> [extra shell after cd]
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+key="$1"; image="$2"; clone="$3"; sub="$4"
+out="$SP/full/$key.txt"
+head=$(git -C "$SP/clones/$clone" rev-parse HEAD)
+{
+echo "# repository clone: $clone"
+echo "# head: $head"
+echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo "# image: $image"
+echo "# command: docker run --rm -v <clone>:/src:ro $image bash -c 'apt-get install cmake ninja-build; cd /src/$sub && cmake -S . -B /tmp/b -G Ninja && cmake --build /tmp/b -- -k 0'"
+docker run --rm -v "$SP/clones/$clone:/src:ro" "$image" bash -c "apt-get update -qq >/dev/null 2>&1; apt-get install -y -qq cmake ninja-build >/dev/null 2>&1; (g++ --version || clang++ --version) | head -1; cmake --version | head -1; cd /src/$sub && cmake -S . -B /tmp/b -G Ninja > /tmp/cfg.txt 2>&1; echo cmake-configure-exit=\$?; tail -5 /tmp/cfg.txt; cmake --build /tmp/b -- -k 0 > /tmp/build.txt 2>&1; echo build-exit=\$?; grep -c ' error' /tmp/build.txt | sed 's/^/error-lines: /'; grep -E 'error|FAILED:' /tmp/build.txt | head -60"
+echo "# end $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+} > "$out" 2>&1

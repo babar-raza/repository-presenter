@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "source_revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+  "defect_fingerprint": "sha256:bb3b52f47c0b3e3629816be19707cb9e0bf14404d2133e082fd688454b9f935e",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "ApiExamples/loading_markdown.py",
+      "detail": "line 163: import pdfplumber"
+    },
+    {
+      "path": "pyproject.toml",
+      "detail": "dev extra: Pillow>=10.0.0, pytest>=9.0.2; no pdfplumber"
+    },
+    {
+      "path": "python -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini",
+      "detail": "python:3.12, 2026-10-11: 1 failed, 26 passed; ModuleNotFoundError: No module named 'pdfplumber'"
+    }
+  ],
+  "claim": "At revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, ApiExamples/loading_markdown.py imports pdfplumber, the dev extra does not install it, and the ApiExamples run has one failing test.",
+  "suggested_issue_title": "Aspose.Words FOSS for Python: the dev extra lacks pdfplumber, so one ApiExamples test fails",
+  "suggested_issue_body": "## Summary\n\n`ApiExamples/loading_markdown.py` (line 163) imports `pdfplumber`, which is not installed by `pip install -e \".[dev]\"`: the `dev` extra in `pyproject.toml` lists only `Pillow` and `pytest`. The ApiExamples run therefore has one failing test.\n\n## Environment\n\n- Repository: aspose-words-foss/Aspose.Words-FOSS-for-Python\n- Revision: `2d2efee2787cb9e56d071d17f8d7b740dce8b784` (the upstream revision this report was verified against, default branch `main`)\n- Docker image `python:3.12` (Python 3.12.15), `pip install -e \".[dev]\"`\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python\ncd Aspose.Words-FOSS-for-Python\npip install -e \".[dev]\"\npython -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini\n```\n\n## Expected\n\nAll ApiExamples tests pass after installing the `dev` extra.\n\n## Actual\n\n```\nE   ModuleNotFoundError: No module named 'pdfplumber'\nApiExamples/loading_markdown.py:163: ModuleNotFoundError\nFAILED ApiExamples/loading_markdown.py::LoadingMarkdown::test_save_markdown_with_base64_image_to_docx_and_pdf\n1 failed, 26 passed\n```\n\n## Where in the repository\n\n- `ApiExamples/loading_markdown.py:163`\n- `pyproject.toml` (`[project.optional-dependencies]` `dev`)\n\n## Suggested fix\n\nAdd `pdfplumber` to the `dev` extra, or guard the import with `pytest.importorskip(\"pdfplumber\")`.\n\n<!-- repository-presenter-defect: sha256:bb3b52f47c0b3e3629816be19707cb9e0bf14404d2133e082fd688454b9f935e -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

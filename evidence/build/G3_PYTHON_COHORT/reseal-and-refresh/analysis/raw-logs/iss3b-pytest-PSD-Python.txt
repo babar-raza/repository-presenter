@@ -1,0 +1,22 @@
+# key: pytest-PSD-Python
+# repository clone: Aspose.PSD-FOSS-for-Python
+# head: dbc90f46f7ef405748885aaf44cecd6e74461e8d
+# utc: 2026-10-11T17:56:49Z
+
+$ "<scratch>/venvs/psdpy/Scripts/python.exe" -m pip install -q pytest 2>&1 | tail -1
+[exit 0]
+
+
+$ "<scratch>/venvs/psdpy/Scripts/python.exe" -m pytest -q 2>&1 | tail -6
+[exit 0]
+
+no tests ran in 0.26s
+
+$ ls aspose_psd_foss_test | grep -c 'tests.py'; ls aspose_psd_foss_test | grep -c '^test_'
+[exit 1]
+11
+0
+
+$ "<scratch>/venvs/psdpy/Scripts/python.exe" -m pip install --dry-run --no-deps --no-build-isolation . 2>&1 | tail -3
+[exit 0]
+ERROR: Directory '.' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.

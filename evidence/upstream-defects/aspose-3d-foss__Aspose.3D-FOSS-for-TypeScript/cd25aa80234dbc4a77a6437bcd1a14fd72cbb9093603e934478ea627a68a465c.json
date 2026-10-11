@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:cd25aa80234dbc4a77a6437bcd1a14fd72cbb9093603e934478ea627a68a465c",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only 66cb26df3b031f0bf6976d4e88dc89721983afa4",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "package.json",
+      "detail": "declares license MIT"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript has no license file at its root.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: no license file at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` the repository has no license file at its root.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript\n- Revision: `66cb26df3b031f0bf6976d4e88dc89721983afa4` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only 66cb26df3b031f0bf6976d4e88dc89721983afa4\ngh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe root listing has no license file, and none exists elsewhere in the tree. `package.json` declares the license as `MIT`.\n\n<!-- repository-presenter-defect: sha256:cd25aa80234dbc4a77a6437bcd1a14fd72cbb9093603e934478ea627a68a465c -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

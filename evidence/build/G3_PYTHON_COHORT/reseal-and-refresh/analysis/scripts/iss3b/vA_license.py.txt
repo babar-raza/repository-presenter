@@ -1,0 +1,24 @@
+import sys
+sys.path.insert(0, r"<scratch>")
+from vlib import *
+targets = {
+ "license-Cells-Cpp": ("Aspose.Cells-FOSS-for-Cpp", "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp", "README.md"),
+ "license-Cells-Java": ("Aspose.Cells-FOSS-for-Java", "aspose-cells-foss/Aspose.Cells-FOSS-for-Java", "pom.xml"),
+ "license-Cells-Python": ("Aspose.Cells-FOSS-for-Python", "aspose-cells-foss/Aspose.Cells-FOSS-for-Python", "pyproject.toml"),
+ "license-Cells-TS": ("Aspose.Cells-FOSS-for-TypeScript", "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript", "package.json"),
+ "license-Cells-NET": ("Aspose.Cells-FOSS-for-.NET", "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET", "README.md"),
+ "license-3D-TS": ("Aspose.3D-FOSS-for-TypeScript", "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript", "package.json"),
+ "license-GIS": ("Aspose.GIS.FOSS-for-.Net", "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net", None),
+ "license-PSD-NET": ("Aspose.PSD-FOSS-for-.NET", "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET", "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"),
+ "license-PSD-Py": ("Aspose.PSD-FOSS-for-Python", "aspose-psd-foss/Aspose.PSD-FOSS-for-Python", None),
+}
+for key, (name, repo, decl) in targets.items():
+    L = Log(key, name)
+    L.run(r"git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$'; echo root-match-exit=$?")
+    L.run(r"git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)' | head -8")
+    L.run(f"gh api repos/{repo} --jq '\"license=\" + (.license|tostring)'", gh=True)
+    if decl:
+        L.run(f"grep -n -i -E 'licen[sc]e|MIT' {decl} | head -5")
+    L.run(f"gh api 'repos/{repo}/issues?state=open&per_page=100' --jq '.[] | \"#\(.number) \(.title)\"'; echo open-issues-listed", gh=True)
+    L.save()
+print("done")

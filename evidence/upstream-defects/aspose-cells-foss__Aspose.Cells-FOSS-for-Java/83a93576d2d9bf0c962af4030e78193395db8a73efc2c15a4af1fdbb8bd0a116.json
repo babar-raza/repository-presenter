@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "source_revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+  "defect_fingerprint": "sha256:83a93576d2d9bf0c962af4030e78193395db8a73efc2c15a4af1fdbb8bd0a116",
+  "triggering_check": {
+    "id": "LICENSE_MISSING_ROOT",
+    "version": "1",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "git ls-tree --name-only c65329e7257b1311abb9686d7e4957a8cc002955",
+      "detail": "no license file among the root entries"
+    },
+    {
+      "path": "License/LICENSE.txt",
+      "detail": "the only license file in the tree"
+    }
+  ],
+  "claim": "At revision c65329e7257b1311abb9686d7e4957a8cc002955, aspose-cells-foss/Aspose.Cells-FOSS-for-Java has no license file at its root (the only one is License/LICENSE.txt).",
+  "suggested_issue_title": "Aspose.Cells FOSS for Java: the license file is only in License/, not at the repository root",
+  "suggested_issue_body": "## Summary\n\nAt revision `c65329e7257b1311abb9686d7e4957a8cc002955` the repository has no license file at its root, only `License/LICENSE.txt`.\n\n## Environment\n\n- Repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Java\n- Revision: `c65329e7257b1311abb9686d7e4957a8cc002955` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\ngit ls-tree --name-only c65329e7257b1311abb9686d7e4957a8cc002955\ngh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java --jq .license\n```\n\n## Expected\n\nA license file at the repository root (for example `LICENSE`), so GitHub license detection and package scanners, which read only the root, can identify the license.\n\n## Actual\n\nThe only license file is `License/LICENSE.txt`; the root listing has none, so the repository page shows no license.\n\n<!-- repository-presenter-defect: sha256:83a93576d2d9bf0c962af4030e78193395db8a73efc2c15a4af1fdbb8bd0a116 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "LICENSE_MISSING_ROOT"
+}

@@ -1,0 +1,42 @@
+# key: fileformats-3D-Java
+# repository clone: Aspose.3D-FOSS-for-Java
+# head: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
+# utc: 2026-10-11T17:49:29Z
+
+$ grep -n -i -E '^#+ .*(gltf|fbx)' FILE_FORMATS.md
+[exit 0]
+32:### glTF/GLB
+39:### FBX
+48:### glTF/GLB
+53:### FBX
+
+$ ls .github/workflows
+[exit 0]
+maven-central-release.yml
+
+$ grep -n 'mvn' .github/workflows/*.yml
+[exit 0]
+40:          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
+41:          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
+42:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+50:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+64:        run: mvn -B clean verify -Dgpg.skip=true -DskipTests
+69:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+150:        run: mvn -B clean verify '-Dgpg.skip=true' '-DskipTests'
+197:          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
+198:          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
+199:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+210:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+223:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+240:        run: mvn -B clean verify -DskipTests
+245:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+268:        run: mvn -B deploy -DskipTests
+274:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+
+$ grep -n -i 'upstream issues' README.md
+[exit 0]
+587:- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issues in this repository, and build from source instead if you need it).
+
+$ git grep -n -i 'upstream' -- '*.md' | head -8
+[exit 0]
+README.md:587:- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issues in this repository, and build from source instead if you need it).

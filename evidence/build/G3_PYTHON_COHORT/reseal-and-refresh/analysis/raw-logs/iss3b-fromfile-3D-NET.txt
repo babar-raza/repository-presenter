@@ -1,0 +1,30 @@
+# key: fromfile-3D-NET
+# repository clone: Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-11T18:06:08Z
+
+$ sed -n 164,172p README.md
+[exit 0]
+
+```csharp
+using Aspose.ThreeD;
+
+var scene = Scene.FromFile("input.fbx", FileFormat.FBX7400Binary);
+foreach (var node in scene.RootNode.ChildNodes)
+{
+    System.Console.WriteLine(node.Name);
+}
+
+# Program.cs = the README fence, README.md lines 166-172, verbatim
+
+$ dotnet build 2>&1 | grep -E 'error|Build succeeded' | head -4
+[exit 0]
+<scratch>\work\3dnet_fromfile\Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken' [<scratch>\work\3dnet_fromfile\p.csproj]
+<scratch>\work\3dnet_fromfile\Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken' [<scratch>\work\3dnet_fromfile\p.csproj]
+
+$ grep -n 'public static Scene FromFile' src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs
+[exit 0]
+314:        public static Scene FromFile(string fileName, FileFormat format, CancellationToken cancellationToken)
+324:        public static Scene FromFile(string fileName, LoadOptions options, CancellationToken cancellationToken)
+334:        public static Scene FromFile(string fileName)
+344:        public static Scene FromFile(string fileName, CancellationToken cancellationToken)

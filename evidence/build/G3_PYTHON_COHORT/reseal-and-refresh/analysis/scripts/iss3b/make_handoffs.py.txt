@@ -1,0 +1,469 @@
+"""Draft the new hand-authored upstream-defect handoffs through the project's model and quality gate.
+
+Run from the lane worktree with PYTHONPATH=src. Writes under evidence/upstream-defects/ of the
+worktree; refuses to write any text the quality gate rejects.
+"""
+import json
+import sys
+from pathlib import Path
+
+from repository_presenter.components.issues.classes import fingerprint
+from repository_presenter.components.issues.draft import handoff_path
+from repository_presenter.components.issues.model import (
+    EvidenceEntry,
+    Handoff,
+    TriggeringCheck,
+    load_handoff,
+    write_handoff,
+)
+from repository_presenter.components.issues.quality import issue_quality_findings
+from repository_presenter.components.issues.redetect import _current_check_version
+
+ROOT = Path(sys.argv[1])  # evidence/upstream-defects
+DATE = "2026-10-11"
+
+
+def fence(text: str) -> str:
+    return "```\n" + text.strip("\n") + "\n```"
+
+
+def build(
+    *,
+    repo,
+    rev,
+    branch,
+    env_lines,
+    summary,
+    steps,
+    expected,
+    actual,
+    where,
+    fix,
+    title,
+    check_id,
+    defect_class,
+    signature,
+    evidence,
+    claim,
+    verified="Verified on 2026-10-11 from a fresh shallow clone.",
+):
+    fp = fingerprint(repo, check_id, signature)
+    body = [
+        "## Summary",
+        "",
+        summary.strip(),
+        "",
+        "## Environment",
+        "",
+        f"- Repository: {repo}",
+        f"- Revision: `{rev}` (the upstream revision this report was verified against, default branch `{branch}`)",
+        *[f"- {line}" for line in env_lines],
+        f"- {verified}",
+        "",
+        "## Steps to reproduce",
+        "",
+        fence(steps),
+        "",
+        "## Expected",
+        "",
+        expected.strip(),
+        "",
+        "## Actual",
+        "",
+        actual.strip(),
+        "",
+        "## Where in the repository",
+        "",
+        *[f"- {line}" for line in where],
+        "",
+        "## Suggested fix",
+        "",
+        fix.strip(),
+        "",
+        f"<!-- repository-presenter-defect: {fp} -->",
+    ]
+    handoff = Handoff(
+        schema_version=1,
+        repository=repo,
+        source_revision=rev,
+        defect_fingerprint=fp,
+        triggering_check=TriggeringCheck(
+            id=check_id, version=_current_check_version(check_id) or "1", causal_stage="EXTRACTING"
+        ),
+        evidence=tuple(EvidenceEntry(path=p, detail=d) for p, d in evidence),
+        claim=claim,
+        suggested_issue_title=title,
+        suggested_issue_body="\n".join(body) + "\n",
+        status="HANDOFF_PENDING",
+        issue_ref=None,
+        close_reason=None,
+        defect_class=defect_class,
+    )
+    findings = issue_quality_findings(handoff)
+    if findings:
+        raise SystemExit(f"{repo} {title}: quality gate findings: " + "; ".join(str(f) for f in findings))
+    return handoff
+
+
+def write(handoff):
+    path = handoff_path(ROOT, handoff)
+    write_handoff(handoff, path)
+    print("wrote", path.relative_to(ROOT.parent.parent), handoff.defect_fingerprint[7:15], "|", handoff.suggested_issue_title)
+    return path
+
+
+H = {}
+CASES = json.load(open(sys.argv[2], encoding="utf-8"))  # heads from the live clones
+rev = lambda name: CASES[name]
+
+# ---------------------------------------------------------------- GIS: the library does not compile
+H["gis_build"] = build(
+    repo="aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+    rev=rev("gis"),
+    branch="main",
+    env_lines=["Windows 11, .NET SDK 10.0.401"],
+    title="Aspose.GIS.FOSS for .Net: the library project does not compile (369 build errors, 41 referenced types not declared)",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj:dotnet build -c Release:369 errors:41 undeclared types",
+    summary=(
+        "`dotnet build` of `Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` fails with 369 errors. The compiler "
+        "reports 57 distinct unresolved type names; 41 of them are declared nowhere in the tracked "
+        "sources (for example `Dataset`, `Driver`, `Polygon`, `Projection`, `Renderer`, "
+        "`VectorSymbolizer`), and the namespaces `Aspose.GIS.FOSS.Rendering.Symbolizers` and "
+        "`Aspose.GIS.FOSS.Epsg` do not exist. The tracked sources look like a partial import."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net\n"
+        "cd Aspose.GIS.FOSS-for-.Net\n"
+        "dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release"
+    ),
+    expected="The project builds with 0 errors.",
+    actual=(
+        "```\nBuild FAILED.\n    45 Warning(s)\n    369 Error(s)\n```\n"
+        "Representative errors (error codes CS0246, CS0234, CS0115, CS0534, CS0535, CS0508 and CS8937 occur):\n\n"
+        "```\n"
+        "Aspose.GIS.FOSS\\Geometries\\IGeometry.cs(5,33): error CS0234: The type or namespace name 'Symbolizers' does not exist in the namespace 'Aspose.GIS.FOSS.Rendering'\n"
+        "Aspose.GIS.FOSS\\SpatialReferencing\\Internal\\OgcEsriSrsTransformer.cs(6,23): error CS0234: The type or namespace name 'Epsg' does not exist in the namespace 'Aspose.GIS.FOSS'\n"
+        "Aspose.GIS.FOSS\\FileDriver.cs(346,16): error CS0246: The type or namespace name 'Dataset' could not be found\n"
+        "Aspose.GIS.FOSS\\Geometries\\IPolygon.cs(38,7): error CS0246: The type or namespace name 'Polygon' could not be found\n"
+        "```\n"
+        "The 41 type names declared nowhere in the repository: Axis, BursaWolfParameters, Dataset, Driver, "
+        "Ellipsoid, Extent, GeoJsonLayer, GeoJsonOptions, GeocentricAxisesOrder, GeographicAxisesOrder, "
+        "GeographicCrsEntry, GeographicDatum, GeographicDatumEntry, IAttributeIndex, IFeatureStyle, "
+        "ILinearRing, ISpatialIndex, JoinByGeometryOptions, JoinOptions, LayerEvaluationRestrictions, "
+        "LayerIndices, LocalDatum, MapInfoCoordinateValidationError, MapInfoCoordinateValidationException, "
+        "NumericFormat, ParameterType, PointsSequence, Polygon, ProjectedAxisesOrder, Projection, "
+        "ProjectionMethodIdentifier, Projections, Renderer, SavingOptions, ToWgs84Entry, "
+        "TransformationError, VectorSymbolizer, VerticalDatum, WkbVariant, WktVariant, "
+        "WrapAttributesConverter."
+    ),
+    where=[
+        "`Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` (the project that fails)",
+        "`Aspose.GIS.FOSS/Geometries/IGeometry.cs:5`, `Aspose.GIS.FOSS/FileDriver.cs:346`, `Aspose.GIS.FOSS/Geometries/IPolygon.cs:38`",
+    ],
+    fix=(
+        "Add the missing source files (or remove the references to them) so that the project builds, then "
+        "add a CI step that runs `dotnet build` on every push so the problem is caught early."
+    ),
+    evidence=[
+        ("Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj", "dotnet build -c Release (SDK 10.0.401, 2026-10-11): 369 Error(s), 45 Warning(s)"),
+        ("Aspose.GIS.FOSS/FileDriver.cs", "line 346: error CS0246: type 'Dataset' could not be found; 41 of 57 unresolved type names are declared nowhere in the tracked sources"),
+        ("Aspose.GIS.FOSS/Geometries/IGeometry.cs", "line 5: error CS0234: namespace 'Aspose.GIS.FOSS.Rendering.Symbolizers' does not exist"),
+    ],
+    claim=(
+        f"At revision {rev('gis')}, dotnet build of Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj fails with 369 errors "
+        "and 41 of the 57 unresolved type names are declared nowhere in the tracked sources."
+    ),
+)
+
+# ---------------------------------------------------------------- Page-Python: install from a fresh clone
+H["page_install"] = build(
+    repo="aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    rev=rev("page"),
+    branch="main",
+    env_lines=["Windows 11, Python 3.13.15, pip 26.2.1"],
+    title="Aspose.Page FOSS for Python: pip install . fails on a fresh clone because local/Version.txt is not in the repository",
+    check_id="BC-02",
+    defect_class="INSTALL_FAILS",
+    signature="setup.py:35,package.py:45 read local/Version.txt; .gitignore:9 local/; pip install . FileNotFoundError",
+    summary=(
+        "Installing the package from a fresh clone fails. `setup.py` (line 35) reads the package version "
+        "from `local/Version.txt`, and `package.py` (line 45) reads the same file, but `.gitignore` "
+        "(line 9) excludes the whole `local/` directory, so the file is not in the repository. The README "
+        "documents the source build (`python package.py build`) and says the wheel version comes from "
+        "`local/Version.txt` (README.md lines 98 and 102)."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python\n"
+        "cd Aspose.Page-FOSS-for-Python\n"
+        "git ls-files local | wc -l\n"
+        "pip install . --no-deps"
+    ),
+    expected="`pip install .` builds and installs the package from a clean clone, or the documentation says how to create `local/Version.txt` first.",
+    actual=(
+        "`git ls-files local | wc -l` prints `0`, and the install stops while preparing the wheel:\n\n"
+        "```\n"
+        "FileNotFoundError: [Errno 2] No such file or directory: '.../local/Version.txt'\n"
+        "ERROR: Failed to build 'file:///.../Aspose.Page-FOSS-for-Python' when getting requirements to build wheel\n"
+        "```"
+    ),
+    where=[
+        "`setup.py:35` and `package.py:45` (both read `local/Version.txt`)",
+        "`.gitignore:9` (`local/`)",
+        "`README.md:98` and `README.md:102`",
+    ],
+    fix=(
+        "Track a default `local/Version.txt` (and ignore only the credential files kept in `local/`), or fall "
+        "back to the `version` declared in `pyproject.toml` when the file is missing."
+    ),
+    evidence=[
+        ("setup.py", "line 35: \"version\": (ROOT / \"local\" / \"Version.txt\").read_text(...)"),
+        ("package.py", "line 45: value = (ROOT / \"local\" / \"Version.txt\").read_text(...)"),
+        ("pip install . --no-deps", "2026-10-11: FileNotFoundError: local/Version.txt; ERROR: Failed to build ... when getting requirements to build wheel"),
+    ],
+    claim=(
+        f"At revision {rev('page')}, setup.py and package.py read local/Version.txt, the directory local/ is "
+        "git-ignored and untracked, and pip install . fails with FileNotFoundError on a fresh clone."
+    ),
+)
+
+# ---------------------------------------------------------------- 3D-.NET: tests need an untracked testdata/
+H["threednet_tests"] = build(
+    repo="aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    rev=rev("3dnet"),
+    branch="main",
+    env_lines=["Windows 11, .NET SDK 10.0.401 (net10.0)"],
+    title="Aspose.3D FOSS for .NET: 53 of 183 tests fail on a clean checkout because testdata/ is not tracked",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="src/test/Aspose.ThreeD.Tests:dotnet test:53 of 183 fail:.gitignore:8 testdata",
+    summary=(
+        "`.gitignore` (line 8) excludes `testdata`, the directory from which the test suite reads its "
+        "fixture files, and no file under it is tracked. On a clean checkout `dotnet test` therefore reports "
+        "53 failures out of 183 tests; 47 of them are `FileNotFoundException` for fixtures under `testdata/`."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET\n"
+        "cd Aspose.3D-FOSS-for-.NET\n"
+        "grep -n testdata .gitignore\n"
+        "git ls-files | grep -i -c testdata\n"
+        "dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj"
+    ),
+    expected="The test suite passes on a clean checkout: the fixtures are tracked or the tests generate them.",
+    actual=(
+        "`grep` prints `8:testdata`, the second command prints `0`, and the run ends with:\n\n"
+        "```\n"
+        "Failed!  - Failed:    53, Passed:   130, Skipped:     0, Total:   183 (net10.0)\n"
+        "```\n"
+        "The 47 file errors name, for example: `Test file not found: ../../../../../../testdata/input/cube.obj` "
+        "(6 tests), `testdata/stl/stl_ascii.stl` (5), `testdata/gltf/simple_cube.gltf` (4), "
+        "`testdata/3mf/box.3mf` (3) and `./collada/cube_triangulate.dae` (3)."
+    ),
+    where=[
+        "`.gitignore:8` (`testdata`)",
+        "`src/test/Aspose.ThreeD.Tests/` (the tests that read the fixtures)",
+    ],
+    fix="Remove `testdata` from `.gitignore` and commit the fixture files, or build the fixtures inside the tests.",
+    evidence=[
+        (".gitignore", "line 8: testdata; git ls-files tracks 0 testdata files"),
+        ("src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj", "dotnet test (net10.0, 2026-10-11): Failed: 53, Passed: 130, Total: 183; 47 FileNotFoundException for testdata/ fixtures"),
+    ],
+    claim=(
+        f"At revision {rev('3dnet')}, .gitignore excludes testdata, no testdata file is tracked, and dotnet test "
+        "reports 53 failures out of 183 tests, 47 of them FileNotFoundException for testdata fixtures."
+    ),
+)
+
+# ---------------------------------------------------------------- 3D-TypeScript: jest failures
+H["threedts_jest"] = build(
+    repo="aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    rev=rev("3dts"),
+    branch="master",
+    env_lines=["Docker image `node:22` (Node v22.23.3, npm 10.9.9)"],
+    title="Aspose.3D FOSS for TypeScript: npx jest reports 4 failing tests out of 97 at the default branch head",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="jest:4 of 97 fail:test_3mf_materials,test_3mf_roundtrip,test_gltf_exporter,test_scene_save_stl",
+    summary=(
+        "After `npm install`, `npx jest` runs 97 tests and 4 fail: `Test3MFMaterialImport > testMaterialImport`, "
+        "`Test3MFRoundTrip > testRoundTripExportImport`, `TestGltfExporter > testSimpleTriangleBinary` and "
+        "`TestSceneSaveSTL > testRoundtripFile`. Each has a different cause."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript\n"
+        "cd Aspose.3D-FOSS-for-TypeScript\n"
+        "npm install\n"
+        "npx jest"
+    ),
+    expected="All tests pass on a clean clone.",
+    actual=(
+        "```\nTest Suites: 4 failed, 28 passed, 32 total\nTests:       4 failed, 93 passed, 97 total\n```\n"
+        "Failure causes:\n\n"
+        "- `testMaterialImport`: `ENOENT: no such file or directory, open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'`; "
+        "the fixture lives outside this repository.\n"
+        "- `testRoundTripExportImport`: `TypeError: rotation[0].eulerAngles is not a function` at `Transform.ts:160`.\n"
+        "- `testSimpleTriangleBinary`: `RangeError: The value of \"offset\" is out of range. It must be >= 0 and <= 636. Received 640` "
+        "while writing the binary glTF buffer (`writeFloatLE`).\n"
+        "- `testRoundtripFile`: `expect(mesh2.polygonCount).toBe(1)` receives `0` after the STL round trip."
+    ),
+    where=[
+        "`tests/test_3mf_materials.test.ts`, `tests/test_3mf_roundtrip.test.ts`, `tests/test_gltf_exporter.test.ts`, `tests/test_scene_save_stl.test.ts`",
+        "`src/aspose/threed/Transform.ts:160`",
+    ],
+    fix=(
+        "Vendor the 3MF fixture into `tests/`, fix or skip the three library failures, and run `npx jest` in "
+        "CI so a failing test is noticed."
+    ),
+    evidence=[
+        ("tests/test_3mf_materials.test.ts", "npx jest (node:22, 2026-10-11): ENOENT open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'"),
+        ("src/aspose/threed/Transform.ts", "line 160: TypeError: rotation[0].eulerAngles is not a function (tests/test_3mf_roundtrip.test.ts)"),
+        ("tests/test_scene_save_stl.test.ts", "line 77: expect(mesh2.polygonCount).toBe(1) received 0; Tests: 4 failed, 93 passed, 97 total"),
+    ],
+    claim=(
+        f"At revision {rev('3dts')}, npx jest reports 4 failed and 93 passed tests out of 97."
+    ),
+)
+
+# ---------------------------------------------------------------- HTML-Python: collection error
+H["html_collect"] = build(
+    repo="aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+    rev=rev("html"),
+    branch="main",
+    env_lines=["Windows 11, Python 3.13.15, pytest 9"],
+    title="Aspose.HTML FOSS for Python: pytest stops at collection because tests/test_css/w3c is not in the repository",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="tests/test_css/test_w3c_fixture_loader.py:19 imports tests.test_css.w3c.conftest which is untracked",
+    summary=(
+        "`tests/test_css/test_w3c_fixture_loader.py` (line 19) imports `tests.test_css.w3c.conftest`, but no "
+        "file under `tests/test_css/w3c` is tracked. A plain `pytest` run therefore ends with a collection "
+        "error and the session is interrupted."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python\n"
+        "cd Aspose.HTML-FOSS-for-Python\n"
+        "git ls-files tests/test_css/w3c | wc -l\n"
+        "sed -n 19p tests/test_css/test_w3c_fixture_loader.py\n"
+        "PYTHONPATH=src python -m pytest --collect-only -q"
+    ),
+    expected="`pytest` collects every test module without errors.",
+    actual=(
+        "The first command prints `0`, the second prints `from tests.test_css.w3c.conftest import (`, and the run ends with:\n\n"
+        "```\n"
+        "E   ModuleNotFoundError: No module named 'tests.test_css.w3c'\n"
+        "ERROR tests/test_css/test_w3c_fixture_loader.py\n"
+        "!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n"
+        "12296 tests collected, 1 error\n"
+        "```"
+    ),
+    where=["`tests/test_css/test_w3c_fixture_loader.py:19`", "`tests/test_css/w3c/` (not tracked)"],
+    fix="Commit the `tests/test_css/w3c` package, or skip the loader test when the fixtures are absent.",
+    evidence=[
+        ("tests/test_css/test_w3c_fixture_loader.py", "line 19: from tests.test_css.w3c.conftest import (; git ls-files tests/test_css/w3c is empty"),
+        ("python -m pytest --collect-only -q", "2026-10-11: ModuleNotFoundError: No module named 'tests.test_css.w3c'; Interrupted: 1 error during collection; 12296 tests collected, 1 error"),
+    ],
+    claim=(
+        f"At revision {rev('html')}, tests/test_css/test_w3c_fixture_loader.py imports the untracked package "
+        "tests.test_css.w3c and pytest is interrupted by a collection error."
+    ),
+)
+
+# ---------------------------------------------------------------- 3D-Python: unittest discovery errors
+H["threedpy_unittest"] = build(
+    repo="aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    rev=rev("3dpy"),
+    branch="master",
+    env_lines=["Windows 11, Python 3.13.15, `pip install -e .` in a fresh virtual environment"],
+    title="Aspose.3D FOSS for Python: unittest discover tests/ gives 5 errors because its fixtures are in git-ignored examples/",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="python -m unittest discover tests/:errors=5:.gitignore:8 examples:examples/stl,examples/gltf2",
+    summary=(
+        "`.gitignore` (line 8) excludes `examples`, no file under it is tracked, and several tests under "
+        "`tests/` open fixtures from `examples/` (STL and glTF samples). On a clean clone "
+        "`python -m unittest discover tests/` therefore ends with 5 errors."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python\n"
+        "cd Aspose.3D-FOSS-for-Python\n"
+        "pip install -e .\n"
+        "grep -n '^examples' .gitignore\n"
+        "git ls-files examples | wc -l\n"
+        "python -m unittest discover tests/"
+    ),
+    expected="The test suite passes on a clean clone: the fixtures are tracked under `tests/` or generated by the tests.",
+    actual=(
+        "`grep` prints `8:examples`, the second command prints `0`, and the run ends with:\n\n"
+        "```\nRan 123 tests\nFAILED (errors=5, skipped=5)\n```\n"
+        "```\n"
+        "FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_ascii.stl'\n"
+        "FileNotFoundError: [Errno 2] No such file or directory: 'examples/stl/stl_binary.stl'\n"
+        "FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/BoomBox/glTF/BoomBox.gltf'\n"
+        "FileNotFoundError: [Errno 2] No such file or directory: 'examples/gltf2/Corset/glTF/Corset.gltf'\n"
+        "```"
+    ),
+    where=[
+        "`.gitignore:8` (`examples`)",
+        "`tests/test_scene_open_stl.py`, `tests/test_gltf_materials.py` (the tests that read the fixtures)",
+    ],
+    fix="Move the fixture files under `tests/` and track them, or generate them inside the tests.",
+    evidence=[
+        (".gitignore", "line 8: examples; git ls-files examples tracks 0 files"),
+        ("tests/test_scene_open_stl.py", "test_scene_open_ascii_stl_file, test_scene_open_ascii_with_options and test_scene_open_binary_stl_file error with FileNotFoundError for examples/stl/*.stl"),
+        ("tests/test_gltf_materials.py", "test_material_import_from_boombox and test_material_properties_from_corset error with FileNotFoundError for examples/gltf2/*/glTF/*.gltf"),
+        ("python -m unittest discover tests/", "2026-10-11: Ran 123 tests; FAILED (errors=5, skipped=5); FileNotFoundError for examples/stl/*.stl and examples/gltf2/*/glTF/*.gltf"),
+    ],
+    claim=(
+        f"At revision {rev('3dpy')}, unittest discovery over tests/ ends with 5 errors because the tests read "
+        "fixtures from the git-ignored, untracked examples/ directory."
+    ),
+)
+
+# ---------------------------------------------------------------- Words-Python: dev extra lacks pdfplumber
+H["words_pdfplumber"] = build(
+    repo="aspose-words-foss/Aspose.Words-FOSS-for-Python",
+    rev=rev("wordspy"),
+    branch="main",
+    env_lines=["Docker image `python:3.12` (Python 3.12.15), `pip install -e \".[dev]\"`"],
+    title="Aspose.Words FOSS for Python: the dev extra lacks pdfplumber, so one ApiExamples test fails",
+    check_id="BC-02",
+    defect_class="BUILD_OR_TESTS_FAIL",
+    signature="ApiExamples/loading_markdown.py:163 import pdfplumber; pyproject.toml dev extra lists Pillow,pytest only",
+    summary=(
+        "`ApiExamples/loading_markdown.py` (line 163) imports `pdfplumber`, which is not installed by "
+        "`pip install -e \".[dev]\"`: the `dev` extra in `pyproject.toml` lists only `Pillow` and `pytest`. "
+        "The ApiExamples run therefore has one failing test."
+    ),
+    steps=(
+        "git clone https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python\n"
+        "cd Aspose.Words-FOSS-for-Python\n"
+        "pip install -e \".[dev]\"\n"
+        "python -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini"
+    ),
+    expected="All ApiExamples tests pass after installing the `dev` extra.",
+    actual=(
+        "```\n"
+        "E   ModuleNotFoundError: No module named 'pdfplumber'\n"
+        "ApiExamples/loading_markdown.py:163: ModuleNotFoundError\n"
+        "FAILED ApiExamples/loading_markdown.py::LoadingMarkdown::test_save_markdown_with_base64_image_to_docx_and_pdf\n"
+        "1 failed, 26 passed\n"
+        "```"
+    ),
+    where=["`ApiExamples/loading_markdown.py:163`", "`pyproject.toml` (`[project.optional-dependencies]` `dev`)"],
+    fix="Add `pdfplumber` to the `dev` extra, or guard the import with `pytest.importorskip(\"pdfplumber\")`.",
+    evidence=[
+        ("ApiExamples/loading_markdown.py", "line 163: import pdfplumber"),
+        ("pyproject.toml", "dev extra: Pillow>=10.0.0, pytest>=9.0.2; no pdfplumber"),
+        ("python -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini", "python:3.12, 2026-10-11: 1 failed, 26 passed; ModuleNotFoundError: No module named 'pdfplumber'"),
+    ],
+    claim=(
+        f"At revision {rev('wordspy')}, ApiExamples/loading_markdown.py imports pdfplumber, the dev extra does not "
+        "install it, and the ApiExamples run has one failing test."
+    ),
+)
+
+if __name__ == "__main__":
+    only = sys.argv[3:] or list(H)
+    for name in only:
+        write(H[name])

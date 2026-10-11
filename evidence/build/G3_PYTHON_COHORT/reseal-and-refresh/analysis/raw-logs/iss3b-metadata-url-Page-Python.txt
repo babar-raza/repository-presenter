@@ -1,0 +1,20 @@
+# key: metadata-url-Page-Python
+# repository clone: Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-11T18:16:41Z
+
+$ git show HEAD:pyproject.toml | grep -n -i 'url' ; echo grep-exit=$?
+[exit 0]
+grep-exit=1
+
+$ git show HEAD:setup.py | grep -n -i 'url' ; echo grep-exit=$?
+[exit 0]
+grep-exit=1
+
+$ git show HEAD:pyproject.toml | grep -c '^\[project.urls\]'
+[exit 1]
+0
+
+$ curl -s https://pypi.org/pypi/aspose-page-foss/json | "<scratch>/venvs/3dpy/Scripts/python.exe" -c "import json,sys; i=json.load(sys.stdin)['info']; print(i['version'], i['home_page'], i['project_urls'])"
+[exit 0]
+26.9.0 None None

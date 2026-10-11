@@ -1,0 +1,18 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+SP="<scratch>"
+AN="<checkout>/runs/wt/liss3b/evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/scripts"
+run() { # key image clone script
+  key="$1"; image="$2"; clone="$3"; script="$4"
+  head=$(git -C "$SP/clones/$clone" rev-parse HEAD)
+  {
+  echo "# repository clone: $clone"; echo "# head: $head"; echo "# utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "# image: $image"; echo "# script: analysis/scripts/$script (README blocks as probes, g++ -fsyntax-only)"
+  docker run --rm -v "$SP/clones/$clone:/src:ro" -v "$AN/probes:/p:ro" -v "$AN/$script:/run.sh:ro" "$image" bash -c "cp -r /src /w && cd /w && bash /run.sh"
+  echo "# end $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } > "$SP/full/$key.txt" 2>&1
+}
+run snippet_cellscpp gcc:13 Aspose.Cells-FOSS-for-Cpp container_cells_cpp.sh
+run snippet_pdfcpp gcc:13 Aspose.PDF-FOSS-for-Cpp container_pdfcpp.sh
+run snippet_slidescpp gcc:13 Aspose.Slides-FOSS-for-Cpp container_slidescpp.sh
+run cargo_rust rust:1 Aspose.Cells-FOSS-for-Rust container_rust.sh
+echo done > "$SP/full/docker2_done.txt"

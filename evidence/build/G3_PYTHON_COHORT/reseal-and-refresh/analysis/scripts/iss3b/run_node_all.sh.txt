@@ -1,0 +1,7 @@
+#!/bin/bash
+SP="<scratch>"
+"$SP/dk_node.sh" cellsts_tsc Aspose.Cells-FOSS-for-TypeScript "npm install --no-audit --no-fund > /tmp/i.txt 2>&1; echo npm-install-exit=\$?; npx tsc --noEmit; echo tsc-exit=\$?"
+"$SP/dk_node.sh" cellsts_start Aspose.Cells-FOSS-for-TypeScript "npm install --no-audit --no-fund > /tmp/i.txt 2>&1; (npm start 2>&1 | tail -5); echo start-exit=\$?; grep -n -E '\"(license|description|repository|engines)\"' package.json; echo grep-exit=\$?; grep -c 'Class in the Cells TYPESCRIPT API' README.md"
+"$SP/dk_node.sh" threedts_build Aspose.3D-FOSS-for-TypeScript "npm install --no-audit --no-fund > /tmp/i.txt 2>&1; echo npm-install-exit=\$?; npm run build 2>&1 | tail -5; echo build-exit=\$?; ls dist; node -e \"require('.')\" 2>&1 | head -4; echo require-exit=\$?; grep -n 'adm-zip' package.json src/aspose/threed/formats/threemf/*.ts | head; echo ---lint; npm run lint 2>&1 | tail -8; echo lint-exit=\$?"
+"$SP/dk_node.sh" threedts_jest Aspose.3D-FOSS-for-TypeScript "npm install --no-audit --no-fund > /tmp/i.txt 2>&1; npx jest 2>&1 | grep -E '^(FAIL|Tests:|Test Suites:)|●.*›' | sort -u | head -30; echo jest-done"
+echo ALLDONE > "$SP/full/node_done.txt"

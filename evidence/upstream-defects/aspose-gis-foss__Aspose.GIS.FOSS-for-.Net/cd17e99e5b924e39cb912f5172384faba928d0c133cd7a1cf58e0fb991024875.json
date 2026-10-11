@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-gis-foss/Aspose.GIS.FOSS-for-.Net",
+  "source_revision": "b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4",
+  "defect_fingerprint": "sha256:cd17e99e5b924e39cb912f5172384faba928d0c133cd7a1cf58e0fb991024875",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "5",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj",
+      "detail": "dotnet build -c Release (SDK 10.0.401, 2026-10-11): 369 Error(s), 45 Warning(s)"
+    },
+    {
+      "path": "Aspose.GIS.FOSS/FileDriver.cs",
+      "detail": "line 346: error CS0246: type 'Dataset' could not be found; 41 of 57 unresolved type names are declared nowhere in the tracked sources"
+    },
+    {
+      "path": "Aspose.GIS.FOSS/Geometries/IGeometry.cs",
+      "detail": "line 5: error CS0234: namespace 'Aspose.GIS.FOSS.Rendering.Symbolizers' does not exist"
+    }
+  ],
+  "claim": "At revision b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4, dotnet build of Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj fails with 369 errors and 41 of the 57 unresolved type names are declared nowhere in the tracked sources.",
+  "suggested_issue_title": "Aspose.GIS.FOSS for .Net: the library project does not compile (369 build errors, 41 referenced types not declared)",
+  "suggested_issue_body": "## Summary\n\n`dotnet build` of `Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` fails with 369 errors. The compiler reports 57 distinct unresolved type names; 41 of them are declared nowhere in the tracked sources (for example `Dataset`, `Driver`, `Polygon`, `Projection`, `Renderer`, `VectorSymbolizer`), and the namespaces `Aspose.GIS.FOSS.Rendering.Symbolizers` and `Aspose.GIS.FOSS.Epsg` do not exist. The tracked sources look like a partial import.\n\n## Environment\n\n- Repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net\n- Revision: `b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4` (the upstream revision this report was verified against, default branch `main`)\n- Windows 11, .NET SDK 10.0.401\n- Verified on 2026-10-11 from a fresh shallow clone.\n\n## Steps to reproduce\n\n```\ngit clone https://github.com/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net\ncd Aspose.GIS.FOSS-for-.Net\ndotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release\n```\n\n## Expected\n\nThe project builds with 0 errors.\n\n## Actual\n\n```\nBuild FAILED.\n    45 Warning(s)\n    369 Error(s)\n```\nRepresentative errors (error codes CS0246, CS0234, CS0115, CS0534, CS0535, CS0508 and CS8937 occur):\n\n```\nAspose.GIS.FOSS\\Geometries\\IGeometry.cs(5,33): error CS0234: The type or namespace name 'Symbolizers' does not exist in the namespace 'Aspose.GIS.FOSS.Rendering'\nAspose.GIS.FOSS\\SpatialReferencing\\Internal\\OgcEsriSrsTransformer.cs(6,23): error CS0234: The type or namespace name 'Epsg' does not exist in the namespace 'Aspose.GIS.FOSS'\nAspose.GIS.FOSS\\FileDriver.cs(346,16): error CS0246: The type or namespace name 'Dataset' could not be found\nAspose.GIS.FOSS\\Geometries\\IPolygon.cs(38,7): error CS0246: The type or namespace name 'Polygon' could not be found\n```\nThe 41 type names declared nowhere in the repository: Axis, BursaWolfParameters, Dataset, Driver, Ellipsoid, Extent, GeoJsonLayer, GeoJsonOptions, GeocentricAxisesOrder, GeographicAxisesOrder, GeographicCrsEntry, GeographicDatum, GeographicDatumEntry, IAttributeIndex, IFeatureStyle, ILinearRing, ISpatialIndex, JoinByGeometryOptions, JoinOptions, LayerEvaluationRestrictions, LayerIndices, LocalDatum, MapInfoCoordinateValidationError, MapInfoCoordinateValidationException, NumericFormat, ParameterType, PointsSequence, Polygon, ProjectedAxisesOrder, Projection, ProjectionMethodIdentifier, Projections, Renderer, SavingOptions, ToWgs84Entry, TransformationError, VectorSymbolizer, VerticalDatum, WkbVariant, WktVariant, WrapAttributesConverter.\n\n## Where in the repository\n\n- `Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj` (the project that fails)\n- `Aspose.GIS.FOSS/Geometries/IGeometry.cs:5`, `Aspose.GIS.FOSS/FileDriver.cs:346`, `Aspose.GIS.FOSS/Geometries/IPolygon.cs:38`\n\n## Suggested fix\n\nAdd the missing source files (or remove the references to them) so that the project builds, then add a CI step that runs `dotnet build` on every push so the problem is caught early.\n\n<!-- repository-presenter-defect: sha256:cd17e99e5b924e39cb912f5172384faba928d0c133cd7a1cf58e0fb991024875 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

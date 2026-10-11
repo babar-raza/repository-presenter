@@ -1,0 +1,41 @@
+# key: mcp-run-Page-Python
+# repository clone: Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-11T18:08:18Z
+
+$ "<scratch>/venvs/page/Scripts/python.exe" -m pip install -q fastmcp skia-python 2>&1 | tail -1
+[exit 0]
+
+
+$ "<scratch>/venvs/page/Scripts/python.exe" -m pip show fastmcp | sed -n 1,2p
+[exit 0]
+Name: fastmcp
+Version: 4.1.0
+
+$ sed -n 25,38p src/aspose/page/mcp/server.py
+[exit 0]
+    server.tool(eps_metadata)
+    return server
+
+
+def run(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Run the MCP server.
+
+    Example:
+        >>> isinstance(run, object)
+        True
+    """
+    server = create_server()
+    server.run(host=host, port=port)
+
+$ PYTHONPATH=src "<scratch>/venvs/page/Scripts/python.exe" -c "from aspose.page.mcp import server; server.run()" 2>&1 < /dev/null | tail -4
+[exit 0]
+        ^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+TypeError: TransportMixin.run_stdio_async() got an unexpected keyword argument 'host'
+
+$ grep -n 'dependencies\|fastmcp' pyproject.toml | head
+[exit 0]
+11:dependencies = ["skia-python"]
+13:[project.optional-dependencies]

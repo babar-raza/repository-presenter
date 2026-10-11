@@ -1,0 +1,16 @@
+# key: tags-Font-Python
+# repository clone: Aspose.Font-FOSS-for-Python
+# head: adf4885a3a5d4ddb7e30e737e83e72a44ee8dec6
+# utc: 2026-10-11T17:49:38Z
+
+$ grep -n -m2 '^version' pyproject.toml
+[exit 0]
+7:version = "1.0.0"
+
+$ git ls-remote --tags origin | sed 's#.*refs/tags/##' | grep -v '\^' | tail -5
+[exit 0]
+26.8.4
+26.9.1
+26.9.2
+26.9.3
+26.9.4
