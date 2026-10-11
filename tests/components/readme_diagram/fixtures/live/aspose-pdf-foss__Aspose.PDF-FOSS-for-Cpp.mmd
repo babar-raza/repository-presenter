@@ -1,0 +1,33 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing PDF document"]
+    i2["Nothing — authored from scratch"]
+  end
+  PRODUCT["Aspose.PDF FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Open, edit, and save existing PDF documents"]
+      c2["Text extraction with TextAbsorber and TextFragmentAbsorber"]
+      c3["Render pages to raster images (PNG, JPEG, BMP, TIFF)"]
+      c4["Encrypt and decrypt with RC4-40/128 and AES-128/256"]
+      c5["Digital signatures via a detached PKCS#7 signature"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c6["Author new PDF documents from scratch"]
+      c7["Annotations across a gallery of subtypes"]
+      c8["AcroForm fields and form flattening"]
+      c9["Outlines, named destinations, and embedded files"]
+      c10["Classic Aspose.Pdf.Facades API"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["PDF documents"]
+    o2["PNG / JPEG / BMP / TIFF raster images"]
+    o3["Plain text"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

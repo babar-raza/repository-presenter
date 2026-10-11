@@ -1,0 +1,28 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing XLSX workbook"]
+    i2["A new workbook created in code"]
+  end
+  PRODUCT["Aspose.Cells FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Workbook, worksheet, and document lifecycle"]
+      c2["Cell values and formulas"]
+      c3["Cell styling and number formats"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Validation, conditional formatting, filters, and names"]
+      c5["Tables, pictures, shapes, charts, and comments"]
+      c6["Save to XLSX or export to PDF"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["XLSX workbooks"]
+    o2["PDF documents"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

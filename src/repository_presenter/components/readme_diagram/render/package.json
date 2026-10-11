@@ -1,0 +1,13 @@
+{
+  "name": "repository-presenter-mermaid-check",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Pinned renderer for the At a Glance diagram check (components/readme_diagram/render_check.py): the mermaid package the project targets, three more releases to prove the layout holds across them, and puppeteer-core to drive an installed Chrome or Edge. Install with: npm ci --ignore-scripts (PUPPETEER_SKIP_DOWNLOAD=1), then export RP_MERMAID_TOOLS=<this directory>.",
+  "dependencies": {
+    "mermaid": "11.17.2",
+    "mermaid_11_4_1": "npm:mermaid@11.4.1",
+    "mermaid_11_12_0": "npm:mermaid@11.12.0",
+    "mermaid_12_1_0": "npm:mermaid@12.1.0",
+    "puppeteer-core": "25.13.0"
+  }
+}

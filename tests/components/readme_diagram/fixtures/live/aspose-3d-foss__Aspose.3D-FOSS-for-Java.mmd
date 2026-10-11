@@ -1,0 +1,26 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing STL file (binary or ASCII)"]
+  end
+  PRODUCT["Aspose.3D FOSS for Java"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Scene-graph construction with Scene, Node, and Entity"]
+      c2["Primitive mesh geometry (Box, Cylinder, Sphere, Dish)"]
+      c3["PBR material definitions"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["NURBS curve control-point and knot data"]
+      c5["Vector, matrix, and quaternion math"]
+      c6["STL import and export"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["STL file (binary or ASCII)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

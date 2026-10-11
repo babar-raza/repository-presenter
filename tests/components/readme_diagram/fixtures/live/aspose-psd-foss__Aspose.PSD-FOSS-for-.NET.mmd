@@ -1,0 +1,18 @@
+%%{init: {"flowchart": {"useMaxWidth": true}}}%%
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["An existing PSD/PSB<br/>document (file<br/>or stream)"]
+  end
+  PRODUCT["Aspose.PSD.FOSS for .NET"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Document, layer<br/>metadata inspection"]
+    c2["Layer property<br/>edits"]
+    c3["Raw-preserving<br/>save, no rendering"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A PSD/PSB document<br/>(file or stream)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

@@ -1,0 +1,28 @@
+flowchart TD
+  subgraph StartingPoints["Inputs and formats"]
+    direction TB
+    i1["An existing HTML document (string, bytes, or file)"]
+    i2["Existing CSS (stylesheet text)"]
+  end
+  PRODUCT["Aspose.HTML FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["HTML parsing (strings, bytes, fragments, and files)"]
+      c2["DOM tree construction, traversal, and mutation"]
+      c3["HTML element type surface (forms, tables, media, and more)"]
+      c4["Serialization of DOM subtrees back to markup"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["CSS selector matching and CSSOM style computation"]
+      c6["URL parsing and character-encoding detection"]
+      c7["Optional JavaScript execution against the DOM (QuickJS)"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["Serialized HTML (string)"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

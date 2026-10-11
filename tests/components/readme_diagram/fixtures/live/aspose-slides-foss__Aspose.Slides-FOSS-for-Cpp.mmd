@@ -1,0 +1,29 @@
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction TB
+    i1["Nothing — authored from scratch"]
+    i2["An existing .pptx presentation"]
+  end
+  PRODUCT["Aspose.Slides FOSS for C++"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Presentation and slide creation and editing"]
+      c2["Shape creation (AutoShape, Table, Connector, PictureFrame)"]
+      c3["Text formatting (TextFrame, Paragraph, Portion)"]
+      c4["Fill, line, and 3D shape styling"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c5["Visual effects (shadow, glow, blur, reflection)"]
+      c6["Document properties (core, app, custom)"]
+      c7["Speaker notes and comments"]
+      c8["Image embedding"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["A .pptx presentation"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs

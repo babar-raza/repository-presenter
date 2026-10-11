@@ -1,0 +1,16 @@
+flowchart TD
+  PRODUCT["Aspose.BarCode FOSS for Python"]
+  subgraph Capabilities["Core Capabilities"]
+    direction TB
+    c1["Encode Code 128 (linear, Code Sets A/B/C)"]
+    c2["Encode Code 39 (base and Extended/Full-ASCII)"]
+    c3["Encode EAN/UPC retail symbologies (EAN-13, EAN-8, UPC-A, UPC-E)"]
+    c4["Encode QR Code (Model 2, versions 1-40)"]
+    c5["Render an encoded barcode to SVG or PNG"]
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["SVG string"]
+    o2["PNG image bytes"]
+  end
+  PRODUCT --> Capabilities --> Outputs

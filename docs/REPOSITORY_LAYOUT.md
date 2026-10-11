@@ -108,6 +108,17 @@ src/repository_presenter/
         assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
         commands.py             the build command, the test command and the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests
         repository_files.py     the file names an inherited unit spells that the pinned tree contains, recorded on the unit so prose may cite them (G7-W23)
+  components/readme_diagram/ the At a Glance diagram, written, linted and proven once for both the regeneration renderer and the live-first correction path (owner report 2026-10-11: clipped Mermaid text, vertical mother blocks); no model call, no network read
+    model.py                  Glance (the diagram's meaning: product, inputs, capability columns, outputs, group titles), Defect, LintReport, NotAGlanceError
+    geometry.py               the label-width model: a per-character width table (the envelope of five measured fonts) and the deterministic wrap into `<br/>` lines
+    parse.py                  reads the closed At a Glance shape (live TD form and the canonical form) into a Glance; anything else is NotAGlanceError and left alone
+    build.py                  writes the canonical drawing: `flowchart LR`, three blocks left to right, pinned columns, SVG-text labels (`htmlLabels: false`); node_ids numbers the nodes
+    lint.py                   the deterministic model of the two measured defect families (orientation, clipping) plus order, markup and entity findings
+    rebuild.py                rewrites only the lines between a README's At a Glance fence markers; every other byte, line endings included, is returned unchanged
+    contract.py               README_CONTRACT.md section 2.1 as one pure function: the body BC-07's `_topology_failures` and planning's title ceiling delegate to (a governed change, not made here)
+    render_check.py           the real-render check: drives render/measure.mjs and turns its measurements into failures; optional tooling (`RP_MERMAID_TOOLS`), tests skip without it
+    render/                   measure.mjs (headless Chrome or Edge, the pinned `mermaid` package), package.json and package-lock.json (`npm ci --ignore-scripts`; node_modules is gitignored)
+    __main__.py               `python -m repository_presenter.components.readme_diagram lint|rebuild|render-check README...`
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
     proposal.py                Phase 1: derive description/topics/homepage from already-verified facts (identity/license/link_target), diff against Phase 0's observation
@@ -167,6 +178,7 @@ ops/proposal-authorizations/  one reviewed JSON record per authorized README pro
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
+  components/readme_diagram/fixtures/live/  the Mermaid fence of each of the 32 live upstream READMEs that carried an At a Glance diagram, byte for byte, with index.json naming each repository, revision and README line (survey 2026-10-11); inputs to the diagram tests, never expected output
   fixtures/propose_pr/       golden title and body of the README-proposal pull request (tests/components/propose/test_pull_request.py; TC-PRP-01)
   components/readme/extractors/{platforms,surface}/fixtures/  trimmed copies of real repository files and registry bodies (python src layout, segment-geospatial pyproject, aspose cells-ts/3d-java/3d-net/email-cpp manifests, spring-petclinic and commons-lang POMs, the dtolnay/ryu crate, recorded PyPI/npm/Maven answers) that the extractor defect tests read; test data only, never read by a product stage (TC-EXT-01)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
