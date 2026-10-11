@@ -64,7 +64,7 @@ def matches(row: Mapping[str, Any], where: Mapping[str, Any]) -> bool:
     return all(condition_holds(lookup(row, key), cond) for key, cond in where.items())
 
 
-STATISTICS = ("min", "max", "median", "mean")
+STATISTICS = ("count", "min", "max", "median", "mean")
 
 
 def compute_statistic(
@@ -84,6 +84,8 @@ def compute_statistic(
     )
     if not numbers:
         return None
+    if statistic == "count":
+        return float(len(numbers))
     if statistic == "min":
         return round(numbers[0], 1)
     if statistic == "max":

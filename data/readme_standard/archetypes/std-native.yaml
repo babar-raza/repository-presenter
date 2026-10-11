@@ -1,4 +1,4 @@
-# Standard skeleton, C++ library integrated through CMake. 4 of 36 repositories.
+# Standard skeleton, C++ library integrated through CMake.
 schema_version: 1
 id: std-native
 title: Standard skeleton, native (C++) library
@@ -33,6 +33,8 @@ elements:
 element_notes:
   dependencies: C++ standard, CMake minimum, test framework tag and bundled third-party code are listed; Cells C++ lacks the section
   third_party_notices: PDF C++ keeps its section; bundled fonts and fetched test frameworks belong here
+  api_reference: a prose-only API Reference (JMAP C++) gains the collapsed listing and keeps its intro
+  enterprise_paragraph: omitted while no verified aspose.com product target exists for the family (LNK-11)
 channel_variant:
   install_forms:
     - "CMake add_subdirectory with target_link_libraries against the exported target"
@@ -64,10 +66,12 @@ better_than_live:
     rules: [DET-03, STR-12, STR-13]
     defect_classes: [DEF-20]
   - id: BTL-NAT-04
-    statement: API rows name public header symbols only, with real descriptions where header documentation exists.
+    statement: >-
+      API rows name public header symbols only, with real descriptions where header
+      documentation exists; a prose-only API Reference gains the collapsed listing.
     measured_by: row set equals the public_symbol facts; api_boilerplate_rows falls
     rules: [STR-14, DET-04]
-    defect_classes: [DEF-10, DEF-11]
+    defect_classes: [DEF-10, DEF-11, DEF-28]
   - id: BTL-NAT-05
     statement: Directory trees and CMake blocks carry a fence language.
     measured_by: fences_without_language is zero

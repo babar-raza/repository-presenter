@@ -2,7 +2,7 @@
 
 Read-only: it reads each clone's ``README.md`` bytes and ``git rev-parse HEAD`` and writes one
 JSON file. It never clones, fetches, or contacts a network; clone the repositories first (shallow,
-GET-only) and point ``--root`` at the directory that holds them. A clone is found as
+GET-only) and point ``--root`` (repeatable) at the directories that hold them. A clone is found as
 ``<root>/<name>``, ``<root>/<owner>_<name>`` or ``<root>/<owner>__<name>``.
 
     python -X utf8 -m tools.readme_standard.build_survey --root <clones> --captured 2026-10-11
@@ -17,6 +17,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -31,11 +32,12 @@ DEFAULT_REGISTRY = REPO_ROOT / "data" / "registry.json"
 DEFAULT_OUT = REPO_ROOT / "data" / "readme_standard" / "survey.json"
 
 
-def find_clone(root: Path, repository: str) -> Path | None:
+def find_clone(roots: Path | Sequence[Path], repository: str) -> Path | None:
     owner, name = repository.split("/")
-    for candidate in (root / name, root / f"{owner}_{name}", root / f"{owner}__{name}"):
-        if candidate.is_dir():
-            return candidate
+    for root in [roots] if isinstance(roots, Path) else roots:
+        for candidate in (root / name, root / f"{owner}_{name}", root / f"{owner}__{name}"):
+            if candidate.is_dir():
+                return candidate
     return None
 
 
@@ -46,14 +48,14 @@ def head_of(clone: Path) -> str:
     return result.stdout.strip()
 
 
-def build(root: Path, registry: Path, captured: str) -> dict[str, Any]:
+def build(roots: Path | Sequence[Path], registry: Path, captured: str) -> dict[str, Any]:
     entries = json.loads(registry.read_text(encoding="utf-8"))["entries"]
     rows: dict[str, Any] = {}
     for entry in entries:
         repository = entry["repository"]
-        clone = find_clone(root, repository)
+        clone = find_clone(roots, repository)
         if clone is None:
-            raise SystemExit(f"no clone of {repository} under {root}")
+            raise SystemExit(f"no clone of {repository} under {roots}")
         row: dict[str, Any] = {"head": head_of(clone)}
         # The committed blob, not the working copy: autocrlf must not move the hash.
         shown = subprocess.run(
@@ -77,7 +79,13 @@ def build(root: Path, registry: Path, captured: str) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--root", type=Path, required=True, help="directory holding the clones")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        action="append",
+        required=True,
+        help="directory holding clones; repeat it when the clones live in several directories",
+    )
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--captured", required=True, help="capture date, YYYY-MM-DD")

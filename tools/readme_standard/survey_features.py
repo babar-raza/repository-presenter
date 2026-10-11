@@ -452,7 +452,8 @@ def features(text: str, tree: Path | None = None) -> dict[str, Any]:
     out["install_says_unpublished"] = bool(
         re.search(
             r"not (?:yet )?(?:been )?published|no published package|no PyPI package|"
-            r"not on (?:PyPI|NuGet)|has not been published",
+            r"not on (?:PyPI|NuGet)|has not been published|"
+            r"no (?:package|artifact|version|crate)\b[^.]{0,60}\bpublished|no versioned tag",
             install_text,
             re.IGNORECASE,
         )

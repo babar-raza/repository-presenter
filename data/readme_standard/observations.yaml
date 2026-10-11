@@ -7,48 +7,48 @@ observations:
 - id: h1_exactly_one
   note: Exactly one H1 in the README
   where: {h1_count: 1}
-  count: 34
-  of: 35
+  count: 41
+  of: 42
 - id: h1_canonical_name
   note: H1 is the canonical 'Aspose.<Family> FOSS for <Platform>' form
   where: {h1_canonical: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: badge_row_present
   note: At least one badge between the H1 and the first H2
   where:
     badge_count: {gte: 1}
-  count: 35
-  of: 35
+  count: 42
+  of: 42
 - id: badge_row_single_paragraph
   note: All badges sit in one paragraph (one row)
   where: {badge_paragraphs: 1}
-  count: 35
-  of: 35
+  count: 42
+  of: 42
 - id: badge_license
   note: Badge row carries a license badge
   where:
     badge_kinds: {contains: license}
   among:
     badge_count: {gte: 1}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: badge_package
   note: Badge row carries a package-registry or release badge
   where:
     badge_kinds: {contains: package}
   among:
     badge_count: {gte: 1}
-  count: 20
-  of: 35
+  count: 21
+  of: 42
 - id: badge_runtime
   note: Badge row carries a language or runtime floor badge
   where:
     badge_kinds: {contains: runtime}
   among:
     badge_count: {gte: 1}
-  count: 24
-  of: 35
+  count: 25
+  of: 42
 - id: badge_ci
   note: Badge row carries a build-status badge
   where:
@@ -56,27 +56,27 @@ observations:
   among:
     badge_count: {gte: 1}
   count: 9
-  of: 35
+  of: 42
 - id: badge_contributors
   note: Badge row carries a contributors badge
   where:
     badge_kinds: {contains: contributors}
   among:
     badge_count: {gte: 1}
-  count: 23
-  of: 35
+  count: 30
+  of: 42
 - id: badge_order_ok
   note: 'Badges already follow the owner''s order: package, runtime, build, license, contributors'
   where: {badge_order_ok: true}
   among:
     badge_count: {gte: 2}
-  count: 16
-  of: 33
+  count: 21
+  of: 40
 - id: banner_present
   note: A linked banner image sits between the badge row and the opening
   where: {banner: true}
   count: 32
-  of: 35
+  of: 42
 - id: banner_image_on_products_org
   note: Banner image is served from products.aspose.org
   where: {banner_image_host: products.aspose.org}
@@ -94,256 +94,256 @@ observations:
   where:
     aspose_before_first_h2: {gte: 1}
   count: 32
-  of: 35
+  of: 42
 - id: opening_present
   note: An opening paragraph precedes the first H2
   where:
     opening_words: {gt: 0}
-  count: 35
-  of: 35
+  count: 42
+  of: 42
 - id: opening_starts_with_product
   note: Opening paragraph begins with the product name
   where: {opening_starts_with_product: true}
-  count: 29
-  of: 35
+  count: 36
+  of: 42
 - id: opening_free_open_source
   note: Opening paragraph says the library is open source
   where: {opening_free_open_source: true}
-  count: 29
-  of: 35
+  count: 36
+  of: 42
 - id: opening_names_license
   note: Opening paragraph names the license
   where: {opening_names_license: true}
   count: 15
-  of: 35
+  of: 42
 - id: opening_audience_phrase
   note: Opening paragraph names an audience ('for developers', 'ideal for')
   where: {opening_audience_phrase: true}
   count: 3
-  of: 35
+  of: 42
 - id: opening_two_to_four_sentences
   note: Opening paragraph is two to four sentences
   where:
     opening_sentences: {gte: 2, lte: 4}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: navigation_present
   note: Has a Navigation section
   where: {navigation: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: navigation_complete
   note: Navigation links every H2 of the document
   where:
     navigation_missing_h2: []
   among: {navigation: true}
-  count: 30
-  of: 32
+  count: 37
+  of: 39
 - id: navigation_before_glance
   note: Navigation precedes At a Glance
   where: {navigation_before_glance: true}
   among: {navigation: true, standard_h2_present.At a Glance: true}
-  count: 31
-  of: 32
+  count: 38
+  of: 39
 - id: glance_present
   note: Has an At a Glance section
   where: {standard_h2_present.At a Glance: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: glance_mermaid
   note: At a Glance is a Mermaid diagram
   where: {glance_form: mermaid}
   among: {standard_h2_present.At a Glance: true}
-  count: 31
-  of: 32
+  count: 38
+  of: 39
 - id: glance_starting_points
   note: Mermaid diagram has a Starting Points group
   where:
     glance_groups: {contains: Starting Points}
   among: {glance_form: mermaid}
-  count: 29
-  of: 31
+  count: 36
+  of: 38
 - id: glance_core_capabilities
   note: Mermaid diagram has a Core Capabilities group
   where:
     glance_groups: {contains: Core Capabilities}
   among: {glance_form: mermaid}
-  count: 31
-  of: 31
+  count: 38
+  of: 38
 - id: glance_outputs_group
   note: Mermaid diagram has an Outputs group
   where:
     glance_groups: {contains: Outputs}
   among: {glance_form: mermaid}
-  count: 31
-  of: 31
+  count: 38
+  of: 38
 - id: key_capabilities_present
   note: Has a Key Capabilities section
   where: {standard_h2_present.Key Capabilities: true}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: capabilities_3_to_8
   note: Key Capabilities lists three to eight visible bullets
   where:
     capability_bullets_visible: {gte: 3, lte: 8}
   among: {standard_h2_present.Key Capabilities: true}
   count: 16
-  of: 31
+  of: 38
 - id: capabilities_over_12
   note: Key Capabilities lists more than twelve visible bullets
   where:
     capability_bullets_visible: {gt: 12}
   among: {standard_h2_present.Key Capabilities: true}
   count: 5
-  of: 31
+  of: 38
 - id: installation_present
   note: Has an Installation section
   where: {standard_h2_present.Installation: true}
-  count: 33
-  of: 35
+  count: 40
+  of: 42
 - id: install_registry_command
   note: Installation shows a package-registry install command
   where:
     install_registry_commands: {nonempty: true}
   among: {standard_h2_present.Installation: true}
-  count: 22
-  of: 33
+  count: 28
+  of: 40
 - id: install_source_clone
   note: Installation shows a clone-and-build path
   where: {install_source_clone: true}
   among: {standard_h2_present.Installation: true}
-  count: 16
-  of: 33
+  count: 17
+  of: 40
 - id: install_native_build
   note: Installation shows a CMake integration path
   where: {install_native_build: true}
   among: {standard_h2_present.Installation: true}
-  count: 4
-  of: 33
+  count: 5
+  of: 40
 - id: install_says_unpublished
   note: Installation states the package is not published
   where: {install_says_unpublished: true}
   among: {standard_h2_present.Installation: true}
-  count: 5
-  of: 33
+  count: 12
+  of: 40
 - id: dependencies_present
   note: Has a Dependencies section
   where: {standard_h2_present.Dependencies: true}
-  count: 30
-  of: 35
+  count: 37
+  of: 42
 - id: deps_required_h3
   note: Dependencies has a Required Package Dependencies sub-heading
   where:
     dependencies_h3: {contains: Required Package Dependencies}
   among: {standard_h2_present.Dependencies: true}
-  count: 30
-  of: 30
+  count: 37
+  of: 37
 - id: deps_optional_h3
   note: Dependencies has an Optional Dependencies sub-heading
   where:
     dependencies_h3: {contains: Optional Dependencies}
   among: {standard_h2_present.Dependencies: true}
   count: 5
-  of: 30
+  of: 37
 - id: deps_native_h3
   note: Dependencies has a Native and System Requirements sub-heading
   where:
     dependencies_h3: {contains: Native and System Requirements}
   among: {standard_h2_present.Dependencies: true}
-  count: 28
-  of: 30
+  count: 35
+  of: 37
 - id: deps_development_h3
   note: Dependencies has a Development Dependencies sub-heading
   where:
     dependencies_h3: {contains: Development Dependencies}
   among: {standard_h2_present.Dependencies: true}
-  count: 25
-  of: 30
+  count: 32
+  of: 37
 - id: deps_zero_sentence
   note: Dependencies states 'No required third-party package dependencies'
   where: {dependencies_zero_sentence: true}
   among: {standard_h2_present.Dependencies: true}
   count: 17
-  of: 30
+  of: 37
 - id: quick_start_present
   note: Has a Quick Start section
   where: {standard_h2_present.Quick Start: true}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: quick_start_one_to_three_examples
   note: Quick Start holds one to three fenced blocks
   where:
     quick_start_fences: {gte: 1, lte: 3}
   among: {standard_h2_present.Quick Start: true}
-  count: 31
-  of: 31
+  count: 38
+  of: 38
 - id: additional_examples_present
   note: Has an Additional Examples section
   where: {standard_h2_present.Additional Examples: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: additional_examples_collapsed
   note: Additional Examples sits in a collapsed details block
   where: {additional_examples_in_details: true}
   among: {standard_h2_present.Additional Examples: true}
-  count: 31
-  of: 32
+  count: 38
+  of: 39
 - id: additional_examples_task_named
   note: 'Example headings are task-named: none numbered, none repeated'
   where: {numbered_example_headings: false, duplicate_example_headings: 0}
   among: {standard_h2_present.Additional Examples: true}
-  count: 32
-  of: 32
+  count: 39
+  of: 39
 - id: api_present
   note: Has an API Reference section
   where: {standard_h2_present.API Reference: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: api_collapsed
   note: API Reference table block sits in a collapsed details block
   where: {api_in_details: true}
   among: {standard_h2_present.API Reference: true}
   count: 32
-  of: 32
+  of: 39
 - id: api_summary_view_prefix
   note: The API details summary starts with 'View'
   where:
     api_summary: {startswith: View}
   among: {standard_h2_present.API Reference: true}
   count: 32
-  of: 32
+  of: 39
 - id: api_summary_view_supported
   note: The API details summary reads 'View the Supported Public API Surface'
   where: {api_summary: View the Supported Public API Surface}
   among: {standard_h2_present.API Reference: true}
   count: 11
-  of: 32
+  of: 39
 - id: api_summary_view_complete
   note: The API details summary reads 'View the Complete Public API Surface' (the renderer's wording)
   where: {api_summary: View the Complete Public API Surface}
   among: {standard_h2_present.API Reference: true}
   count: 1
-  of: 32
+  of: 39
 - id: api_class_description_table
   note: API Reference has a Class | Description table
   where:
     api_class_description_tables: {gte: 1}
   among: {standard_h2_present.API Reference: true}
   count: 31
-  of: 32
+  of: 39
 - id: api_member_reference
   note: API Reference has a Detailed Member Reference
   where: {api_detailed_member_reference: true}
   among: {standard_h2_present.API Reference: true}
   count: 25
-  of: 32
+  of: 39
 - id: api_states_type_count
   note: API Reference states the number of public types
   where:
     api_claimed_type_counts: {nonempty: true}
   among: {standard_h2_present.API Reference: true}
   count: 21
-  of: 32
+  of: 39
 - id: api_count_mismatch
   note: The stated type count differs from the listed rows
   where: {api_count_mismatch: true}
@@ -362,65 +362,65 @@ observations:
 - id: docs_present
   note: Has a Documentation & Resources section
   where: {standard_h2_present.Documentation & Resources: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: docs_trio
   note: Documentation & Resources links the docs, knowledge-base and reference sites
   where: {docs_site: true, kb_site: true, reference_site: true}
   among: {standard_h2_present.Documentation & Resources: true}
   count: 31
-  of: 32
+  of: 39
 - id: docs_getting_started_guide
   note: A 'Getting started guide' item
   where:
     docs_link_texts: {contains: Getting started guide}
   among: {standard_h2_present.Documentation & Resources: true}
   count: 30
-  of: 32
+  of: 39
 - id: docs_how_to_guides_faq
   note: A 'How-to guides & FAQ' item
   where:
     docs_link_texts: {contains: How-to guides & FAQ}
   among: {standard_h2_present.Documentation & Resources: true}
   count: 28
-  of: 32
+  of: 39
 - id: docs_full_api_reference
   note: A 'Full API reference' item
   where:
     docs_link_texts: {contains: Full API reference}
   among: {standard_h2_present.Documentation & Resources: true}
   count: 31
-  of: 32
+  of: 39
 - id: docs_open_issue
   note: An 'Open an issue' item
   where:
     docs_link_texts: {contains: Open an issue}
   among: {standard_h2_present.Documentation & Resources: true}
-  count: 29
-  of: 32
+  count: 36
+  of: 39
 - id: docs_repo_relative
   note: Documentation & Resources links at least one file in the repository
   where:
     docs_repo_relative: {gte: 1}
   among: {standard_h2_present.Documentation & Resources: true}
   count: 23
-  of: 32
+  of: 39
 - id: issues_link
   note: The README links the repository's issues page
   where: {issues_link: true}
-  count: 34
-  of: 35
+  count: 41
+  of: 42
 - id: scope_present
   note: Has a Scope and Limitations section
   where: {standard_h2_present.Scope and Limitations: true}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: enterprise_in_scope
   note: Scope and Limitations names the Enterprise Edition
   where: {enterprise_in_scope: true}
   among: {standard_h2_present.Scope and Limitations: true}
   count: 30
-  of: 31
+  of: 38
 - id: enterprise_closes_scope
   note: The Enterprise Edition paragraph closes Scope and Limitations
   where: {enterprise_closes_scope: true}
@@ -431,7 +431,7 @@ observations:
   note: '''Enterprise Edition'' appears exactly once in the document'
   where: {enterprise_mentions: 1}
   count: 29
-  of: 35
+  of: 42
 - id: enterprise_dont_apply
   note: Enterprise paragraph reads 'These limitations don't apply to [..], which adds ..'
   where: {enterprise_shape: dont_apply}
@@ -468,220 +468,261 @@ observations:
   where:
     banned_edition_names: {gt: 0}
   count: 1
-  of: 35
+  of: 42
 - id: commercial_substitute
   note: '''commercial'' stands in for the Aspose product name or edition anywhere in the prose'
   where:
     commercial_substitute_mentions: {gt: 0}
   count: 10
-  of: 35
+  of: 42
 - id: devtest_present
   note: Has a Development and Testing section
   where: {standard_h2_present.Development and Testing: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: license_present
   note: Has a License section
   where: {standard_h2_present.License: true}
-  count: 35
-  of: 35
+  count: 42
+  of: 42
 - id: license_prose
   note: License section is a prose declaration ('licensed under the ..')
   where: {license_prose: true}
   among: {standard_h2_present.License: true}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: license_permissions_sentence
   note: License section adds the MIT permissions sentence
   where: {license_permissions_sentence: true}
   among: {standard_h2_present.License: true}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: license_copyright_line
   note: License section carries a copyright line
   where: {license_copyright_line: true}
   among: {standard_h2_present.License: true}
   count: 2
-  of: 35
+  of: 42
 - id: third_party_section
   note: Has a Third-Party Notices section
   where: {third_party_h2: true}
   count: 2
-  of: 35
+  of: 42
 - id: project_structure_section
   note: Has a Project Structure section
   where: {project_structure_h2: true}
   count: 4
-  of: 35
+  of: 42
 - id: feature_showcase_section
   note: Has a Feature Showcase section
   where: {feature_showcase_h2: true}
   count: 1
-  of: 35
+  of: 42
 - id: ten_sections_all
   note: All ten owner-template sections present under their exact headings
   where: {ten_sections_present: 10}
-  count: 29
-  of: 35
+  count: 36
+  of: 42
 - id: ten_sections_at_least_nine
   note: At least nine of the ten owner-template sections present
   where:
     ten_sections_present: {gte: 9}
-  count: 31
-  of: 35
+  count: 38
+  of: 42
 - id: order_follows_standard
   note: The standard headings that are present keep the standard order
   where: {standard_order_inversions: 0}
-  count: 34
-  of: 35
+  count: 41
+  of: 42
 - id: aspose_links_exactly_five
   note: 'Exactly five Aspose links: banner, docs, knowledge base, reference, Enterprise'
   where: {aspose_links_total: 5}
   count: 30
-  of: 35
+  of: 42
 - id: aspose_links_at_most_five
   note: At most five Aspose links in the whole README
   where:
     aspose_links_total: {lte: 5}
-  count: 34
-  of: 35
+  count: 41
+  of: 42
 - id: forum_links
   note: Links to forum.aspose.com
   where:
     forum_links: {gt: 0}
   count: 1
-  of: 35
+  of: 42
 - id: agent_file_links
   note: Links an agent-instruction file (AGENTS.md, CLAUDE.md)
   where:
     agent_file_links: {gt: 0}
   count: 17
-  of: 35
+  of: 42
 - id: absolute_self_blob_links
   note: Links its own repository's files by absolute github.com blob URL
   where:
     absolute_self_blob_links: {gt: 0}
   count: 5
-  of: 35
+  of: 42
 - id: sentence_mean_at_most_25
   note: Mean sentence length of visible prose is at most 25 words
   where:
     sentence_mean: {lte: 25}
-  count: 30
-  of: 35
+  count: 37
+  of: 42
 - id: sentence_mean_at_most_30
   note: Mean sentence length of visible prose is at most 30 words
   where:
     sentence_mean: {lte: 30}
-  count: 34
-  of: 35
+  count: 41
+  of: 42
 - id: no_emoji
   note: No emoji outside code
   where: {emoji: 0}
-  count: 32
-  of: 35
+  count: 39
+  of: 42
 - id: no_first_person
   note: No first-person words in visible prose
   where: {first_person_words: 0}
-  count: 33
-  of: 35
+  count: 40
+  of: 42
 - id: no_marketing_superlatives
   note: None of the marketing superlatives in the survey lexicon
   where: {marketing_words: 0}
-  count: 35
-  of: 35
+  count: 42
+  of: 42
 - id: second_person_used
   note: '''you'' or ''your'' appears in visible prose'
   where:
     second_person_words: {gt: 0}
-  count: 19
-  of: 35
+  count: 21
+  of: 42
 - id: visible_lines_over_300
   note: More than 300 lines outside collapsed blocks (the code's visible budget)
   where:
     visible_lines: {gt: 300}
   count: 12
-  of: 35
+  of: 42
 - id: lines_over_1000
   note: More than 1,000 lines in total
   where:
     lines: {gt: 1000}
   count: 6
-  of: 35
+  of: 42
 - id: second_h1
   note: A second H1 in the document
   where: {second_h1: true}
   count: 1
-  of: 35
+  of: 42
 - id: unclosed_details
   note: Unbalanced <details> tags
   where: {unclosed_details: true}
   count: 1
-  of: 35
+  of: 42
 - id: fences_without_language
   note: At least one code fence without a language
   where:
     fences_without_language: {gt: 0}
   count: 7
-  of: 35
+  of: 42
 - id: unquoted_pip_specifier
   note: A pip install command with an unquoted version specifier
   where: {unquoted_pip_specifier: true}
   count: 1
-  of: 35
+  of: 42
 - id: dead_relative_links
   note: At least one repository-relative link whose target does not exist
   where:
     dead_relative_links: {nonempty: true}
   count: 3
-  of: 35
+  of: 42
 - id: heading_level_jumps
   note: A heading level jumps by more than one
   where:
     heading_level_jumps: {gt: 0}
   count: 2
-  of: 35
+  of: 42
 - id: empty_label_headings
   note: A heading with no body followed by a sibling or shallower heading
   where:
     empty_headings: {gt: 0}
   count: 19
-  of: 35
+  of: 42
 - id: duplicate_headings
   note: The same heading text repeated at the same level
   where:
     duplicate_headings: {gt: 0}
   count: 6
-  of: 35
+  of: 42
+- id: aspose_links_none
+  note: The README carries no Aspose link at all
+  where: {aspose_links_total: 0}
+  count: 8
+  of: 42
+- id: aspose_links_exactly_five_when_aspose_linked
+  note: Exactly five Aspose links, among READMEs that link any Aspose page
+  where: {aspose_links_total: 5}
+  among:
+    aspose_links_total: {gte: 1}
+  count: 30
+  of: 34
+- id: docs_trio_when_aspose_linked
+  note: Documentation & Resources links the three Aspose sites, among READMEs that link any Aspose page
+  where: {docs_site: true, kb_site: true, reference_site: true}
+  among:
+    standard_h2_present.Documentation & Resources: true
+    aspose_links_total: {gte: 1}
+  count: 31
+  of: 32
+- id: enterprise_in_scope_when_aspose_linked
+  note: Scope and Limitations names the Enterprise Edition, among READMEs that link any Aspose page
+  where: {enterprise_in_scope: true}
+  among:
+    standard_h2_present.Scope and Limitations: true
+    aspose_links_total: {gte: 1}
+  count: 30
+  of: 31
+- id: enterprise_once_when_aspose_linked
+  note: Enterprise Edition appears exactly once, among READMEs that link any Aspose page
+  where: {enterprise_mentions: 1}
+  among:
+    aspose_links_total: {gte: 1}
+  count: 29
+  of: 34
+- id: api_listing_absent
+  note: API Reference has neither table rows nor member bullets, only prose
+  where: {api_rows: 0, api_top_level_bullets: 0}
+  among: {standard_h2_present.API Reference: true}
+  count: 7
+  of: 39
 statistics:
 - {id: sentence_mean_median, note: Median over READMEs of the mean visible sentence length (words), feature: sentence_mean,
-  statistic: median, value: 19.8}
+  statistic: median, value: 19.4}
 - {id: sentence_mean_min, note: Shortest mean visible sentence length among the READMEs (words), feature: sentence_mean,
   statistic: min, value: 9.5}
 - {id: sentence_mean_max, note: Longest mean visible sentence length among the READMEs (words), feature: sentence_mean,
   statistic: max, value: 34.3}
 - {id: sentence_p90_median, note: Median over READMEs of the 90th-percentile sentence length (words),
-  feature: sentence_p90, statistic: median, value: 36.0}
+  feature: sentence_p90, statistic: median, value: 35.0}
 - {id: opening_words_median, note: Median length of the opening paragraph (words), feature: opening_words,
-  statistic: median, value: 60.0}
+  statistic: median, value: 67.5}
 - {id: opening_words_max, note: Longest opening paragraph (words), feature: opening_words, statistic: max,
   value: 120.0}
 - {id: visible_lines_median, note: Median number of lines outside collapsed blocks, feature: visible_lines,
-  statistic: median, value: 267.0}
+  statistic: median, value: 236.5}
 - {id: visible_lines_max, note: Largest number of lines outside collapsed blocks, feature: visible_lines,
   statistic: max, value: 559.0}
-- {id: lines_median, note: Median total README length (lines), feature: lines, statistic: median, value: 590.0}
+- {id: lines_median, note: Median total README length (lines), feature: lines, statistic: median, value: 541.0}
 - {id: lines_max, note: Longest README (lines), feature: lines, statistic: max, value: 4612.0}
 - {id: aspose_links_max, note: Most Aspose links in one README, feature: aspose_links_total, statistic: max,
   value: 7.0}
 - {id: badge_count_median, note: Median number of badges in the badge row, feature: badge_count, statistic: median,
-  value: 4.0}
+  value: 3.0}
 - id: capability_bullets_median
   note: Median number of visible Key Capabilities bullets
   feature: capability_bullets_visible
   statistic: median
   among: {standard_h2_present.Key Capabilities: true}
-  value: 8.0
+  value: 9.0
 - id: capability_bullets_max
   note: Largest number of visible Key Capabilities bullets
   feature: capability_bullets_visible
@@ -705,7 +746,7 @@ statistics:
   feature: additional_examples_h3
   statistic: median
   among: {standard_h2_present.Additional Examples: true}
-  value: 5.5
+  value: 5.0
 - id: api_rows_median
   note: Median number of listed API rows among READMEs that list rows
   feature: api_rows
@@ -715,4 +756,5 @@ statistics:
   value: 183.0
 - {id: api_rows_max, note: Largest number of listed API rows, feature: api_rows, statistic: max, value: 1026.0}
 - {id: em_dashes_median, note: Median number of em dashes in visible prose, feature: em_dashes, statistic: median,
-  value: 24.0}
+  value: 20.0}
+- {id: readme_count, note: Number of READMEs measured, feature: lines, statistic: count, value: 42.0}
