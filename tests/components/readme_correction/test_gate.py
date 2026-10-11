@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme_correction import bundle as files
 from repository_presenter.components.readme_correction import check
 from repository_presenter.components.readme_correction.check import validation_delta
@@ -352,7 +353,7 @@ def test_a_locator_naming_a_path_the_tree_lacks_or_a_line_past_the_end_is_a_prob
     assert "not a line" in str(_locator_problem(edit("README.md:9"), ctx, set()))
 
 
-def test_a_diagram_rebuild_is_proposable_and_its_allowance_is_recorded(
+def test_a_diagram_rebuild_is_proposable_with_its_pull_request_text(
     tmp_path: Path, make_context: Any
 ) -> None:
     directory = make_bundle(tmp_path, make_context, README_WITH_DIAGRAM)
@@ -363,7 +364,7 @@ def test_a_diagram_rebuild_is_proposable_and_its_allowance_is_recorded(
         ("README_TEXT", "README.md:8")
     ]
     delta = json.loads((directory / "validation_delta.json").read_text(encoding="utf-8"))
-    assert delta["introduced"] == [] and delta["allowed"][0]["ruling"] == "R7"
+    assert delta["introduced"] == []
     candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
     assert "flowchart TD" not in candidate.readme_text
     assert "Core Capabilities" in candidate.readme_text  # the labels are the maintainers' own
@@ -379,10 +380,29 @@ def test_a_diagram_rebuild_is_proposable_and_its_allowance_is_recorded(
     assert "`README.md:8`" in content.body
 
 
+def tight_readme() -> str:
+    lines = line_counts(README_WITH_DIAGRAM)[0]
+    filler = NL.join(f"Maintainer line {n}." for n in range(299 - lines - 3))
+    return README_WITH_DIAGRAM.replace(
+        "## Installation", "## Notes" + NL + NL + filler + NL + NL + "## Installation", 1
+    )
+
+
+def test_a_budget_tipping_redraw_is_proposable_and_the_allowance_is_recorded(
+    tmp_path: Path, make_context: Any
+) -> None:
+    readme = tight_readme()
+    directory = make_bundle(tmp_path, make_context, readme)
+    delta = json.loads((directory / "validation_delta.json").read_text(encoding="utf-8"))
+    assert delta["introduced"] == [] and delta["allowed"][0]["ruling"] == "OD-06, R7"
+    candidate = load_proposable_correction(directory, REPOSITORY, root=REPO_ROOT)
+    assert line_counts(candidate.readme_text)[0] > 300 and "flowchart LR" in candidate.readme_text
+
+
 def test_the_gate_applies_the_allowance_itself_so_without_it_the_stored_rebuild_is_refused(
     tmp_path: Path, make_context: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    directory = make_bundle(tmp_path, make_context, README_WITH_DIAGRAM)
+    directory = make_bundle(tmp_path, make_context, tight_readme())
     monkeypatch.setattr(check, "ALLOWANCES", ())
     error = refusal(directory)  # settling would drop the rebuild, so the stored bytes differ
     assert error.code == Refusal.CORRECTION_NOT_PROVEN

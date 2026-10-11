@@ -1,10 +1,11 @@
-"""Verified facts the renderer's Dependencies section has no line for.
+"""Keep the rendered Dependencies section from repeating what the README already states.
 
-The renderer prints a dependency section from the dependency facts and the ecosystem's floor fact.
-The C++ extractor also records the lowest CMake the project accepts (``package:cmake_minimum``),
-which the review of the first correction bundles asked for: a reader building from source needs it
-beside the C++ standard. It is added here as one more entry of "Native and System Requirements",
-only when the README does not already state it.
+The renderer prints a dependency section from the dependency facts and the ecosystem's floor and
+build-tool facts, including the lowest CMake the project accepts (``package:cmake_minimum``, which
+the independent review of the first correction bundles asked for). A reader of the maintainers'
+README does not need it twice, so when the README already states that minimum the row is dropped
+from the inserted section (the redundancy rule), and a requirements group left empty loses its
+heading.
 """
 
 from __future__ import annotations
@@ -18,20 +19,19 @@ _GROUP = "### Native and System Requirements"
 
 
 def augment_dependencies(ctx: Context, body: str) -> str:
-    """``body`` (a rendered Dependencies section or group set) with the CMake minimum added."""
+    """``body`` (a rendered Dependencies section) without a CMake minimum row the README states."""
     cmake = ctx.supported(CMAKE_FACT_ID)
     if cmake is None or not body:
         return body
-    stated = re.search(rf"(?i)cmake[^\n]{{0,40}}{re.escape(cmake.value)}", ctx.readme + "\n" + body)
-    if stated is not None:
+    version = re.escape(cmake.value)
+    if re.search(rf"(?i)cmake[^\n]{{0,40}}{version}", ctx.readme) is None:
         return body
-    bullet = f"- Requires CMake {cmake.value} or later."
-    lines = body.splitlines()
-    if _GROUP not in lines:
-        return body + "\n\n" + _GROUP + "\n\n" + bullet
-    start = lines.index(_GROUP) + 1
-    end = next((i for i in range(start, len(lines)) if lines[i].startswith("### ")), len(lines))
-    while end > start and not lines[end - 1].strip():
-        end -= 1
-    lines.insert(end, bullet)
-    return "\n".join(lines)
+    row = re.compile(rf"^- Requires CMake {version}(?: or later)?\b")
+    lines = [line for line in body.splitlines() if not row.match(line)]
+    if _GROUP in lines:
+        start = lines.index(_GROUP) + 1
+        end = next((i for i in range(start, len(lines)) if lines[i].startswith("#")), len(lines))
+        if not any(line.strip() for line in lines[start:end]):
+            del lines[start - 1 : end]
+    text = "\n".join(lines)
+    return text + "\n" if body.endswith("\n") else text

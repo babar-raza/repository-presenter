@@ -14,6 +14,7 @@ fail identically for both texts and cancel; the ones that read only the README a
 from __future__ import annotations
 
 import hashlib
+import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -50,11 +51,18 @@ def _failures(ctx: Context, readme: str, original: bytes, revision: str) -> dict
     )
     with tempfile.TemporaryDirectory() as scratch:
         document = validate_candidate(candidate, Path(scratch), [])
-    return {
-        check["id"]: list(check["details"])
-        for check in document["checks"]
-        if check["verdict"] == "FAIL"
-    }
+    failing: dict[str, list[str]] = {}
+    for check in document["checks"]:
+        if check["verdict"] != "FAIL":
+            continue
+        details = list(check["details"])
+        length = [d for d in details if _VISIBLE_LENGTH.match(d)]
+        rest = [d for d in details if not _VISIBLE_LENGTH.match(d)]
+        if rest:
+            failing[check["id"]] = rest
+        if length:  # judged on its own: another check's repair must not cancel a longer README
+            failing[check["id"] + LENGTH_SUFFIX] = length
+    return failing
 
 
 #: Structure fixes add no prose, but they change what the judges see: closing a ``<details>``
@@ -71,25 +79,37 @@ class Allowance:
 
     Typed and closed: the allowance names the edit kind, the check and the wording of the failure
     it covers, and every use is written into ``validation_delta.json`` under ``allowed`` with the
-    ruling, so a reader sees exactly what the rule let through."""
+    ruling, so a reader sees exactly what the rule let through. ``bound`` names the count in the
+    wording (a group of ``detail``) that no later edit may push past what the allowed edit alone
+    brought, so an edit that is not required cannot ride the allowance."""
 
     edit_kind: str
     check: str
-    detail_prefix: str
+    detail: re.Pattern[str]
     ruling: str
     reason: str
+    bound: str | None = None
 
+
+#: BC-07's visible-length failure is tracked as its own check, ``BC-07/visible``, so a repair BC-07
+#: makes elsewhere (a diagram redrawn to the contract) cannot cancel the lines it adds to a README.
+LENGTH_SUFFIX = "/visible"
+#: BC-07's visible-length failure, worded by ``validation/registry.py``.
+_VISIBLE_LENGTH = re.compile(r"^(?P<lines>\d+) visible lines of \d+ exceed the visible budget \d+$")
 
 ALLOWANCES: tuple[Allowance, ...] = (
     Allowance(
         DIAGRAM_FIX,
-        "BC-07",
-        "At a Glance",
-        "R7",
-        "BC-07's topology rule still describes the vertical `flowchart TD` drawing and is being "
-        "migrated to components/readme_diagram/contract.py (owner ruling R7); a diagram rebuild "
-        "is judged by that contract (the detector asks it before editing), so the old rule's "
-        "At a Glance failures on the rebuilt drawing do not count",
+        "BC-07" + LENGTH_SUFFIX,
+        _VISIBLE_LENGTH,
+        "OD-06, R7",
+        "owner ruling R7 (DECISION_LOG 2026-10-11) requires a horizontal, non-clipped At a Glance "
+        "diagram, so a redraw is a required change, and OD-06 lets visible length grow to add a "
+        "required element: the "
+        "lines the redrawn diagram adds (its init line and column links) may tip BC-07's "
+        "visible-length budget a README sat just under. Only what the redraw itself adds is "
+        "covered; any other edit that lengthens the README further is introduced",
+        bound="lines",
     ),
 )
 
@@ -113,7 +133,7 @@ def _split_allowed(
         for allowance in ALLOWANCES:
             if allowance.edit_kind not in kinds or allowance.check != check_id:
                 continue
-            covered = [d for d in fresh if d.startswith(allowance.detail_prefix)][:extra]
+            covered = [d for d in fresh if allowance.detail.match(d)][:extra]
             if covered:
                 allowed.append(
                     {
@@ -129,6 +149,35 @@ def _split_allowed(
         if extra > 0:
             introduced.append({"check": check_id, "extra": extra, "details": fresh[:extra]})
     return introduced, allowed
+
+
+def _count(pattern: re.Pattern[str], group: str, detail: str) -> int | None:
+    match = pattern.match(detail)
+    return int(match.group(group)) if match else None
+
+
+def _grown(allowed: list[dict[str, Any]], after: dict[str, list[str]]) -> list[dict[str, Any]]:
+    """The allowed failures ``after`` has made worse: a bounded count past what the allowed edit
+    alone brought (the diagram redrawn, then something else added lines on top of it)."""
+    out: list[dict[str, Any]] = []
+    for use in allowed:
+        for allowance in ALLOWANCES:
+            if allowance.check != use["check"] or allowance.bound is None:
+                continue
+            limit = max(
+                (c for d in use["details"] if (c := _count(allowance.detail, allowance.bound, d))),
+                default=None,
+            )
+            if limit is None:
+                continue
+            worse = [
+                d
+                for d in after.get(use["check"], [])
+                if (c := _count(allowance.detail, allowance.bound, d)) is not None and c > limit
+            ]
+            if worse:
+                out.append({"check": use["check"], "extra": 1, "details": worse[:1]})
+    return out
 
 
 def validation_delta(ctx: Context, result: CorrectionResult, original: bytes) -> dict[str, Any]:
@@ -160,7 +209,7 @@ def validation_delta(ctx: Context, result: CorrectionResult, original: bytes) ->
     )
     kinds = {e.kind for e in result.edits}
     introduced, allowed = _split_allowed(base, redrawn, kinds)
-    introduced += _increases(redrawn, after)
+    introduced += _increases(redrawn, after) + _grown(allowed, after)
     return {
         "schema_version": 1,
         "judge": "validate_candidate",

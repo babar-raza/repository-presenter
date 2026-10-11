@@ -6,10 +6,15 @@ from typing import Any
 
 import pytest
 
+from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme_correction import check
+from repository_presenter.components.readme_correction.apply import apply_edits
 from repository_presenter.components.readme_correction.check import validation_delta
 from repository_presenter.components.readme_correction.engine import correct
 from repository_presenter.components.readme_correction.model import CorrectionResult
+from repository_presenter.components.readme_correction.settle import correct_settled
+
+NL = chr(10)
 
 README = """# Aspose.3D FOSS for Java
 
@@ -109,48 +114,101 @@ README_WITH_DIAGRAM = (
 )
 
 
-def test_a_diagram_rebuild_is_judged_by_the_typed_r7_allowance_not_waved_through(
+def padded(readme: str, visible: int) -> str:
+    """``readme`` with maintainer lines added to a Notes section until it is ``visible`` lines."""
+    lines = line_counts(readme)[0]
+    filler = NL.join(f"Maintainer line {n}." for n in range(visible - lines - 3))
+    return readme.replace(
+        "## Installation", "## Notes" + NL + NL + filler + NL + NL + "## Installation", 1
+    )
+
+
+def test_a_diagram_redraw_the_governed_bc07_accepts_brings_no_failure_and_needs_no_allowance(
     make_context: Any,
 ) -> None:
     ctx = make_context(README_WITH_DIAGRAM)
     result = correct(ctx)
     assert [e.kind for e in result.edits if e.detector == "at_a_glance_diagram"] == ["DIAGRAM_FIX"]
     delta = validation_delta(ctx, result, README_WITH_DIAGRAM.encode())
+    assert delta["introduced"] == [] and delta["allowed"] == []
+    assert delta["corrected_failures"]["BC-07"] <= delta["live_failures"]["BC-07"]
+
+
+def test_a_redraw_that_tips_the_visible_budget_is_allowed_under_od06_and_r7(
+    make_context: Any,
+) -> None:
+    tight = padded(README_WITH_DIAGRAM, 299)
+    assert line_counts(tight)[0] == 299
+    ctx = make_context(tight)
+    result, delta = correct_settled(ctx, tight.encode())
+    assert [e.kind for e in result.edits if e.detector == "at_a_glance_diagram"] == ["DIAGRAM_FIX"]
+    assert line_counts(result.corrected)[0] > 300
     assert delta["introduced"] == []
     (allowed,) = delta["allowed"]
-    assert allowed["check"] == "BC-07" and allowed["ruling"] == "R7"
-    assert allowed["extra"] == len(allowed["details"]) >= 1
-    assert all(detail.startswith("At a Glance") for detail in allowed["details"])
-    assert (
-        delta["corrected_failures"]["BC-07"] == delta["live_failures"]["BC-07"] + allowed["extra"]
-    )
+    assert allowed["check"] == "BC-07/visible" and allowed["ruling"] == "OD-06, R7"
+    assert "visible lines" in allowed["details"][0] and allowed["extra"] == 1
 
 
-def test_without_the_allowance_the_same_rebuild_introduces_those_bc07_failures(
+def test_an_edit_that_lengthens_the_readme_beyond_the_redraw_does_not_ride_the_allowance(
+    make_context: Any, make_fact: Any
+) -> None:
+    tight = padded(README_WITH_DIAGRAM, 299)
+    facts = [
+        make_fact("build_test_asset:build-command", "mvn -B verify", evidence=(("pom.xml", "x"),)),
+        make_fact("build_test_asset:test-command", "mvn test", evidence=(("pom.xml", "x"),)),
+    ]
+    ctx = make_context(tight, facts)
+    result, delta = correct_settled(ctx, tight.encode())
+    assert any(e.kind == "DIAGRAM_FIX" for e in result.edits)
+    assert delta["introduced"] == []
+    redraw_only = line_counts(
+        apply_edits(tight, [e for e in result.edits if e.kind == "DIAGRAM_FIX"])[0]
+    )[0]
+    assert line_counts(result.corrected)[0] <= max(300, redraw_only)  # nothing else grew it
+
+
+def test_without_the_allowance_a_budget_tipping_redraw_is_dropped_and_reported(
     make_context: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(check, "ALLOWANCES", ())
-    ctx = make_context(README_WITH_DIAGRAM)
-    delta = validation_delta(ctx, correct(ctx), README_WITH_DIAGRAM.encode())
-    assert [item["check"] for item in delta["introduced"]] == ["BC-07"] and delta["allowed"] == []
+    tight = padded(README_WITH_DIAGRAM, 299)
+    result, delta = correct_settled(make_context(tight), tight.encode())
+    assert not any(e.kind == "DIAGRAM_FIX" for e in result.edits)
+    assert delta["introduced"] == [] and delta["allowed"] == []
+    assert any(
+        f.detector == "at_a_glance_diagram" and "visible" in f.reason for f in result.findings
+    )
 
 
 def test_the_allowance_covers_only_its_kind_its_check_and_its_wording() -> None:
     before: dict[str, list[str]] = {}
-    at_a_glance = {"BC-07": ["At a Glance is a flowchart TD"]}
-    introduced, allowed = check._split_allowed(before, at_a_glance, {"DIAGRAM_FIX"})
-    assert introduced == [] and allowed[0]["ruling"] == "R7"
-    introduced, allowed = check._split_allowed(before, at_a_glance, {"MISSING_INFO"})
-    assert allowed == [] and introduced[0]["check"] == "BC-07"  # another kind is not covered
-    other_wording = {"BC-07": ["Quick Start has 400 visible lines"]}
+    visible = {"BC-07/visible": ["303 visible lines of 479 exceed the visible budget 300"]}
+    introduced, allowed = check._split_allowed(before, visible, {"DIAGRAM_FIX"})
+    assert introduced == [] and allowed[0]["ruling"] == "OD-06, R7"
+    introduced, allowed = check._split_allowed(before, visible, {"MISSING_INFO"})
+    assert allowed == [] and introduced[0]["check"] == "BC-07/visible"  # another kind
+    other_wording = {"BC-07/visible": ["At a Glance is a flowchart TD"]}
     introduced, allowed = check._split_allowed(before, other_wording, {"DIAGRAM_FIX"})
-    assert allowed == [] and introduced[0]["details"] == other_wording["BC-07"]
-    other_check = {"BC-03": ["At a Glance mentions an unsupported claim"]}
+    assert allowed == [] and introduced[0]["details"] == other_wording["BC-07/visible"]
+    other_check = {"BC-03": ["303 visible lines of 479 exceed the visible budget 300"]}
     introduced, allowed = check._split_allowed(before, other_check, {"DIAGRAM_FIX"})
     assert allowed == [] and introduced[0]["check"] == "BC-03"
-    mixed = {"BC-07": ["At a Glance is a flowchart TD", "Quick Start has 400 visible lines"]}
-    introduced, allowed = check._split_allowed(before, mixed, {"DIAGRAM_FIX"})
-    assert allowed[0]["extra"] == 1 and introduced[0]["details"] == [mixed["BC-07"][1]]
+
+
+def test_the_bound_flags_a_count_past_what_the_allowed_edit_brought() -> None:
+    allowed = [
+        {
+            "check": "BC-07/visible",
+            "extra": 1,
+            "details": ["303 visible lines of 479 exceed the visible budget 300"],
+        }
+    ]
+    same = {"BC-07/visible": ["303 visible lines of 480 exceed the visible budget 300"]}
+    assert check._grown(allowed, same) == []
+    more = {"BC-07/visible": ["305 visible lines of 481 exceed the visible budget 300"]}
+    (grown,) = check._grown(allowed, more)
+    assert grown["check"] == "BC-07/visible" and "305 visible lines" in grown["details"][0]
+    assert check._grown(allowed, {}) == []
 
 
 def test_a_failure_another_edit_adds_beside_a_rebuild_is_still_introduced(
@@ -164,4 +222,3 @@ def test_a_failure_another_edit_adds_beside_a_rebuild_is_still_introduced(
     )
     delta = validation_delta(ctx, forged, README_WITH_DIAGRAM.encode())
     assert [item["check"] for item in delta["introduced"]] == ["BC-14"]
-    assert delta["allowed"]  # the rebuild's own allowance is still reported

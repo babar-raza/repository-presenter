@@ -13,11 +13,14 @@ cannot express. The detector edits only when the horizontal At a Glance contract
 (``readme_diagram.contract``) finds nothing wrong with the redrawn body that it did not already find
 in the live one (``_introduced``), and reports otherwise.
 
-BC-07 as it stands still demands the old ``flowchart TD`` chain, so the redrawn body adds At a
-Glance topology failures under it. Owner ruling R7 (BC-07's topology rule migrates to the contract)
-is carried by the typed ``check.ALLOWANCES`` entry, which names this edit kind, that check and that
-wording, and records each use in ``validation_delta.json`` under ``allowed``; no other failure a
-rebuild brings is let through.
+BC-07 now judges the diagram by the same contract (the governed adoption of owner ruling R7), so
+the redrawn body adds no At a Glance failure of its own. What it can still add is lines: the init
+line and the invisible column links make it a few lines longer, which can tip BC-07's visible-length
+budget a README sat just under. Owner ruling OD-06 lets visible length grow to add a required
+element and R7 requires the horizontal drawing, so the typed ``check.ALLOWANCES`` entry covers
+exactly that failure for this edit kind (recorded under ``allowed`` in ``validation_delta.json``,
+never ``introduced``) and bounds it: any other edit that lengthens the README further is still
+introduced.
 
 A diagram that is not the At a Glance chain, or already conforms, is not touched.
 """
