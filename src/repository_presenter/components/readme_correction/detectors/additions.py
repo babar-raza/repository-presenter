@@ -36,6 +36,12 @@ from repository_presenter.components.readme_correction.augment import (
     CMAKE_FACT_ID,
     augment_dependencies,
 )
+from repository_presenter.components.readme_correction.commands import (
+    covered,
+    missing_precondition,
+    readme_commands,
+    states_install,
+)
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.detectors._layout import (
     addition_text,
@@ -49,6 +55,7 @@ from repository_presenter.components.readme_correction.model import (
     Context,
     DetectorResult,
     Edit,
+    Finding,
     ReadmeLine,
 )
 from repository_presenter.components.readme_correction.text_gate import clean
@@ -86,13 +93,29 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
     if section is None or point is None:
         return DetectorResult()
     readme = _squash(ctx.readme)
+    shown = readme_commands(ctx)
     dropped: set[str] = set()
+    findings: list[Finding] = []
     for fact in ctx.facts.facts:
         if fact.polarity != "SUPPORTED":
             continue
         if fact.id in (BUILD_COMMAND_FACT_ID, TEST_COMMAND_FACT_ID):
-            if _squash(fact.value) in readme:
+            needs = missing_precondition(fact.value)
+            if _squash(fact.value) in readme or covered(ctx, fact.value, shown):
+                dropped.add(fact.id)  # the README already shows this command, in some form
+            elif needs is not None and not states_install(ctx, needs):
                 dropped.add(fact.id)
+                findings.append(
+                    Finding(
+                        "add_dev_commands",
+                        0,
+                        fact.value.splitlines()[0][:80],
+                        f"`{fact.value.splitlines()[0]}` needs `{needs}` installed first "
+                        f"(`pip install {needs}`), which the evidence of {fact.id} does not "
+                        "name; not added",
+                        (fact.id,),
+                    )
+                )
         elif fact.id == CI_MATRIX_FACT_ID:
             if fact.evidence and fact.evidence[0].path in readme:
                 dropped.add(fact.id)
@@ -112,12 +135,12 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
     kept = tuple(f for f in ctx.facts.facts if f.id not in dropped)
     body = _render_section(ctx, "development_testing", kept)
     if not body:
-        return DetectorResult()
+        return DetectorResult(findings=tuple(findings))
     cited = tuple(sorted(f.id for f in kept if f.id in dev_ids and f.polarity == "SUPPORTED"))
     # Nothing the README lacks is cited: either every piece was already there, or the section
     # rendered only what the maintainers' own words already cover.
     if not cited:
-        return DetectorResult()
+        return DetectorResult(findings=tuple(findings))
     text = addition_text(ctx, point, body.splitlines(), continue_list=False)
     return DetectorResult(
         edits=(
@@ -135,7 +158,8 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
                     "sentences and command block for the cited facts are appended"
                 ),
             ),
-        )
+        ),
+        findings=tuple(findings),
     )
 
 
@@ -257,6 +281,20 @@ def _shows(ctx: Context, language: str, token: str) -> bool:
     return any(lang in family and token in text.lower() for lang, text in fence_lines(ctx))
 
 
+def _named_in_code(ctx: Context, token: str) -> bool:
+    """Whether the package ``token`` appears in any code of the README: a fenced line or an inline
+    code span, in whatever language (a Maven XML snippet already carries ``mvn dependency:get``'s
+    coordinates)."""
+    if any(token in text.lower() for _language, text in fence_lines(ctx)):
+        return True
+    return any(
+        token in span.lower()
+        for line in ctx.lines
+        if not line.in_fence
+        for span in re.findall(r"`([^`\n]+)`", line.text)
+    )
+
+
 @detector("add_install_forms")
 def add_install_forms(ctx: Context) -> DetectorResult:
     section = find_section(ctx, INSTALL_HEADING)
@@ -286,6 +324,8 @@ def add_install_forms(ctx: Context) -> DetectorResult:
             continue  # only the install command and the declared alternatives are additions
         if (primary and first in _squash(ctx.readme)) or _shows(ctx, language, token):
             continue
+        if primary and _named_in_code(ctx, token):
+            continue  # the coordinates are already shown in a snippet (XML, Gradle, inline code)
         wanted.append((lead, language, lines))
     if not wanted:
         return DetectorResult()

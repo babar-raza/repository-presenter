@@ -76,6 +76,31 @@ def fence_lines(ctx: Context) -> list[tuple[str, str]]:
     return found
 
 
+def _before_trailing_details(section: H2Section, body: list[ReadmeLine]) -> ReadmeLine | None:
+    """The line an addition follows: the section's last line, unless that line closes a
+    ``<details>`` block, in which case the last visible line before the block opened (an addition
+    never lands after a closing tag, detached from the commands it concerns). ``None`` when nothing
+    visible comes before the block."""
+    if not _CLOSE.search(_CODE_SPAN.sub(" ", body[-1].text)) or body[-1].in_fence:
+        return body[-1]
+    depth = 0
+    opener: ReadmeLine | None = None
+    for line in section.lines:
+        if line.in_fence:
+            continue
+        text = _CODE_SPAN.sub(" ", line.text)
+        for _ in _OPEN.findall(text):
+            if depth == 0:
+                opener = line
+            depth += 1
+        for _ in _CLOSE.findall(text):
+            depth = max(0, depth - 1)
+    if opener is None:
+        return body[-1]
+    earlier = [line for line in body if line.start < opener.start]
+    return earlier[-1] if earlier else None
+
+
 def append_point(ctx: Context, section: H2Section) -> AppendPoint | None:
     body = [line for line in section.lines if line.text.strip()]
     markers = sum(1 for line in section.lines if line.in_fence and _FENCE_MARK.match(line.text))
@@ -89,7 +114,9 @@ def append_point(ctx: Context, section: H2Section) -> AppendPoint | None:
             closes += len(_CLOSE.findall(text))
     if opens != closes:
         return None  # a <details> block that would swallow (or hide) the addition
-    last = body[-1] if body else section.heading
+    last = _before_trailing_details(section, body) if body else section.heading
+    if last is None:
+        return None  # the section is only a collapsed block: nothing visible to sit beside
     terminator = ctx.readme[last.end : last.end + 2]
     if terminator.startswith("\r\n"):
         offset, prefix = last.end + 2, ""

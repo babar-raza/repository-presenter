@@ -180,3 +180,15 @@ def test_crlf_line_endings_are_kept(make_context: Any) -> None:
     corrected = fixed(readme, result.edits)
     assert "\n" not in corrected.replace("\r\n", "")
     assert at_a_glance_diagram(make_context(corrected)).edits == ()
+
+
+def test_a_label_with_angle_brackets_is_not_redrawn_because_no_encoding_is_portable(
+    make_context: Any,
+) -> None:
+    # Measured on Mermaid 11.4.1, 11.12.0, 11.17.2 and 12.1.0 with htmlLabels off: `#lt;`, `#60;`
+    # and `&lt;` show as literal entity text before 11.14, and a raw `<u8>` is dropped as a tag.
+    risky = README.replace("Polygon triangulation", "Vec<u8> buffers")
+    result = at_a_glance_diagram(make_context(risky))
+    assert result.edits == ()
+    (finding,) = result.findings
+    assert "holds & < or >" in finding.reason and "11.4.1" in finding.reason

@@ -27,6 +27,8 @@ A diagram that is not the At a Glance chain, or already conforms, is not touched
 
 from __future__ import annotations
 
+import re
+
 from repository_presenter.components.readme_correction.detectors import detector
 from repository_presenter.components.readme_correction.model import (
     DIAGRAM_FIX,
@@ -42,6 +44,8 @@ from repository_presenter.components.readme_diagram.parse import parse
 from repository_presenter.components.readme_diagram.rebuild import mermaid_fences, rebuild_body
 
 DETECTOR = "at_a_glance_diagram"
+#: characters no Mermaid release between 11.4 and 12.1 draws portably in a non-clipping label.
+_UNPORTABLE = re.compile(r"[&<>]")
 
 
 def _introduced(live: str, after: str, has_inputs: bool) -> list[str]:
@@ -94,6 +98,20 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
             continue
         number = fence.first + 1
         codes = ", ".join(sorted(report.codes))
+        risky = [t for t in (*parsed.glance.labels, *parsed.glance.titles) if _UNPORTABLE.search(t)]
+        if risky:
+            findings.append(
+                Finding(
+                    DETECTOR,
+                    number,
+                    fence.body.splitlines()[0] if fence.body else "",
+                    f"the diagram is drawn with {codes}; the corrected drawing is withheld "
+                    f"(the label {risky[0][:50]!r} holds & < or >: no encoding draws it in a label "
+                    "that cannot clip on Mermaid before 11.14 - measured on 11.4.1, 11.12.0, "
+                    "11.17.2 and 12.1 - so the drawing stays as the maintainers made it)",
+                )
+            )
+            continue
         has_inputs = bool(parsed.glance.starting_points)
         worse = _introduced(fence.body, after, has_inputs)
         if worse:
