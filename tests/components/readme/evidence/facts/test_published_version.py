@@ -210,3 +210,20 @@ def test_a_pin_changes_nothing_when_the_versions_agree_or_the_install_is_a_sourc
     assert pin_install_version(source, "26.8.0", release) is source
     other = _install("mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss")
     assert pin_install_version(other, "26.8.0", release) is other
+
+
+def test_the_fact_records_how_many_versions_the_registry_lists_when_it_said(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The count is what backs, or refutes, "the sole published version" (BC-14 rule (d)); a
+    registry body that could not be read records no count rather than a count of one."""
+    listed = _reading(versions=("26.5.0", "26.7.0"))
+    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name, **_: listed)
+    fact = published_version_fact(ENTRY, NAME)
+    assert fact is not None
+    assert fact.attributes == {"registry": "maven", "version_count": "2"}
+    assert (fact.evidence[0].detail or "").endswith("the registry lists 2 versions in all")
+    silent = _reading(versions=())
+    monkeypatch.setattr(published_version, "_observe", lambda ecosystem, name, **_: silent)
+    unread = published_version_fact(ENTRY, NAME)
+    assert unread is not None and unread.attributes == {"registry": "maven"}

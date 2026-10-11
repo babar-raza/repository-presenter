@@ -650,6 +650,21 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
     return context.canonical(text.replace("|", "/").replace("`", ""))
 
 
+def _member_summary(context: RenderContext, fact: Fact) -> str:
+    """A hub member's own documentation summary, table-safe, or an empty string.
+
+    Never the authored type sentence, the signature, or a kind label: a Detailed Member Reference
+    bullet is a member's own documented purpose or nothing (``placement.has_member_summary`` is
+    the one predicate the coverage model shares). The same BC-12 elision and abbreviation
+    normalisation ``_symbol_description`` applies to a quoted docstring apply here.
+    """
+    docstring = (fact.attributes or {}).get("docstring") or ""
+    if not docstring:
+        return ""
+    text, _ = elide_noncanonical(docstring, context.name)
+    return context.canonical(text.replace("|", "/").replace("`", "")).strip()
+
+
 def quoted_evidence_elisions(context: RenderContext) -> list[tuple[str, str]]:
     """Every forbidden non-canonical name variant ``_symbol_description`` elides from a verified
     type's own docstring before placing it in the Core API table, as ``(type, variant elided)``.
@@ -741,12 +756,14 @@ def _api_reference(context: RenderContext) -> list[str]:
             lines += ["", f"### {names.get(symbol.value, symbol.value.rsplit('.', 1)[-1])}", ""]
             lines.append(context.unit(sid, f"hub:{hub['symbol_fact_id']}"))
             owned = sorted(hub_methods.get(symbol.value, []), key=lambda f: f.value)
-            if owned:
+            bullets = [
+                f"- `{f.value.rsplit('.', 1)[-1]}`: {summary}"
+                for f in owned
+                if (summary := _member_summary(context, f))
+            ]
+            if bullets:
                 lines.append("")
-                lines += [
-                    f"- `{f.value.rsplit('.', 1)[-1]}`: {_symbol_description(context, f)}"
-                    for f in owned
-                ]
+                lines += bullets
     lines += ["", "</details>"]
     return lines
 

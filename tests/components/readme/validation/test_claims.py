@@ -279,3 +279,84 @@ def test_an_unconfirmed_distribution_does_not_excuse_the_near_miss() -> None:
     # And a different package that merely resembles the project is still refused.
     other = CELLS_CPP_INSTALL.replace("Aspose.Cells.Cpp.FOSS", "Aspose.Cells.Cpp")
     assert claim_findings(other, _cells_cpp("SUPPORTED"))
+
+
+# --- Cells-Java: "the sole published version" while the registry lists two ---------------------
+CELLS_JAVA_README = (
+    "# Aspose.Cells FOSS for Java\n\n## API Reference\n\n"
+    "Aspose.Cells FOSS for Java provides a public API under the `org.aspose.cells_foss` package. "
+    "The package `org.aspose:aspose-cells-foss` version 26.7.0 targets Java 17 and is the sole "
+    "published version.\n"
+)
+CELLS_JAVA = (_fact("package:name", "package", "org.aspose:aspose-cells-foss"),)
+
+
+def _published(count: str | None) -> Fact:
+    return _fact(
+        "package:published_version",
+        "package",
+        "26.7.0",
+        "current stable release",
+        attributes={"registry": "maven", **({"version_count": count} if count else {})},
+    )
+
+
+def test_sole_published_version_fails_when_the_registry_lists_more_than_one() -> None:
+    [finding] = claim_findings(CELLS_JAVA_README, _facts(*CELLS_JAVA, _published("2")))
+    assert finding.stage == "COMPOSING"
+    assert "sole published version" in finding.detail
+    assert "the registry lists 2 versions" in finding.detail
+    assert finding.line == 4
+
+
+def test_sole_published_version_is_unverifiable_without_a_version_count() -> None:
+    [finding] = claim_findings(CELLS_JAVA_README, _facts(*CELLS_JAVA, _published(None)))
+    assert "no registry reading lists every published version" in finding.detail
+
+
+def test_sole_published_version_passes_when_the_registry_lists_exactly_one() -> None:
+    assert claim_findings(CELLS_JAVA_README, _facts(*CELLS_JAVA, _published("1"))) == []
+
+
+def test_exclusivity_is_judged_only_against_a_registry_reading() -> None:
+    # Unpublished or unreadable: there is no reading to contradict, as for rule (b).
+    assert claim_findings(CELLS_JAVA_README, _facts(*CELLS_JAVA)) == []
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "This is the only published version of the package.",
+        "Version 26.5.0 was the first published release on Maven Central.",
+        "The initial release on PyPI is 26.5.0.",
+        "There are no other versions of the package on NuGet.",
+        "26.7.0 is the only version available in the registry.",
+    ],
+)
+def test_every_phrasing_of_exclusivity_about_the_published_version_is_held_to_the_count(
+    sentence: str,
+) -> None:
+    facts = _facts(*CELLS_JAVA, _published("2"))
+    assert len(claim_findings(f"{sentence}\n", facts)) == 1
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "Java 17 is the only supported version of the runtime.",
+        "Only the latest published version receives fixes.",
+        "The first release of the roadmap adds charts.",
+        "Install the published version from Maven Central.",
+        "This is the only package published by the project.",
+    ],
+)
+def test_ordinary_sentences_that_merely_use_the_words_are_left_alone(sentence: str) -> None:
+    assert claim_findings(f"{sentence}\n", _facts(*CELLS_JAVA, _published("2"))) == []
+
+
+def test_the_registry_judge_routes_the_exclusivity_finding_to_its_section() -> None:
+    candidate: Any = SimpleNamespace(
+        readme=CELLS_JAVA_README, facts=_facts(*CELLS_JAVA, _published("2"))
+    )
+    [failure] = _check_claims(candidate)
+    assert failure.stage == "COMPOSING" and failure.section == "api_reference"

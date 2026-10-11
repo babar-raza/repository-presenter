@@ -82,7 +82,7 @@ FACTS = FactsDocument(
             "public_symbol",
             "aspose.threed.Scene.save",
             (Evidence("x", "line 9; method; public by name"),),
-            attributes={"symbol_kind": "method"},
+            attributes={"symbol_kind": "method", "docstring": "Saves the scene to a file."},
         ),
         _fact("format:output.glb", "format", ".glb"),
         _fact("format:input.obj", "format", ".obj"),
@@ -298,7 +298,8 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert "<summary>View the Complete Public API Surface</summary>" in lines
     assert "| `Scene` | Public class. |" in lines and "### Scene" in lines
     assert "`Scene` holds the scene graph." in lines
-    assert "- `save`: Public method. |" not in lines and "- `save`: Public method." in lines
+    assert "- `save`: Saves the scene to a file." in lines
+    assert not any("Public method" in line for line in lines)
     assert "- **[Docs](https://docs.example.com/3d)** — The docs explain the API." in lines
     assert (
         "- Found a bug or have a feature request? [Open an issue]"
@@ -1378,7 +1379,18 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
                 "public_symbol",
                 "aspose.threed.Scene.save",
                 (Evidence("aspose/threed/scene.py", "line 9; method; public by name"),),
-                attributes={"symbol_kind": "method", "signature": "def save(self, path)"},
+                attributes={
+                    "symbol_kind": "method",
+                    "signature": "def save(self, path)",
+                    "docstring": "Writes the scene to a file.",
+                },
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.clear",
+                "public_symbol",
+                "aspose.threed.Scene.clear",
+                (Evidence("aspose/threed/scene.py", "line 12; method; public by name"),),
+                attributes={"symbol_kind": "method", "signature": "def clear(self)"},
             ),
             Fact(
                 "public_symbol:aspose.threed.axis",
@@ -1399,9 +1411,14 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "#### Enumerations\n\n| Enumeration | Description |\n| --- | --- |\n"
         "| `Axis` | Defined as `class Axis(Enum)`. |\n\n#### Detailed Member Reference\n\n"
         "### Scene\n\n`Scene` holds the scene graph.\n\n"
-        "- `save`: Defined as `def save(self, path)`.\n"
+        "- `save`: Writes the scene to a file.\n"
     )
     assert section.rstrip("\n").endswith("</details>")
+    # A member with no documentation of its own is left out of the Detailed Member Reference:
+    # a "Defined as `def clear(self)`." bullet says nothing its name did not (312 of them in
+    # the Aspose.3D FOSS for TypeScript candidate, wave-3 acceptance review 2026-10-11).
+    assert "clear" not in section
+    assert "Defined as `def" not in section
 
 
 def test_api_reference_covered_fact_ids_matches_what_this_render_actually_shows() -> None:
@@ -1428,7 +1445,7 @@ def test_api_reference_covered_fact_ids_matches_what_this_render_actually_shows(
                 "public_symbol",
                 "aspose.threed.Scene.save",
                 (Evidence("x", "line 9; method; public by name"),),
-                attributes={"symbol_kind": "method"},
+                attributes={"symbol_kind": "method", "docstring": "Saves the scene."},
             ),
             Fact(
                 "public_symbol:aspose.threed.node",
