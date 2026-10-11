@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -606,6 +607,30 @@ def _fake_pinned(root: Path, name: str, version: str) -> Path:
     return python
 
 
+NO_MACHINE: Callable[[], list[tuple[str, Path]]] = lambda: []  # noqa: E731
+
+
+@pytest.fixture(autouse=True)
+def the_host_machines_interpreters_are_never_consulted(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Which interpreters the machine really has (a CI runner's /usr/bin/python3.12, a developer's
+    `py` launcher) decided two assertions on hosted CI. Every test here sees an empty machine by
+    default, and the real discovery sources raise if anything reaches them."""
+    from repository_presenter.core import toolchains
+
+    def tripwire() -> list[tuple[str, Path]]:
+        raise AssertionError("the host machine's interpreters were consulted")
+
+    monkeypatch.setattr(python_examples, "installed_pythons", lambda: [])
+    for source in ("_launcher_pythons", "_directory_pythons", "_path_pythons"):
+        monkeypatch.setattr(toolchains, source, tripwire)
+
+
+def _relative(offset: int) -> str:
+    """``3.<running minor + offset>`` - the ranges below are written against the running Python
+    so they hold on any interpreter the suite runs under."""
+    return f"{sys.version_info.major}.{sys.version_info.minor + offset}"
+
+
 def test_the_interpreter_is_chosen_by_the_manifests_requires_python(tmp_path: Path) -> None:
     """G4-W17 arrival item 52 (Aspose.Words-FOSS-for-Python @ 2d2efee2, G3 second pass): the
     verifier built its venv from sys.executable (3.13.2) while the manifest declares
@@ -613,30 +638,32 @@ def test_the_interpreter_is_chosen_by_the_manifests_requires_python(tmp_path: Pa
     NOT_VERIFIED. The presenter's own interpreter is used whenever the declaration admits it;
     otherwise the highest pinned toolchain under runs/verify that does; otherwise none - and
     the caller says so rather than running the wrong Python."""
-    running = f"{sys.version_info.major}.{sys.version_info.minor}"
-    older = _fake_pinned(tmp_path, "py309", "3.9")
-    newer_pinned = _fake_pinned(tmp_path, "py310", "3.10")
+    running = _relative(0)
+    older = _fake_pinned(tmp_path, "py38", "3.8")
+    newer_pinned = _fake_pinned(tmp_path, "py39", "3.9")
     _fake_pinned(tmp_path, "py-broken", "not.a.version")
     (tmp_path / "not-a-venv").mkdir()
     assert python_examples.pinned_interpreters(tmp_path) == [
-        ("3.9", older),
-        ("3.10", newer_pinned),
+        ("3.8", older),
+        ("3.9", newer_pinned),
     ]
     # No declaration, or one the presenter satisfies: the presenter itself, unlabeled.
-    presenter = python_examples.select_interpreter("", tmp_path)
+    presenter = python_examples.select_interpreter("", tmp_path, NO_MACHINE)
     assert presenter is not None and presenter.executable == Path(sys.executable)
     assert presenter.label == ""
-    assert python_examples.select_interpreter(f">={running}", tmp_path) == presenter
+    assert python_examples.select_interpreter(f">={running}", tmp_path, NO_MACHINE) == presenter
     # A cap below the presenter: the highest pinned interpreter that satisfies it.
-    capped = python_examples.select_interpreter(f">=3.8,<{running}", tmp_path)
+    capped = python_examples.select_interpreter(f">=3.8,<{running}", tmp_path, NO_MACHINE)
     assert capped is not None
-    assert (capped.executable, capped.version, capped.label) == (newer_pinned, "3.10", "py310")
+    assert (capped.executable, capped.version, capped.label) == (newer_pinned, "3.9", "py39")
     # Nothing satisfies: None, so the caller records the honest reason. (`>3.13` would still admit
     # 3.13.2 - PEP 440 compares the full version - so the floor is the next minor.)
-    above = f">={sys.version_info.major}.{sys.version_info.minor + 1}"
+    above = f">={_relative(1)}"
+    assert python_examples.select_interpreter(above, tmp_path, NO_MACHINE) is None
+    # The default machine (no `machine` argument) is the test's empty one, not the host's.
     assert python_examples.select_interpreter(above, tmp_path) is None
     # A declaration nobody can parse constrains nothing; pip would say so itself.
-    assert python_examples.select_interpreter("not a specifier", tmp_path) == presenter
+    assert python_examples.select_interpreter("not a specifier", tmp_path, NO_MACHINE) == presenter
 
 
 def test_a_repository_capped_below_the_presenters_python_runs_under_a_pinned_interpreter(
@@ -660,8 +687,6 @@ def test_a_repository_capped_below_the_presenters_python_runs_under_a_pinned_int
     tree.append("pyproject.toml")
     toolchains = Path(os.environ.get("RP_PYTHON_TOOLCHAINS", tmp_path / "no-toolchains"))
     monkeypatch.setenv("RP_PYTHON_TOOLCHAINS", str(toolchains))
-    # What the machine happens to have installed is not what this test is about.
-    monkeypatch.setattr(python_examples, "installed_pythons", lambda: [])
     satisfying = [
         (version, path)
         for version, path in python_examples.pinned_interpreters(toolchains)
@@ -690,31 +715,74 @@ def test_a_machine_interpreter_satisfies_a_range_the_presenter_and_runs_verify_c
     """Words-Python (`>=3.10,<3.13`, presenter on 3.13, lane worktree without runs/verify): the
     resolution order is the presenter's own, then the pinned toolchains, then what the machine
     already has - the highest installed version the declaration admits."""
-    capped = f">=3.8,<{sys.version_info.major}.{sys.version_info.minor}"
-    low, high = tmp_path / "py39" / "python.exe", tmp_path / "py311" / "python.exe"
-    installed = [("3.9", low), ("3.11", high), (f"{sys.version_info.major + 1}.0", tmp_path / "x")]
+    capped = f">=3.8,<{_relative(0)}"
+    low, high = tmp_path / "low" / "python.exe", tmp_path / "high" / "python.exe"
+    low_version, high_version = _relative(-3), _relative(-1)
+    installed = [(low_version, low), (high_version, high), ("4.0", tmp_path / "x")]
     found = python_examples.select_interpreter(capped, tmp_path / "no-verify", lambda: installed)
     assert found is not None
-    assert (found.executable, found.version, found.label) == (high, "3.11", "machine-py311")
+    label = f"machine-py{high_version.replace('.', '')}"
+    assert (found.executable, found.version, found.label) == (high, high_version, label)
     # A pinned toolchain outranks the machine's.
-    pinned = _fake_pinned(tmp_path / "verify", "py310", "3.10")
+    pinned = _fake_pinned(tmp_path / "verify", "py-pinned", _relative(-2))
     first = python_examples.select_interpreter(capped, tmp_path / "verify", lambda: installed)
-    assert first is not None and first.executable == pinned and first.label == "py310"
+    assert first is not None and first.executable == pinned and first.label == "py-pinned"
     # The presenter's own outranks both whenever the range admits it.
     own = python_examples.select_interpreter("", tmp_path / "verify", lambda: installed)
     assert own is not None and own.executable == Path(sys.executable) and own.label == ""
 
 
+def test_the_default_machine_is_the_patched_source_and_never_the_real_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Hermeticity, proven: with no `machine` argument the resolver asks
+    `python_examples.installed_pythons`, so a test's fake list is the whole machine, and the real
+    discovery sources (armed to raise by the autouse fixture) are never read."""
+    from repository_presenter.core import toolchains
+
+    fake = tmp_path / "fake" / "python.exe"
+    version = _relative(-1)
+    monkeypatch.setattr(python_examples, "installed_pythons", lambda: [(version, fake)])
+    found = python_examples.select_interpreter(f">=3.8,<{_relative(0)}", tmp_path / "none")
+    assert found is not None and found.executable == fake and found.version == version
+    # The tripwire is armed: the real discovery would have failed this test.
+    with pytest.raises(AssertionError, match="host machine"):
+        toolchains.installed_pythons()
+    reason = python_examples.no_interpreter_reason(f">={_relative(1)}", tmp_path / "none")
+    assert "installed interpreters are " + version in reason
+
+
+@pytest.mark.parametrize(
+    "machine",
+    [["3.11"], ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]],
+    ids=["only-3.11", "many-versions"],
+)
+def test_the_choice_follows_the_simulated_machine_whatever_the_host_has(
+    machine: list[str], tmp_path: Path
+) -> None:
+    """A one-version and a many-version machine, for the range the Words repository declares."""
+    installed = [(version, tmp_path / version / "python.exe") for version in machine]
+    found = python_examples.select_interpreter(">=3.10,<3.13", tmp_path / "none", lambda: installed)
+    assert found is not None
+    if sys.version_info[:2] in {(3, 10), (3, 11), (3, 12)}:
+        assert found.label == ""  # the presenter's own is in range
+    elif "3.12" in machine:
+        assert (found.version, found.label) == ("3.12", "machine-py312")
+    else:
+        assert (found.version, found.label) == ("3.11", "machine-py311")
+
+
 def test_no_interpreter_in_range_is_a_typed_blocked_toolchain_reason(tmp_path: Path) -> None:
     """A range the presenter's Python is outside and nothing provisioned or installed satisfies is
     named BLOCKED_TOOLCHAIN with everything that was looked at - never a bare NOT_VERIFIED."""
-    wanted = ">=3.10,<3.13" if sys.version_info >= (3, 13) else ">=3.99"
-    assert python_examples.select_interpreter(wanted, tmp_path, lambda: [("3.9", tmp_path)]) is None
-    reason = python_examples.no_interpreter_reason(wanted, tmp_path, lambda: [("3.9", tmp_path)])
+    wanted = f">={_relative(1)}"
+    installed = [("3.8", tmp_path)]
+    assert python_examples.select_interpreter(wanted, tmp_path, lambda: installed) is None
+    reason = python_examples.no_interpreter_reason(wanted, tmp_path, lambda: installed)
     running = ".".join(str(part) for part in sys.version_info[:3])
     assert reason.startswith(
         f"BLOCKED_TOOLCHAIN: no interpreter satisfies requires-python {wanted!r}"
     )
     assert f"presenter runs Python {running}, which is outside it" in reason
     assert "pinned toolchains offer none" in reason
-    assert "installed interpreters are 3.9" in reason
+    assert "installed interpreters are 3.8" in reason

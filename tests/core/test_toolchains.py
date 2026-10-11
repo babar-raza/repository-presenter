@@ -179,29 +179,95 @@ def _fake_python_install(root: Path, directory: str) -> Path:
     return executable
 
 
+def _machine(
+    monkeypatch: pytest.MonkeyPatch,
+    launcher: list[tuple[str, Path]] | None = None,
+    directories: list[tuple[str, Path]] | None = None,
+    path: list[tuple[str, Path]] | None = None,
+) -> None:
+    """Replace every source `installed_pythons` reads, so the host's own interpreters (the CI
+    runner's /usr/bin/python3.12, a developer's py launcher) never reach an assertion."""
+    monkeypatch.setattr(toolchains, "_launcher_pythons", lambda: list(launcher or []))
+    monkeypatch.setattr(toolchains, "_directory_pythons", lambda: list(directories or []))
+    monkeypatch.setattr(toolchains, "_path_pythons", lambda: list(path or []))
+
+
 def test_the_installed_pythons_are_found_by_the_launcher_and_the_install_directories(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Words-Python in a lane worktree (2026-10-11): `requires-python >=3.10,<3.13`, a machine
     with Python 3.12 installed, and no `runs/verify` venv - every example read NOT_VERIFIED. The
     resolver now also answers from what the machine has: the `py -0p` record first, then a
-    conventional install directory, one interpreter per version, lowest version first."""
+    conventional install directory, then PATH, one interpreter per version, lowest first."""
     listed = _fake_python_install(tmp_path / "launcher", "Python312")
     other = _fake_python_install(tmp_path / "launcher", "Python311")
     by_directory = _fake_python_install(tmp_path / "d-root", "Python310")
     shadowed = _fake_python_install(tmp_path / "d-root", "Python3.12")
-    (tmp_path / "d-root" / "NotPython").mkdir()
-    monkeypatch.setattr(
-        toolchains, "_launcher_pythons", lambda: [("3.12", listed), ("3.11", other)]
+    on_path = tmp_path / "bin" / "python3.9"
+    _machine(
+        monkeypatch,
+        launcher=[("3.12", listed), ("3.11", other)],
+        directories=[("3.10", by_directory), ("3.12", shadowed)],
+        path=[("3.9", on_path), ("3.11", tmp_path / "bin" / "python3.11")],
     )
-    monkeypatch.setattr(toolchains, "_python_roots", lambda: (tmp_path / "d-root",))
-    monkeypatch.setattr(toolchains.os, "name", "nt")
     assert toolchains.installed_pythons() == [
+        ("3.9", on_path),
         ("3.10", by_directory),
         ("3.11", other),
         ("3.12", listed),
     ]
-    assert shadowed not in {path for _, path in toolchains.installed_pythons()}
+
+
+def test_the_install_directory_search_reads_conventional_folder_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "d-root"
+    found = {
+        "3.10": _fake_python_install(root, "Python310"),
+        "3.12": _fake_python_install(root, "Python3.12"),
+        "3.9": _fake_python_install(root, "python-39"),
+    }
+    (root / "NotPython").mkdir()
+    (root / "Python3").mkdir()  # no minor version: nothing to read
+    (root / "Python311").mkdir()  # no interpreter inside
+    monkeypatch.setattr(toolchains, "_python_roots", lambda: (root, tmp_path / "missing"))
+    assert dict(toolchains._directory_pythons()) == found
+
+
+def test_versioned_commands_on_path_are_a_posix_source_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from types import SimpleNamespace
+
+    commands = {"python3.11": str(tmp_path / "python3.11"), "python3.13": str(tmp_path / "p313")}
+    monkeypatch.setattr(toolchains.shutil, "which", lambda name: commands.get(name))
+    monkeypatch.setattr(toolchains, "os", SimpleNamespace(name="posix"))
+    assert toolchains._path_pythons() == [
+        ("3.11", Path(commands["python3.11"])),
+        ("3.13", Path(commands["python3.13"])),
+    ]
+    monkeypatch.setattr(toolchains, "os", SimpleNamespace(name="nt"))
+    assert toolchains._path_pythons() == []
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [["3.11"], ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]],
+    ids=["only-3.11", "many-versions"],
+)
+def test_the_answer_is_the_simulated_machine_whatever_the_host_has(
+    versions: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Hermetic: with the sources replaced, the result is exactly the simulated machine - never
+    the host's own interpreters - for a one-version and a many-version machine alike."""
+    installed = [(version, tmp_path / f"py{version}" / "python.exe") for version in versions]
+    _machine(monkeypatch, launcher=installed[:1], directories=installed[1:])
+    assert toolchains.installed_pythons() == installed
+
+
+def test_a_machine_with_no_interpreter_at_all_has_none(monkeypatch: pytest.MonkeyPatch) -> None:
+    _machine(monkeypatch)
+    assert toolchains.installed_pythons() == []
 
 
 def test_a_launcher_listing_line_is_read_in_each_of_its_spellings() -> None:
