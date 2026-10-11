@@ -10,7 +10,7 @@ and judges nothing it has no fact for. A registry that could not be read leaves 
 `package:published_version` fact, so a version is then held to the manifest alone and the
 candidate records a pending note (`claim_notes`) instead of failing.
 
-Four rules, all deterministic and independent of the LLM:
+Five rules, all deterministic and independent of the LLM:
 
 (a) Versions. A version attached to the package name or an install command - ``name==1.2``,
     ``name@1.2``, ``group:artifact:1.2``, ``name version 1.2``, ``--version 1.2``,
@@ -18,7 +18,9 @@ Four rules, all deterministic and independent of the LLM:
     else the manifest's version.
 (b) Publication. A sentence saying the package is "not (yet) published" must agree with the
     install command's registry observation; it is flagged only when a registry reading says the
-    distribution is published.
+    distribution is published - the registry's current release, an install command's own
+    observation, or a distribution fact a registry confirmed as this repository's (Slides-Cpp:
+    "not yet published on any package registry" beside a NuGet package NuGet lists, wave 3).
 (c) Identity. An install command whose package is a near-miss of the package identity fact (the
     same name without ``-foss``, a prefix, a different separator) is flagged; an unrelated package
     (a test runner), a declared dependency, and a distribution fact a registry confirmed as this
@@ -26,6 +28,12 @@ Four rules, all deterministic and independent of the LLM:
 (d) Exclusivity. A sentence calling a release the "sole", "only" or "first" published version
     (or saying "no other versions" exist) must agree with the registry's version count; the
     current release alone cannot back it.
+
+(e) Licence. The licence is stated once, by the licence fact (the License section renders it from
+    the LICENSE file's own text). A sentence that names a ``LicenseRef-`` identifier, or says the
+    project is licensed or distributed under a recognised licence other than the one the licence
+    fact states, is flagged: Note-Python's Scope read "distributed under the LicenseRef-Aspose-
+    Split license" (pyproject metadata) beside an MIT LICENSE file and an MIT License section.
 
 This module imports nothing from `validation/registry.py`: it reports a line index and a causal
 stage, and the registry maps the line to its shell section.
@@ -36,6 +44,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from repository_presenter.components.readme.evidence.facts.license import classify_license_text
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.package_registry import (
     DISTRIBUTION_FACT_PREFIX,
@@ -98,6 +107,20 @@ _EXCLUSIVE_VERSION = re.compile(
 )
 _PUBLICATION_WORDS = re.compile(
     r"(?i)\b(?:published|publish|released|registry|pypi|nuget|npm|maven|crates\.io)\b"
+)
+
+# A custom SPDX reference names a licence only the repository's own metadata defines.
+_LICENSE_REF = re.compile(r"\bLicenseRef-[A-Za-z0-9.-]+")
+_LICENSED_UNDER = re.compile(
+    r"(?i)\b(?:licensed|distributed|released|available)\s+under\s+(?:the\s+)?"
+    r"(?P<name>[A-Za-z][\w.+ -]{1,40}?)\s+licen[cs]e\b"
+)
+
+# A sentence about someone else's licence (a dependency, bundled font or optional extra) is not a
+# statement of this project's.
+_ABOUT_OTHERS = re.compile(
+    r"(?i)third[- ]party|dependenc|bundl|vendor|embed|\bfonts?\b|optional|\bextras?\b|incorporat"
+    r"|derived|\bcontains?\b|\bincludes?\b"
 )
 
 _INSTALL_VERBS = (
@@ -236,8 +259,15 @@ def _version_findings(
 
 
 def _positive_registry_reading(facts: FactsDocument) -> bool:
-    """Whether a registry reading says the distribution is published."""
+    """Whether a registry reading says the distribution is published: the registry's current
+    release, a distribution a registry confirmed as this repository's own (a C++ library's NuGet
+    package, ``package:distribution.*``), or an install command's own registry observation."""
     if _fact(facts, PUBLISHED_VERSION_FACT_ID):
+        return True
+    if any(
+        fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+        for fact in facts.facts
+    ):
         return True
     for fact in facts.by_kind("install_command"):
         if (fact.attributes or {}).get("install_kind") in _SOURCE_KINDS:
@@ -310,6 +340,43 @@ def _exclusivity_findings(lines: list[_Line], facts: FactsDocument) -> list[Clai
                         f"the README says which published version is the only or first one "
                         f"({sentence.strip()!r}), but {basis}; state the current release "
                         "without claiming exclusivity",
+                    )
+                )
+                break
+    return findings
+
+
+def _license_findings(lines: list[_Line], facts: FactsDocument) -> list[ClaimFinding]:
+    """Rule (e): the licence is whatever the licence fact states, and is stated once.
+
+    Judged only against a SUPPORTED ``license:spdx`` fact (the LICENSE file's text, or a manifest
+    declaration when the repository ships no file). A ``LicenseRef-`` identifier is never a
+    statement a reader can use; "licensed/distributed under the X license" is flagged only when X
+    classifies as a different known licence than the fact's. Silent without the fact."""
+    spdx = _fact(facts, "license:spdx")
+    if spdx is None or spdx.value == "UNCLASSIFIED":
+        return []
+    findings: list[ClaimFinding] = []
+    for line in lines:
+        if line.in_fence:
+            continue
+        for sentence in _SENTENCES.split(line.text.replace("`", "")):
+            reference = _LICENSE_REF.search(sentence)
+            stated = _LICENSED_UNDER.search(sentence)
+            other = (
+                classify_license_text(f"{stated.group('name')} license")
+                if stated and not _ABOUT_OTHERS.search(sentence)
+                else None
+            )
+            if reference is not None or (other is not None and other != spdx.value):
+                named = reference.group(0) if reference is not None else other
+                findings.append(
+                    ClaimFinding(
+                        line.index,
+                        "COMPOSING",
+                        f"the README names the licence {named!r} ({sentence.strip()!r}), but the "
+                        f"licence fact states {spdx.value}; state the licence once, as the "
+                        "License section does",
                     )
                 )
                 break
@@ -416,6 +483,7 @@ def claim_findings(readme: str, facts: FactsDocument) -> list[ClaimFinding]:
         *_publication_findings(lines, facts, identity),
         *_exclusivity_findings(lines, facts),
         *_identity_findings(lines, facts, identity),
+        *_license_findings(lines, facts),
     ]
 
 

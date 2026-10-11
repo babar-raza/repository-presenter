@@ -88,6 +88,10 @@ assignments:
     surfaces: [library]
     voice: neutral_reference
     special_structures: [project_structure, extra_reference_sections]
+    inherited_headings:
+    - Project Structure
+    - Detailed Documentation
+    - Constraints
     notes: Second H1 and an unclosed details block swallow Detailed Documentation, Constraints and License; README describes release v26.7.1, main is ahead (DEF-01, DEF-02, OD-08).
   - repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Java
     family: cells
@@ -98,6 +102,8 @@ assignments:
     surfaces: [library]
     voice: neutral_reference
     special_structures: [project_structure]
+    inherited_headings:
+    - Project Structure
     notes: Closest to a no-change README; one language-less fence.
   - repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python
     family: cells
@@ -108,6 +114,13 @@ assignments:
     surfaces: [library]
     voice: concise_minimal
     special_structures: [format_matrix, license_notices_link]
+    inherited_headings:
+    - Features
+    - Quick start
+    - Supported formats
+    - Scope
+    - Examples and API
+    - Development
     notes: Short form - Features, Installation, Quick start, Supported formats, Scope, Examples and API, Development, License; one dead link; only the banner is an Aspose link.
   - repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust
     family: cells
@@ -118,6 +131,8 @@ assignments:
     surfaces: [library]
     voice: neutral_reference
     special_structures: [project_structure]
+    inherited_headings:
+    - Project Structure
     notes: Git dependency, not on crates.io; stale 'once the repository is live' sentence (DEF-22).
   - repository: aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript
     family: cells
@@ -238,6 +253,20 @@ assignments:
     surfaces: [library, cli, mcp]
     voice: persona_pitch
     special_structures: [persona_tables, cli_reference, mcp_section]
+    inherited_headings:
+    - Three Buyer Workflows
+    - What You Get
+    - Who Is This For?
+    - 'Quick Start: Three Buyer Workflows'
+    - What Can This Font Do?
+    - Capability Snapshot
+    - Variable-Font-First Workflows
+    - Variable Font Discovery
+    - Python API Highlights
+    - CLI Highlights
+    - CLI Usage
+    - MCP Server
+    - Development
     notes: H1 is the package slug; no Installation, Scope, Documentation or Aspose links; unpublished package; CLI typos in copy-paste commands (DEF-09, DEF-25).
   - repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
     family: gis
@@ -298,6 +327,9 @@ assignments:
     surfaces: [library]
     voice: neutral_reference
     special_structures: [feature_showcase, third_party_notices_section]
+    inherited_headings:
+    - Feature Showcase
+    - Third-Party Notices
     notes: 17 capability bullets averaging 94 words; sentence mean over 30 words; opening is two paragraphs.
   - repository: aspose-pdf-foss/Aspose-PDF-FOSS-for-Python
     family: pdf
@@ -328,6 +360,9 @@ assignments:
     surfaces: [library]
     voice: neutral_reference
     special_structures: [project_structure, third_party_notices_section]
+    inherited_headings:
+    - Project Structure
+    - Third-Party Notices
     notes: 182 of 244 API rows are stock 'Class with N methods' descriptions (DEF-10); Dependencies lists Python3 as a package.
   - repository: aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
     family: pdf
@@ -378,6 +413,17 @@ assignments:
     surfaces: [library]
     voice: candid_handwritten
     special_structures: [choosing_edition]
+    inherited_headings:
+    - At a glance
+    - Requirements
+    - Quick start
+    - Examples
+    - What it can do
+    - What it cannot do
+    - Choosing an edition
+    - Documentation and support
+    - Contributing
+    - Security
     notes: Hand-written; no Navigation, banner, Dependencies or API Reference; uses docs, kb and reference on aspose.com and a forum link; 'commercial product' wording; absolute self links (DEF-14, DEF-15, DEF-23).
   - repository: aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
     family: slides
@@ -428,6 +474,15 @@ assignments:
     surfaces: [library]
     voice: narrative_marketing
     special_structures: [format_matrix, provenance_story]
+    inherited_headings:
+    - What it can do
+    - Supported formats
+    - Getting started
+    - A quick example
+    - What's not included (and where to get it)
+    - The story behind this code
+    - Enjoying it? Star it ⭐
+    - Contributing
     notes: Opening above the badge, At a Glance before Navigation, renamed standard headings, emoji, first person, story section and star call to action; install command contradicts 'landing soon' (DEF-05, DEF-14, DEF-03).
   - repository: aspose-words-foss/Aspose.Words-FOSS-for-Python
     family: words

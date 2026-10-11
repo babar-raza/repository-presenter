@@ -44,6 +44,7 @@ REGISTRY_TYPES: dict[str, str] = {
     "net": "nuget",
     "java": "maven",
     "typescript": "npm",
+    "nodejs": "npm",
     "go": "go_modules",
     "rust": "cargo",
 }

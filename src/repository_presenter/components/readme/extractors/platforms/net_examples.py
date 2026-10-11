@@ -358,6 +358,9 @@ def verify_net_examples(
                 stderr=_clip(_scrub(result.stderr, run_dir)),
                 detail=detail,
                 fixtures=(),
+                # The usings the harness put above the snippet: printed in front of it, so the
+                # shown example is the program that compiled (Slides-.NET: CS0103 `Color`).
+                prelude="\n".join(supplied) if outcome == "EXECUTED" else "",
             )
         )
     return receipts

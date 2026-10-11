@@ -51,6 +51,7 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
 )
 from repository_presenter.components.readme.composition.placement import placements
+from repository_presenter.components.readme.composition.text_hygiene import hygiene_errors
 from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import (
     REPOSITORY_FILES_ATTRIBUTE,
@@ -2241,6 +2242,9 @@ def unit_checks(
     # refusal quotes it so the one re-ask deletes it, and composition/audience.py holds the rule,
     # its recovery, and the reason. BC-04 reaches the same check through this function.
     errors.extend(audience_errors(output.get("units", []), supporting, task.section_id))
+    # Wave-3 acceptance review (Slides-Python): a Scope bullet cut off mid-sentence on a Chinese
+    # character passed every check above. composition/text_hygiene.py holds the rule.
+    errors.extend(hygiene_errors(output.get("units", []), facts))
     errors.extend(carried_unit_errors(output, task, elsewhere_cited))
     return errors
 

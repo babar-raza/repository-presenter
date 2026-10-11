@@ -77,6 +77,15 @@ better_than_live:
     measured_by: fences_without_language is zero
     rules: [STR-23]
     defect_classes: [DEF-13]
+  - id: BTL-NAT-06
+    statement: At a Glance renders unclipped, with Starting Points, Core Capabilities and Outputs left to right, split by key capability.
+    measured_by: a real render of the diagram (STR-28), with no label clipped and the three mother blocks side by side from left to right
+    rules: [STR-08, STR-28]
+    defect_classes: [DEF-29, DEF-30]
+inherited_additions: >-
+  Headings outside the fixed core (Project Structure, Third-Party Notices and any other the live
+  README carries) are retained in place as written, their paths and assets verified against the
+  tree, and none is added to a README that lacks it (STR-25, STR-27).
 insertion_policy: >-
   Insert a missing standard element beside its live neighbours from verified facts only; keep the
   live Installation sub-headings (Build, Install, From a Release Archive) as written.

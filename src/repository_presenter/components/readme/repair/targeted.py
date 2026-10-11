@@ -33,6 +33,7 @@ from repository_presenter.components.readme.composition.authoring import uncarri
 from repository_presenter.components.readme.composition.renderer import (
     example_block_visible_lines,
 )
+from repository_presenter.core.examples import printed_example
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.binding import binding_errors, merge_partial_units
 from repository_presenter.core.llm.ledger import canonical_hash
@@ -508,7 +509,7 @@ def visible_line_budget_hint(
         fact = by_id.get(value) if isinstance(value, str) and value else None
         if fact is None:
             continue
-        cost = example_block_visible_lines(fact.value)
+        cost = example_block_visible_lines(printed_example(fact))
         if field_name == "flagship_example_id" and additional == [value]:
             # composition/renderer.py's own additional_examples branch: when the flagship is the
             # plan's ONLY additional example, clearing it also collapses the <details> wrapper

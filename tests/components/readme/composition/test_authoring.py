@@ -469,7 +469,7 @@ def test_unit_checks_reject_markdown_urls_commands_stray_identifiers_and_outside
             {
                 "section": "key_capabilities",
                 "slot": "capability:1",
-                "text": "See `Scene` at https://x.y",
+                "text": "See `Scene` at https://x.y .",
                 "fact_ids": ["public_symbol:aspose.threed.scene"],
             },
             {
@@ -3626,7 +3626,7 @@ def test_a_must_carry_unit_can_actually_be_cited_without_a_binding_violation() -
                 "text": (
                     "These limitations don't apply to Enterprise Edition."
                     if slot == "scope"
-                    else "x"
+                    else "Rendering is not implemented."
                 ),
                 "fact_ids": [unit_id] if slot == "scope" else ["identity:repository"],
             }
@@ -3643,7 +3643,7 @@ def test_a_must_carry_unit_can_actually_be_cited_without_a_binding_violation() -
             {
                 "section": "scope_limitations",
                 "slot": slot,
-                "text": "It reads files." if slot == "scope" else "x",
+                "text": "It reads files." if slot == "scope" else "Rendering is not implemented.",
                 "fact_ids": (
                     ["public_symbol:aspose.threed.scene"]
                     if slot == "scope"
@@ -4520,3 +4520,20 @@ def test_a_list_the_plan_handed_to_the_limitation_slots_is_named_in_their_object
     bare = {**PLAN, "material_limitations": [{"fact_ids": ["example:001"], "unit_ids": []}]}
     unhanded = {t.section_id: t for t in authoring_tasks(ENTRY, facts, INVESTIGATION, kept, bare)}
     assert "Lists kept as written" not in unhanded["scope_limitations"].packet["objective"]
+
+
+def test_a_unit_cut_off_on_a_foreign_character_is_a_repairable_unit_check_error() -> None:
+    """Wave-3 acceptance review, Slides-Python: a Scope bullet ended '... never strips content
+    this' plus a Chinese character. unit_checks refuses it (so the one re-ask and BC-04 both see
+    it) while the same reply finished in English passes."""
+    task = _enterprise_tasks("enterprise_relationship")["enterprise_relationship"]
+    finished = "It adds full feature completeness and commercial support."
+    good = {"units": [_context_unit(finished, [TEX_ENTERPRISE_UNIT])], "omitted": []}
+    assert unit_checks(good, task, _enterprise_facts(), NAME) == []
+    cut = {
+        "units": [_context_unit(finished.rstrip(".") + " this库", [TEX_ENTERPRISE_UNIT])],
+        "omitted": [],
+    }
+    errors = unit_checks(cut, task, _enterprise_facts(), NAME)
+    assert any("CJK script" in error for error in errors)
+    assert any("ends without terminal punctuation" in error for error in errors)

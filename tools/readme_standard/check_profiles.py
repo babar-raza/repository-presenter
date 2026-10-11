@@ -244,6 +244,13 @@ def _check_assignments(
                 f"assignments.yaml: {repository} api_size_class {entry['api_size_class']} "
                 f"but survey.json lists {listed} API entries ({derived})"
             )
+        recorded = list(entry.get("inherited_headings", []))
+        measured = list(row.get("extra_h2") or []) if row.get("readme") else []
+        if recorded != measured:
+            errors.append(
+                f"assignments.yaml: {repository} inherited_headings {recorded} "
+                f"but survey.json lists {measured} outside the twelve standard names"
+            )
     for archetype_id in sorted(archetypes):
         if used[archetype_id] == 0:
             errors.append(f"archetypes/{archetype_id}.yaml: no repository is assigned to it")
@@ -294,11 +301,18 @@ def _check_axes(schema: dict[str, Any], common: dict[str, Any]) -> list[str]:
 def _check_archetypes(archetypes: dict[str, Any], common: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     elements = {element["id"] for element in common["elements"]}
+    inherited = {e["id"] for e in common["elements"] if e["structure"] == "inherited"}
     rules = {rule["id"] for rule in common["rules"]}
     defects = {defect["id"] for defect in common["defect_classes"]}
     for stem, profile in archetypes.items():
         label = f"archetypes/{stem}.yaml"
         defined = set(profile["elements"])
+        for element_id in sorted(inherited & defined):
+            if profile["elements"][element_id] in ("required", "expected", "conditional"):
+                errors.append(
+                    f"{label}: element {element_id} is an inherited addition and cannot be "
+                    f"{profile['elements'][element_id]} (it is retained when live, never added)"
+                )
         for missing in sorted(elements - defined):
             errors.append(f"{label}: element {missing} has no requirement")
         for unknown in sorted(defined - elements):
@@ -326,7 +340,7 @@ def _check_common(
     elements = [element["id"] for element in common["elements"]]
     rules = [rule["id"] for rule in common["rules"]]
     defects = [defect["id"] for defect in common["defect_classes"]]
-    decisions = [decision["id"] for decision in common["open_decisions"]]
+    decisions = [decision["id"] for decision in common["decisions"]]
     observation_ids = [definition["id"] for definition in observation_file["observations"]]
     for label, ids in (
         ("element", elements),
@@ -383,10 +397,15 @@ def _check_common(
         for rule in defect.get("rules", []):
             if rule not in set(rules):
                 errors.append(f"common.yaml: defect {defect['id']} cites unknown rule {rule}")
-    for decision in common["open_decisions"]:
+    for decision in common["decisions"]:
         for rule in decision.get("rules", []):
             if rule not in set(rules):
                 errors.append(f"common.yaml: decision {decision['id']} cites unknown rule {rule}")
+        ruled = decision["status"] == "owner_ruled"
+        if ruled and not decision["ruled"]:
+            errors.append(f"common.yaml: decision {decision['id']} is owner_ruled without a date")
+        if not ruled and decision["ruled"]:
+            errors.append(f"common.yaml: decision {decision['id']} is open but carries a date")
     errors += _check_bases(common, observation_file)
     for placeholder in sorted(set(PLACEHOLDER.findall(json.dumps(common)))):
         if placeholder not in known_observations:
@@ -504,7 +523,7 @@ def _check_document(
             )
     declared = {
         entry["id"]
-        for key in ("rules", "defect_classes", "open_decisions")
+        for key in ("rules", "defect_classes", "decisions")
         for entry in common[key]
     }
     used = set(ID_TOKEN.findall(text))

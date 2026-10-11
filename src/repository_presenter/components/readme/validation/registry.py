@@ -57,14 +57,12 @@ from repository_presenter.components.readme.composition.list_coverage import (
     list_items,
     missing_items,
 )
-from repository_presenter.components.readme.composition.placement import (
-    Placement,
-    placements,
-)
+from repository_presenter.components.readme.composition.placement import Placement
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
+from repository_presenter.components.readme.composition.references import dangling_references
 from repository_presenter.components.readme.composition.renderer import (
     ENTERPRISE_SENTENCE_LEAD,
     RenderContext,
@@ -93,7 +91,7 @@ from repository_presenter.components.readme.validation.links.rules import (
     readme_link_budget,
 )
 from repository_presenter.core.ecosystems import spec_for
-from repository_presenter.core.examples import collapse_blank_runs
+from repository_presenter.core.examples import collapse_blank_runs, printed_example
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Fact,
@@ -755,9 +753,33 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
 
 
 def _placements(candidate: Candidate) -> list[Placement]:
-    return placements(
-        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+    """Exactly what the renderer placed: the same decision, on the document as it renders with no
+    kept unit placed (``RenderContext.placements``), so a unit placement dropped as stated by its
+    destination is judged against that destination's own text and a carried remainder is judged
+    as the text it is.
+
+    Five checks ask, and deciding it renders the document once without the kept units (seconds on
+    a large API Reference), so the answer is remembered on the candidate for as long as the
+    artifacts it is a function of are unchanged."""
+    signature = _sha256(
+        json.dumps(
+            [candidate.plan, candidate.units, candidate.dispositions], sort_keys=True, default=str
+        ).encode("utf-8")
     )
+    remembered = getattr(candidate, "_placement_memo", None)
+    if remembered is not None and remembered[0] == signature:
+        decisions: list[Placement] = remembered[1]
+        return decisions
+    context = RenderContext(
+        candidate.entry,
+        candidate.facts.canonical(),
+        candidate.plan,
+        candidate.units,
+        candidate.dispositions,
+    )
+    decisions = context.placements
+    object.__setattr__(candidate, "_placement_memo", (signature, decisions))
+    return decisions
 
 
 def _placed_texts(candidate: Candidate) -> list[str]:
@@ -977,7 +999,11 @@ def _check_examples(candidate: Candidate) -> list[Failure]:
                     f"{fact_id} was not executed or compiled at this revision ({fact.polarity})",
                 )
             )
-    values = {by_id[fact_id].value.rstrip("\n") for fact_id in planned if fact_id in by_id}
+    # A printed example is the program its receipt compiled: the snippet with the usings or imports
+    # the verifier supplied in front of it (core/examples.py ``printed_example``).
+    values = {
+        printed_example(by_id[fact_id]).rstrip("\n") for fact_id in planned if fact_id in by_id
+    }
     # D5: a fence's language is compared against the ecosystem's own declared aliases
     # (EcosystemSpec.example_fences - `py`/`python3` for Python, `csharp`/`cs`/`c#` for .NET),
     # never against the bare ecosystem string itself - a .NET example is fenced ```csharp, never
@@ -1099,8 +1125,14 @@ _LIST_OBLIGED = OWED_SECTIONS | {"documentation_resources"}
 def _dropped_list_failures(
     candidate: Candidate, placement: Placement, texts: Mapping[str, str]
 ) -> list[Failure]:
-    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because the plan's
-    own content "already covers that material" must in fact state every one of its items.
+    """A list kept as written (VERIFIED_PRESERVE/MOVE) that placement dropped because its
+    destination "already covers that material" must in fact state every one of its items.
+
+    The net under the whole-content drop rule: placement now drops a list only for items the
+    destination states (``composition/coverage.py``, the item test below plus the commands and
+    links an item carries), so on a placement the renderer made this finds nothing. It remains the
+    independent statement of the standard - and the check that placement and BC-05 still agree on
+    what "states an item" means.
 
     The drop is exclusive on fact IDs, so ONE shared fact dropped the whole list while the section
     stated only some of it, and BC-05 passed every such unit (wave-3 acceptance review of reseal
@@ -1168,7 +1200,9 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
             )
     # A deferred unit is never placed, so it cannot reach the public text; what its cause may do
     # is fail the candidate (validation/deferrals.py). ADVISORY causes surface in advisory_notes.
-    for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan):
+    for finding in review_deferrals(
+        candidate.dispositions, candidate.facts, candidate.plan, candidate.readme
+    ):
         if finding.decision == "BLOCK":
             failures.append(
                 Failure(
@@ -1779,6 +1813,48 @@ def _fence_and_spacing_failures(candidate: Candidate) -> list[Failure]:
     return failures
 
 
+def _reference_failures(candidate: Candidate) -> list[Failure]:
+    """A sentence that points at a table, list, example or section the README does not have
+    (composition/references.py; wave-3 acceptance review: Cells-.NET "the table below" with no
+    table, Slides-.NET "Every example below" after its last example and an opening that sends the
+    reader to a deleted "What it cannot do" section).
+
+    A sentence a placed inherited unit carries was kept while its referent was dropped or moved,
+    which only reconciliation can undo (RECONCILING, naming the unit); any other sentence is
+    authored prose, routed to the section whose text holds it (COMPOSING)."""
+    placed = [
+        (p.unit_id, _normalized(p.text)) for p in _placements(candidate) if p.outcome == "placed"
+    ]
+    sections = _section_texts(candidate.readme)
+    failures: list[Failure] = []
+    for reference in dangling_references(candidate.readme):
+        sentence = _normalized(reference.sentence)
+        unit = next(
+            (unit_id for unit_id, text in placed if sentence in " ".join(text.split())), None
+        )
+        located = next(
+            (sid for sid, text in sections.items() if sentence in " ".join(text.split())), None
+        )
+        if unit is not None:
+            failures.append(
+                Failure(
+                    "RECONCILING",
+                    f"{unit} is kept as written but {reference.reason}: "
+                    f"{reference.sentence[:140]!r}",
+                    located,
+                )
+            )
+        else:
+            failures.append(
+                Failure(
+                    "COMPOSING",
+                    f"dangling reference: {reference.reason}: {reference.sentence[:140]!r}",
+                    located,
+                )
+            )
+    return failures
+
+
 def _check_structure(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
     name = product_name(candidate.entry)
@@ -2026,6 +2102,7 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 (sid for sid, text in section_prose.items() if pattern.search(text)), None
             )
             failures.append(Failure("COMPOSING", f"internal narration {phrase!r}", located))
+    failures.extend(_reference_failures(candidate))
     visible, total = line_counts(candidate.readme)
     policy = candidate.policy
     # Check 7 judges the visible-length budget; collapsed content is unbounded (contract row 14).
@@ -2141,7 +2218,9 @@ def advisory_notes(candidate: Candidate) -> list[str]:
     notes: list[str] = [
         f"{finding.unit_id}: deferred as {finding.class_id} (advisory, never published): "
         f"{finding.reason}"
-        for finding in review_deferrals(candidate.dispositions, candidate.facts, candidate.plan)
+        for finding in review_deferrals(
+            candidate.dispositions, candidate.facts, candidate.plan, candidate.readme
+        )
         if finding.decision == "ADVISORY"
     ]
     context = RenderContext(

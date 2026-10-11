@@ -69,11 +69,17 @@ src/repository_presenter/
     extractors/
       platforms/              one plugin per ecosystem (python.py first)
         python_format_declarations.py  static format declarations and plugin registrations, read from syntax trees (RESEARCH §22.1, §26)
+        nodejs.py              the Node.js plugin (a pure-JavaScript npm package): manifest facts and the entry-point surface, composed from surface/npm_package.py and never from typescript.py
+        nodejs_examples.py     its example verifier: node --check, then the snippet's own imports of the package loaded against a copy of the checkout staged at node_modules/<name>; a snippet that imports nothing from the package is not verified
+      surface/                 the shared surface façades (the vendored engine's only importer lives here)
+        npm_package.py         what an npm package's package.json and entry point publish, shared by the TypeScript and Node.js plugins: manifest and dependency facts, the entry-point re-export closure per ModuleDialect (TypeScript sources; JavaScript sources and CommonJS), and the name-and-module filter
+        npm_build.py           the npm half of an npm verifier, shared likewise: an npm this machine offers, a clean run directory, the package's own install/build in a copy, receipts free of machine paths
       examples/                example verification
     investigation/            repository_investigation job wiring
     reconciliation/           source_reconciliation job wiring, dispositions
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
+      coverage.py              what a destination section already states of a kept unit (whole sentences, list items, commands, links): the test placement.py drops a unit by, so only what the destination says in full is dropped and the rest is placed
       policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
       type_fallback.py        the last-attempt recovery for one API Reference type description refused only for an unevidenced identifier (README_CONTRACT.md row 14)
@@ -81,12 +87,15 @@ src/repository_presenter/
       audience.py              the section-authoring guard that an audience, use case, or spared cost in the opening is stated only when an accepted fact states it, with its last-resort deletion; called by unit_checks (BC-04 too)
       list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE) states every item, layered on unit_checks by repair/rounds.py
       list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE/MOVE) states every item, layered on unit_checks by repair/rounds.py; its item test also serves BC-05
+      text_hygiene.py          the section-authoring guard that an authored unit is not cut off mid-sentence, not written in another script, and not a pasted list; called by unit_checks (BC-04 too)
+      references.py            dangling references: a sentence pointing at a table, list, example or section the finished README does not have; called by BC-07
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
       glance.py                the At a Glance label-geometry policy: one common wrap width, at most three lines
     validation/
       registry.py              versioned check registry
+      content_presence.py      whether the finished README states what a deferred unit said (its code spans, link destinations, versions and prose); BC-05 uses it to refuse an advisory deferral that hid a loss
       links/                   link resolution
         rules.py                the pure rules BC-06 and BC-07 call: derived link ceilings, the Enterprise Edition anchor, the badge row's order and support
     review/
@@ -108,6 +117,7 @@ src/repository_presenter/
         assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
         commands.py             the build command, the test command and the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests
         repository_files.py     the file names an inherited unit spells that the pinned tree contains, recorded on the unit so prose may cite them (G7-W23)
+        registry_lag.py         the registry's current release lags this source tree (manifest newer, or unreleased changelog entries): the fact behind an upstream's version-skew warning, which reconciliation may then not omit
   components/readme_diagram/ the At a Glance diagram, written, linted and proven once for both the regeneration renderer and the live-first correction path (owner report 2026-10-11: clipped Mermaid text, vertical mother blocks); no model call, no network read
     model.py                  Glance (the diagram's meaning: product, inputs, capability columns, outputs, group titles), Defect, LintReport, NotAGlanceError
     geometry.py               the label-width model: a per-character width table (the envelope of five measured fonts) and the deterministic wrap into `<br/>` lines
@@ -142,7 +152,7 @@ prompts/                     one governed manifest per job (README_CONTRACT.md �
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
 data/                        registry, link, family, and priority data pulled per migration/reuse-manifest.yaml; registry_exclusions.json is the reason-bearing policy of which unadmitted repositories discovery reports as EXCLUDED_BY_POLICY instead of UNREGISTERED (the organization profile repository, archived repositories, forks, and any named repository the owner rules out), validated by components/monitor/discovery.py's strict models - it admits and refuses nothing, and data/registry.json stays the only allow-list
 data/                        registry, link, family, and priority data pulled per migration/reuse-manifest.yaml
-data/readme_standard/        the README standard's data (docs/README_STANDARD.md): schema.yaml, common.yaml (elements, rules, defect classes, open decisions), observations.yaml (machine-maintained frequencies), assignments.yaml (every registry repository assigned to one archetype), archetypes/<id>.yaml, survey.json (the measured live READMEs, built by tools/readme_standard/build_survey.py); no product stage reads it until a work item wires it (README_STANDARD.md section 6); validated by tools/readme_standard/check_profiles.py and tests/test_readme_standard.py
+data/readme_standard/        the README standard's data (docs/README_STANDARD.md): schema.yaml, common.yaml (elements, rules, defect classes, owner decisions), observations.yaml (machine-maintained frequencies), assignments.yaml (every registry repository assigned to one archetype), archetypes/<id>.yaml, survey.json (the measured live READMEs, built by tools/readme_standard/build_survey.py); no product stage reads it until a work item wires it (README_STANDARD.md section 6); validated by tools/readme_standard/check_profiles.py and tests/test_readme_standard.py
 profiles/                    per-repository and per-family policy overlays (ADAPT_AS_PLUGIN)
 docs/                        authority documents (this tree's siblings); README_STANDARD.md is the README structure and composition standard (owner directive 2026-10-11: follow the live upstream README), its tables rendered from data/readme_standard/ and its tagged frequencies checked against the survey; docs/investigations/NN-<topic>.md are numbered, dated analyses written for one named question (history, never a cursor or a task list) - a dated analysis lives there, not under a dated name in docs/ itself (section 5); DECISION_LOG.md is the project-wide append-only decision log (RESEARCH_AND_GUIDELINES.md §31, split out 2026-09-08); RESEARCH_<LANE>.md (RESEARCH_LANE_B.md, _C, _D) is a lane's own append-only decision log in the same shape (RESEARCH §28.12); CREDENTIAL_ROTATION_RUNBOOK.md is the per-secret rotation/rollback/App-permission-audit runbook (G7-W04); PROPOSAL_WAVE_RUNBOOK.md is the operator runbook for opening many README pull requests under one owner batch authorization (G6-W03)
 plans/                       plans/idea.md, the human product authority; plans/<mission>/ holds one mission's static plan (PLAN.md, an execution-control layer subordinate to the registered work items it names, never a competing plan) beside its two append-only channels loop-status.jsonl and loop-instructions.jsonl (docs/SUPERVISION.md Channels); sprint/, healing/ and reseal-and-refresh/ are the existing missions

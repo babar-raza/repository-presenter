@@ -217,6 +217,10 @@ def test_a_missing_using_is_supplied_and_a_real_type_error_still_fails(
     assert "using Aspose.Widget.Core;" in written[1]
     assert "usings supplied: using Aspose.Widget.Core;" in (receipts[0].detail or "")
     assert "CS0246" in (receipts[1].detail or "")
+    # The harness's own `using` is the receipt's prelude, so the README prints what compiled; a
+    # snippet that failed to compile proves nothing about any prelude.
+    assert receipts[0].prelude == "using Aspose.Widget.Core;"
+    assert receipts[1].prelude == ""
 
 
 def test_a_build_that_never_returns_times_out_rather_than_failing(

@@ -26,7 +26,9 @@ from repository_presenter.components.readme.composition.renderer import (
     renders_verbatim,
     write_text,
 )
+from repository_presenter.components.readme.extractors.platforms.cpp import CPP
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -373,7 +375,7 @@ def test_prose_does_not_wrap_a_token_inside_the_span_a_longer_token_just_made() 
     context = _with_a_project_path()
     assert context.prose(
         "Build it with dotnet build src/Widget.Core/Widget.Core.csproj, then run."
-    ) == ("Build it with dotnet build src/`Widget.Core/Widget.Core.csproj`, then run.")
+    ) == ("Build it with dotnet build `src/Widget.Core/Widget.Core.csproj`, then run.")
     assert context.prose("Edit Widget.Core/Widget.Core.csproj to change it.") == (
         "Edit `Widget.Core/Widget.Core.csproj` to change it."
     )
@@ -2371,3 +2373,300 @@ def test_the_enterprise_paragraph_never_follows_its_full_stop_with_a_lower_case_
     assert scope.rstrip("\n").endswith(
         "(https://products.aspose.com/3d/python-net/). " + printed
     ), scope
+
+
+def test_an_example_is_printed_as_the_program_its_receipt_compiled() -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied `using` directives the README
+    never printed, so printed examples failed CS0103/CS0246. Every place the renderer prints a
+    verified example prints the receipt's prelude in front of it; an example that needed none is
+    printed exactly as before."""
+    prelude = {PRELUDE_ATTRIBUTE: "import math"}
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(
+                f.id,
+                f.kind,
+                f.value,
+                f.evidence,
+                polarity=f.polarity,
+                attributes=prelude if f.id in {"example:001", "example:002"} else f.attributes,
+            )
+            for f in FACTS.facts
+        ),
+    )
+    plan = {**PLAN, "second_quick_start_example_id": "example:002", "additional_example_ids": []}
+    units = {
+        "units": [*UNITS["units"], _unit("quick_start", "lead_in:2", "Build a scene.")],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    assert "```python\nimport math\nfrom aspose.threed import Scene\n" in readme
+    assert "```python\nimport math\nprint(2)\n```" in readme
+    plain = render_readme(ENTRY, FACTS, plan, units, DISPOSITIONS)
+    assert "import math" not in plain
+
+
+def test_a_moved_limitations_table_renders_every_row_in_scope() -> None:
+    """The Scope section prints a VERIFIED_MOVE'd limitations table as written, after the bullets
+    and before the Enterprise paragraph, with every row (Slides-.NET lost both of its tables)."""
+    table = (
+        "| Feature | Status |\n| --- | --- |\n| Charts | not implemented |\n| SmartArt | missing |"
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:020.table", "inherited_unit", table)),
+    )
+    moved = {
+        "unit_id": "inherited_unit:020.table",
+        "disposition": "VERIFIED_MOVE",
+        "destination_section": "scope_limitations",
+        "fact_ids": ["package:name"],
+        "rationale": "r",
+    }
+    plan = {**PLAN, "material_limitations": [{"fact_ids": ["package:name"], "unit_ids": []}]}
+    readme = render_readme(
+        ENTRY, facts, plan, UNITS, {"dispositions": [*DISPOSITIONS["dispositions"], moved]}
+    )
+    scope = readme.split("## Scope", 1)[1].split("\n## ", 1)[0]
+    assert table in scope
+
+
+# --- C++ (wave-3 triage U7/U15): the CMake minimum and the NuGet distribution a registry confirmed
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+        "family": "slides",
+        "platform": "cpp",
+        "ecosystem": CPP.ecosystem,  # importing the platform module registers the C++ spec
+        "mode": "dry_run",
+        "policy_profile": "p",
+        "active": True,
+        "provider_identity": {"provider": "github", "repository_id": 2, "node_id": "R_2"},
+    }
+)
+CPP_SOURCE_BUILD = (
+    "git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git\n"
+    "cd Aspose.Slides-FOSS-for-Cpp\ncmake -S . -B build"
+)
+
+
+def _cpp_context(*facts: Fact) -> RenderContext:
+    base = (
+        _fact("identity:repository", "identity", CPP_ENTRY.repository),
+        _fact("package:name", "package", "AsposeSlidesFoss"),
+    )
+    document = FactsDocument(CPP_ENTRY.repository, "a" * 40, (*base, *facts))
+    return RenderContext(CPP_ENTRY, document, {"sections": []}, {"units": []}, {"dispositions": []})
+
+
+def _cmake_fact(path: str, value: str = "3.26", fact_id: str = "package:cmake_minimum") -> Fact:
+    return Fact(
+        fact_id,
+        "package",
+        value,
+        (Evidence(path, "lowest CMake version `cmake_minimum_required` accepts"),),
+    )
+
+
+def _cpp_standard() -> Fact:
+    return Fact(
+        "package:cxx_standard",
+        "package",
+        "17",
+        (Evidence("CMakeLists.txt", "C++ standard the project's own build requires"),),
+    )
+
+
+def _cpp_source_install() -> Fact:
+    return Fact(
+        "install_command:cmake",
+        "install_command",
+        CPP_SOURCE_BUILD,
+        (Evidence("CMakeLists.txt", "verified source build: the library compiled"),),
+        attributes={"install_kind": "source"},
+    )
+
+
+def _cpp_distribution(polarity: str = "SUPPORTED") -> Fact:
+    return Fact(
+        "package:distribution.aspose-slides-cpp-foss",
+        "package",
+        "Aspose.Slides.Cpp.FOSS",
+        (Evidence("README.md", "NuGet package the repository's own README names"),),
+        polarity=polarity,  # type: ignore[arg-type]
+        attributes={"registry": "nuget"},
+    )
+
+
+def test_dependencies_state_the_cmake_minimum_beside_the_cxx_standard() -> None:
+    """Email-Cpp F02, wave 3: ``package:cmake_minimum`` (3.26) was extracted and SUPPORTED but no
+    row read it, the independent review rightly rejected the omission, and a renderer-owned
+    section cannot be repaired. The same holds for Cells-, PDF- and Slides-Cpp."""
+    from repository_presenter.components.readme.composition.renderer import _dependencies
+
+    context = _cpp_context(_cpp_standard(), _cmake_fact("CMakeLists.txt"))
+    assert _dependencies(context) == [
+        "### Native and System Requirements",
+        "",
+        "- Requires C++ `17` (`CMAKE_CXX_STANDARD` in `CMakeLists.txt`).",
+        "- Requires CMake 3.26 or later (`cmake_minimum_required` in `CMakeLists.txt`).",
+    ]
+    # The minimum alone still earns the heading; a range is not turned into "or later".
+    alone = _dependencies(_cpp_context(_cmake_fact("lib/CMakeLists.txt", "3.20...3.30")))
+    assert alone == [
+        "### Native and System Requirements",
+        "",
+        "- Requires CMake `3.20...3.30` (`cmake_minimum_required` in `lib/CMakeLists.txt`).",
+    ]
+
+
+def test_an_unsupported_cmake_minimum_and_an_ecosystem_without_a_build_tool_print_nothing() -> None:
+    from repository_presenter.components.readme.composition.renderer import _dependencies
+
+    unresolved = Fact(
+        "package:cmake_minimum",
+        "package",
+        "3.26",
+        (Evidence("CMakeLists.txt", "x"),),
+        polarity="UNRESOLVED",
+    )
+    assert _dependencies(_cpp_context(unresolved)) == []
+    # Python declares no build tool minimum: its Dependencies bytes do not move.
+    readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert "CMake" not in readme
+
+
+def test_installation_states_the_nuget_distribution_a_registry_confirmed() -> None:
+    """Slides-Cpp F01, wave 3: "`AsposeSlidesFoss` is not yet published on any package
+    registry" -- false, NuGet lists `Aspose.Slides.Cpp.FOSS` (and Cells and PDF). A distribution
+    the registry confirmed as this repository's own is what a reader installs."""
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    lines = _installation(_cpp_context(_cpp_source_install(), _cpp_distribution()))
+    assert lines == [
+        "The library is published on NuGet as `Aspose.Slides.Cpp.FOSS`.",
+        "",
+        "To build it from a source checkout instead, verified against this revision:",
+        "",
+        "```bash",
+        CPP_SOURCE_BUILD,
+        "```",
+    ]
+    assert not any("not yet published" in line for line in lines)
+
+
+def test_a_confirmed_distribution_without_a_verified_build_is_still_stated_never_denied() -> None:
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    unresolved_install = Fact(
+        "install_command:cmake",
+        "install_command",
+        CPP_SOURCE_BUILD,
+        (Evidence("CMakeLists.txt", "package registry: none could not be read"),),
+        polarity="UNRESOLVED",
+    )
+    lines = _installation(_cpp_context(unresolved_install, _cpp_distribution()))
+    assert lines == ["The library is published on NuGet as `Aspose.Slides.Cpp.FOSS`."]
+
+
+def test_an_unconfirmed_distribution_is_not_stated_and_no_publication_is_ever_denied() -> None:
+    """Negative controls. A name NuGet did not confirm (UNRESOLVED) or said does not exist
+    (CONTRADICTED) is not stated as published; and with no registry observed at all (Email-Cpp)
+    the row says how to build the library, not that it is "not yet published" -- nothing observed
+    that."""
+    from repository_presenter.components.readme.composition.renderer import _installation
+
+    for polarity in ("UNRESOLVED", "CONTRADICTED"):
+        lines = _installation(_cpp_context(_cpp_source_install(), _cpp_distribution(polarity)))
+        assert lines[0] == (
+            "Build `AsposeSlidesFoss` from a source checkout, verified against this revision:"
+        )
+        assert not any("published" in line for line in lines)
+    assert "```bash" in lines and CPP_SOURCE_BUILD in lines
+
+
+def test_an_ecosystem_whose_manifest_names_a_package_still_says_not_yet_published() -> None:
+    """The registry's own observation keeps its sentence: Python's `source` install is a build
+    proved after the registry said the package is not there (CONTRADICTED)."""
+    source = Fact(
+        "install_command:pip",
+        "install_command",
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+        "cd Aspose.3D-FOSS-for-Python\npip install .",
+        (Evidence("setup.py", "verified source build"), Evidence("pypi", "distribution not found")),
+        attributes={"install_kind": "source"},
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(source if f.id == "install_command:pip" else f for f in FACTS.facts),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert (
+        "`aspose-3d-foss` is not yet published on PyPI; build it from a source checkout instead"
+        in readme
+    )
+
+
+# --- one code span per path (PSD-.NET, wave-3 triage U11) ----------------------------------------
+PSD_UNIT = (
+    "The library is installed by cloning the repository and building the project with "
+    "dotnet build src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj, and it targets net10.0."
+)
+
+
+def _psd_context() -> RenderContext:
+    entry = RegistryEntry.model_validate(
+        {
+            "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+            "family": "psd",
+            "platform": "net",
+            "ecosystem": "net",
+            "mode": "dry_run",
+            "policy_profile": "p",
+            "active": True,
+            "provider_identity": {"provider": "github", "repository_id": 3, "node_id": "R_3"},
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", entry.repository),
+            _fact("package:name", "package", "Aspose.PSD.FOSS"),
+            _fact("package:project", "package", "Aspose.PSD.FOSS.csproj"),
+            _fact("package:project_path", "package", "Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"),
+            _fact("package:project_file", "package", "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"),
+        ),
+    )
+    return RenderContext(entry, facts, {"sections": []}, {"units": []}, {"dispositions": []})
+
+
+def test_a_path_a_fact_spells_whole_is_one_code_span_not_three() -> None:
+    """Aspose.PSD FOSS for .NET: the unit wrote the project path as plain prose; the wrap pass
+    matched the path's dotted pieces one token at a time, and once the path was a span it matched
+    ``Aspose.PSD.FOSS`` inside it again ("/" is not a character the neighbours test excludes),
+    giving three spans, two of them no fact spells (BC-04)."""
+    rendered = _psd_context().prose(PSD_UNIT)
+    assert rendered == (
+        "The library is installed by cloning the repository and building the project with "
+        "dotnet build `src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`, and it targets net10.0."
+    )
+    assert rendered.count("`") == 2
+
+
+def test_a_path_holding_no_identifier_and_a_lone_identifier_render_as_they_always_did() -> None:
+    """Negative controls: only a path that holds a token about to be wrapped is wrapped whole."""
+    context = _psd_context()
+    assert context.prose("Use the project Aspose.PSD.FOSS to build.") == (
+        "Use the project `Aspose.PSD.FOSS` to build."
+    )
+    assert context.prose("See docs/guide.md and tests/ for details.") == (
+        "See docs/guide.md and tests/ for details."
+    )
+    # A near miss of the path is not the path: the pieces wrap, none of them nested.
+    near = context.prose("Open src/Aspose.PSD.FOSS/Other.csproj first.")
+    assert near.count("`") % 2 == 0 and "``" not in near

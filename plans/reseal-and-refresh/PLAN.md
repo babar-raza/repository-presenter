@@ -98,7 +98,7 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 
 ## 3. Requirements (stable IDs)
 
-REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
+REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-MMD-01 the At a Glance diagram is never clipped and its three mother blocks (Starting Points, Core Capabilities, Outputs) run left to right, split by key capability, every box growing with its text, accepted only by a real render (owner ruling R7, 2026-10-11) · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
 
 ---
 
@@ -1548,12 +1548,13 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
 | D5 sealing on the owner's machine | Answers the decide-owner step of TC-REF-10-03-02: production sealing runs on a self-hosted runner for the control repository (OWNER-21); monitor and publish stay hosted. TC-REF-12 stages the sealing workflow on that label once the runner exists. |
 | D6 push pause | TC-LIV-05 opens only a sandbox canary on `babar-raza/presenter-sandbox`, then asks the owner again (OWNER-20). |
 | D7 Monday | TC-LIV-01 to TC-LIV-04 first; Lane R runs in parallel on its own paths. |
+| R1 to R7 owner rulings (2026-10-11, `docs/README_STANDARD.md` §7, `docs/DECISION_LOG.md`) | The banner, the Enterprise anchor, the edition name, tone and structure authority, the fixed core with inherited additions, and the accepted defaults are decided and `plans/idea.md` is corrected. The code gates that still encode the replaced rules (`docs/README_STANDARD.md` §6.2) are owner-ruled, pending the next governed cut: they ride the governed cut-4 cards (TC-STD-04, TC-IDM-02, TC-MMD-03) or a card the owner admits for items 1 to 4, and TC-VER-03 moves each constant once. R7 (At a Glance never clipped, left to right, accepted by a real render) adds TC-MMD-01 to TC-MMD-03. |
 
-**Cut discipline.** Cut 3 (`integration/cut3`, `a3b6bbf6`) already moved each governed constant once and is closed. TC-LIV-01 to TC-LIV-04, TC-STD-01 to TC-STD-03, TC-IDM-01 and TC-IDM-03 change no governed file (`no_bump: true`). TC-LIV-05 writes under `src/` (the propose gate), which the lint refuses on a `no_bump` card, so it is `governed: false` and proves by its accept lines that no version moves. TC-STD-04 (conformance gates) and TC-IDM-02 (the fixed-point design change) are governed: they enter a declared cut 4 after the second portfolio reseal (TC-R2-02), on the owner's D2 and D1 decisions as their ground, and TC-VER-03 moves each constant once for it.
+**Cut discipline.** Cut 3 (`integration/cut3`, `a3b6bbf6`) already moved each governed constant once and is closed. TC-LIV-01 to TC-LIV-04, TC-STD-01 to TC-STD-03, TC-IDM-01, TC-IDM-03, TC-MMD-01 and TC-MMD-02 change no governed file (`no_bump: true`). TC-LIV-05 writes under `src/` (the propose gate), which the lint refuses on a `no_bump` card, so it is `governed: false` and proves by its accept lines that no version moves. TC-STD-04 (conformance gates), TC-IDM-02 (the fixed-point design change) and TC-MMD-03 (the At a Glance renderer and gate migration) are governed: they enter a declared cut 4 after the second portfolio reseal (TC-R2-02), on the owner's D2 and D1 decisions as their ground, and TC-VER-03 moves each constant once for it.
 
 **Placement.** Lane L's engine is the new package `tools/live_first/` (run as `python -m tools.live_first correct-readme`), because the plan lint (`NO_BUMP_BREACH`) refuses a `no_bump` card that writes anywhere under `src/`; the sealing-wave runner `tools/reviewer/reseal_wave/` is the precedent for an operator pipeline there. Its output is a new top-level directory `corrections/<owner>__<name>/<revision>/`, a reviewable committed tree beside `candidates/` that never mixes with it (`count_current_candidates` rejects stray files in `candidates/`). TC-LIV-01 records both in `docs/REPOSITORY_LAYOUT.md` and `tools/README.md` in the same commit; moving the engine under `src/` later is a separate, governed-free change if the owner wants it there.
 
-**Paths and lanes (lint-checked).** L-live: `tools/live_first/`, `corrections/`, `schemas/corrections.schema.json`, `tests/test_live_first.py`. L-std: `tools/reviewer/readme_survey/`, `data/readme_standard/`, `schemas/readme-standard.schema.json`, `docs/README_CONTRACT.md`, the validation package (TC-STD-04 only). L-idm: `docs/investigations/`, `tools/reviewer/idempotence_probe/`, the reconciliation, composition and bundle packages (TC-IDM-02 only). TC-LIV-05 runs in lane L-hosted, which already owns `components/propose/`.
+**Paths and lanes (lint-checked).** L-live: `tools/live_first/`, `corrections/`, `schemas/corrections.schema.json`, `tests/test_live_first.py`. L-std: `tools/reviewer/readme_survey/`, `data/readme_standard/`, `schemas/readme-standard.schema.json`, `docs/README_CONTRACT.md`, the validation package (TC-STD-04 only). L-idm: `docs/investigations/`, `tools/reviewer/idempotence_probe/`, the reconciliation, composition and bundle packages (TC-IDM-02 only). TC-LIV-05 runs in lane L-hosted, which already owns `components/propose/`. L-mmd: `tools/mermaid_glance/`, `tests/test_mermaid_glance.py`, `tests/test_mermaid_glance_golden.py`, `tests/fixtures/mermaid_glance/`, the analysis directory `analysis/mermaid-glance/`; TC-MMD-02 also writes `tools/live_first/` (its registry entry) and so waits for TC-LIV-04, and TC-MMD-03 writes the renderer, glance component and validation package after TC-STD-04 and TC-IDM-02.
 
 **Decided here, to ratify.** The wording of "not worse than the live README" is fixed in TC-LIV-03 because it decides what counts as progress; the owner ratifies it at the first review of the 36 correction candidates. Whether `status` should also print the authorizable count (a `src/repository_presenter/cli.py` change pinned by `tests/test_cli.py`) is not carried by any card; the TC-LIV-04 report prints it until the owner asks for the change.
 
@@ -1817,12 +1818,12 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-VER-01]
   item: G3-W11
   lane: L-core
-  depends: [TC-STD-04, TC-IDM-02]
+  depends: [TC-STD-04, TC-IDM-02, TC-MMD-03]
   cut: "4"
   governed: true
   ground: "owner decisions D2 and D1 (2026-10-11, docs/DECISION_LOG.md), with the cut declared by the owner before this card runs"
   paths: {write: [src/repository_presenter/components/readme/, tests/components/readme/validation/test_registry.py, tests/components/readme/bundle/test_seal.py]}
-  outcome: each governed constant that TC-STD-04 and TC-IDM-02 changed moves exactly once, and the reseal plan for cut 4 is recorded
+  outcome: each governed constant that TC-STD-04, TC-IDM-02 and TC-MMD-03 changed moves exactly once, and the reseal plan for cut 4 is recorded
   accept: ["tests/test_version_bump_discipline.py green", "pins in test_registry, test_seal and test_cli were derived from the constants by TC-VER-01, so this card edits the constants and at most the two pin files it names", "the owner declared cut 4 and its constant list before the bump"]
   children:
     - id: TC-VER-03-01
@@ -1849,6 +1850,76 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
       steps:
         - "run | present twice per candidate on the official entry point | per-candidate result"
         - "record | the rate before and after | counts and exceptions in validation/idempotence/"
+
+- id: TC-MMD-01
+  title: At a Glance diagram, reproduce the clipping and the vertical layout, and build the diagram builder
+  reqs: [REQ-MMD-01]
+  item: G3-W10
+  lane: L-mmd
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [tools/mermaid_glance/, tests/test_mermaid_glance.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/mermaid-glance/]}
+  outcome: the cause of a clipped label and of a top-to-bottom layout is reproduced by a real render and attributed to its earliest stage, and a self-contained builder in the new package tools/mermaid_glance returns Mermaid source whose three mother blocks run left to right, split by key capability, with every box sized from its text
+  accept: ["a render harness draws every At a Glance block of the 36 live READMEs and of the sealed candidates with the Mermaid version GitHub ships and records per diagram whether any label is wider or taller than its box (MERMAID_CLIPPED, DEF-29) and whether the Starting Points, Core Capabilities and Outputs groups sit side by side from left to right (MERMAID_VERTICAL, DEF-30); the two counts are recorded for the live READMEs and for the candidates, which the survey cannot measure because it reads the Mermaid source and not its render", "the older live revisions that drew the diagram horizontally are located in the read-only history of the live repositories and the node arrangement inside a mother block (the one-column to five entries and two-balanced-columns-above-five rule of plans/idea.md L99 against a split per key capability, Core included) is decided from them and recorded; a choice only the owner can make stops the card at a decide-owner step", "the cause is attributed to its earliest stage among: the string emitter at composition/renderer.py line 1042 and the wrapping policy, the aspose.org skill the diagram was ported from (read as a development oracle, its recent change measured and not trusted), and Mermaid's own layout; no downstream check is proposed to hide it", "tools/mermaid_glance builds Mermaid source from a typed input (starting points, product, key capabilities with their features, outputs) with no fixed width and no truncation; on the fixtures a real render shows no clipped label and left-to-right mother blocks for a very long label, a label with a code span, one, five and twelve capabilities, and no starting points", "the investigation note records the reproduction command, the Mermaid version, the evidence paths and the ruled-out hypotheses; the package imports nothing from src/ and no governed file is touched (python -m tools.workflow_rehearsal.no_bump_check <base> is green)"]
+  children:
+    - id: TC-MMD-01-01
+      title: Reproduce and attribute
+      kind: investigation
+      produces: [TC-MMD-02, TC-MMD-03]
+      steps:
+        - "inspect | the Mermaid emitter at composition/renderer.py line 1042, composition/components/glance.py, BC-07's flowchart TD check and label geometry, and the aspose.org skill revisions that touched the diagram | the wrapping and sizing rules each applies and the revision of each change"
+        - "run | a headless Mermaid render of every At a Glance block of the 36 live READMEs and the sealed candidates, measuring label extent against box and the position of the three groups | per-diagram clipped and vertical results with the Mermaid version and the evidence paths"
+        - "inspect | the read-only git history of the live repositories for revisions that drew the mother blocks horizontally and split by key capability | the older arrangement and the revision that changed it"
+        - "record | the cause at its earliest stage, the ruled-out hypotheses, the node arrangement the builder needs and any owner choice | the investigation note under analysis/mermaid-glance/, the input of TC-MMD-02 and TC-MMD-03"
+    - id: TC-MMD-01-02
+      title: The diagram builder
+      steps:
+        - "create | tools/mermaid_glance: a typed input and a builder that sizes every box from its text and lays the three mother blocks out left to right, split by key capability | tests/test_mermaid_glance.py, RED first, including a very long label, a code span, one, five and twelve capabilities and no starting points"
+        - "run | the real render of the builder's output for each fixture | no clipped label and left-to-right blocks on every fixture, recorded under analysis/mermaid-glance/"
+
+- id: TC-MMD-02
+  title: Render-verified golden tests and the live-first registry entry for the At a Glance defects
+  reqs: [REQ-MMD-01]
+  item: G3-W10
+  lane: L-mmd
+  depends: [TC-MMD-01, TC-LIV-04]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/mermaid_glance/, tools/live_first/, tests/test_mermaid_glance_golden.py, tests/fixtures/mermaid_glance/, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/mermaid-glance/]}
+  outcome: golden diagrams are accepted only by a real render, and the live-first lane detects MERMAID_CLIPPED and MERMAID_VERTICAL in a live README and corrects them with the builder's output, keeping every node, label and edge
+  accept: ["golden tests render each fixture diagram with the Mermaid version GitHub ships and fail when any label is wider or taller than its box or the three mother blocks are not side by side from left to right; a syntax-valid diagram that fails the render is a failing fixture", "negative controls: a diagram with a fixed narrow box, a diagram drawn flowchart TD, and a builder change that shortens a label to fit each fail", "the live-first registry in tools/live_first has one entry per defect class (MERMAID_CLIPPED, MERMAID_VERTICAL) naming its detector (the render measurement), its correction (rebuild with tools/mermaid_glance) and what it preserves (every node, label, edge and group name), as data/readme_standard/common.yaml DEF-29 and DEF-30 state", "run on the live READMEs the detector reproduces the counts TC-MMD-01 recorded, and a corrected README renders clean with the same nodes, labels and edges as before", "no governed file is touched; the golden render is skipped with a typed reason, never silently passed, where the headless renderer is unavailable"]
+  children:
+    - id: TC-MMD-02-01
+      title: Golden tests
+      steps:
+        - "create | tests/test_mermaid_glance_golden.py and tests/fixtures/mermaid_glance/: the fixtures of TC-MMD-01 plus a clipped fixture and a vertical fixture from live READMEs | RED first, then green on the builder's output"
+        - "validate | the three negative controls | each fails when the builder or fixture is broken as described"
+    - id: TC-MMD-02-02
+      title: Live-first registry entry
+      steps:
+        - "inspect | tools/live_first detect.py and the registry shape TC-LIV-02 created | where a defect class and its correction register"
+        - "create | the MERMAID_CLIPPED and MERMAID_VERTICAL entries and their fixtures | the detector reproduces TC-MMD-01's counts and the correction preserves nodes, labels and edges"
+
+- id: TC-MMD-03
+  title: Migrate the At a Glance renderer and its gates to the render-verified, left-to-right diagram
+  reqs: [REQ-MMD-01]
+  item: G3-W10
+  lane: L-mmd
+  depends: [TC-MMD-02, TC-STD-04, TC-IDM-02]
+  cut: "4 - with TC-STD-04 and TC-IDM-02; never inside cut 3"
+  governed: true
+  ground: "owner ruling R7 (2026-10-11, docs/DECISION_LOG.md): a clipped or vertically stacked At a Glance diagram is a visitor-facing rendered-output defect in a public README, recorded as the owner approval G7-W22 clause 2 requires; plans/idea.md L99 is corrected accordingly"
+  paths: {write: [src/repository_presenter/components/readme/composition/renderer.py, src/repository_presenter/components/readme/composition/components/glance.py, src/repository_presenter/components/readme/validation/, tests/components/readme/composition/, tests/components/readme/validation/]}
+  outcome: the renderer builds At a Glance with the TC-MMD-01 builder and BC-07 judges it by orientation and fit instead of requiring flowchart TD and static widths, so no candidate carries a clipped or vertically stacked diagram
+  accept: ["the renderer emits three mother blocks left to right, split by key capability, with boxes sized from their text, and the golden fixtures of TC-MMD-02 pass their real render through the production renderer", "BC-07 fails a flowchart TD diagram and a diagram whose render clips a label, passes the builder's output, and degrades to a typed advisory (never a silent pass) where the headless renderer is unavailable; the blocking-check cap of fifteen holds", "negative controls: a clipped label, a vertical layout, and a shortened label that hides a clip each fail; an unchanged diagram input yields the same bytes (no churn)", "RENDERER_VERSION and Check BC-07's version move once, in TC-VER-03, and docs/README_STANDARD.md section 6.2 item 15 is marked landed in the same commit as the code"]
+  children:
+    - id: TC-MMD-03-01
+      title: Port the builder and move the gates
+      steps:
+        - "inspect | the production wiring of the glance component and the BC-07 geometry checks | the lines to replace and the tests that pin them"
+        - "edit | composition/renderer.py, composition/components/glance.py and the BC-07 diagram checks to use the builder and the render | the golden and negative-control tests green, RED first"
+        - "record | the item 15 status in docs/README_STANDARD.md section 6.2 and the cut-4 constant list for TC-VER-03 | landed in the same commit"
 ```
 
 ---

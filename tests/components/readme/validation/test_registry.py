@@ -43,6 +43,7 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
+from repository_presenter.core.examples import PRELUDE_ATTRIBUTE
 from repository_presenter.core.facts import (
     SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
@@ -2741,7 +2742,7 @@ def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_pat
     assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
 
 
-# --- LST-01: BC-05 judges the items of a list placement dropped as covered -----------------------
+# --- LST-01: a kept list is dropped only for the items its destination states ---------------------
 # 3D Java 3d2ed6be (wave-3 acceptance review, reseal f69f75c7): both kept lists were dropped by
 # placement because one fact each cites is covered by the plan, and the candidate rendered four of
 # the eight documentation links and six of the nine scope bullets with BC-05 passing.
@@ -2841,40 +2842,104 @@ def _java_candidate(docs: str, scope: str, handed: bool = True) -> Candidate:
     return _candidate(readme=readme, facts=facts, dispositions=dispositions, plan=plan)
 
 
-def test_a_kept_list_placement_dropped_must_have_every_item_rendered() -> None:
-    from repository_presenter.components.readme.validation.registry import _check_dispositions
+def test_a_kept_list_the_destination_does_not_fully_state_is_placed_for_what_it_lacks() -> None:
+    """3D Java 3d2ed6be, the real units. Placement dropped both lists on one shared fact each, and
+    the sealed README stated four of the eight documentation links and six of the nine scope
+    bullets. Now the destination is asked what it states: the document links the plan prints are
+    covered, the four repository documents are not and are placed; BC-05 holds a README that
+    does not render the placed remainder to account."""
+    from repository_presenter.components.readme.validation.registry import (
+        _check_dispositions,
+        _placements,
+    )
 
-    failures = _check_dispositions(_java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION))
-    by_section = {failure.section: failure for failure in failures}
-    assert set(by_section) == {"documentation_resources", "scope_limitations"}, failures
-    docs, scope = by_section["documentation_resources"], by_section["scope_limitations"]
-    assert docs.stage == "PLANNING" and scope.stage == "COMPOSING"
+    candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    decisions = {p.unit_id: p for p in _placements(candidate)}
+    docs, scope = decisions[_DOCS_UNIT], decisions[_SCOPE_UNIT]
+    assert docs.outcome == "placed"
     for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
-        assert document in docs.detail
-    assert f"{_DOCS_UNIT}: kept as written" in docs.detail and "of its 8 items" in docs.detail
-    assert "PbrSpecularMaterial" in scope.detail and "NurbsCurve" in scope.detail
-    assert "of its 9 items" in scope.detail
+        assert document in docs.text
+    assert "foss-java-progress.md" in docs.text
+    for stated in ("docs.aspose.org/3d", "kb.aspose.org/3d", "reference.aspose.org/3d"):
+        assert stated not in docs.text  # the plan's own link lines state them
+    assert scope.outcome == "placed"
+    assert "PbrSpecularMaterial" in scope.text and "NurbsCurve" in scope.text
+    failures = _check_dispositions(candidate)  # the hand-written README renders neither
+    assert {f.detail for f in failures} == {
+        f"{_DOCS_UNIT} was placed in documentation_resources but the candidate does not render "
+        "it there",
+        f"{_SCOPE_UNIT} was placed in scope_limitations but the candidate does not render it there",
+    }
 
 
-def test_a_kept_list_every_item_of_which_is_rendered_passes_bc05() -> None:
+def test_the_rendered_readme_keeps_every_item_of_the_kept_lists_and_passes_bc05() -> None:
+    """The same units end to end: the renderer carries what the destination lacks, so nothing the
+    reconciler kept is lost, nothing the section already says is printed twice, and BC-05 -- which
+    judges the very placement the renderer made -- finds nothing to name."""
     from repository_presenter.components.readme.validation.registry import _check_dispositions
 
-    docs = (
-        _JAVA_DOCS_SECTION
-        + "\n"
-        + "\n".join(f"- [{url}]({url})" for url in list(_JAVA_LINKS.values())[3:7])
+    base = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    readme = render_readme(base.entry, base.facts, base.plan, base.units, base.dispositions)
+    candidate = dataclasses.replace(base, readme=readme)
+    assert _check_dispositions(candidate) == []
+    for link in _JAVA_LINKS.values():
+        assert link in readme
+    for bullet in JAVA3D_SCOPE_LIST.splitlines():
+        assert bullet in readme  # all nine, as the old README wrote them
+    assert readme.count("](https://docs.aspose.org/3d/java/)") == 1  # printed once, not twice
+
+
+def test_a_scope_list_the_plan_never_handed_on_is_carried_as_written() -> None:
+    """Formerly a planning defect (a dropped list no slot owed); now there is no drop to owe:
+    the destination states none of it, so placement prints it whole and BC-05 finds nothing."""
+    from repository_presenter.components.readme.validation.registry import (
+        _check_dispositions,
+        _placements,
     )
-    assert _check_dispositions(_java_candidate(docs, _JAVA_SCOPE_COMPLETE)) == []
+
+    base = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+    readme = render_readme(base.entry, base.facts, base.plan, base.units, base.dispositions)
+    candidate = dataclasses.replace(base, readme=readme)
+    scope = {p.unit_id: p for p in _placements(candidate)}[_SCOPE_UNIT]
+    assert scope.outcome == "placed" and scope.text == JAVA3D_SCOPE_LIST
+    assert JAVA3D_SCOPE_LIST in readme
+    assert _check_dispositions(candidate) == []
 
 
-def test_a_scope_list_the_plan_never_handed_on_is_a_planning_defect() -> None:
-    from repository_presenter.components.readme.validation.registry import _check_dispositions
-
-    failures = _check_dispositions(
-        _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+def test_the_dropped_list_net_still_names_every_item_a_drop_left_unstated() -> None:
+    """The net under placement: should a list ever be dropped as stated while its items are not
+    (a drift between placement's item test and this one), BC-05 names each missing item, at the
+    stage that owed it."""
+    from repository_presenter.components.readme.composition.placement import Placement
+    from repository_presenter.components.readme.validation.registry import (
+        _dropped_list_failures,
+        _section_texts,
     )
-    scope = next(f for f in failures if f.section == "scope_limitations")
-    assert scope.stage == "PLANNING"
+
+    for handed, stage in ((True, "COMPOSING"), (False, "PLANNING")):
+        candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=handed)
+        texts = _section_texts(candidate.readme)
+        docs = Placement(
+            _DOCS_UNIT, "documentation_resources", JAVA3D_DOCS_LIST, "overlap", ("link_target:022",)
+        )
+        scope = Placement(
+            _SCOPE_UNIT,
+            "scope_limitations",
+            JAVA3D_SCOPE_LIST,
+            "overlap",
+            ("install_command:maven",),
+        )
+        (docs_failure,) = _dropped_list_failures(candidate, docs, texts)
+        (scope_failure,) = _dropped_list_failures(candidate, scope, texts)
+        assert docs_failure.stage == "PLANNING"  # a docs list is never handed to a slot
+        assert scope_failure.stage == stage
+        for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
+            assert document in docs_failure.detail
+        assert "of its 8 items" in docs_failure.detail
+        assert (
+            "PbrSpecularMaterial" in scope_failure.detail
+            and "of its 9 items" in scope_failure.detail
+        )
 
 
 def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before() -> None:
@@ -2889,6 +2954,76 @@ def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before()
         readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
     )
     assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []
+
+
+def test_bc03_holds_a_printed_example_to_the_program_its_receipt_compiled(tmp_path: Path) -> None:
+    """Wave-3 acceptance review, Slides-.NET: the harness supplied a `using` that the README never
+    printed, so three of seven printed examples did not compile. The renderer now prints the
+    receipt's prelude in front of the snippet, and BC-03 accepts that fence and only that fence: a
+    fence that drops the supplied lines is no longer the verified program."""
+    prelude = "import math"
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(
+                fact.id,
+                fact.kind,
+                fact.value,
+                fact.evidence,
+                polarity=fact.polarity,
+                attributes={PRELUDE_ATTRIBUTE: prelude} if fact.id == "example:001" else None,
+            )
+            for fact in BASE_FACTS
+        ),
+    )
+    candidate = _candidate(facts=facts)
+    assert f"```python\n{prelude}\n{EXAMPLE}" in candidate.readme
+    assert "BC-03" not in {
+        f["id"] for f in blocking_failures(validate_candidate(candidate, tmp_path, ()))
+    }
+
+    stripped = _candidate(candidate.readme.replace(f"{prelude}\n", "", 1), facts=facts)
+    failing = _failed(validate_candidate(stripped, tmp_path, ()), "BC-03")
+    assert "not a planned verified example" in failing["details"][0]
+
+
+def test_bc07_refuses_a_sentence_that_points_at_a_table_the_readme_does_not_have(
+    tmp_path: Path,
+) -> None:
+    """Wave-3 acceptance review: Cells-.NET kept 'the table below' with no table, Slides-.NET kept
+    'Every example below' after its last example. Authored prose is routed to its section."""
+    dangling = "\nThe table below summarizes the supported surface.\n"
+    failing = _failed(
+        validate_candidate(_candidate(_candidate().readme + dangling), tmp_path, ()), "BC-07"
+    )
+    detail = next(d for d in failing["details"] if "dangling reference" in d)
+    assert "no table follows it" in detail
+    assert failing["causal_stage"] == "COMPOSING"
+    # Control: the same sentence with its table is a promise something keeps.
+    kept = dangling + "\n| Area | Status |\n| --- | --- |\n| Scenes | supported |\n"
+    passing = validate_candidate(_candidate(_candidate().readme + kept), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(passing)}
+
+
+def test_bc07_routes_a_kept_sentence_whose_referent_was_dropped_to_reconciliation(
+    tmp_path: Path,
+) -> None:
+    """A placed inherited paragraph is verbatim: only reconciliation can drop or rewrite it."""
+    sentence = "The table below summarizes the supported surface."
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        tuple(
+            Fact(f.id, f.kind, sentence, f.evidence, polarity=f.polarity)
+            if f.id == "inherited_unit:002.paragraph"
+            else f
+            for f in BASE_FACTS
+        ),
+    )
+    failing = _failed(validate_candidate(_candidate(facts=facts), tmp_path, ()), "BC-07")
+    assert failing["causal_stage"] == "RECONCILING"
+    assert any("inherited_unit:002.paragraph is kept as written" in d for d in failing["details"])
 
 
 # ---- wave 3: BC-12 read a qualified name, a namespace and a path as the product name -----------

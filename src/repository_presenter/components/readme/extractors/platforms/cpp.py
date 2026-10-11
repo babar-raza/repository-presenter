@@ -60,8 +60,9 @@ CPP = EcosystemSpec(
     # C++ has no portfolio-wide package registry, which `surface/registry.py` states and
     # `REGISTRY_TYPES` encodes by having no `cpp` entry. The name is a phrase rather than a
     # registry because the only sentence the renderer builds from it is the unresolved one -
-    # "could not be confirmed on any package registry at this revision" - and the install fact
-    # is never SUPPORTED here, so the published-package sentence is unreachable.
+    # "could not be confirmed on any package registry at this revision". It never says "not yet
+    # published": nothing observed that (`manifest_names_distribution` below), and NuGet lists
+    # the library for three of the four Aspose C++ repositories.
     registry="any package registry",
     install_fact_id="install_command:cmake",
     version_badge="",
@@ -85,6 +86,14 @@ CPP = EcosystemSpec(
     floor_fact_id="package:cxx_standard",
     floor_label="C++",
     floor_declaration="CMAKE_CXX_STANDARD",
+    # The lowest CMake a consumer building the library needs: `cmake_minimum_required` (the
+    # Dependencies row prints it beside the language standard, Email-Cpp F02 in wave 3).
+    build_tool_fact_id="package:cmake_minimum",
+    build_tool_label="CMake",
+    build_tool_declaration="cmake_minimum_required",
+    # `package:name` is the CMake `project()`, a build target: the package a reader installs is
+    # the separate `package:distribution.<id>` fact a registry confirmed.
+    manifest_names_distribution=False,
     manifest_globs=("CMakeLists.txt",),
     source_suffixes=frozenset({".h", ".hpp", ".hxx", ".cpp", ".cc", ".cxx"}),
     # A translation unit in a test directory is a test when it registers cases with a framework
