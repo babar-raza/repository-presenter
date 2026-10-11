@@ -106,11 +106,12 @@ def facts_for(revision: str) -> FactsDocument:
 class Rehearsal:
     """One synthetic upstream on a local bare remote, its correction bundle, and a fake GitHub."""
 
-    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch, readme: str = README) -> None:
+        self.readme = readme
         self.world = tmp / "world"
         self.world.mkdir()
         (self.revision,) = scenarios.build_repository(
-            self.world, "correctable", [("initial", FILES)]
+            self.world, "correctable", [("initial", {**FILES, "README.md": readme})]
         )
         self.bare = self.world / "upstreams" / scenarios.OWNER / "correctable.git"
         self.entry = cycle._entry(REPOSITORY, "full")
@@ -128,7 +129,7 @@ class Rehearsal:
             out_directory=self.bundle,
             facts_path=facts,
         )
-        self.rest = cycle._rest(REPOSITORY, readme=README)
+        self.rest = cycle._rest(REPOSITORY, readme=readme)
 
     def head(self) -> str:
         return scenarios._git(["rev-parse", "main"], self.bare)
@@ -251,3 +252,81 @@ def test_a_tampered_bundle_never_reaches_the_remote(rehearsal: Rehearsal) -> Non
     with pytest.raises(WriteRefusedError):
         rehearsal.propose()
     assert rehearsal.rest.applied_writes() == []
+
+
+DIAGRAM = """\
+flowchart TD
+  subgraph StartingPoints["Starting Points"]
+    direction LR
+    i1["An existing OBJ, STL, or 3MF file"]
+  end
+  PRODUCT["Synthetic Pkg"]
+  subgraph Capabilities["Core Capabilities"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Scene-graph construction and traversal"]
+      c2["Mesh authoring and editing"]
+      c3["Parameterized primitive geometry"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Lambert, Phong, and PBR material assignment"]
+      c5["Polygon triangulation"]
+      c6["Keyframe animation and skeletal pose data"]
+    end
+  end
+  subgraph Outputs["Outputs"]
+    direction TB
+    o1["OBJ, STL, or 3MF file"]
+  end
+  StartingPoints --> PRODUCT --> Capabilities --> Outputs
+"""
+README_WITH_DIAGRAM = README.replace(
+    "## Installation",
+    "## At a Glance\n\n```mermaid\n" + DIAGRAM + "```\n\n## Installation",
+    1,
+)
+
+
+@pytest.fixture
+def diagram_rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Rehearsal:
+    return Rehearsal(tmp_path, monkeypatch, README_WITH_DIAGRAM)
+
+
+def test_a_diagram_redraw_is_proposed_as_one_pull_request_whose_commit_is_the_patch(
+    diagram_rehearsal: Rehearsal,
+) -> None:
+    rehearsal = diagram_rehearsal
+    assert rehearsal.outcome.status == "corrected"
+    assert rehearsal.outcome.summary["DIAGRAM_FIX"] == 1
+    result = rehearsal.propose()
+    assert result.effected and result.pr_created and result.commit_written
+    branch_readme = rehearsal.rest.file(REPOSITORY, presenter_branch_name(), "README.md")
+    assert branch_readme is not None and "flowchart LR" in branch_readme
+    assert "flowchart TD" not in branch_readme
+    assert rehearsal.rest.file(REPOSITORY, "main", "README.md") == README_WITH_DIAGRAM
+    patch = (rehearsal.bundle / PATCH_NAME).read_text(encoding="utf-8")
+    assert render_patch(README_WITH_DIAGRAM, branch_readme) == patch
+    (pull,) = rehearsal.rest.pulls(REPOSITORY)
+    assert "At a Glance diagram redrawn (same words and edges)" in pull["body"]
+    assert "redrew the Mermaid diagram at line 8 (labels and edges unchanged)" in pull["body"]
+    flat = branch_readme.replace("<br/>", " ")  # the drawing wraps long labels; the words stay
+    for label in ("Starting Points", "Core Capabilities", "Outputs", "Polygon triangulation"):
+        assert label in flat  # every word the maintainers wrote is still there
+
+
+def test_a_diagram_redraw_is_idempotent_and_refused_when_the_source_moved(
+    diagram_rehearsal: Rehearsal,
+) -> None:
+    rehearsal = diagram_rehearsal
+    first = rehearsal.propose()
+    writes = len(rehearsal.rest.applied_writes())
+    again = rehearsal.propose()
+    assert again.effected and not again.pr_created and again.pr_number == first.pr_number
+    assert len(rehearsal.rest.applied_writes()) == writes
+    fresh = cycle._rest(REPOSITORY, readme=README_WITH_DIAGRAM)
+    rehearsal.advance_upstream()
+    refused = rehearsal.propose(fresh)
+    assert not refused.effected and refused.reason_code == Refusal.SOURCE_MOVED
+    assert fresh.applied_writes() == []
