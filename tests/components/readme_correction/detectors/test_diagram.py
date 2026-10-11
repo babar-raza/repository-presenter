@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -67,33 +68,37 @@ def fixed(readme: str, edits: Any) -> str:
     return corrected
 
 
-def test_the_defective_diagram_is_reported_when_the_contract_rejects_the_rebuild(
+def test_the_defective_diagram_is_reported_when_the_rebuild_would_fail_the_contract_anew(
     make_context: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(diagram, "_validator_accepts", lambda body, has_inputs: False)
+    monkeypatch.setattr(diagram, "_introduced", lambda live, after, has_inputs: ["a new failure"])
     result = at_a_glance_diagram(make_context(README))
     assert result.edits == ()
     (finding,) = result.findings
     assert finding.detector == DETECTOR and finding.line == 6
     assert finding.text == "flowchart TD"
     assert "ORIENTATION_VERTICAL" in finding.reason and "CLIP_HTML_LABELS" in finding.reason
-    assert "the horizontal At a Glance contract rejects the redrawn diagram" in finding.reason
+    assert "would fail it anew: a new failure" in finding.reason
 
 
-def test_the_horizontal_contract_is_asked_not_the_running_bc07(
+def test_the_horizontal_contract_is_asked_and_only_what_is_new_to_it_counts(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple[str, bool]] = []
+    class Failure:
+        def __init__(self, message: str) -> None:
+            self.message = message
 
-    def asked(body: str, has_inputs: bool) -> list[Any]:
-        calls.append((body, has_inputs))
-        return []
+    asked: list[tuple[str, bool]] = []
 
-    monkeypatch.setattr(contract, "topology_failures", asked)
-    assert diagram._validator_accepts("x", True) is True
-    monkeypatch.setattr(contract, "topology_failures", lambda body, has_inputs: ["no"])
-    assert diagram._validator_accepts("x", False) is False
-    assert calls == [("x", True)]
+    def judge(body: str, has_inputs: bool) -> list[Any]:
+        asked.append((body, has_inputs))
+        return [Failure("old ceiling")] + ([Failure("new one")] if body == "after" else [])
+
+    monkeypatch.setattr(contract, "topology_failures", judge)
+    assert diagram._introduced("live", "after", True) == ["new one"]
+    assert diagram._kept_ceilings("live", "after", True) == 1
+    assert diagram._introduced("live", "live", True) == []
+    assert asked[0] == ("live", True) and asked[1] == ("after", True)
 
 
 def test_the_rebuilt_diagram_passes_the_real_contract_without_any_patching(
@@ -102,6 +107,31 @@ def test_the_rebuilt_diagram_passes_the_real_contract_without_any_patching(
     result = at_a_glance_diagram(make_context(README))
     assert result.findings == () and len(result.edits) == 1
     assert contract.topology_failures(result.edits[0].replacement, True) == []
+    assert "ceiling" not in result.edits[0].rationale
+
+
+FIXTURES = Path(__file__).parents[2] / "readme_diagram" / "fixtures" / "live"
+
+
+def test_a_diagram_whose_content_exceeds_the_regeneration_ceilings_is_still_redrawn(
+    make_context: Any,
+) -> None:
+    # Cells for Java lists 15 capabilities where the contract writes at most 8: the maintainers'
+    # words stay, only the drawing changes, and the edit says so.
+    body = (FIXTURES / "aspose-cells-foss__Aspose.Cells-FOSS-for-Java.mmd").read_text(
+        encoding="utf-8"
+    )
+    head = chr(10).join(["# Aspose.Cells FOSS for Java", "", "## At a Glance", "", "```mermaid"])
+    readme = head + chr(10) + body.rstrip(chr(10)) + chr(10) + "```" + chr(10)
+    live = contract.topology_failures(body, True)
+    assert any("at most 8" in failure.message for failure in live)
+    result = at_a_glance_diagram(make_context(readme))
+    assert result.findings == () and len(result.edits) == 1
+    (edit,) = result.edits
+    assert "regeneration ceiling" in edit.rationale
+    after = contract.topology_failures(edit.replacement, True)
+    assert {f.message for f in after} <= {f.message for f in live}
+    assert all(f.stage == "PLANNING" for f in after)  # no composing failure is left
 
 
 def test_a_conforming_diagram_other_diagrams_and_indented_fences_are_left_alone(

@@ -10,7 +10,8 @@ outside them is untouched.
 
 The edit is a ``DIAGRAM_FIX``: an edit that replaces a whole diagram body, which the one-line kinds
 cannot express. The detector edits only when the horizontal At a Glance contract
-(``readme_diagram.contract``) finds nothing wrong with the redrawn body, and reports otherwise.
+(``readme_diagram.contract``) finds nothing wrong with the redrawn body that it did not already find
+in the live one (``_introduced``), and reports otherwise.
 
 BC-07 as it stands still demands the old ``flowchart TD`` chain, so the redrawn body adds At a
 Glance topology failures under it. Owner ruling R7 (BC-07's topology rule migrates to the contract)
@@ -40,18 +41,31 @@ from repository_presenter.components.readme_diagram.rebuild import mermaid_fence
 DETECTOR = "at_a_glance_diagram"
 
 
-def _validator_accepts(body: str, has_inputs: bool) -> bool:
-    """Whether the horizontal At a Glance contract (``readme_diagram.contract``, the rule BC-07's
-    topology check is being migrated to under owner ruling R7) finds nothing wrong with ``body``.
+def _introduced(live: str, after: str, has_inputs: bool) -> list[str]:
+    """The contract failures the redrawn ``after`` has that the live body ``live`` did not.
 
-    BC-07 as it stands still demands the vertical ``flowchart TD`` drawing, so asking it would
-    forbid every rebuild; ``check.ALLOWANCES`` lets its At a Glance failures on a rebuilt drawing
-    through, and this is the check that earns that allowance."""
-    return not contract.topology_failures(body, has_inputs)
+    ``readme_diagram.contract`` is the rule BC-07's topology check is being migrated to (owner
+    ruling R7). Judged the way every correction is judged - no worse than the live README - the
+    drawing must leave it nothing new to say: the contract's composing failures (not the horizontal
+    drawing of its own content, unbalanced columns) are all repaired by the rebuild, while the
+    content ceilings it also holds (at most eight capabilities, a label of at most four lines, no
+    word wider than the line budget) police what a model may author at planning, and the labels
+    here are the maintainers' own, kept as they wrote them, so what the live diagram already
+    exceeded it still exceeds and is not new. Whether such a label draws clear is settled by the
+    real render (``readme_diagram.render_check``), not by this deterministic gate."""
+    known = {failure.message for failure in contract.topology_failures(live, has_inputs)}
+    return [
+        failure.message
+        for failure in contract.topology_failures(after, has_inputs)
+        if failure.message not in known
+    ]
 
 
-def _withheld(accepted: bool) -> str:
-    return "" if accepted else "the horizontal At a Glance contract rejects the redrawn diagram"
+def _kept_ceilings(live: str, after: str, has_inputs: bool) -> int:
+    known = {failure.message for failure in contract.topology_failures(live, has_inputs)}
+    return sum(
+        1 for failure in contract.topology_failures(after, has_inputs) if failure.message in known
+    )
 
 
 @detector(DETECTOR)
@@ -77,18 +91,26 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
             continue
         number = fence.first + 1
         codes = ", ".join(sorted(report.codes))
-        accepted = _validator_accepts(after, bool(parsed.glance.starting_points))
-        if not accepted:
+        has_inputs = bool(parsed.glance.starting_points)
+        worse = _introduced(fence.body, after, has_inputs)
+        if worse:
             findings.append(
                 Finding(
                     DETECTOR,
                     number,
                     fence.body.splitlines()[0] if fence.body else "",
                     f"the diagram is drawn with {codes}; the corrected drawing is withheld "
-                    f"({_withheld(accepted)})",
+                    f"(the horizontal At a Glance contract would fail it anew: {worse[0][:110]})",
                 )
             )
             continue
+        kept = _kept_ceilings(fence.body, after, has_inputs)
+        note = (
+            f"; its content already exceeded {kept} regeneration ceiling(s) and is kept as the "
+            "maintainers wrote it"
+            if kept
+            else ""
+        )
         eol = "\r\n" if opener.endswith("\r\n") else "\n"
         edits.append(
             Edit(
@@ -102,7 +124,7 @@ def at_a_glance_diagram(ctx: Context) -> DetectorResult:
                 locators=(f"{ctx.readme_path}:{number}",),
                 rationale=(
                     f"the At a Glance diagram on line {number} is drawn with {codes}; the same "
-                    "labels, titles and chain are redrawn left to right with SVG text labels"
+                    f"labels, titles and chain are redrawn left to right with SVG text labels{note}"
                 ),
             )
         )
