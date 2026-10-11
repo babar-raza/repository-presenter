@@ -140,6 +140,8 @@ def write_bundle(
     raw: str | None = None,
     current: bool = True,
     upstream_blobs: dict[str, str] | None = None,
+    facts: list[dict[str, Any]] | None = None,
+    manifest_extra: dict[str, Any] | None = None,
 ) -> Path:
     """Create a bundle directory; seal it with a manifest when ``state`` or ``raw`` is given.
 
@@ -148,6 +150,9 @@ def write_bundle(
     through its own ``CURRENT`` file, never by scanning revision directories directly.
     ``upstream_blobs`` is recorded on the manifest when given, as a seal records it; omitted, the
     manifest carries no upstream blob ids (a bundle sealed before they were recorded).
+    ``facts`` writes a sealed ``facts.json`` listed in the manifest's inventory (digest-checked, as
+    in a real seal); ``manifest_extra`` adds fields to the manifest (``sealed_at``,
+    ``consumed_fact_ids``).
     """
     bundle = root / "candidates" / repository_dir / revision
     bundle.mkdir(parents=True, exist_ok=True)
@@ -159,6 +164,13 @@ def write_bundle(
         readme.write_bytes(b"")
         digest = {"README.md": {"sha256": hashlib.sha256(b"").hexdigest(), "bytes": 0}}
         recorded = {} if upstream_blobs is None else {"upstream_blobs": upstream_blobs}
+        if facts is not None:
+            facts_bytes = json.dumps({"facts": facts}).encode("utf-8")
+            (bundle / "facts.json").write_bytes(facts_bytes)
+            digest["facts.json"] = {
+                "sha256": hashlib.sha256(facts_bytes).hexdigest(),
+                "bytes": len(facts_bytes),
+            }
         manifest.write_text(
             json.dumps(
                 {
@@ -168,6 +180,7 @@ def write_bundle(
                     "state": state,
                     "files": digest,
                     **recorded,
+                    **(manifest_extra or {}),
                 }
             ),
             encoding="utf-8",

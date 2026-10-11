@@ -25,6 +25,7 @@ from repository_presenter.components.readme.repair.targeted import defect_finger
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
+from repository_presenter.core.github.read_client import TreeRead
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
@@ -3215,9 +3216,23 @@ MONITOR_BUNDLED = "5" * 40
 MONITOR_HEAD = "4" * 40
 
 
+def _monitor_tree(repository: str, revision: str, *, token: str | None = None) -> TreeRead:
+    """Injected tree reader: the cited file differs at every revision but the bundled one."""
+    sha = "aa" * 20 if revision == MONITOR_BUNDLED else "bb" * 20
+    return TreeRead(repository, revision, paths=("setup.py",), blob_shas={"setup.py": sha})
+
+
+def _no_registry(ecosystem: str, package: str, **_: object) -> object:
+    raise AssertionError("the monitor must not reach a package registry in this test")
+
+
 @pytest.fixture
-def monitor_root(project: Path) -> Path:
-    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner."""
+def monitor_root(project: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner.
+
+    The monitor's tree and registry readers are replaced, so a test never reaches the network."""
+    monkeypatch.setattr(cli, "fetch_tree", _monitor_tree)
+    monkeypatch.setattr(cli, "observe_registry", _no_registry)
     (project / "data").mkdir()
     payload = {
         "schema_version": 1,
@@ -3230,7 +3245,12 @@ def monitor_root(project: Path) -> Path:
     }
     (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
     write_bundle(
-        project, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", MONITOR_BUNDLED, "READY_FOR_PROPOSAL"
+        project,
+        "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+        MONITOR_BUNDLED,
+        "READY_FOR_PROPOSAL",
+        # No recorded blob ids (an older seal): the comparison runs over the facts' cited paths.
+        facts=[{"id": "install_command:pip", "evidence": [{"path": "setup.py", "detail": None}]}],
     )
     return project
 
@@ -3312,11 +3332,10 @@ def test_monitor_exits_zero_when_every_enabled_repository_is_observed(
     assert code == EXIT_OK
     captured = capsys.readouterr()
     assert captured.err == ""
-    # The monitor fixture's bundle was sealed without recorded upstream blob ids, so it is UNKNOWN
-    # until re-sealed - observed, so the run still exits zero.
-    assert "UNKNOWN" in captured.out
+    # The fixture's bundle was sealed without recorded blob ids but its head is unchanged: a git
+    # revision is immutable, so it is CURRENT without a tree read.
     assert (
-        "monitor: 3 observed - CURRENT 0, DRIFTED 0, UNKNOWN 1, NO_BUNDLE 2, UNREACHABLE 0"
+        "monitor: 3 observed - CURRENT 1, DRIFTED 0, UNKNOWN 0, NO_BUNDLE 2, UNREACHABLE 0"
         in captured.out
     )
 
