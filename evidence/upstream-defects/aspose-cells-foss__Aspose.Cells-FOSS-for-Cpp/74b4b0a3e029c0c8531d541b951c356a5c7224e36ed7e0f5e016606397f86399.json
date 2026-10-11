@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "defect_fingerprint": "sha256:74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "lines 174-187, the 'Load an Existing Workbook and Read Cells' code block (revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2; unchanged at the live head)"
+    },
+    {
+      "path": "docker gcc:13 (g++ 13.5.0): g++ -std=c++17 -fsyntax-only -IAspose.Cells.Foss.Cpp/include load.cpp (README.md:175-186 wrapped in main())",
+      "detail": "2026-10-10T15:42Z: load.cpp:11:44: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]'); with #include \"aspose/cells_foss/WorksheetCollection.h\" added the same file compiles (exit 0)"
+    },
+    {
+      "path": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h",
+      "detail": "line 26 only forward-declares WorksheetCollection; the operator[] overloads are declared at WorksheetCollection.h:39 and :44"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/load-example-Cells-Cpp.txt",
+      "detail": "raw command output of the reproduction"
+    }
+  ],
+  "claim": "At revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2, the README example at lines 175-186 that calls workbook.GetWorksheets()[\"Products\"] fails to compile with g++ 13.5.0 (no match for operator[]) because it does not include WorksheetCollection.h, which Workbook.h only forward-declares.",
+  "suggested_issue_title": "Aspose.Cells FOSS for Cpp: README 'Load an Existing Workbook' example does not compile, missing WorksheetCollection.h",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2` on 2026-10-10.\n\n## Summary\n\nThe README example \"Load an Existing Workbook and Read Cells\" (`README.md:174-187`) includes `Workbook.h`, `Worksheet.h` and `Cell.h` and then calls `workbook.GetWorksheets()[\"Products\"]`. `Workbook.h` only forward-declares `WorksheetCollection` (`Workbook.h:26`), so at that point the class is incomplete and the call does not compile. The Quick Start in the same README includes `WorksheetCollection.h` and does not have this problem.\n\n## Environment\n\n- Revision `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2` (default branch `main`)\n- g++ 13.5.0 (Docker image `gcc:13`), `-std=c++17`\n\n## Steps to reproduce\n\nPut the code of that block (`README.md:175-186`, with its three `#include` lines and `using namespace Aspose::Cells_FOSS;`) inside `int main() { ... }` in `load.cpp`, then:\n\n```sh\ng++ -std=c++17 -fsyntax-only -IAspose.Cells.Foss.Cpp/include load.cpp\n```\n\n## Expected\n\nThe README example compiles as written.\n\n## Actual result\n\n```\nload.cpp:11:44: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')\n```\n\nAdding `#include \"aspose/cells_foss/WorksheetCollection.h\"` to the same file makes it compile (exit 0).\n\n## Where in the repository\n\n- `README.md:174-187` (the example)\n- `Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h:26` (forward declaration only)\n- `Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/WorksheetCollection.h:39,44` (the `operator[]` overloads)\n\n## Suggested fix\n\nAdd `#include \"aspose/cells_foss/WorksheetCollection.h\"` to the example, as the Quick Start already does.\n\n<!-- repository-presenter-defect: sha256:74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

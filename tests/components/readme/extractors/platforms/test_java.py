@@ -536,6 +536,7 @@ def test_a_published_install_fact_shows_both_readings_bc02_asks_for(
             "https://repo1.maven.org/maven2/org/aspose/aspose-widget/maven-metadata.xml",
             "maven-metadata",
             "live",
+            repository_matched=True,
         )
 
     monkeypatch.setattr(java, "observe", published)
@@ -614,3 +615,44 @@ def test_every_fact_the_plugin_emits_is_typed_as_a_fact(tmp_path: Path) -> None:
         *java.PLUGIN.surface_facts(tmp_path, tree),
     ]:
         assert isinstance(fact, Fact)
+
+
+# TC-EXT-01 (G3-W08 cut 2): identity read by first-match regex took the <parent> block's
+# coordinates. Trimmed real POMs: spring-projects/spring-petclinic at 500158f7 (parent first, own
+# groupId and version) and apache/commons-lang at dd2c9e85 (groupId inherited from the parent).
+_POM_FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def _facts_of(tmp_path: Path, pom: str) -> dict[str, Fact]:
+    (tmp_path / "pom.xml").write_text(pom, encoding="utf-8", newline="\n")
+    manifest = java.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    return {fact.id: fact for fact in java.PLUGIN.manifest_facts(tmp_path, manifest, [])}
+
+
+def test_the_project_identity_is_the_projects_own_not_its_parents(tmp_path: Path) -> None:
+    facts = _facts_of(tmp_path, (_POM_FIXTURES / "petclinic" / "pom.xml").read_text("utf-8"))
+    assert facts["package:name"].value == "org.springframework.samples:spring-petclinic"
+    assert facts["package:version"].value == "4.0.0-SNAPSHOT"
+    assert facts["install_command:maven"].value == (
+        "mvn dependency:get -Dartifact=org.springframework.samples:spring-petclinic:4.0.0-SNAPSHOT"
+    )
+
+
+def test_an_absent_group_id_is_inherited_from_the_parent(tmp_path: Path) -> None:
+    facts = _facts_of(tmp_path, (_POM_FIXTURES / "commons_lang" / "pom.xml").read_text("utf-8"))
+    assert facts["package:name"].value == "org.apache.commons:commons-lang3"
+    assert facts["package:version"].value == "3.21.1-SNAPSHOT"
+
+
+def test_an_absent_version_is_inherited_from_the_parent(tmp_path: Path) -> None:
+    pom = (_POM_FIXTURES / "commons_lang" / "pom.xml").read_text("utf-8")
+    facts = _facts_of(tmp_path, pom.replace("<version>3.21.1-SNAPSHOT</version>", ""))
+    assert facts["package:version"].value == "105"
+
+
+def test_a_parent_only_pom_declares_no_identity_of_its_own(tmp_path: Path) -> None:
+    pom = (_POM_FIXTURES / "commons_lang" / "pom.xml").read_text("utf-8")
+    facts = _facts_of(tmp_path, pom.replace("<artifactId>commons-lang3</artifactId>", ""))
+    assert "package:name" not in facts
+    assert "install_command:maven" not in facts

@@ -23,18 +23,20 @@ from repository_presenter.components.readme.extractors.platforms.java_examples i
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
 from repository_presenter.components.readme.extractors.surface.manifest import (
-    PackageIdentity,
     read_identity,
 )
-from repository_presenter.components.readme.extractors.surface.registry import observe
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
     FormatClaim,
     FormatDeclaration,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -70,6 +72,30 @@ JAVA: Final = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("pom.xml",),
     source_suffixes=frozenset({".java"}),
+    # A class in a test tree is a test when it carries a test annotation (JUnit 4/5, TestNG) or
+    # extends JUnit 3's TestCase; the assertion helpers, scenario factories, and temp-directory
+    # utilities beside the tests do not (Aspose.Cells for Java: 38 files, 23 of them tests).
+    suite_files=SuiteFileRule(
+        name=r"\.java$",
+        marker=(
+            r"@(?:[\w.]+\.)?(?:Test|ParameterizedTest|RepeatedTest|TestFactory|TestTemplate)\b"
+            r"|\bextends[ \t]+TestCase\b"
+        ),
+    ),
+    # The two declarations the upstream READMEs also give next to `mvn dependency:get`; both are
+    # the coordinate and version the Installation sentence already states, in another syntax.
+    install_alternatives=(
+        (
+            "Or declare it in Maven:",
+            "xml",
+            "<dependency>\n"
+            "  <groupId>{group}</groupId>\n"
+            "  <artifactId>{artifact}</artifactId>\n"
+            "  <version>{version}</version>\n"
+            "</dependency>",
+        ),
+        ("Or declare it in Gradle:", "groovy", "implementation '{group}:{artifact}:{version}'"),
+    ),
 )
 # §29.6 E3 and `core/ecosystems.py`'s own rule: adding an ecosystem is a spec, a verifier and a
 # negative control, never an edit to a shared file - so the spec is declared beside the plugin
@@ -232,10 +258,31 @@ def _dependency_facts(root: ElementTree.Element | None, where: str) -> list[Fact
     return facts
 
 
-def _coordinate(identity: PackageIdentity) -> str:
+def _own_identity(pom: ElementTree.Element | None) -> tuple[str, str, str]:
+    """``(groupId, artifactId, version)`` of the project the POM declares.
+
+    The project's own children, read from the parsed tree. The vendored reader's first-match
+    regex took the ``<parent>`` block's coordinates whenever that block came first, which it
+    nearly always does: Spring Petclinic was published as ``spring-boot-starter-parent`` and
+    reported at the parent's version. Maven's own inheritance rule applies instead: a ``groupId``
+    or ``version`` the project omits is the parent's; an ``artifactId`` is never inherited. A POM
+    that will not parse declares nothing.
+    """
+    if pom is None:
+        return "", "", ""
+    parent = _section(pom, "parent")
+
+    def inherited(name: str) -> str:
+        own = _child(pom, name)
+        if own or parent is None:
+            return own
+        return _child(parent, name)
+
+    return inherited("groupId"), _child(pom, "artifactId"), inherited("version")
+
+
+def _coordinate(group: str, artifact: str) -> str:
     """`groupId:artifactId`, the name a Java reader writes into a POM or a build file."""
-    group = str(identity.raw.get("group_id") or "").strip()
-    artifact = str(identity.raw.get("artifact_id") or "").strip() or identity.name
     if not artifact:
         return ""
     return f"{group}:{artifact}" if group else artifact
@@ -351,7 +398,7 @@ class JavaPlugin:
             path
             for pattern in self.manifest_globs
             for path in root.rglob(pattern)
-            if not any(part in _IGNORED_DIRECTORIES for part in path.parts)
+            if not any(part in _IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
         ]
         if not candidates:
             return None
@@ -371,7 +418,8 @@ class JavaPlugin:
         identity = read_identity(root, self.ecosystem, manifest)
         where = manifest.relative_to(root).as_posix()
         pom = _read_pom(manifest)
-        coordinate = _coordinate(identity)
+        group, artifact_id, version = _own_identity(pom)
+        coordinate = _coordinate(group, artifact_id)
         facts: list[Fact] = []
         if coordinate:
             facts.append(
@@ -385,7 +433,7 @@ class JavaPlugin:
             # `mvn dependency:get` is the one install form that is a command rather than a POM
             # edit, so it is what a bash fence can honestly show; it resolves the artifact from
             # Maven Central into the caller's local repository.
-            artifact = f"{coordinate}:{identity.version}" if identity.version else coordinate
+            artifact = f"{coordinate}:{version}" if version else coordinate
             facts.append(
                 Fact(
                     fact_id("install_command", "maven"),
@@ -407,12 +455,12 @@ class JavaPlugin:
                     confidence=0.5,
                 )
             )
-        if identity.version:
+        if version:
             facts.append(
                 Fact(
                     fact_id("package", "version"),
                     "package",
-                    identity.version,
+                    version,
                     (Evidence(where, "version declared by the POM"),),
                 )
             )
@@ -512,20 +560,13 @@ class JavaPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
             detail = (
                 "package registry: Maven Central was not read - the shared probe takes a package "
                 "name, and `maven-metadata.xml` is addressed by group and artifact id"
             )
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-            detail = reading.summary
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
-            detail = reading.summary
         resolved = Fact(
             install.id,
             install.kind,

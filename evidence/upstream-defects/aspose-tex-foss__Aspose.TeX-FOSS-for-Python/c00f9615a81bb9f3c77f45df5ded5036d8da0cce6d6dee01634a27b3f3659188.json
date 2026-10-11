@@ -28,11 +28,43 @@
     {
       "path": "gh api repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/commits/main --jq .sha",
       "detail": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c at 2026-10-09T20:50Z (no revision drift since 2026-09-17; the raw blob also carries one-space indentation)"
+    },
+    {
+      "path": "python -I ast_parse_all.py . (every .py file in a shallow clone at the live head, Python 3.13.15)",
+      "detail": "2026-10-10: FAILED/TOTAL 102/119: src/aspose_tex 35 of 45, tests 63 of 69 plus tests/_verification 3 of 4, run_hello.py"
+    },
+    {
+      "path": "PYTHONPATH=src python -I -c 'import aspose_tex'",
+      "detail": "2026-10-10: IndentationError in aspose_tex/_input/catcode.py line 66: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/ast-TeX-Python.txt",
+      "detail": "raw command output"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/import-TeX-Python.txt",
+      "detail": "raw command output"
+    },
+    {
+      "path": "python -I ast_parse_all.py . (every .py file in a shallow clone at the live head, Python 3.13.15)",
+      "detail": "2026-10-10: FAILED/TOTAL 102/119: src/aspose_tex 35 of 45, tests 63 of 69 plus tests/_verification 3 of 4, run_hello.py"
+    },
+    {
+      "path": "PYTHONPATH=src python -I -c 'import aspose_tex'",
+      "detail": "2026-10-10: IndentationError in aspose_tex/_input/catcode.py line 66: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/ast-TeX-Python.txt",
+      "detail": "raw command output"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/import-TeX-Python.txt",
+      "detail": "raw command output"
     }
   ],
-  "claim": "At revision 181015d2eee3e19f8af3d84e4a932ac84ad47c7c, 35 of the 45 Python files under aspose-tex-foss/Aspose.TeX-FOSS-for-Python's own src/aspose_tex/ tree, including src/aspose_tex/presentation/__init__.py (the module the repository's own docstring calls the user-facing entry point), raise IndentationError under Python's standard ast.parse, because the source's indentation is collapsed to one space per level throughout the affected files.",
-  "suggested_issue_title": "35 of 45 files under src/aspose_tex/ fail to parse (IndentationError) at HEAD, including the presentation entry point",
-  "suggested_issue_body": "## Summary\n\nMost of this repository's own Python source under `src/aspose_tex/` does not parse as valid Python. The module the package's own docstring names as the user-facing entry point is among the files that fail.\n\n## Environment\n\n- Repository: aspose-tex-foss/Aspose.TeX-FOSS-for-Python\n- Revision: `181015d2eee3e19f8af3d84e4a932ac84ad47c7c` (default branch `main`)\n- Tool: Python's standard `ast.parse` (reproducible with any Python 3 interpreter; no third-party tooling involved)\n\n## Steps to reproduce\n\nFor any `.py` file under `src/aspose_tex/`, run:\n\n```python\nimport ast\nast.parse(open(path, encoding=\"utf-8\").read())\n```\n\n## Actual result\n\n35 of the 45 `.py` files under `src/aspose_tex/` raise `IndentationError`. For example, `src/aspose_tex/presentation/__init__.py`:\n\n```\nIndentationError: expected an indented block after function definition on line 107 (line 108)\n```\n\nThe same shape (`expected an indented block after ...`) recurs across every failing file - the source's indentation is collapsed to one space per level throughout, rather than each file's own apparent intended indentation.\n\n## Files affected (not exhaustive - 35 of 45 total)\n\n`src/aspose_tex/presentation/__init__.py`, `src/aspose_tex/_engine/interpreter.py`, `src/aspose_tex/_engine/nodes.py`, `src/aspose_tex/_input/tokenizer.py`, `src/aspose_tex/_fonts/font_manager.py`, and 30 others under `_engine/`, `_fonts/`, `_input/`, and `_output/`.\n\n## Impact noted for context\n\n`src/aspose_tex/presentation/__init__.py` - the module whose own docstring calls it the user-facing entry point, and which defines `TeXJob`, `TeXOptions`, and the `OutputDevice` hierarchy - does not parse, so the package cannot be imported at all from this source tree at this revision.\n",
+  "claim": "At revision 181015d2eee3e19f8af3d84e4a932ac84ad47c7c, 102 of the 119 Python files in aspose-tex-foss/Aspose.TeX-FOSS-for-Python (src/aspose_tex/ 35 of 45, tests/ 66 of 73, and run_hello.py) raise IndentationError under Python's standard ast.parse, because the indentation is collapsed to one space per level, and 'import aspose_tex' fails at _input/catcode.py line 66.",
+  "suggested_issue_title": "Aspose.TeX FOSS for Python: 102 of 119 .py files fail to parse (IndentationError) and 'import aspose_tex' fails",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `181015d2eee3e19f8af3d84e4a932ac84ad47c7c` on 2026-10-10.\n\n## Summary\n\nMost of this repository's Python source does not parse. Indentation has been collapsed to one space per nesting level, so the files are not valid Python. The package cannot be imported from this source tree and the test suite cannot be collected.\n\n## Environment\n\n- Revision `181015d2eee3e19f8af3d84e4a932ac84ad47c7c` (default branch `main`)\n- Python 3.13.15, standard library only (`ast.parse`); any Python 3 interpreter reproduces it\n\n## Steps to reproduce\n\n```python\nimport ast, pathlib\nbad = ok = 0\nfor p in pathlib.Path(\".\").rglob(\"*.py\"):\n    try:\n        ast.parse(p.read_text(encoding=\"utf-8\")); ok += 1\n    except SyntaxError:\n        bad += 1\nprint(bad, ok)\n```\n\nand\n\n```sh\npip install -e .\npython -c \"import aspose_tex\"\n```\n\n## Expected\n\nEvery `.py` file parses, `import aspose_tex` succeeds and the test suite can be collected.\n\n## Actual result\n\n- 102 of the 119 `.py` files raise `IndentationError`: `src/aspose_tex/` 35 of 45, `tests/` 66 of 73 (including `tests/_verification/`), and `run_hello.py`.\n- `src/aspose_tex/presentation/__init__.py` (the module the package's own docstring calls the user-facing entry point; it defines `TeXJob`, `TeXOptions` and the `OutputDevice` hierarchy): `IndentationError: expected an indented block after function definition on line 107 (line 108)`. Lines 107 and 108 are indented by a single space.\n- `import aspose_tex` fails immediately: `aspose_tex/__init__.py` imports `aspose_tex._input`, which imports `_input/catcode.py`, line 66: `IndentationError: expected an indented block after 'for' statement on line 65`.\n- The same error shape (`expected an indented block after ...`) recurs in every failing file.\n\n## Suggested fix\n\nRestore the original indentation (re-export from the original formatted source), then add a CI step that runs `python -m compileall src tests` on every push so a collapsed-indentation commit cannot land again.\n\n<!-- repository-presenter-defect: sha256:c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188 -->\n",
   "status": "HANDOFF_PENDING",
   "issue_ref": null,
   "close_reason": null

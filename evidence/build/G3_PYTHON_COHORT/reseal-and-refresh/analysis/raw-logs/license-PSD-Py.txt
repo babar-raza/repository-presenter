@@ -1,0 +1,15 @@
+# log: license-PSD-Py
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-Python
+# head: 664446b97952c063baf828f469995ad2a160bae7
+# utc: 2026-10-10T15:02:04Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-Python --jq .license:'; gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-Python --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+NONE
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-psd-foss/Aspose.PSD-FOSS-for-Python --jq .license:
+license=null
+
+# exit: 0

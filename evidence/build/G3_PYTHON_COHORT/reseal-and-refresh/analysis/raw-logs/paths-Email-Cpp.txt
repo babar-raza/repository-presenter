@@ -1,0 +1,18 @@
+# log: paths-Email-Cpp
+# repository: aspose-email-foss/Aspose.Email-FOSS-for-Cpp
+# head: c844a467cf7f2503819b655f4d6ceaef91056c40
+# utc: 2026-10-10T15:25:05Z
+# cwd: shallow clone of the default branch
+# command: grep -n 'cpp/' examples/README.md | head -6; echo '--- does cpp/ exist?'; ls -d cpp 2>&1 | head -1; echo '--- CMakeLists.txt / CMakePresets.json at repo root:'; git ls-files CMakeLists.txt CMakePresets.json
+# ---- output (capped at 60000 bytes) ----
+30:cmake -S cpp -B cpp/out/build/examples -DASPOSE_EMAIL_FOSS_BUILD_EXAMPLES=ON -DASPOSE_EMAIL_FOSS_BUILD_TESTS=OFF
+31:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_create_msg_and_eml
+46:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_msg_reader
+62:cmake --build cpp/out/build/examples --config RelWithDebInfo --target aspose_email_foss_example_msg_summary
+--- does cpp/ exist?
+ls: cannot access 'cpp': No such file or directory
+--- CMakeLists.txt / CMakePresets.json at repo root:
+CMakeLists.txt
+CMakePresets.json
+
+# exit: 0

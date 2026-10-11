@@ -1,0 +1,24 @@
+{
+  "info": {
+    "name": "aspose-page",
+    "version": "26.8.0",
+    "home_page": "https://products.aspose.com/page/python-net/",
+    "project_urls": {
+      "API Reference": "https://reference.aspose.com/page/python-net/",
+      "Blog": "https://blog.aspose.com/categories/aspose.page-product-family/",
+      "Demos": "https://products.aspose.app/page/family/",
+      "Docs": "https://docs.aspose.com/page/python-net/",
+      "Free Support": "https://forum.aspose.com/c/page/",
+      "Homepage": "https://products.aspose.com/page/python-net/",
+      "Temporary License": "https://purchase.aspose.com/temporary-license/"
+    },
+    "license": "Other/Proprietary License"
+  },
+  "releases": {
+    "26.8.0": [
+      {
+        "packagetype": "sdist"
+      }
+    ]
+  }
+}

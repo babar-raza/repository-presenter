@@ -26,7 +26,7 @@ placed: 2026-10-10 by TC-GOV-01 (lane L-gov); card statuses printed here are ini
 
 **Read first (honest status of this document).** My first draft of this plan was built on a main checkout that was **22 commits behind `origin/main`**, so it duplicated work the owner had already registered (G7-W21/W22) and landed (#304 candidates publish, #308 profile ratification, #309 proposal-wave tool, #311, #313 bump-cost investigation, #314 issue harvest). Everything below is re-based on `origin/main 7c5acbf7`. Where a number came from the stale checkout it is marked **STALE-BASE** and a card re-derives it.
 
-**Reading guide.** §1 context and findings · §2 what already exists · §3 requirements · §4 authority and storage · §5 options · §6 machine state · §7 tracks, order, locks · §8–§11 taskcards · §12 validation, evidence, scoring · §13 handoff · §14 feedback and decisions for you.
+**Reading guide.** §1 context and findings · §2 what already exists · §3 requirements · §4 authority and storage · §5 options · §6 machine state · §7 tracks, order, locks · §8–§11 taskcards, §11A the two-lane cards (2026-10-11) · §12 validation, evidence, scoring · §13 handoff · §14 feedback and decisions for you.
 
 ---
 
@@ -98,18 +98,18 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 
 ## 3. Requirements (stable IDs)
 
-REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-REF-01…09 refresh app (§11).
+REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
 
 ---
 
 ## 4. Authority, storage, identifiers (decisions D-1…D-7)
 
-- **D-1 No competing plan.** `AGENTS.md`: "Never create a competing plan…". The registered items remain the plan; this layer is stored as `plans/reseal-and-refresh/PLAN.md` following the `plans/sprint/` and `plans/healing/` precedent (static plan + append-only `loop-status.jsonl`/`loop-instructions.jsonl`, rules in `docs/SUPERVISION.md` "Channels"). It begins with the sentence in the header above. `AGENTS.md` (200/200 lines) is **not** edited; `docs/EXECUTION_STATE_MACHINE.md` (500/500 per #307) gets at most a pointer **only if** a line can be freed in the same edit (TC-GOV-01 decides; otherwise the pointer lives in each work item's `purpose` text).
+- **D-1 No competing plan.** `AGENTS.md`: "Never create a competing plan…". The registered items remain the plan; this layer is stored as `plans/reseal-and-refresh/PLAN.md` following the `plans/sprint/` and `plans/healing/` precedent (static plan + append-only `loop-status.jsonl`/`loop-instructions.jsonl`, rules in `docs/SUPERVISION.md` "Channels"). It begins with the sentence in the header above. `AGENTS.md` (200/200 lines) is **not** edited; `docs/EXECUTION_STATE_MACHINE.md` (500/500 per #307) gets at most a pointer **only if** a line can be freed in the same edit (TC-GOV-01 decides; otherwise the pointer lives in each work item's `purpose` text). *2026-10-11: both caps were raised on the owner's instruction (`AGENTS.md` to 210, the execution plan to 520; `docs/DECISION_LOG.md`), and the two-lane cards live in section 11A, not in the execution plan.*
 - **D-2 One representation.** Cards live once, as fenced YAML blocks in `PLAN.md`. Generated CSV/YAML maps (traceability, DAG, matrices) are derived by the lint tool and carry `authoritative_plan:`, `artifact_role: analysis_or_evidence_only`, `execution_authority: false`.
 - **D-3 Status.** Work-item status stays in `project/state.yaml` (existing mechanism; ids must match `^G[0-7]-W[0-9]{2}$`; extra fields are rejected by the schema). Parent/child/micro transitions go to `plans/reseal-and-refresh/loop-status.jsonl` (`card` key, per sprint precedent). A work item is COMPLETE only with a gate-manifest acceptance record (existing test) *and* all mapped parents CLOSED (new lint rule). Statuses printed here are initial.
-- **D-4 Identifiers.** `REQ-<DOMAIN>-NN`; parent `TC-<AREA>-NN`; child `TC-<AREA>-NN-CC`; micro `MS-<AREA>-NN-CC-SS` where SS is the 1-based position in the child's `steps` list (derived, never random; reordering = new child). Areas: CON GOV LNT CUT PRE PIL RSL TRI ACC WAV ISS REV DSP CLM COV EXT INV CUR BND CTR PRP VER R2 REF.
+- **D-4 Identifiers.** `REQ-<DOMAIN>-NN`; parent `TC-<AREA>-NN`; child `TC-<AREA>-NN-CC`; micro `MS-<AREA>-NN-CC-SS` where SS is the 1-based position in the child's `steps` list (derived, never random; reordering = new child). Areas: CON GOV LNT CUT PRE PIL RSL TRI ACC WAV ISS REV DSP CLM COV EXT INV CUR BND CTR PRP VER R2 REF LIV STD IDM.
 - **D-5 Evidence.** `evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/{analysis,decisions,taskcards,validation,raw-logs,generated-artifacts,quality,closeout}/` plus `run-record.yaml` (the current gate is `G3_PYTHON_COHORT`; REPOSITORY_LAYOUT gets one line for it in TC-GOV-01).
-- **D-6 Register entries.** Reuse existing items wherever one exists (§2). Three NEW entries, each needing a verbatim entry in `docs/RESEARCH_AND_GUIDELINES.md` §27.9 in the same order, a mention in the narrative, and (if `owner` starts `REGISTER:`) `Exit predicate:`/`Depends on:` in `purpose` and the id named in the build plan: **G3-W08** (candidate content gate and coverage: Track C), **G6-W07** (issue-system operations: Track B), **G7-W25** (consumed-scope recheck: Track C, doc 13). All `PENDING`.
+- **D-6 Register entries.** Reuse existing items wherever one exists (§2). Three NEW entries, each needing a verbatim entry in `docs/RESEARCH_AND_GUIDELINES.md` §27.9 in the same order, a mention in the narrative, and (if `owner` starts `REGISTER:`) `Exit predicate:`/`Depends on:` in `purpose` and the id named in the build plan: **G3-W08** (candidate content gate and coverage: Track C), **G6-W07** (issue-system operations: Track B), **G7-W25** (consumed-scope recheck: Track C, doc 13). All `PENDING`. On 2026-10-11 three more entries followed the owner decisions D1 to D7: **G3-W09** (Lane L, live-first correction), **G3-W10** (the README structure standard from the live survey) and **G3-W11** (regeneration idempotence); their cards are in section 11A.
 - **D-7 Lanes.** Sonnet-only, isolated worktrees from `scripts/new_worktree.sh` (always off a fresh `origin/main`; never the main checkout), one shared-code item at a time except disjoint paths, supervisor serialises merges, no merge without green head commit and a diff scan for removed asserts or new skips, no `--no-verify`. Plan-mode boundary: outbound effects (issues, PRs, variables, secrets, App changes, registry mode flips) always need the owner's approval of the exact list at the time.
 
 ---
@@ -164,7 +164,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
 - **Cut-1 slice (time-boxed, governed, `cut: 1-if-ready`):** TC-REV-01 (REJECT stands, so the repair loop can fix findings instead of shipping them), TC-CLM-01 (published-version fact and BC-14), and a thin TC-COV-02 limited to fact kinds that existing template sections already render; each declares its G7-W22 ground (factual accuracy: unsupported public claims in sealed READMEs) and rests on the owner's 2026-10-10 plan-review answers (TC-R2-00). TC-VER-01 bumps the affected constants once. Anything not green by Sunday 22:00 moves to cut 2; the cut is then current `origin/main`.
 - **Track C-1, read-only analysis that may start now:** TC-COV-01 (coverage inventory of clone information per repository). No `src/` change.
 - **Track C-2, second cut (accepted by the owner; governed changes land only after wave 1's reseal so the reseal runs on one fixed code):** TC-DSP-01/02, TC-COV-02 (remaining kinds)/03, TC-EXT-01, TC-INV-01/02, TC-CUR-01, TC-BND-01, TC-CTR-01, TC-PRP-01, TC-VER-02, plus whatever of the cut-1 slice did not make it; then TC-R2-01 (declare the second cut) and TC-R2-02 (second portfolio reseal, re-using the Track C-0 cards). Development may overlap wave 1 on branches; landing may not.
-- **Track D, refresh app (after Monday; staged):** TC-REF-01…09.
+- **Track D, refresh app (after Monday; staged):** TC-REF-01…09, then the local-to-hosted path: **TC-REF-10** (every workflow run locally in its hosted shape) → **TC-REF-11** (the full autonomous cycle rehearsed locally on synthetic upstreams, including failure modes) → **TC-REF-12** (production hosting go-live on GitHub Actions, staged). Hosting is never the first place a workflow runs. **TC-REF-10/11/12 are `no_bump: true` (owner requirement, 2026-10-11): they can never move a governed version.** The lint refuses such a card that is `governed: true` or that writes under `src/` (rule `NO_BUMP_BREACH`), and refuses any `governed: false` card that writes a governed source (`GOVERNED_PATH_IN_UNGOVERNED_CARD`; the governed list is parsed from `tests/test_version_bump_discipline.py`, never copied); `python -m tools.workflow_rehearsal.no_bump_check <base>` proves it for a branch's actual diff. Their write paths are disjoint from every Track C-0 path (shared hot files are the header's `serialised_paths`, waived by the existing rule, nothing relaxed), and TC-REF-10 has no dependency edge into Track C (it consumes no candidate, only the workflows as they stand), so it runs beside TC-RSL-03 and the TC-ACC/TRI/WAV cards. TC-REF-11 and TC-REF-12 follow the reseal only through their content edges (TC-REF-02 needs the second reseal, TC-REF-04 the wave authorization); their preparation (`hosting_preflight.py`, the staged checklist) is file-disjoint and needs no dependency.
 
 **Path ownership (lint-checked).** L-gov: `docs/`, `plans/reseal-and-refresh/`, `project/state.yaml`, `tools/plan_lint/`, `tests/test_plan_lint.py`, `evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/`. L-seal: `candidates/`, `runs/` (gitignored). L-hosted: `.github/workflows/`, `components/monitor/`, `components/propose/`, `components/candidates_publish/`, `core/sealing_plan.py`. L-issues: `components/issues/`, `evidence/upstream-defects/`, `ops/issue_approvals/` (records only after owner approval). L-review: `components/readme/review/`. L-disp: `components/readme/reconciliation/`, `components/readme/validation/`. L-extract: `components/readme/extractors/`, `components/readme/evidence/facts/`, `core/facts.py` (FactKind only). L-core: `core/` (rest), `components/readme/bundle/`, `cli.py`. L-compose: `components/readme/composition/` (serialised after L-disp and L-extract). Verifier: read-only, writes only `quality/` and `analysis/`. Hot files, one writer at a time: `validation/registry.py`, `reconciliation/dispositions.py`, version-pin tests (TC-VER-01 only), `project/state.yaml` (L-gov only), `docs/RESEARCH_AND_GUIDELINES.md` §27.9 (L-gov only).
 
@@ -924,7 +924,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-DSP-02]
   item: G3-W08
   lane: L-disp
-  depends: [TC-DSP-01]
+  depends: [TC-DSP-01, TC-STD-03]
   governed: true
   ground: "factual-accuracy plus owner approval D-OWN-2"
   paths: {write: [src/repository_presenter/components/readme/validation/, tests/components/readme/validation/, docs/README_CONTRACT.md]}
@@ -1311,7 +1311,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
     - id: TC-REF-02-03
       title: Observe
       steps:
-        - "run | one unattended cycle after the owner enables the variables | run id, PR and zero-call no-op proof on an unchanged revision recorded"
+        - "run | one unattended hosted cycle, only after TC-REF-12 stage H0 and the owner enabling the variables | run id, PR and zero-call no-op proof on an unchanged revision recorded"
 
 - id: TC-REF-03
   title: Standing authorization (owner-signed) replacing per-hash records after the pilot wave
@@ -1429,7 +1429,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-09]
   item: G7-W06
   lane: supervisor
-  depends: [TC-REF-02, TC-REF-04, TC-REF-06, TC-REF-07]
+  depends: [TC-REF-02, TC-REF-04, TC-REF-06, TC-REF-07, TC-REF-12]
   governed: false
   paths: {write: [project/state.yaml, docs/DECISION_LOG.md]}
   outcome: shadow, then issues, then a PR pilot on the two `full` repositories, then per-repository expansion each with its own owner record
@@ -1442,6 +1442,413 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
         - "run | stage 2: approved issues live (Track B) | issues filed once"
         - "decide-owner | stage 3: PR pilot on Cells-Java and 3D-Java only after their candidates pass the review lane and the owner signs | recorded"
         - "decide-owner | stage 4: expand per repository, one owner record each | recorded"
+
+- id: TC-REF-10
+  title: Run every workflow locally in its hosted shape (before anything is hosted)
+  reqs: [REQ-REF-10]
+  item: G7-W06
+  lane: L-hosted
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [tools/workflow_rehearsal/, tests/test_workflow_rehearsal.py, tests/test_no_bump_check.py, docs/OPERATIONS_RUNBOOK.md, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/]}
+  outcome: each of monitor, sealing-scheduled, present, candidates-publish, propose, issues-scheduled and liveness has been executed locally job by job with the hosted inputs (variables, secret names, permissions, checkout depth, runner OS image) and a recorded result, so the first hosted run finds no surprises
+  accept: ["actionlint (or the repository's workflow-shape tests) clean on every workflow", "each workflow ran locally via a container-based runner (Docker is present on this machine; nektos/act or a plain ubuntu container running the same job steps) or, where a step cannot run in a container, by replaying that step's script locally; the gap per workflow is recorded", "GitHub write endpoints are served by a local fake (bare git remote for pushes, recorded fake REST API for pull requests and issues); the LLM gateway is real; no write reaches GitHub", "the full list of variables, secrets and permissions each workflow needs is generated from the YAML and equals what docs/OPERATIONS_RUNBOOK.md states"]
+  children:
+    - id: TC-REF-10-01
+      title: Inventory and static checks
+      steps:
+        - "inspect | .github/workflows/*.yml: triggers, permissions, environments, variables, secrets, job graph, artifacts, concurrency groups | generated table, equal to the runbook text"
+        - "run | actionlint and tests/test_*_workflow.py | clean"
+    - id: TC-REF-10-02
+      title: Local execution harness
+      steps:
+        - "create | tools/workflow_rehearsal: runs a workflow's jobs in order in an ubuntu container (or act) with a local bare remote as origin and a fake GitHub REST transport; hosted-only context (github.*) is provided from a fixture | harness runs monitor.yml end to end"
+        - "run | each remaining workflow, recording container image, python version (hosted is 3.11 while the environment of record for bundles is 3.13: record the difference and its effect on bundle currency, doc 13), duration, and any step that needs a hosted-only service | per-workflow result table"
+    - id: TC-REF-10-03
+      title: Differences between this machine and the hosted runner
+      steps:
+        - "record | toolchains the hosted image lacks that sealing needs (g++, cmake, ninja, cargo, dotnet, go, java) and how workflows install them; examples that need Windows; hosted Python 3.11 versus bundle environment 3.13 | list with a fix or a typed limitation per ecosystem"
+        - "decide-owner | where each ecosystem is sealed in production: a hosted runner, or a self-hosted runner on this machine (the existing runner is registered to a product repository, not the control repository: a new registration for the control repository is an owner action) | decision recorded; answered 2026-10-11 by owner decision D5: production sealing runs on a self-hosted runner on the owner machine (OWNER-21), hosted runners only for monitor and publish"
+
+- id: TC-REF-11
+  title: Rehearse the whole autonomous cycle locally on synthetic upstreams
+  reqs: [REQ-REF-11]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-REF-10, TC-REF-02, TC-CUR-01, TC-PRP-01]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/workflow_rehearsal/, tests/test_workflow_rehearsal.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/]}
+  outcome: a recorded local run of monitor, plan, seal, verify-noop-proof, commit-back, propose and issue filing against synthetic upstream repositories and the local fakes, covering success and every failure mode
+  accept: ["a synthetic upstream commit that touches a consumed path produces exactly one candidate update and, at the propose step, one pull request on the fake remote; an irrelevant commit produces none", "an unchanged revision makes zero provider calls (ledger proof)", "provider outage is BLOCKED_EXTERNAL, no budget burn, retried next cycle", "a run killed mid-transaction recovers without double processing; a stale lease is fenced", "the pause variable, the per-run and per-day call budgets and the open-PR cap each stop the cycle", "a maintainer edit to the README upstream is reconciled, never overwritten", "no credential appears in any log or artifact of the rehearsal (grep over all outputs)"]
+  children:
+    - id: TC-REF-11-01
+      title: Synthetic upstreams
+      steps:
+        - "create | a local bare repository per scenario (relevant change, irrelevant change, README edit by a maintainer, force-pushed history, deleted repository, archived repository) plus a fixture registry entry in dry_run mode | scenario table"
+    - id: TC-REF-11-02
+      title: Happy path and no-op
+      steps:
+        - "run | the harness: monitor, sealing plan, present (real gateway), verify-noop-proof, publish-candidates (local remote), propose (fake REST) | one candidate PR on the fake remote with the generated title and body; a second run creates nothing"
+    - id: TC-REF-11-03
+      title: Failure modes
+      steps:
+        - "run | gateway outage, kill mid-transaction, stale lease, lost response on a write, rate-limit response, pause variable, budget exhaustion | each recovers or stops as the acceptance lines state; evidence per mode"
+    - id: TC-REF-11-04
+      title: Soak
+      steps:
+        - "run | the cycle every hour for 24 hours with a synthetic upstream that changes twice | no duplicate PR, no stuck lease, freshness ages as expected, summary recorded"
+
+- id: TC-REF-12
+  title: Production hosting on GitHub Actions (staged go-live)
+  reqs: [REQ-REF-12]
+  item: G7-W06
+  lane: supervisor
+  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02]
+  governed: false
+  no_bump: true
+  paths: {write: [docs/OPERATIONS_RUNBOOK.md, project/state.yaml, docs/DECISION_LOG.md, .github/workflows/, tools/workflow_rehearsal/, tests/test_hosting_preflight.py]}
+  outcome: the system runs on GitHub Actions on its schedules with write capability enabled only in the stages the owner approves, a documented kill switch and a documented rollback
+  accept: ["prerequisites ready and checked by a preflight job: App installation and permissions per organization (contents and pull requests write only for PR stages, issues write only for issue stages), required secrets and variables present, branch protection and required checks on the control repository, environments with required reviewers guarding every write job", "stage H0 (hosted dry run): schedules enabled with writes disabled only after one workflow_dispatch of each workflow passed on the hosted runner", "stage H1 (shadow): monitor, seal and commit-back to the control repository only; at least N consecutive scheduled cycles without incident, counts recorded", "stage H2 approved issues; stage H3 PR pilot on owner-named repositories; stage H4 per-repository expansion with one owner record each (the TC-REF-09 stages are these H stages)", "kill switch and rollback rehearsed once in production: the pause variable stops the next cycle, a standing record revert stops PRs, the previous candidates are restored by reverting a commit-back PR", "service levels measured and recorded"]
+  children:
+    - id: TC-REF-12-01
+      title: Prerequisites and preflight
+      steps:
+        - "create | a preflight workflow job that fails closed when a required secret, variable, permission or protection is missing, printing names only | green on the control repository"
+        - "decide-owner | secrets, variables and environment reviewers set; the App installed on the organizations in scope with the minimum permissions per stage; branch protection on main | owner confirmation recorded"
+    - id: TC-REF-12-02
+      title: Hosted dry run (H0)
+      steps:
+        - "run | workflow_dispatch of monitor, present, candidates-publish (dry), sealing-scheduled with writes disabled | each passes on the hosted runner; hosted-only differences from TC-REF-10-03 recorded"
+    - id: TC-REF-12-03
+      title: Shadow, then stages
+      steps:
+        - "run | enable schedules; watch H1 cycles; promote through H2 to H4 only on recorded stage exit evidence and owner records | per-stage evidence"
+    - id: TC-REF-12-04
+      title: Operations
+      steps:
+        - "create | docs/OPERATIONS_RUNBOOK.md: schedules, who gets alerts, kill switch, rollback, rotating credentials, what to do on red CI, on an outage, on a bad PR | runbook reviewed by the owner"
+        - "run | one production kill-switch and rollback rehearsal | recorded"
+
+```
+
+---
+
+## 11A. Two product lanes (owner decisions D1 to D7, 2026-10-11): Lane L, the structure standard, idempotence
+
+On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of that date; registered as G3-W09, G3-W10 and G3-W11 in `project/state.yaml`). This section carries the two-lane structure and the new cards; it adds no plan and no gate, and on any conflict the registered items win. The existing Track C-0, C-1 and C-2 cards are **Lane R** (regeneration from scratch) and continue unchanged except where a row below says otherwise.
+
+| Decision | Effect on the cards |
+|---|---|
+| D1 two lanes | **Lane L, live-first:** TC-LIV-01 to TC-LIV-05 (G3-W09). **Lane R** continues; its non-idempotence is TC-IDM-01 to TC-IDM-03 and TC-VER-03 (G3-W11). |
+| D2 the standard is what the live READMEs do | TC-STD-01 to TC-STD-04 (G3-W10). `docs/README_CONTRACT.md` is under revision until TC-STD-03 merges; TC-DSP-02 now waits for it (its contract edits would otherwise be rewritten). |
+| D3 wave 3 finishes | No card. Its counts are appended to the decision log when it ends and TC-TRI-01 consumes them. |
+| D4 progress is authorizable | TC-LIV-03 fixes and measures the rule; TC-LIV-04 reports authorizable and sealed side by side; the cursor field `progress.authorizable_candidates` carries the value. |
+| D5 sealing on the owner's machine | Answers the decide-owner step of TC-REF-10-03-02: production sealing runs on a self-hosted runner for the control repository (OWNER-21); monitor and publish stay hosted. TC-REF-12 stages the sealing workflow on that label once the runner exists. |
+| D6 push pause | TC-LIV-05 opens only a sandbox canary on `babar-raza/presenter-sandbox`, then asks the owner again (OWNER-20). |
+| D7 Monday | TC-LIV-01 to TC-LIV-04 first; Lane R runs in parallel on its own paths. |
+
+**Cut discipline.** Cut 3 (`integration/cut3`, `a3b6bbf6`) already moved each governed constant once and is closed. TC-LIV-01 to TC-LIV-04, TC-STD-01 to TC-STD-03, TC-IDM-01 and TC-IDM-03 change no governed file (`no_bump: true`). TC-LIV-05 writes under `src/` (the propose gate), which the lint refuses on a `no_bump` card, so it is `governed: false` and proves by its accept lines that no version moves. TC-STD-04 (conformance gates) and TC-IDM-02 (the fixed-point design change) are governed: they enter a declared cut 4 after the second portfolio reseal (TC-R2-02), on the owner's D2 and D1 decisions as their ground, and TC-VER-03 moves each constant once for it.
+
+**Placement.** Lane L's engine is the new package `tools/live_first/` (run as `python -m tools.live_first correct-readme`), because the plan lint (`NO_BUMP_BREACH`) refuses a `no_bump` card that writes anywhere under `src/`; the sealing-wave runner `tools/reviewer/reseal_wave/` is the precedent for an operator pipeline there. Its output is a new top-level directory `corrections/<owner>__<name>/<revision>/`, a reviewable committed tree beside `candidates/` that never mixes with it (`count_current_candidates` rejects stray files in `candidates/`). TC-LIV-01 records both in `docs/REPOSITORY_LAYOUT.md` and `tools/README.md` in the same commit; moving the engine under `src/` later is a separate, governed-free change if the owner wants it there.
+
+**Paths and lanes (lint-checked).** L-live: `tools/live_first/`, `corrections/`, `schemas/corrections.schema.json`, `tests/test_live_first.py`. L-std: `tools/reviewer/readme_survey/`, `data/readme_standard/`, `schemas/readme-standard.schema.json`, `docs/README_CONTRACT.md`, the validation package (TC-STD-04 only). L-idm: `docs/investigations/`, `tools/reviewer/idempotence_probe/`, the reconciliation, composition and bundle packages (TC-IDM-02 only). TC-LIV-05 runs in lane L-hosted, which already owns `components/propose/`.
+
+**Decided here, to ratify.** The wording of "not worse than the live README" is fixed in TC-LIV-03 because it decides what counts as progress; the owner ratifies it at the first review of the 36 correction candidates. Whether `status` should also print the authorizable count (a `src/repository_presenter/cli.py` change pinned by `tests/test_cli.py`) is not carried by any card; the TC-LIV-04 report prints it until the owner asks for the change.
+
+```yaml
+- id: TC-LIV-01
+  title: Live-first contract, live baseline and the correct-readme entry point
+  reqs: [REQ-LIV-01]
+  item: G3-W09
+  lane: L-live
+  depends: [TC-GOV-01]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/live_first/, tools/README.md, corrections/, schemas/corrections.schema.json, tests/test_live_first.py, docs/REPOSITORY_LAYOUT.md]}
+  outcome: python -m tools.live_first correct-readme --repo OWNER/NAME reads the live README at the pinned revision, writes a corrections.json the schema accepts and the corrected README, and a run with no corrections reproduces the live bytes
+  accept: ["schemas/corrections.schema.json accepts a hand-built correction set and rejects a change with no fact id, a change to a unit that does not exist, two overlapping changes, and a replacement that removes a fact-cited unit", "on the canary the zero-correction run writes a README byte-identical to the live README and records its blob id, revision and unit list", "docs/REPOSITORY_LAYOUT.md names corrections/ and tools/README.md names tools/live_first/ in the same commit, with the boundary note updated to say this operator pipeline writes candidate files", "python -m tools.workflow_rehearsal.no_bump_check <base> is green: no governed file touched"]
+  children:
+    - id: TC-LIV-01-01
+      title: The corrections contract
+      steps:
+        - "inspect | components/readme/reconciliation (unit splitter, disposition model) and core/snapshot | the live-README unit ids a correction can address, reused and not rebuilt"
+        - "create | schemas/corrections.schema.json: kind (CORRECTION or ADDITION), unit_id or insert_after, text, fact_ids (non-empty, accepted facts only), rationale | schema plus the four negative controls in tests/test_live_first.py, RED first"
+    - id: TC-LIV-01-02
+      title: Live baseline and entry point
+      steps:
+        - "create | tools/live_first/baseline.py: the live README bytes, blob id and revision from the pinned snapshot, split into units | canary baseline recorded under corrections/"
+        - "create | tools/live_first/__main__.py correct-readme --repo, writing corrections/<slug>/<revision>/{README.md,corrections.json} | the zero-correction run reproduces the live bytes"
+        - "edit | docs/REPOSITORY_LAYOUT.md and tools/README.md | the two new locations named in this commit"
+
+- id: TC-LIV-02
+  title: Verified corrections and verified missing information
+  reqs: [REQ-LIV-01]
+  item: G3-W09
+  lane: L-live
+  depends: [TC-LIV-01]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/live_first/, tests/test_live_first.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/live-first/]}
+  outcome: for a repository the engine proposes typed corrections and additions and keeps only those deterministic code can verify against facts.json; the model never writes README bytes
+  accept: ["on a fixture live README holding a wrong install command, a dead link, a wrong package name and a false capability, each is corrected with the fact ids that prove it and nothing else changes", "a fixture README missing the published version, the test command and the supported frameworks gets each addition once, cited, in the section the live README already uses for it or under a heading in the live README's own convention", "negative controls: a proposal with no fact ids, a non-accepted or invented fact id, a change outside the live README's units and a conflicting pair are all refused, counted and never applied", "a repository with nothing to correct returns the live README unchanged", "the model call goes through core/llm (gateway, seed, ledger) and its reply is validated against the schema before any use"]
+  children:
+    - id: TC-LIV-02-01
+      title: Deterministic detectors first
+      steps:
+        - "inspect | the fact kinds that can contradict a live claim (commands, package:published_version, link targets and status, badges, public symbols) in facts.json | list with the fact kind each detector reads"
+        - "create | tools/live_first/detect.py: one detector per kind, each emitting a correction with its fact ids | one RED-then-GREEN fixture per detector"
+    - id: TC-LIV-02-02
+      title: Missing information
+      steps:
+        - "inspect | the coverage inventory (TC-COV-01) for what the clones hold and live READMEs omit | ranked list of addable facts"
+        - "create | tools/live_first/additions.py: addition candidates restricted to existing fact kinds, placed by the live README's own headings (or by data/readme_standard when TC-STD-02 exists) | fixtures"
+    - id: TC-LIV-02-03
+      title: Typed model proposals
+      steps:
+        - "create | tools/live_first/propose.py: one model call per repository asking for typed corrections only, reply schema-validated, unverifiable items dropped with a recorded reason | the negative controls above"
+
+- id: TC-LIV-03
+  title: Apply, validate, review, and the not-worse-than-live measure
+  reqs: [REQ-LIV-02]
+  item: G3-W09
+  lane: L-live
+  depends: [TC-LIV-02]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/live_first/, tests/test_live_first.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/live-first/]}
+  outcome: the corrected README is built deterministically, the blocking checks that apply and the independent acceptance review run on it, and a verdict.json says authorizable or not and names the failed clause
+  accept: ["the corrected README differs from the live README only inside the units corrections.json names (byte-diff proof)", "not worse than the live README means all of: no live unit lost without a recorded disposition, no new public claim without an accepted fact, and an acceptance score under the ratified profile not below the live README's own score; each clause has a failing fixture", "the independent review must return ACCEPT and a returned REJECT stands (TC-REV-01 rule)", "verdict.json carries the review, the scores of both documents and the clause results; a non-authorizable verdict names its clause", "a second run on the canary is byte-identical with zero provider calls"]
+  children:
+    - id: TC-LIV-03-01
+      title: Apply
+      steps:
+        - "create | tools/live_first/apply.py: a deterministic patch of the live README by corrections.json | byte-diff test"
+    - id: TC-LIV-03-02
+      title: Checks that apply to a patched live README
+      steps:
+        - "inspect | which blocking checks take only a document and facts (links, commands, claims, identity, badges) and which need a composition | list; only the first set runs on a patched live README"
+        - "run | those checks through the validation registry on the patched README | results recorded in verdict.json"
+    - id: TC-LIV-03-03
+      title: Review and the comparison
+      steps:
+        - "run | review/independent and review/acceptance on the patched README and on the unmodified live README with the same profile and seed | two scores"
+        - "create | tools/live_first/verdict.py: the three not-worse clauses | verdict.json plus a failing fixture per clause"
+        - "decide-owner | the owner reads the wording of the not-worse rule on the first correction candidates | ratified or amended, recorded"
+
+- id: TC-LIV-04
+  title: All 36 correction candidates, the board and the authorizable count
+  reqs: [REQ-LIV-03]
+  item: G3-W09
+  lane: L-live
+  depends: [TC-LIV-03]
+  governed: false
+  no_bump: true
+  paths: {write: [tools/live_first/, corrections/, tests/test_live_first.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/live-first/]}
+  outcome: every registry entry has corrections/<slug>/<revision>/ with a verdict, or a typed terminal state, and a report prints the authorizable and sealed counts side by side
+  accept: ["python -m tools.live_first correct-readme --all runs every registry entry with bounded parallelism inside the gateway budget; one repository failing never stops the others", "36 rows on the board, each authorizable, a named failed clause, needs-owner, NON_PROCESSABLE, insufficient_evidence, NOT_READY or FAILED with its cause; the shortfall to 36 authorizable is reported with reasons, not hidden", "python -m tools.live_first report prints authorizable N of 36 and sealed N of 36 derived from corrections/ and candidates/ on disk, never typed by hand", "the cursor field progress.authorizable_candidates is set from the report by the supervisor, in the commit that records the board", "the run is made by Monday 2026-10-12 (D7); what is not complete by then is named with its typed state"]
+  children:
+    - id: TC-LIV-04-01
+      title: Portfolio runner
+      steps:
+        - "create | tools/live_first correct-readme --all with a per-repository timeout, bounded parallelism and the registry's allow-list check before any network work | a dry run over a three-repository fixture registry"
+        - "run | the runner over all 36 on the cut-3 code | one directory per entry"
+    - id: TC-LIV-04-02
+      title: Board and report
+      steps:
+        - "create | tools/live_first report: the board and the two counts | matches the directories on disk"
+        - "record | the board in analysis/live-first/ and the count in the cursor | counts and shortfall recorded"
+
+- id: TC-LIV-05
+  title: Propose gate for a correction, and the sandbox canary (D6)
+  reqs: [REQ-LIV-03]
+  item: G3-W09
+  lane: L-hosted
+  depends: [TC-LIV-03]
+  governed: false
+  paths: {write: [src/repository_presenter/components/propose/, src/repository_presenter/core/authorization/, tests/components/propose/, tests/core/authorization/]}
+  outcome: propose accepts a kind of correction, gated like the regeneration kind, and opens or updates one pull request on the owner-named sandbox only; nothing else is written
+  accept: ["a correction proposal is refused unless its verdict.json is authorizable, the corrected README hash equals the authorized hash, the upstream revision is unchanged at the effect (recheck immediately before), the write gate permits the target and a fresh dated owner authorization names it", "until the owner approves an exact product list the only permitted target is the owner-named sandbox (OWNER-11, babar-raza/presenter-sandbox); no registry entry is added for it and the denominator is unchanged", "a duplicate trigger creates nothing and a lost response reconciles before any retry (existing effect tests extended)", "no governed constant moves: tests/test_version_bump_discipline.py is green with zero bumps and the no_bump_check reports no governed file touched", "the canary pull request exists only after the owner's exact authorization is recorded"]
+  children:
+    - id: TC-LIV-05-01
+      title: The gate
+      steps:
+        - "inspect | components/propose/effect.py, core/authorization/proposal.py and the existing regeneration gate | the checks a correction must share and the fields it adds"
+        - "create | the correction kind beside the regeneration kind, one gate function, no second effect path | refusal tests for each clause above, RED first"
+    - id: TC-LIV-05-02
+      title: Sandbox canary
+      steps:
+        - "decide-owner | the exact authorization for one canary pull request on babar-raza/presenter-sandbox, and whether rollback is exercised | recorded in docs/DECISION_LOG.md and under ops/proposal-authorizations"
+        - "run | propose with the correction kind on the sandbox | one pull request, checks and URL recorded"
+        - "run | the same command again | no change, no duplicate"
+    - id: TC-LIV-05-03
+      title: Ask again
+      steps:
+        - "decide-owner | after the canary the owner is asked for the exact product list, per D6; nothing else is pushed before the answer | answer recorded against OWNER-20"
+
+- id: TC-STD-01
+  title: Survey all 36 live READMEs
+  reqs: [REQ-STD-01]
+  item: G3-W10
+  lane: L-std
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [tools/reviewer/readme_survey/, tests/test_readme_survey.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/readme-survey/]}
+  outcome: a machine-readable, checksum-listed survey of the 36 live upstream READMEs covering structure, composition, links and tone, with the revision and blob id of each
+  accept: ["all 36 live READMEs fetched read-only at their default-branch head, each recorded with revision and blob id, or the row names its typed reason", "per README: heading outline and order, badge row, link census (relative, repository, product pages, external), code-fence languages, length, and the presence of install, usage, licence, contributing and support sections", "tone notes come from a recorded model read and each note quotes the lines it rests on; an unquoted claim is dropped", "frequency tables per ecosystem and product family are the input of TC-STD-02", "MANIFEST.csv lists the SHA-256 of every file, as for the other analysis evidence"]
+  children:
+    - id: TC-STD-01-01
+      title: Fetch and outline
+      steps:
+        - "run | read-only fetch of the 36 live READMEs through core/github read clients, checking the registry allow-list first | 36 files with revision and blob id"
+        - "create | tools/reviewer/readme_survey: deterministic outline, badge and link extraction | fixtures from three real READMEs"
+    - id: TC-STD-01-02
+      title: Tone and composition read
+      steps:
+        - "run | one recorded model read per README for tone and composition, quoting evidence lines | notes validated for quotes"
+    - id: TC-STD-01-03
+      title: Frequency tables
+      steps:
+        - "record | the section, link and tone frequencies per ecosystem and product family | the tables TC-STD-02 derives its schemas from"
+
+- id: TC-STD-02
+  title: The two schemas, common and product-wise differences
+  reqs: [REQ-STD-01]
+  item: G3-W10
+  lane: L-std
+  depends: [TC-STD-01]
+  governed: false
+  no_bump: true
+  paths: {write: [data/readme_standard/, schemas/readme-standard.schema.json, tests/test_readme_standard.py]}
+  outcome: the standard is data, a common schema (sections, order, link and badge conventions, tone) and a product-differences schema (what varies by ecosystem and family), both validated by one JSON Schema
+  accept: ["each surveyed README validates against the common schema plus its product-differences entry, or the exception is listed with a reason", "every rule cites the survey rows it was derived from; a rule with no cited rows is rejected by the test", "better than live is stated as measurable rules (for example every link resolves, install and test commands are verified, no section is empty) and not as taste", "the data reads without importing any product module"]
+  children:
+    - id: TC-STD-02-01
+      title: Derive and validate
+      steps:
+        - "create | data/readme_standard/common.yaml and data/readme_standard/product_differences.yaml from the frequency tables | each rule carries its survey row ids"
+        - "create | schemas/readme-standard.schema.json and tests/test_readme_standard.py | the survey validates; negative controls fail"
+
+- id: TC-STD-03
+  title: Rewrite docs/README_CONTRACT.md from the survey
+  reqs: [REQ-STD-01]
+  item: G3-W10
+  lane: L-std
+  depends: [TC-STD-02]
+  governed: false
+  no_bump: true
+  paths: {write: [docs/README_CONTRACT.md]}
+  outcome: the contract states the surveyed standard and says in its header which survey and schemas it derives from; the under-revision marker is removed from the register in the same commit
+  accept: ["the contract keeps at most fifteen blocking checks and tests/test_governance_consistency.py, tests/test_queue_agreement.py and tests/test_register_integrity.py pass", "every sentence that lists sections, order or link rules is generated from, or cites, data/readme_standard/", "the rewrite merges before TC-DSP-02, TC-COV-03 or TC-CTR-01 edit the contract (their depends include it)"]
+  children:
+    - id: TC-STD-03-01
+      title: Rewrite
+      steps:
+        - "edit | docs/README_CONTRACT.md: shape, assembly, agentic decisions and checks restated against the standard | contract tests green"
+        - "record | the register: G3-W10 no longer says under revision once this merges | state.yaml and 27.9 updated together by the supervisor"
+
+- id: TC-STD-04
+  title: Conformance and better-than-live gates
+  reqs: [REQ-STD-01]
+  item: G3-W10
+  lane: L-std
+  depends: [TC-STD-03, TC-R2-02]
+  cut: "4 - a declared cut after the second portfolio reseal; never inside cut 3"
+  governed: true
+  ground: "owner decision D2 (2026-10-11, docs/DECISION_LOG.md): every iteration must do better than live, recorded as the owner approval G7-W22 clause 2 requires"
+  paths: {write: [src/repository_presenter/components/readme/validation/, tests/components/readme/validation/, data/readme_standard/]}
+  outcome: a candidate is checked against the surveyed standard and against its live README, and a regression against live is a finding at the stage that caused it
+  accept: ["negative controls drawn from live READMEs (a missing required section, a broken link convention, a section order the standard forbids) are rejected and the survey exemplars pass", "the blocking-check cap of fifteen holds: conformance is advisory or folded into existing checks unless the owner raises the cap", "a finding names a section and a causal stage, or it is advisory", "VALIDATOR_VERSION and the touched per-check versions move once, in TC-VER-03"]
+  children:
+    - id: TC-STD-04-01
+      title: Design the checks inside the cap
+      steps:
+        - "inspect | BLOCKING_CHECKS and the cap in tests/test_governance_consistency.py | which conformance rules are blocking, which advisory"
+        - "create | rules that read data/readme_standard and compare a candidate with its live README | one failing fixture per rule"
+    - id: TC-STD-04-02
+      title: Before counts
+      steps:
+        - "run | conformance over the 36 live READMEs and the current candidates | before counts recorded for the next reseal"
+
+- id: TC-IDM-01
+  title: Root cause of regeneration non-idempotence
+  reqs: [REQ-IDM-01]
+  item: G3-W11
+  lane: L-idm
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [docs/investigations/, tools/reviewer/idempotence_probe/, tests/test_idempotence_probe.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/idempotence/]}
+  outcome: the cause of a different README on a later pass is reproduced and attributed to its earliest stage, with the hypotheses ruled out
+  accept: ["a probe regenerates from a conformant README as its own source twice and attributes every byte of difference to a stage (facts, reconciliation, planning, authoring, coherence, renderer)", "the second first-principles analysis that is running is read and its claims are each confirmed or refuted by the probe", "the finding names the earliest causal stage; no downstream check is proposed to hide it", "the investigation note records the reproduction command and the evidence paths"]
+  children:
+    - id: TC-IDM-01-01
+      title: Reproduce and attribute
+      kind: investigation
+      produces: [TC-IDM-02, TC-IDM-03]
+      steps:
+        - "inspect | the running first-principles analysis and the sealed evidence of the canary and a sample | its claims listed with the evidence each needs"
+        - "run | tools/reviewer/idempotence_probe: pass 1 and pass 2 from the same source and the same facts, stage by stage | a per-stage diff"
+        - "record | docs/investigations: the cause, the ruled-out hypotheses and the design the fix needs | the input of TC-IDM-02"
+
+- id: TC-IDM-02
+  title: Fixed point on a conformant source (design change at the earliest stage)
+  reqs: [REQ-IDM-01]
+  item: G3-W11
+  lane: L-idm
+  depends: [TC-IDM-01, TC-STD-03, TC-R2-02]
+  cut: "4 - with TC-STD-04; never inside cut 3"
+  governed: true
+  ground: "owner decision D1 (2026-10-11, docs/DECISION_LOG.md): Lane R's non-idempotence is fixed with production-grade design changes; recorded as the owner approval G7-W22 clause 2 requires"
+  paths: {write: [src/repository_presenter/components/readme/reconciliation/, src/repository_presenter/components/readme/composition/, src/repository_presenter/components/readme/bundle/, tests/components/readme/reconciliation/, tests/components/readme/composition/, tests/components/readme/bundle/]}
+  outcome: regenerating from a README that conforms to the standard returns it byte-identical with zero provider calls, and a second regeneration of any candidate equals the first
+  accept: ["property test: generate(generate(x)) equals generate(x) for the canary and a sampled set, and the second pass makes zero provider calls", "negative controls: a conformant source with a changed fact reopens only the units that consumed that fact; a non-conformant source is not frozen; a fixed-point README still passes every blocking check, so no downstream check is weakened", "the fix is at the stage TC-IDM-01 names; it does not invalidate a candidate except through an input it consumed", "constants move once, in TC-VER-03"]
+  children:
+    - id: TC-IDM-02-01
+      title: Design and implement at the causal stage
+      steps:
+        - "edit | the stage TC-IDM-01 names (reconciliation dispositions and composition reuse of unchanged conformant units) | the property test green, RED first"
+        - "validate | the negative controls | each fails when the fix is removed"
+
+- id: TC-VER-03
+  title: One bump per governed constant for cut 4
+  reqs: [REQ-VER-01]
+  item: G3-W11
+  lane: L-core
+  depends: [TC-STD-04, TC-IDM-02]
+  cut: "4"
+  governed: true
+  ground: "owner decisions D2 and D1 (2026-10-11, docs/DECISION_LOG.md), with the cut declared by the owner before this card runs"
+  paths: {write: [src/repository_presenter/components/readme/, tests/components/readme/validation/test_registry.py, tests/components/readme/bundle/test_seal.py]}
+  outcome: each governed constant that TC-STD-04 and TC-IDM-02 changed moves exactly once, and the reseal plan for cut 4 is recorded
+  accept: ["tests/test_version_bump_discipline.py green", "pins in test_registry, test_seal and test_cli were derived from the constants by TC-VER-01, so this card edits the constants and at most the two pin files it names", "the owner declared cut 4 and its constant list before the bump"]
+  children:
+    - id: TC-VER-03-01
+      title: Declare, bump, plan the reseal
+      steps:
+        - "decide-owner | declare cut 4 and the list of constants it moves | recorded in docs/DECISION_LOG.md"
+        - "edit | each affected constant once; pins derived | CI green"
+        - "record | the reseal plan for cut 4 in the TC-R2-02 pattern | the stale set equals the bundles whose inputs changed"
+
+- id: TC-IDM-03
+  title: Fixed-point proof across the portfolio
+  reqs: [REQ-IDM-01]
+  item: G3-W11
+  lane: L-idm
+  depends: [TC-IDM-02, TC-VER-03]
+  governed: false
+  no_bump: true
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/idempotence/, tests/test_idempotence_portfolio.py]}
+  outcome: the fixed-point rate (second pass byte-identical) is measured before and after the fix on the official entry point
+  accept: ["present is run twice from the same conformant source on the canary and then on every candidate that seals; the rate and each exception with its stage are recorded", "before and after counts are recorded; a repository that does not reach the fixed point is named with its cause", "the zero-provider-call proof of the second pass is read from the ledger, not asserted"]
+  children:
+    - id: TC-IDM-03-01
+      title: Measure
+      steps:
+        - "run | present twice per candidate on the official entry point | per-candidate result"
+        - "record | the rate before and after | counts and exceptions in validation/idempotence/"
 ```
 
 ---

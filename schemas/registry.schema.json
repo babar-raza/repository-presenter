@@ -29,6 +29,10 @@
           "platform": { "type": "string", "minLength": 1 },
           "ecosystem": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
           "mode": { "enum": ["full", "dry_run", "disabled"] },
+          "issues_mode": {
+            "enum": ["off", "dry_run", "file"],
+            "description": "Optional. Governs upstream-issue effects (issue_filing, issue_close) only; README proposals and metadata writes consult mode. Absent: derived from mode (full -> file, otherwise dry_run). A disabled mode refuses every effect."
+          },
           "policy_profile": { "type": "string", "minLength": 1 },
           "active": { "type": "boolean" },
           "provider_identity": {

@@ -1,0 +1,18 @@
+# log: npm-registry-3D-TS
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript
+# head: 66cb26df3b031f0bf6976d4e88dc89721983afa4
+# utc: 2026-10-10T15:40:41Z
+# cwd: shallow clone of the default branch
+# command: for p in '%40aspose%2F3d' '%40aspose%2F3d-foss' 'aspose-3d-foss'; do curl -s -o /dev/null -w "npm registry $p: HTTP %{http_code}\n" https://registry.npmjs.org/$p; done; grep -n -i 'adm-zip\|dist/aspose\|npm install' README.md | head -6
+# ---- output (capped at 60000 bytes) ----
+npm registry %40aspose%2F3d: HTTP 404
+npm registry %40aspose%2F3d-foss: HTTP 404
+npm registry aspose-3d-foss: HTTP 404
+99:npm install
+120:- `adm-zip` `^0.5.16`, `@types/adm-zip` `^0.5.7` — 3MF archive handling used in tests (see Scope
+130:import { Scene } from './dist/aspose/threed';
+144:import { Scene } from './dist/aspose/threed';
+164:import { Scene } from './dist/aspose/threed';
+165:import { ObjLoadOptions } from './dist/aspose/threed/formats/obj';
+
+# exit: 0

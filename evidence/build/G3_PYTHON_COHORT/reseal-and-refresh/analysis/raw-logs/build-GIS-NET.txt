@@ -1,0 +1,43 @@
+# log: build-GIS-NET
+# repository: aspose-gis-foss/Aspose.GIS.FOSS-for-.Net
+# head: b9b8c9c760bf02f6e7f06438feeabb3d0e43c1e4
+# utc: 2026-10-10T15:39:10Z
+# cwd: shallow clone of the default branch
+# command: O=../../probes/gisbuild.txt; dotnet --version; git log -1 --format='head commit: %h %s'; echo '--- tracked files:'; git ls-files | wc -l; git ls-files | grep -i -E '^(readme|license)' || echo 'no README*, no LICENSE* tracked'; dotnet build Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj -c Release -nologo > $O 2>&1; echo "dotnet build exit: $?"; tail -4 $O | tr -s ' '; echo '--- error codes:'; grep -o -E 'error CS[0-9]+' $O | sort | uniq -c | sort -rn; echo '--- sample errors:'; grep -E 'error CS(0234|0246|0115|0535)' $O | sed -E 's# \[[^]]*\]$##' | sort -u | head -8 | cut -c1-230; echo '--- distinct unresolved type names (CS0246):'; grep -o -E "type or namespace name '[A-Za-z0-9_]+' could not" $O | sort -u | wc -l; echo '--- csproj metadata:'; grep -c -E 'PackageId|Version|Description|PackageLicenseExpression|RepositoryUrl' Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj; echo '--- tracked obj/ files:'; git ls-files | grep -c '/obj/'; grep -n -E '^(obj|bin)' .gitignore || echo 'no obj/bin rule in .gitignore'
+# ---- output (capped at 60000 bytes) ----
+10.0.401
+head commit: b9b8c9c Second part
+--- tracked files:
+114
+no README*, no LICENSE* tracked
+dotnet build exit: 1
+ 45 Warning(s)
+ 369 Error(s)
+
+Time Elapsed 00:00:01.46
+--- error codes:
+    668 error CS0246
+     26 error CS0115
+     16 error CS0534
+     16 error CS0234
+      6 error CS0535
+      4 error CS0508
+      2 error CS8937
+--- sample errors:
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\ConversionOptions.cs(32,10): error CS0246: The type or namespace name 'Spatial
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\Feature.cs(18,11): error CS0246: The type or namespace name 'IGeometry' could 
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\Feature.cs(38,63): error CS0246: The type or namespace name 'IGeometry' could 
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\Feature.cs(54,62): error CS0246: The type or namespace name 'IGeometry' could 
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\Feature.cs(70,18): error CS0246: The type or namespace name 'IGeometry' could 
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\Feature.cs(724,33): error CS0246: The type or namespace name 'IGeometry' could
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\FeaturesSequence.cs(30,19): error CS0246: The type or namespace name 'SpatialR
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\clones\aspose-gis-foss__Aspose.GIS.FOSS-for-.Net\Aspose.GIS.FOSS\FeaturesSequence.cs(306,76): error CS0246: The type or namespace name 'SavingO
+--- distinct unresolved type names (CS0246):
+57
+--- csproj metadata:
+0
+--- tracked obj/ files:
+14
+no obj/bin rule in .gitignore
+
+# exit: 0

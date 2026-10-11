@@ -1,0 +1,1 @@
+docs(readme): refresh Aspose.Cells FOSS for Java README (4 sections updated)

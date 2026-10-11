@@ -287,14 +287,39 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["contract_version"] == "readme-contract-v1"
     assert document["components"] == {
         "shell": "6",
-        "renderer": "30",
-        "normalisation": "32",
+        "renderer": "32",
+        "normalisation": "34",
         "reviewer_logic": "19",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 13
     assert document["acceptance_profile_version"] == "1"
     assert document["protected_content_fingerprint"] == "f" * 64
     assert len(document["policy"]["sha256"]) == 64 and document["policy"]["version"] == "1"
+
+
+def test_dependencies_record_only_the_fact_ids_the_sealed_artifacts_cite(tmp_path: Path) -> None:
+    """TC-INV-01: ``facts`` keeps every digest; ``consumed_fact_ids`` is the cited subset."""
+    transaction = _transaction(tmp_path)
+    (transaction / "plan.json").write_text(
+        json.dumps({"sections": [{"fact_ids": ["format:output.glb"]}]}), encoding="utf-8"
+    )
+    document = dependencies_document(_inputs(tmp_path, 3))
+    assert document["consumed_fact_ids"] == ["format:output.glb"]
+    assert sorted(document["facts"]) == ["format:output.glb", "identity:repository"]
+    # Cited in the dispositions or the content units counts too, as a key or a value.
+    (transaction / "content_units.json").write_text(
+        json.dumps({"units": [{"fact_ids": ["identity:repository", "not:a.fact"]}]}),
+        encoding="utf-8",
+    )
+    again = dependencies_document(_inputs(tmp_path, 3))
+    assert again["consumed_fact_ids"] == ["format:output.glb", "identity:repository"]
+
+
+def test_a_transaction_citing_no_artifact_names_no_fact_subset(tmp_path: Path) -> None:
+    transaction = _transaction(tmp_path)
+    for name in ("plan.json", "dispositions.json", "content_units.json", "investigation.json"):
+        (transaction / name).unlink()
+    assert "consumed_fact_ids" not in dependencies_document(_inputs(tmp_path, 3))
 
 
 def test_call_variance_surfaces_non_determinism_and_is_absent_without_it(tmp_path: Path) -> None:
@@ -1127,6 +1152,22 @@ def test_a_changed_input_lands_in_the_state_its_scope_defines(
         assert result.note.startswith(f"valid update available ({scope_name}):")
     # The sealed bytes are never modified by recording an update, whatever the scope.
     assert _sealed_files(tmp_path) == sealed
+
+
+@pytest.mark.parametrize(
+    "dependency", ["environment.inherited_units_version", "environment.extractor_version"]
+)
+def test_an_extraction_version_change_never_invalidates(tmp_path: Path, dependency: str) -> None:
+    """Negative control (G7-W25): only a different fact record invalidates, never a version."""
+    _proven_bundle(tmp_path)
+    _alter(tmp_path, "facts.json", '{"facts": ["new"]}\n')
+    result = seal_candidate(
+        _inputs(tmp_path, provider_calls=0, stage="EXTRACTING", dependencies=(dependency,))
+    )
+    assert result.state == "VALID_UPDATE_AVAILABLE"
+    assert "invalidated" not in _sealed_manifest(tmp_path)
+    assert _sealed_manifest(tmp_path)["update"]["earliest_affected_stage"] == "EXTRACTING"
+    assert _sealed_manifest(tmp_path)["update"]["triggering_scope"] == "facts"
 
 
 @pytest.mark.parametrize("dependency", ["validators", "contract_version"])

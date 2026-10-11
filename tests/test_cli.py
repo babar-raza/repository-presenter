@@ -25,6 +25,7 @@ from repository_presenter.components.readme.repair.targeted import defect_finger
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
+from repository_presenter.core.github.read_client import TreeRead
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.loader import load_registry
 from repository_presenter.core.retry import RetryableOperationError
@@ -401,11 +402,21 @@ def _serve_canary(
         return pinned_read_only_clone(str(source), destination)
 
     monkeypatch.setattr(cli, "pinned_read_only_clone", serve_locally)
+    # The registry's own record names the canary as the source: a published name is the
+    # repository's install only when the registry points back at it (TC-EXT-01), and the stub
+    # must say so, since a bare "found" now leaves the claim UNRESOLVED.
     monkeypatch.setattr(
         python_registry,
         "fetch_project_json",
         lambda url, transport=None: httpx.Response(
-            200, json={"info": {"version": "26.1.0"}, "releases": {"26.1.0": []}}
+            200,
+            json={
+                "info": {
+                    "version": "26.1.0",
+                    "project_urls": {"Source": f"https://github.com/{CANARY}"},
+                },
+                "releases": {"26.1.0": []},
+            },
         ),
     )
     monkeypatch.setattr(links, "fetch_status", lambda url: (200, url))
@@ -533,7 +544,7 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
                 "opening",
                 "opening",
                 "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
-                "Developers using Python use it to write GLB from code.",
+                "Its Python API writes GLB from code.",
                 "identity:repository",
                 "format:output.glb",
             )
@@ -754,6 +765,85 @@ def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pat
         lambda clone_url, destination, **kwargs: pinned_read_only_clone(str(source), destination),
     )
     return source
+
+
+def _facts_only(root: Path) -> int:
+    return main(["present", "--repo", CANARY, "--root", str(root), "--facts-only"])
+
+
+def _defects(root: Path) -> list[Path]:
+    return sorted((root / "evidence" / "upstream-defects").glob("*/*.json"))
+
+
+def _move_license_under_a_directory(source: Path) -> None:
+    # A case-insensitive filesystem cannot hold LICENSE and License/ at once: step aside first.
+    (source / "LICENSE").rename(source / "LICENSE.moving")
+    (source / "License").mkdir()
+    (source / "LICENSE.moving").rename(source / "License" / "LICENSE.txt")
+    commit_all(source, "move the license under License/")
+
+
+def test_a_license_only_under_a_directory_is_recorded_once_and_never_twice(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G6-W07: the defect-class detectors run on the facts-only path, deterministically."""
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    _move_license_under_a_directory(local_canary["source"])
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    written = _defects(project_with_registry)
+    assert len(written) == 1
+    handoff = json.loads(written[0].read_text("utf-8"))
+    assert handoff["defect_class"] == "LICENSE_MISSING_ROOT"
+    assert handoff["status"] == "HANDOFF_PENDING" and handoff["issue_ref"] is None
+    assert "the license file is only in License/" in handoff["suggested_issue_title"]
+    assert "upstream-defect handoff: evidence/upstream-defects/" in out
+    # No provider call, and nothing written outside the transaction and the handoff directory.
+    assert gateway_ready.requests == []
+    assert _facts_only(project_with_registry) == EXIT_OK
+    again = capsys.readouterr().out
+    assert _defects(project_with_registry) == written
+    assert "upstream-defect handoff" not in again
+
+
+def test_a_repository_with_a_root_license_records_no_handoff_and_prints_nothing_new(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    assert not (project_with_registry / "evidence" / "upstream-defects").exists()
+    assert "upstream-defect" not in out
+    assert "preflight: runs/transactions" in out
+    assert gateway_ready.requests == []
+
+
+def test_a_ledger_that_cannot_be_read_does_not_change_the_exit_code(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    _move_license_under_a_directory(local_canary["source"])
+    assert _facts_only(project_with_registry) == EXIT_OK
+    capsys.readouterr()
+    (original,) = _defects(project_with_registry)
+    twin = original.with_name("twin.json")
+    twin.write_bytes(original.read_bytes())  # two artifacts claiming one key: LedgerError
+    assert _facts_only(project_with_registry) == EXIT_OK
+    out = capsys.readouterr().out
+    assert "upstream-defect handoffs: not recorded" in out
+    assert "preflight: runs/transactions" in out
 
 
 def test_facts_only_stops_after_the_facts_with_no_provider_call(
@@ -1066,8 +1156,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "2" and dependencies["components"] == {
         "shell": "6",
-        "renderer": "30",
-        "normalisation": "32",
+        "renderer": "32",
+        "normalisation": "34",
         "reviewer_logic": "19",
     }
     assert "install_command:pip" in dependencies["facts"]
@@ -1416,7 +1506,7 @@ def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
     assert len(made) > 4
 
 
-OPENING_QUOTE = "Developers using Python use it to write GLB from code."
+OPENING_QUOTE = "Its Python API writes GLB from code."
 _PROMPTS = load_manifests(REPO_ROOT / "prompts")
 OPENING_FINGERPRINT = defect_fingerprint(
     "review",
@@ -1427,7 +1517,7 @@ OPENING_FINGERPRINT = defect_fingerprint(
 )
 REVISED_OPENING = (
     "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
-    "Python developers use it to write GLB files from code."
+    "Its Python API writes GLB files from code."
 )
 
 
@@ -1473,7 +1563,7 @@ def _opening_repair() -> dict[str, Any]:
                 "id": "R01",
                 "path": "$.units[0].text",
                 "before": OPENING_QUOTE,
-                "after": "Python developers use it to write GLB files from code.",
+                "after": "Its Python API writes GLB files from code.",
                 "fact_ids": ["identity:repository"],
             }
         ],
@@ -1516,7 +1606,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     assert '"the quick start"' in repair_request
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     readme = (transaction / "README.md").read_text("utf-8")
-    assert "Python developers use it to write GLB files from code." in readme
+    assert "Its Python API writes GLB files from code." in readme
     assert OPENING_QUOTE not in readme
     review = json.loads((transaction / "review.json").read_text("utf-8"))
     assert review["verdict"] == "ACCEPT"
@@ -1582,7 +1672,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     gateway_ready.queues = {
         "independent_review": [
             _rejection("F01"),
-            _rejection("F02", "Python developers use it to write GLB files from code."),
+            _rejection("F02", "Its Python API writes GLB files from code."),
         ],
         "targeted_repair": [_opening_repair()],
     }
@@ -2718,22 +2808,30 @@ def test_a_changed_fact_record_reopens_extracting_and_invalidates_the_candidate(
 ) -> None:
     bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     readme_before = (bundle / "README.md").read_bytes()
-    assert b"banner-readme.png" in readme_before
-    banner = "https://products.aspose.org/media/3d/python/banner-readme.png"
-    # The extractor now sees the banner illustration resolve elsewhere: the fact keeps its
-    # value and polarity, its evidence detail changes, and so does its record's digest.
+    docs = "https://docs.example.com/3d"
+    assert docs.encode() in readme_before
+    # The documentation link the sealed plan cites (link_target:002) now answers 403, access-gated:
+    # its fact keeps its value but its verdict moves from RESOLVED to UNCHECKED, so the record the
+    # candidate consumed changed. Since TC-INV-01 only a consumed record reopens a stage, and
+    # since TC-INV-02 a link's evidence is its verdict word alone: this test used to move the
+    # banner's redirect target, which no longer changes any fact (the next test pins that).
     monkeypatch.setattr(
-        links, "fetch_status", lambda url: (200, url + "?v=2" if url == banner else url)
+        links, "fetch_status", lambda url: (403, url) if url == docs else (200, url)
     )
+    # The plan can no longer cite a link whose fact is UNRESOLVED; the re-asked planning stage
+    # answers without it (the one scripted reply the stage consumes).
+    gateway_ready.queues["presentation_planning"] = [{**LOCAL_PLAN, "links": []}]
     before = len(gateway_ready.requests)
 
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     out = capsys.readouterr().out
     assert code == EXIT_OK
     assert "(earliest affected stage EXTRACTING; 1 changes (facts -> EXTRACTING)" in out
-    # The stages reopen from EXTRACTING, yet no packet carries the evidence detail, so every
-    # stored output is judged and reused without a call.
-    assert len(gateway_ready.requests) == before
+    # The consumed fact feeds the plan, so planning is asked again and the stages after it are
+    # recomposed; the investigation and the dispositions, which never cited the link, are reused.
+    assert gateway_ready.queues["presentation_planning"] == []
+    assert len(gateway_ready.requests) > before
+    assert "investigation: " in out and "provider calls 0, model stored output reused" in out
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
     # A changed fact is a changed factual input the candidate consumed: it invalidates the
     # candidate and re-enters at EXTRACTING (docs/STATE_MACHINE.md section 9). The update the
@@ -2746,7 +2844,39 @@ def test_a_changed_fact_record_reopens_extracting_and_invalidates_the_candidate(
     assert manifest["invalidated"]["scope"] == "facts" and manifest["invalidated"]["check"] is None
     assert manifest["update"]["triggering_scope"] == "facts"
     assert "facts.json" in manifest["update"]["changed"]
-    assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
+    assert "README.md" in manifest["update"]["changed"]  # the unverifiable link is not rendered
+    assert (bundle / "README.md").read_bytes() == readme_before  # the sealed bytes are untouched
+
+
+def test_a_link_whose_http_detail_changes_is_no_changed_fact_and_reopens_nothing(
+    project_with_registry: Path,
+    sealed_canary: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """TC-INV-02 through the real command: the banner now resolves through a redirect, so the
+    HTTP detail differs, but a link fact's evidence is its verdict word alone (RESOLVED), the
+    detail lives in the unhashed probe record, and no record the candidate consumed changed."""
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
+    readme_before = (bundle / "README.md").read_bytes()
+    assert b"banner-readme.png" in readme_before
+    banner = "https://products.aspose.org/media/3d/python/banner-readme.png"
+    monkeypatch.setattr(
+        links, "fetch_status", lambda url: (200, url + "?v=2" if url == banner else url)
+    )
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert "earliest affected stage NONE; 0 changes" in out
+    assert len(gateway_ready.requests) == before
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state READY_FOR_PROPOSAL," in bundle_line and "invalidated" not in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and not manifest.get("update")
     assert (bundle / "README.md").read_bytes() == readme_before
 
 
@@ -3136,9 +3266,23 @@ MONITOR_BUNDLED = "5" * 40
 MONITOR_HEAD = "4" * 40
 
 
+def _monitor_tree(repository: str, revision: str, *, token: str | None = None) -> TreeRead:
+    """Injected tree reader: the cited file differs at every revision but the bundled one."""
+    sha = "aa" * 20 if revision == MONITOR_BUNDLED else "bb" * 20
+    return TreeRead(repository, revision, paths=("setup.py",), blob_shas={"setup.py": sha})
+
+
+def _no_registry(ecosystem: str, package: str, **_: object) -> object:
+    raise AssertionError("the monitor must not reach a package registry in this test")
+
+
 @pytest.fixture
-def monitor_root(project: Path) -> Path:
-    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner."""
+def monitor_root(project: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A synthetic project: one bundled repository, one bare one, one disabled, one other owner.
+
+    The monitor's tree and registry readers are replaced, so a test never reaches the network."""
+    monkeypatch.setattr(cli, "fetch_tree", _monitor_tree)
+    monkeypatch.setattr(cli, "observe_registry", _no_registry)
     (project / "data").mkdir()
     payload = {
         "schema_version": 1,
@@ -3151,7 +3295,12 @@ def monitor_root(project: Path) -> Path:
     }
     (project / "data" / "registry.json").write_text(json.dumps(payload), encoding="utf-8")
     write_bundle(
-        project, "aspose-3d-foss__Aspose.3D-FOSS-for-Python", MONITOR_BUNDLED, "READY_FOR_PROPOSAL"
+        project,
+        "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+        MONITOR_BUNDLED,
+        "READY_FOR_PROPOSAL",
+        # No recorded blob ids (an older seal): the comparison runs over the facts' cited paths.
+        facts=[{"id": "install_command:pip", "evidence": [{"path": "setup.py", "detail": None}]}],
     )
     return project
 
@@ -3233,11 +3382,10 @@ def test_monitor_exits_zero_when_every_enabled_repository_is_observed(
     assert code == EXIT_OK
     captured = capsys.readouterr()
     assert captured.err == ""
-    # The monitor fixture's bundle was sealed without recorded upstream blob ids, so it is UNKNOWN
-    # until re-sealed - observed, so the run still exits zero.
-    assert "UNKNOWN" in captured.out
+    # The fixture's bundle was sealed without recorded blob ids but its head is unchanged: a git
+    # revision is immutable, so it is CURRENT without a tree read.
     assert (
-        "monitor: 3 observed - CURRENT 0, DRIFTED 0, UNKNOWN 1, NO_BUNDLE 2, UNREACHABLE 0"
+        "monitor: 3 observed - CURRENT 1, DRIFTED 0, UNKNOWN 0, NO_BUNDLE 2, UNREACHABLE 0"
         in captured.out
     )
 

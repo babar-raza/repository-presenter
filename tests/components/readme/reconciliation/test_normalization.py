@@ -8,13 +8,21 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    _rendered_commands,
     code_units_by_polarity,
     normalize,
     placement_errors,
     reconciliation_batches,
     reconciliation_schema,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
+from repository_presenter.core.llm.binding import binding_errors
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
 
@@ -467,7 +475,8 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     schema = reconciliation_schema(loaded, batch, FACTS, {})
     units = [fact.id for fact in FACTS.by_kind("inherited_unit")]
     dispositions = schema["properties"]["dispositions"]
-    assert dispositions["minItems"] == dispositions["maxItems"] == len(units)
+    assert dispositions["maxItems"] == len(units)
+    assert dispositions["minItems"] == 1  # the manifest's floor; a batch-sized one cannot close
     assert dispositions["items"]["properties"]["unit_id"] == {"type": "string", "enum": units}
     assert "maxItems" not in loaded.manifest.output.schema_["properties"]["dispositions"]
 
@@ -487,7 +496,13 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
         for error in validator.iter_errors({"dispositions": [entry(u) for u in invented]})
     ] == [f"$.dispositions[{len(units) - 1}].unit_id"]
     short = {"dispositions": [entry(u) for u in units[:-1]]}
-    assert [error.json_path for error in validator.iter_errors(short)] == ["$.dispositions"]
+    # A short reply must be able to close (a floor at the batch size left whitespace as the only
+    # continuation: Imaging-.NET, test_output_budget.py); the unit binding refuses it by name.
+    assert list(validator.iter_errors(short)) == []
+    assert any(
+        "no disposition for inherited units" in error
+        for error in binding_errors(short, FACTS, "unit_ids")
+    )
     assert list(validator.iter_errors({"dispositions": [entry(u) for u in units]})) == []
 
 
@@ -524,7 +539,8 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
         for _, batch_units in batches:
             schema = reconciliation_schema(loaded, batch_units, facts, {})
             dispositions = schema["properties"]["dispositions"]
-            assert dispositions["maxItems"] == dispositions["minItems"] == len(batch_units)
+            assert dispositions["maxItems"] == len(batch_units)
+            assert dispositions["minItems"] == 1
             assert dispositions["maxItems"] <= 40
             assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
                 fact.id for fact in batch_units
@@ -914,3 +930,41 @@ def test_a_folded_command_defer_is_no_longer_a_withheld_command_for_bc_05() -> N
     assert [f.class_id for f in review_deferrals(output, facts)] == ["COMMAND_BLOCK_WITHHELD"]
     normalize(output, facts)
     assert review_deferrals(output, facts) == []
+
+
+# TC-TST-01: the command lines the Installation row prints follow the source-checkout record, so
+# an inherited `dotnet build` is not called redundant against a block the row no longer prints.
+def _net_install_facts(**attributes: str) -> FactsDocument:
+    repository = "aspose-3d-foss/Aspose.3D-FOSS-for-.NET"
+    return FactsDocument(
+        repository,
+        "a" * 40,
+        (
+            Fact("identity:repository", "identity", repository, (Evidence("data/registry.json"),)),
+            Fact("identity:ecosystem", "identity", "net", (Evidence("data/registry.json"),)),
+            Fact("example:001", "example", "var s = 1;", (Evidence("examples.json", "unit 001"),)),
+            Fact(
+                "install_command:dotnet",
+                "install_command",
+                "dotnet add package Aspose.3D.FOSS",
+                (Evidence("Aspose.ThreeD.csproj", "manifest"), Evidence("nuget", "found")),
+                attributes=attributes or None,
+            ),
+        ),
+    )
+
+
+def test_the_rendered_commands_follow_the_source_checkout_record() -> None:
+    template = _rendered_commands(_net_install_facts())
+    assert "dotnet build" in template  # a fact extracted before the record keeps the template
+    measured = (
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git\n"
+        "cd Aspose.3D-FOSS-for-.NET\ndotnet build src/main/Aspose.ThreeD/Aspose.ThreeD.csproj"
+    )
+    proven = _rendered_commands(_net_install_facts(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: measured}))
+    assert "dotnet build src/main/aspose.threed/aspose.threed.csproj" in proven
+    assert "dotnet build" not in proven
+    refused = _rendered_commands(
+        _net_install_facts(**{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0"})
+    )
+    assert not any(line.startswith(("dotnet build", "git clone")) for line in refused)

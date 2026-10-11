@@ -11,7 +11,7 @@ its evidence); ``unit_ids`` name every inherited unit exactly once.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -109,6 +109,33 @@ def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, st
     return sorted(rewrites.items())
 
 
+def drop_unknown_finding_ids(payload: Any, facts: FactsDocument) -> list[str]:
+    """Remove, in place, every cited ID the facts do not carry from a review finding's own
+    ``fact_ids``; returns the IDs dropped.
+
+    A finding's ``fact_ids`` is the reviewer's pointer at evidence, and every consumer reads it
+    through the facts (``cited = [by_id[i] ... if i in by_id]``): an ID that names no fact was
+    already invisible to the rulings, so removing it changes no judgement - it only stops one
+    invented pointer (Aspose.Page-FOSS-for-Python, 2026-10-11: ``scope:pdf_import_absent`` beside
+    two real format IDs, refused twice) from discarding a whole review of otherwise-bound findings.
+    A finding left naming nothing is judged as the finding that names no fact, which is what it
+    now is; the verdict and every other field are untouched, and nothing is added. Applies to
+    ``findings[*].fact_ids`` only: an omission claim's own ``missing_ids`` stay bound as before.
+    """
+    known = {fact.id for fact in facts.facts}
+    dropped: list[str] = []
+    findings = payload.get("findings") if isinstance(payload, dict) else None
+    for finding in findings if isinstance(findings, list) else []:
+        cited = finding.get("fact_ids") if isinstance(finding, dict) else None
+        if not isinstance(cited, list):
+            continue
+        kept = [item for item in cited if not isinstance(item, str) or item in known]
+        dropped.extend(item for item in cited if isinstance(item, str) and item not in known)
+        if len(kept) != len(cited):
+            finding["fact_ids"] = kept
+    return dropped
+
+
 def fold_duplicate_units(payload: Any) -> None:
     """A repeated ``unit_id`` disposition is dropped in place, keeping the first.
 
@@ -186,6 +213,77 @@ def merge_partial_units(revised: Any, original: Any) -> Any:
             if isinstance(item, dict) and "unit_id" in item
         }
         merged[key] = [declared_by_unit.get(item["unit_id"], item) for item in original_value]
+    return merged
+
+
+def fill_silent_units(revised: Any, original: Any) -> Any:
+    """``revised`` with each unit-keyed list completed from ``original`` for the units it left out.
+
+    The re-ask of a ``unit_ids`` job quotes only the units that were wrong, and a model answers
+    what it was shown: Aspose.PDF for TypeScript's second reply declared the 4 units the first
+    rejection named and nothing for the other 36, so it was refused as "no disposition for
+    inherited units: ..." although the first reply had already answered all 36 validly (cut-2
+    wave, 2026-10-11, two batches). A unit the reply is silent on keeps the disposition it had
+    the first time; a unit the reply does state is the reply's own, and the rejected ones are
+    judged again by the same checks, so nothing is accepted that was not judged. A list is only
+    completed when it is a strict subset of the original's units; a full reply is returned as
+    given (unlike :func:`merge_partial_units`, order and extra entries are never rewritten).
+    """
+    if not (isinstance(revised, dict) and isinstance(original, dict)):
+        return revised
+    completed = dict(revised)
+    for key, original_value in original.items():
+        revised_value = completed.get(key)
+        if not (
+            isinstance(original_value, list)
+            and isinstance(revised_value, list)
+            and original_value
+            and all(isinstance(item, dict) and "unit_id" in item for item in original_value)
+            and all(isinstance(item, dict) and "unit_id" in item for item in revised_value)
+        ):
+            continue
+        stated = {item["unit_id"] for item in revised_value}
+        silent = [item for item in original_value if item["unit_id"] not in stated]
+        if silent:
+            completed[key] = [*revised_value, *silent]
+    return completed
+
+
+def silent_unit_ids(output: Any, facts: FactsDocument) -> list[str]:
+    """The inherited units ``facts`` holds that ``output`` cites nowhere, in the facts' order.
+
+    Exactly the units :func:`binding_errors` reports as "no disposition for inherited units";
+    empty when ``output`` is not a JSON object (a shape failure has nothing safe to narrow).
+    """
+    if not isinstance(output, dict):
+        return []
+    cited = set(collect_ids(output).unit_ids)
+    return [fact.id for fact in facts.by_kind("inherited_unit") if fact.id not in cited]
+
+
+def add_silent_units(base: Any, narrowed: Any, silent: Collection[str]) -> Any:
+    """``base`` with each unit-keyed list extended by the ``silent`` units ``narrowed`` answers.
+
+    The one further ask a ``unit_ids`` job makes shows the model only the units both earlier
+    replies left without a disposition (cut-2 wave, 2026-10-11, BarCode-Python: units 057-059,
+    silent twice in a batch of 19). Its reply is merged here and the merged whole is judged by
+    the job's ordinary schema, binding and checks, so a unit is accepted only on the same terms as
+    any other. Only entries for units in ``silent`` are taken, appended after ``base``'s own: a
+    unit ``base`` already answers keeps that answer, whatever the narrowed reply says about it.
+    """
+    if not (isinstance(base, dict) and isinstance(narrowed, dict)):
+        return base
+    merged = dict(base)
+    for key, value in narrowed.items():
+        if not (
+            isinstance(value, list)
+            and all(isinstance(item, dict) and "unit_id" in item for item in value)
+        ):
+            continue
+        wanted = [item for item in value if item["unit_id"] in silent]
+        if wanted:
+            current = merged.get(key)
+            merged[key] = [*(current if isinstance(current, list) else []), *wanted]
     return merged
 
 

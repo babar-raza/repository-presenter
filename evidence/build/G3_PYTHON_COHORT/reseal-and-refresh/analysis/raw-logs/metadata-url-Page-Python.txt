@@ -1,0 +1,17 @@
+# log: metadata-url-Page-Python
+# repository: aspose-page-foss/Aspose.Page-FOSS-for-Python
+# head: 43cef367cd0b2cf00cc03064ca9d29d1ff507967
+# utc: 2026-10-11T07:57:30Z
+# cwd: shallow clone of the default branch
+# command: (script below, run with bash)
+#   grep -n -i 'url' pyproject.toml setup.py || echo 'no url key in pyproject.toml or setup.py'
+#   grep -n -c '^\[project.urls\]' pyproject.toml || true
+#   curl -s https://pypi.org/pypi/aspose-page-foss/json | python -c 'import json,sys; i=json.load(sys.stdin)["info"]; print("version", i["version"]); print("home_page", i["home_page"]); print("project_urls", i["project_urls"])'
+# ---- output (capped at 60000 bytes) ----
+no url key in pyproject.toml or setup.py
+0
+version 26.9.0
+home_page None
+project_urls None
+
+# exit: 0

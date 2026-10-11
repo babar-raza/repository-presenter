@@ -138,4 +138,87 @@ def test_an_unpublished_or_offline_reading_carries_no_version() -> None:
     gone = observe("typescript", "aspose-x", fetch=fetch, sleep=lambda _s: None)
     assert gone.published is False and gone.latest_version is None
     assert observe("typescript", "aspose-x", offline=True).latest_version is None
+
+
+@pytest.mark.parametrize(
+    ("ecosystem", "name", "routes", "expected"),
+    [
+        # Aspose.Cells FOSS for Java: the sealed README called 26.7.0 "the sole published
+        # version" while Maven Central lists two (wave-3 acceptance review, 2026-10-11).
+        (
+            "java",
+            "org.aspose:aspose-slides-foss",
+            {
+                MAVEN_URL: b"<metadata><versioning><latest>26.7.0</latest>"
+                b"<release>26.7.0</release><versions><version>26.5.0</version>"
+                b"<version>26.7.0</version></versions></versioning></metadata>"
+            },
+            ("26.5.0", "26.7.0"),
+        ),
+        (
+            "net",
+            "Aspose.PDF.FOSS",
+            {
+                "https://api.nuget.org/v3-flatcontainer/aspose.pdf.foss/index.json": _json(
+                    {"versions": ["26.9.0", "26.11.0-rc1"]}
+                )
+            },
+            ("26.9.0", "26.11.0-rc1"),
+        ),
+        (
+            "typescript",
+            "@asposefoss/pdf",
+            {
+                "https://registry.npmjs.org/%40asposefoss%2Fpdf": _json(
+                    {
+                        "dist-tags": {"latest": "26.9.0"},
+                        "versions": {"26.9.0": {}, "27.0.0-rc.1": {}},
+                    }
+                )
+            },
+            ("26.9.0", "27.0.0-rc.1"),
+        ),
+        (
+            "rust",
+            "aspose-cells-foss",
+            {
+                "https://crates.io/api/v1/crates/aspose-cells-foss": _json(
+                    {
+                        "crate": {"max_stable_version": "26.7.0"},
+                        "versions": [{"num": "26.7.0"}, {"num": "26.6.0"}],
+                    }
+                )
+            },
+            ("26.7.0", "26.6.0"),
+        ),
+        (
+            "python",
+            "aspose-note-foss",
+            {
+                "https://pypi.org/pypi/aspose-note-foss/json": _json(
+                    {
+                        "info": {"version": "26.1.0"},
+                        # A release whose files were all deleted is not a published version.
+                        "releases": {"26.1.0": [{"filename": "a.whl"}], "26.0.1": []},
+                        "urls": [],
+                    }
+                )
+            },
+            ("26.1.0",),
+        ),
+    ],
+)
+def test_each_registry_reports_every_version_it_lists_not_only_the_current_one(
+    ecosystem: str, name: str, routes: dict[str, bytes], expected: tuple[str, ...]
+) -> None:
+    _, fetch = _serving(routes)
+    reading = observe(ecosystem, name, fetch=fetch, sleep=lambda _s: None)
+    assert reading.conclusive and reading.published
+    assert reading.versions == expected
+
+
+def test_an_unreadable_or_absent_registry_body_lists_no_versions_never_a_count_of_zero() -> None:
+    _, fetch = _serving({"https://registry.npmjs.org/aspose-x": b"<html>not json</html>"})
+    assert observe("typescript", "aspose-x", fetch=fetch, sleep=lambda _s: None).versions == ()
+    assert observe("typescript", "aspose-x", offline=True).versions == ()
     assert observe("cpp", "aspose_cells_foss_cpp").latest_version is None

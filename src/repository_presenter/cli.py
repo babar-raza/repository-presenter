@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import sys
+import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import replace
@@ -27,7 +28,10 @@ from repository_presenter.components.candidates_publish.effect import (
 from repository_presenter.components.candidates_publish.effect import (
     publish_candidates,
 )
+from repository_presenter.components.issues import batch as issues_batch
 from repository_presenter.components.issues import file as issues_file
+from repository_presenter.components.issues import funnel as issues_funnel
+from repository_presenter.components.issues import lifecycle as issues_lifecycle
 from repository_presenter.components.issues import readiness as issues_readiness
 from repository_presenter.components.issues.approval import (
     ApprovalProvenanceError,
@@ -35,6 +39,7 @@ from repository_presenter.components.issues.approval import (
     approval_relative_path,
     verify_approval,
 )
+from repository_presenter.components.issues.classes import observation_from_clone
 from repository_presenter.components.issues.close_approval import (
     CLOSE_APPROVALS_RELATIVE_DIR,
     close_approval_relative_path,
@@ -42,10 +47,13 @@ from repository_presenter.components.issues.close_approval import (
 )
 from repository_presenter.components.issues.draft import (
     eligible_for_handoff,
+    record_class_handoffs_if_new,
     record_handoff_if_new,
 )
+from repository_presenter.components.issues.funnel import git_first_seen
 from repository_presenter.components.issues.ledger import (
     UPSTREAM_DEFECTS_DIRNAME,
+    LedgerError,
     load_ledger,
 )
 from repository_presenter.components.issues.model import (
@@ -101,6 +109,11 @@ from repository_presenter.components.propose.effect import (
 from repository_presenter.components.propose.effect import (
     write_authorized as propose_write_authorized,
 )
+from repository_presenter.components.propose.pull_request import (
+    PullRequestContent,
+    compose_pull_request,
+    load_pull_request_evidence,
+)
 from repository_presenter.components.propose.wave import (
     LiveObservation,
     WaveError,
@@ -133,9 +146,20 @@ from repository_presenter.components.readme.bundle.portfolio import (
     current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
+    proposal_acceptance_gate,
 )
 from repository_presenter.components.readme.bundle.portfolio import (
     render_lines as render_portfolio_lines,
+)
+from repository_presenter.components.readme.bundle.recheck import (
+    COUNTING,
+    Recheck,
+    currency_counts,
+    currency_map,
+    recheck_portfolio,
+)
+from repository_presenter.components.readme.bundle.recheck import (
+    render_lines as render_recheck_lines,
 )
 from repository_presenter.components.readme.bundle.reproducibility import (
     reproducible_repositories,
@@ -179,6 +203,9 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     known_ecosystems,
     plugin_for,
     verify_build,
+)
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe as observe_registry,
 )
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
@@ -237,7 +264,12 @@ from repository_presenter.core.candidates import (
     verify_bundle,
 )
 from repository_presenter.core.config import API_KEY_VARIABLE, MODEL_VARIABLE, load_gateway_config
-from repository_presenter.core.errors import ConfigError, JobError, PresenterError
+from repository_presenter.core.errors import (
+    ConfigError,
+    JobError,
+    PresenterError,
+    RepositoryMetadataError,
+)
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -259,6 +291,8 @@ from repository_presenter.core.github.client import (
     default_put,
     find_issue_with_marker,
     get_issue,
+    list_issue_comments,
+    scan_marker_issues,
 )
 from repository_presenter.core.github.client import (
     create_pull_request as default_create_pull_request,
@@ -398,6 +432,15 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     status.add_argument(
+        "--recheck",
+        action="store_true",
+        help=(
+            "compute the consumed-scope recheck of every bundle that is behind the running code "
+            "instead of only reading cached receipts (minutes for the whole portfolio); offline, "
+            "no provider call, writes nothing"
+        ),
+    )
+    status.add_argument(
         "--json",
         dest="as_json",
         action="store_true",
@@ -422,6 +465,39 @@ def build_parser() -> argparse.ArgumentParser:
             "proposal authorization records (a JSON object, a list, or a directory of such "
             "files) to count as effect-authorized when valid for the exact sealed candidate"
         ),
+    )
+    recheck = subcommands.add_parser(
+        "recheck",
+        help=(
+            "is each sealed candidate still current under the running code? Re-runs, offline and "
+            "over the bundle's own sealed artifacts, exactly the checks whose recorded inputs "
+            "differ, and reports CURRENT, RECHECKED_CURRENT, UPDATE_OPTIONAL, UPDATE_REQUIRED "
+            "(rerender_only or recompose) or UNVERIFIED (G7-W25); never invalidates, edits a "
+            "bundle or calls a provider"
+        ),
+    )
+    recheck.add_argument("--root", type=Path, default=None, help=root_help)
+    recheck.add_argument(
+        "--repo",
+        action="append",
+        default=None,
+        metavar="OWNER/NAME",
+        help="recheck only this repository (repeatable); default: every current bundle",
+    )
+    recheck.add_argument(
+        "--write-receipts",
+        action="store_true",
+        help=(
+            "cache each result at candidates/<owner>__<name>/rechecks/<revision>.json, keyed by "
+            "the manifest digest and the running code's consumed inputs (never inside a sealed "
+            "bundle)"
+        ),
+    )
+    recheck.add_argument(
+        "--json",
+        dest="as_json",
+        action="store_true",
+        help="print one machine-readable JSON document instead of the text report",
     )
     present = subcommands.add_parser(
         "present",
@@ -611,6 +687,29 @@ def build_parser() -> argparse.ArgumentParser:
             "the scheduled workflow passes the commit it was triggered on"
         ),
     )
+    redetect_cmd.add_argument(
+        "--comment",
+        action="store_true",
+        help=(
+            "post one update comment on each FILED issue whose defect persists with changed "
+            "evidence (requires --repo; never a second issue, never a repeat of an earlier "
+            "update). Gated like a filing, and also needs "
+            f"{issues_file.COMMENTS_AUTHORIZATION_VARIABLE}=1, which the owner sets separately; "
+            "a dry run reports would-comment / no update "
+            "(reading the thread needs a read credential) and makes no write call when omitted"
+        ),
+    )
+    redetect_cmd.add_argument(
+        "--resume-out",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help=(
+            "write the resume contract core/sealing_plan.py reads: every repository whose "
+            "handoff's check no longer fires, so the candidate it blocked is planned for sealing "
+            "again whatever the drift monitor says. Local file only"
+        ),
+    )
     targets_cmd = subcommands.add_parser(
         "issue-targets",
         help=(
@@ -717,6 +816,46 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     file_cmd.add_argument(
+        "--with-updates",
+        action="store_true",
+        help=(
+            "with --count-writable: also count every FILED handoff (an update comment is a "
+            "possible write); the workflow passes it only while the owner has enabled update "
+            f"comments ({issues_file.COMMENTS_AUTHORIZATION_VARIABLE}=1)"
+        ),
+    )
+    file_cmd.add_argument(
+        "--daily-cap",
+        type=int,
+        default=issues_batch.DEFAULT_DAILY_CAP,
+        metavar="N",
+        help=(
+            "at most N issues filed per target repository per UTC day, counted from the issues "
+            "already in that repository carrying this system's marker (so a second run the same "
+            f"day cannot exceed it); 0 pauses filing (default {issues_batch.DEFAULT_DAILY_CAP})"
+        ),
+    )
+    file_cmd.add_argument(
+        "--open-cap",
+        type=int,
+        default=issues_batch.DEFAULT_OPEN_CAP,
+        metavar="N",
+        help=(
+            "no filing while N of this system's issues are open in the target repository "
+            f"(default {issues_batch.DEFAULT_OPEN_CAP})"
+        ),
+    )
+    file_cmd.add_argument(
+        "--pace-seconds",
+        type=float,
+        default=issues_batch.DEFAULT_PACE_SECONDS,
+        metavar="S",
+        help=(
+            "wait so successive filings of one run are at least S seconds apart "
+            f"(default {issues_batch.DEFAULT_PACE_SECONDS:g})"
+        ),
+    )
+    file_cmd.add_argument(
         "--count-writable",
         action="store_true",
         help=(
@@ -725,6 +864,36 @@ def build_parser() -> argparse.ArgumentParser:
             "close). Committed files only, no network; the workflow mints its write token only "
             "when this is nonzero"
         ),
+    )
+    funnel_cmd = subcommands.add_parser(
+        "issue-funnel",
+        help=(
+            "print where every upstream-defect handoff stands (PENDING, APPROVED, ACKNOWLEDGED, "
+            "FILED, RESOLVED) and a '::warning' annotation for each one waiting longer than the "
+            "limit; offline and read-only"
+        ),
+    )
+    funnel_cmd.add_argument("--root", type=Path, default=None, help=root_help)
+    funnel_cmd.add_argument(
+        "--approvals-ref",
+        default="HEAD",
+        metavar="GIT_REF",
+        help="git ref the owner approval records are read from (never the working tree)",
+    )
+    funnel_cmd.add_argument(
+        "--max-pending-days",
+        type=int,
+        default=issues_funnel.DEFAULT_MAX_PENDING_DAYS,
+        metavar="N",
+        help=(
+            "a handoff still waiting (PENDING or APPROVED) after N days is annotated "
+            f"(default {issues_funnel.DEFAULT_MAX_PENDING_DAYS})"
+        ),
+    )
+    funnel_cmd.add_argument(
+        "--fail-on-alert",
+        action="store_true",
+        help="exit non-zero when any handoff is annotated (default: a warning only)",
     )
     readiness_cmd = subcommands.add_parser(
         "issue-readiness",
@@ -1114,6 +1283,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             as_json=args.as_json,
             drift_path=args.drift,
             authorizations_path=args.authorizations,
+            recheck=args.recheck,
+        )
+    if args.command == "recheck":
+        return run_recheck(
+            args.root,
+            repositories=args.repo,
+            write_receipts=args.write_receipts,
+            as_json=args.as_json,
         )
     if args.command == "present":
         if args.durable_state:
@@ -1154,6 +1331,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             apply=args.apply,
             close=args.close,
             approvals_ref=args.approvals_ref,
+            comment=args.comment,
+            resume_out=args.resume_out,
         )
     if args.command == "file-upstream-defects":
         return run_file_upstream_defects(
@@ -1162,9 +1341,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=args.file,
             approvals_ref=args.approvals_ref,
             count_writable=args.count_writable,
+            daily_cap=args.daily_cap,
+            open_cap=args.open_cap,
+            pace_seconds=args.pace_seconds,
+            with_updates=args.with_updates,
         )
     if args.command == "issue-targets":
         return run_issue_targets(args.root)
+    if args.command == "issue-funnel":
+        return run_issue_funnel(
+            args.root,
+            approvals_ref=args.approvals_ref,
+            max_pending_days=args.max_pending_days,
+            fail_on_alert=args.fail_on_alert,
+        )
     if args.command == "issue-readiness":
         return run_issue_readiness(
             args.root,
@@ -1402,6 +1592,7 @@ def run_monitor(
         token=token,
         read_head=fetch_default_branch_sha,
         read_tree=fetch_tree,
+        freshness_observe=observe_registry,
     )
     observed_at = datetime.now(UTC).isoformat(timespec="seconds")
     document = drift_document(observations, observed_at=observed_at, owner=owner)
@@ -1525,6 +1716,8 @@ def run_redetect_upstream_defects(
     apply: bool = False,
     close: bool = False,
     approvals_ref: str = "HEAD",
+    comment: bool = False,
+    resume_out: Path | None = None,
 ) -> int:
     """Re-evaluate every (or one `--repo`) handoff's own `triggering_check` right now.
 
@@ -1542,12 +1735,21 @@ def run_redetect_upstream_defects(
     naming that issue number and reason (read from `approvals_ref` in git), and a live issue that
     carries this handoff's fingerprint marker. `--apply` writes that one local transition without
     any GitHub call; it is never a way around the close gate.
+
+    The lifecycle (``components/issues/lifecycle.py``): a FILED issue whose defect persists with
+    changed evidence gets one update comment (`--comment`, gated; the dry run reports it), never a
+    second issue and never a repeat; a defect that no longer fires goes down the close-approval
+    path above and, with `--resume-out`, is written as a resume record so the candidate it blocked
+    is planned for sealing again (`core/sealing_plan.py`).
     """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
     if close and repository is None:
         _fail("redetect-upstream-defects --close requires --repo: a write is bound to one target")
+        return EXIT_USAGE
+    if comment and repository is None:
+        _fail("redetect-upstream-defects --comment requires --repo: a write is bound to one target")
         return EXIT_USAGE
     known_ecosystems()  # registers every ecosystem's package-registry observer for redetect
     try:
@@ -1577,11 +1779,12 @@ def run_redetect_upstream_defects(
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
     except PresenterError as exc:
-        if close:  # a write needs the registry; a dry run just reports it cannot say yes
+        if close or comment:  # a write needs the registry; a dry run just reports it cannot say yes
             _fail(str(exc))
             return exc.exit_code
         registry_error = str(exc)
     failures = 0
+    resumes = []
     for entry in entries:
         try:
             handoff = load_handoff(entry.path)
@@ -1606,9 +1809,23 @@ def run_redetect_upstream_defects(
                 f"  revision drifted: handoff recorded {handoff.source_revision}, "
                 f"current default-branch head is {result.checked_at_revision}"
             )
+        resume = issues_lifecycle.resume_record(handoff, result)
+        if resume is not None:
+            resumes.append(resume)
+            print(f"  resume: the blocking defect is resolved at {resume.resolved_revision}")
         if result.proposed_status is None:
             if handoff.status == "FILED" and not (close or apply):
                 print(f"  would not close: {issues_file.plan_close(handoff, result)} (dry run)")
+            if handoff.status == "FILED" and result.still_fires is True:
+                failures += _lifecycle_update(
+                    handoff,
+                    result,
+                    comment=comment,
+                    registry=registry,
+                    read_token=read_token,
+                    write_token=write_token,
+                    expected_repository=repository,
+                )
             continue
         print(
             f"  proposed status: {handoff.status} -> {result.proposed_status} "
@@ -1670,7 +1887,69 @@ def run_redetect_upstream_defects(
                     )
                 )
             )
+    if resume_out is not None:
+        resume_out.parent.mkdir(parents=True, exist_ok=True)
+        resume_out.write_text(
+            json.dumps(issues_lifecycle.resume_contract(resumes), indent=2) + "\n", encoding="utf-8"
+        )
+        print(f"redetect: wrote {len(resumes)} resume record(s) to {resume_out}")
     return EXIT_INCONSISTENT if failures else EXIT_OK
+
+
+def _lifecycle_update(
+    handoff: Handoff,
+    result: RedetectionResult,
+    *,
+    comment: bool,
+    registry: Registry | None,
+    read_token: str | None,
+    write_token: str | None,
+    expected_repository: str | None,
+) -> int:
+    """The update step of one lifecycle cycle for a FILED handoff whose defect persists: report
+    what an update comment would be (dry run) or post it through ``file.py``'s gate (`--comment`).
+    Returns 1 when a write was attempted and failed, else 0."""
+    assert handoff.issue_ref is not None  # FILED always carries its issue
+    owner, name = handoff.repository.split("/", 1)
+    number = handoff.issue_ref.number
+    read = read_token or write_token
+    comments_lookup = partial(list_issue_comments, owner, name, number, token=read)
+    if not comment:
+        if read_token is None:
+            print("  update not evaluated (no read credential to read the issue thread)")
+            return 0
+        try:
+            decision = issues_lifecycle.decide_update(handoff, result, comments_lookup())
+        except RepositoryMetadataError as exc:
+            print(f"  update not evaluated ({exc})")
+            return 0
+        if decision.post:
+            print(f"  would comment on #{number}: {decision.reason} (dry run; pass --comment)")
+        else:
+            print(f"  no update: {decision.reason}")
+        return 0
+    assert registry is not None  # loaded above whenever `comment` is set
+    try:
+        permit = require_write_permitted(registry, handoff.repository, "issue_filing")
+    except WriteRefusedError as refusal:
+        print(f"  comment not performed ({refusal.code}): {refusal}")
+        return 0
+    outcome = issues_file.comment_on_filed(
+        handoff,
+        result,
+        token=write_token,
+        environment=os.environ,
+        permit=permit,
+        verify_token=partial(default_verify_installation_token, handoff.repository),
+        issue_lookup=partial(get_issue, owner, name, number, token=read),
+        comments_lookup=comments_lookup,
+        create=default_post,
+        expected_repository=expected_repository,
+    )
+    print(
+        f"  {outcome.reason}" if outcome.commented else f"  comment not performed: {outcome.reason}"
+    )
+    return 1 if outcome.error else 0
 
 
 def _dry_run_close_plan(
@@ -1755,6 +2034,60 @@ def run_issue_targets(root_argument: Path | None) -> int:
     ]
     print(json.dumps(targets, separators=(",", ":")))
     return EXIT_OK
+
+
+def _issue_handoff_is_approved(store: GitApprovalStore) -> Callable[[Handoff], bool]:
+    """Whether a pending handoff holds a valid owner approval: the funnel's APPROVED stage. A record
+    whose provenance cannot be established counts as not approved."""
+
+    def approved(handoff: Handoff) -> bool:
+        try:
+            return verify_approval(handoff, store).approved
+        except (ApprovalProvenanceError, OSError):
+            return False
+
+    return approved
+
+
+def _issue_funnel_rows(root: Path, approvals_ref: str = "HEAD") -> list[issues_funnel.FunnelRow]:
+    """Every committed handoff with its funnel stage and age (empty when there is none)."""
+    directory = root / "evidence" / UPSTREAM_DEFECTS_DIRNAME
+    if not directory.is_dir():
+        return []
+    return issues_funnel.build_funnel(
+        directory,
+        is_approved=_issue_handoff_is_approved(GitApprovalStore(root, approvals_ref)),
+        first_seen=git_first_seen(root),
+        now=datetime.now(UTC),
+    )
+
+
+def run_issue_funnel(
+    root_argument: Path | None,
+    *,
+    approvals_ref: str = "HEAD",
+    max_pending_days: int = issues_funnel.DEFAULT_MAX_PENDING_DAYS,
+    fail_on_alert: bool = False,
+) -> int:
+    """Print the issue funnel and one annotation per handoff waiting longer than the limit
+    (``components/issues/funnel.py``). Offline and read-only: it reads the committed handoffs, the
+    approval records from ``approvals_ref`` and git history for ages."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    if max_pending_days < 0:
+        _fail("issue-funnel: --max-pending-days must not be negative")
+        return EXIT_USAGE
+    try:
+        rows = _issue_funnel_rows(root, approvals_ref)
+    except (HandoffError, ApprovalProvenanceError) as exc:
+        _fail(str(exc))
+        return EXIT_INCONSISTENT
+    print(issues_funnel.render_funnel(issues_funnel.funnel_counts(rows)))
+    alerts = issues_funnel.age_alerts(rows, max_pending_days=max_pending_days)
+    for alert in alerts:
+        print(alert.annotation())
+    return EXIT_INCONSISTENT if (alerts and fail_on_alert) else EXIT_OK
 
 
 def run_issue_readiness(
@@ -1897,6 +2230,10 @@ def run_file_upstream_defects(
     file: bool = False,
     approvals_ref: str = "HEAD",
     count_writable: bool = False,
+    daily_cap: int = issues_batch.DEFAULT_DAILY_CAP,
+    open_cap: int = issues_batch.DEFAULT_OPEN_CAP,
+    pace_seconds: float = issues_batch.DEFAULT_PACE_SECONDS,
+    with_updates: bool = False,
 ) -> int:
     """File each eligible (``HANDOFF_PENDING``) ``evidence/upstream-defects/`` handoff as a real
     GitHub issue.
@@ -1916,9 +2253,22 @@ def run_file_upstream_defects(
     that second check is what makes a fresh checkout's run idempotent. Each handoff is rechecked
     against the repository's current state before its write. A failure for one handoff is reported
     and does not stop the rest; the exit status is nonzero if any handoff failed.
+
+    A batch is bounded per target repository (``components/issues/batch.py``): at most
+    ``daily_cap`` issues per UTC day and ``open_cap`` of this system's issues open at once, both
+    counted from the target repository itself, and ``pace_seconds`` between successive writes of
+    one run. A lost create response is reconciled by searching the target for the fingerprint
+    marker before any second POST (``file.py``).
     """
     root = _resolve_root(root_argument)
     if root is None:
+        return EXIT_USAGE
+    try:
+        policy = issues_batch.FilingPolicy(
+            daily_cap=daily_cap, open_cap=open_cap, pace_seconds=pace_seconds
+        )
+    except ValueError as exc:
+        _fail(f"file-upstream-defects: {exc}")
         return EXIT_USAGE
     if file and repository is None:
         _fail("file-upstream-defects --file requires --repo: a write is bound to one target")
@@ -1957,7 +2307,10 @@ def run_file_upstream_defects(
                 return EXIT_INCONSISTENT
             if (
                 handoff.status == "FILED"
-                and verify_close_approval(handoff, close_approvals, close_reason=None).approved
+                and (
+                    with_updates
+                    or verify_close_approval(handoff, close_approvals, close_reason=None).approved
+                )
             ) or (
                 handoff.status == "HANDOFF_PENDING" and verify_approval(handoff, approvals).approved
             ):
@@ -1980,6 +2333,18 @@ def run_file_upstream_defects(
             _fail(str(exc))
             return exc.exit_code
     failures = 0
+    governors: dict[str, issues_batch.FilingGovernor] = {}
+
+    def governor_for(target: str) -> issues_batch.FilingGovernor:
+        if target not in governors:
+            owner, name = target.split("/", 1)
+            governors[target] = issues_batch.FilingGovernor(
+                policy,
+                scan=partial(scan_marker_issues, owner, name, token=read_token or write_token),
+                sleep=lambda seconds: _pace_sleep(seconds),
+            )
+        return governors[target]
+
     for entry in entries:
         try:
             handoff = load_handoff(entry.path)
@@ -2011,7 +2376,17 @@ def run_file_upstream_defects(
                     expected_repository=repository,
                 )
                 kill_switch_on = issues_file.write_authorized(os.environ)
-                print(_describe_plan(handoff, plan, kill_switch_on=kill_switch_on))
+                cap_refusal = None
+                if plan.ready:  # a filing this run would make: would it exceed a cap?
+                    governor = governor_for(handoff.repository)
+                    cap_refusal = governor.check()
+                    if cap_refusal is None:
+                        governor.record_filed()
+                print(
+                    _describe_plan(
+                        handoff, plan, kill_switch_on=kill_switch_on, cap_refusal=cap_refusal
+                    )
+                )
                 continue
             assert permit is not None  # `registry` is loaded whenever `file` is set
             result = issues_file.file_handoff(
@@ -2025,12 +2400,15 @@ def run_file_upstream_defects(
                 expected_repository=repository,
                 permit=permit,
                 verify_token=partial(default_verify_installation_token, handoff.repository),
+                before_write=governor_for(handoff.repository).before_write,
             )
         except Exception as exc:  # one handoff's failure never stops the others; reported below
             print(f"file: {handoff.repository} ERROR: {exc}")
             failures += 1
             continue
         repo = handoff.repository
+        if result.filed or result.reconciled:
+            governor_for(repo).record_filed()
         if result.filed:
             print(f"file: {repo} authorized={result.authorized} filed=True - {result.reason}")
         elif result.issue_ref is not None:
@@ -2053,6 +2431,11 @@ def run_file_upstream_defects(
     return EXIT_INCONSISTENT if failures else EXIT_OK
 
 
+def _pace_sleep(seconds: float) -> None:
+    """The wait between two writes of one run; a name of its own so a test can replace it."""
+    time.sleep(seconds)
+
+
 def _existing_lookup(handoff: Handoff, token: str | None) -> IssueRef | None:
     """The issue already carrying this handoff's fingerprint marker in its target, if any. Raises
     `RepositoryMetadataError` when the scan is inconclusive; `file.py` refuses on that."""
@@ -2064,7 +2447,11 @@ def _existing_lookup(handoff: Handoff, token: str | None) -> IssueRef | None:
 
 
 def _describe_plan(
-    handoff: Handoff, plan: issues_file.FilingPlan, *, kill_switch_on: bool = True
+    handoff: Handoff,
+    plan: issues_file.FilingPlan,
+    *,
+    kill_switch_on: bool = True,
+    cap_refusal: str | None = None,
 ) -> str:
     head = f"file: {handoff.repository} {handoff.suggested_issue_title!r}"
     if plan.already_filed is not None:
@@ -2087,6 +2474,8 @@ def _describe_plan(
             f"{head}: WOULD-NOT-FILE - approved and eligible, but the kill switch "
             f"{issues_file.AUTHORIZATION_VARIABLE} is not 1 (dry run; pass --file to attempt)"
         )
+    if cap_refusal is not None:
+        return f"{head}: WOULD-NOT-FILE - {cap_refusal} (dry run; pass --file to attempt)"
     return (
         f"{head}: WOULD-FILE - owner-approved, no upstream duplicate, defect still fires "
         "(dry run; pass --file to attempt)"
@@ -2294,7 +2683,9 @@ def run_propose(
             permit = require_write_permitted(registry, repository, "readme_proposal")
         elif entry.mode != "full":
             print(f"propose: registry mode {entry.mode!r} - a dry-run result is all this can be")
-        candidate = load_proposable_candidate(root, repository)
+        candidate = load_proposable_candidate(
+            root, repository, acceptance=proposal_acceptance_gate(root)
+        )
         readme_text = candidate.readme_text
         revision = candidate.revision
         candidate_hash = candidate.candidate_hash
@@ -2391,20 +2782,25 @@ def run_propose(
             base = default_branch_read.branch
         base = base or ""  # unused by propose_candidate before its own authorization gate
 
-        pr_title = "Update README via repository-presenter"
-        pr_body = (
-            "Automated README proposal from repository-presenter.\n\n"
-            f"- candidate_hash: {candidate_hash}\n"
-            f"- source_revision: {revision}\n"
-            f"- policy_version: {CURRENT_POLICY_VERSION}\n"
-        )
+        evidence = load_pull_request_evidence(candidate.bundle)
+
+        def _compose_pull_request(live_readme: str | None) -> PullRequestContent:
+            return compose_pull_request(
+                candidate_readme=readme_text,
+                live_readme=live_readme,
+                repository=repository,
+                evidence=evidence,
+                candidate_hash=candidate_hash,
+                source_revision=revision,
+                policy_version=CURRENT_POLICY_VERSION,
+            )
+
         result = propose_candidate(
             repository=repository,
             readme_text=readme_text,
             source_revision=revision,
             base_branch=base,
-            pr_title=pr_title,
-            pr_body=pr_body,
+            compose_pull_request=_compose_pull_request,
             token=write_token,
             environment=os.environ,
             permit=permit,
@@ -2592,7 +2988,9 @@ def run_draft_proposal_authorization(
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
         require_write_permitted(registry, entry.repository, "readme_proposal")
-        candidate = load_proposable_candidate(root, entry.repository)
+        candidate = load_proposable_candidate(
+            root, entry.repository, acceptance=proposal_acceptance_gate(root)
+        )
         live = fetch_default_branch_sha(entry.repository, token=os.environ.get("GH_TOKEN") or None)
         if live.error is not None or live.sha is None or live.branch is None:
             _fail(f"draft-proposal-authorization: could not read the target: {live.error}")
@@ -2705,6 +3103,7 @@ def run_wave_readiness(
             live_read=None if offline else _live,
             stale=stale,
             provenance=git_provenance,
+            acceptance=proposal_acceptance_gate(root),
         )
         print(render_table(rows))
         if not emitting:
@@ -2751,6 +3150,7 @@ def run_status(
     as_json: bool = False,
     drift_path: Path | None = None,
     authorizations_path: Path | None = None,
+    recheck: bool = False,
 ) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
 
@@ -2775,6 +3175,12 @@ def run_status(
     plus a partition that puts every live registry entry in exactly one bucket. ``--json`` prints
     the whole report as one document instead; ``--drift`` and ``--authorizations`` supply the two
     inputs this offline command cannot observe itself (upstream freshness, an authorization).
+
+    A bundle behind the running code's recorded versions is rechecked over its own sealed artifacts
+    (``bundle/recheck.py``, G7-W25): it counts again when the recheck says ``CURRENT``,
+    ``RECHECKED_CURRENT`` or ``UPDATE_OPTIONAL``, and the partition splits what does not into
+    ``update_required`` and ``update_unverified``. ``status`` reads cached receipts; ``--recheck``
+    computes the missing ones. A bundle without a receipt stays uncounted, as before.
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -2809,11 +3215,20 @@ def run_status(
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
     reproducible = reproducible_repositories(root)
-    accepted = independently_accepted_candidates(root, found)
     executed, example_total = examples_verification_summary(root)
     held = held_updates(root)
-    portfolio = _portfolio_report(root, found, drift, authorizations)
+    rechecked = _status_rechecks(root, found, held, compute=recheck)
+    currency = currency_map(rechecked)
+    # A bundle behind the recorded versions that the recheck proves current is not stale.
+    effective = [c for c in found if currency.get(c.repository_dir) not in COUNTING]
+    accepted = independently_accepted_candidates(root, effective)
+    portfolio = _portfolio_report(root, found, drift, authorizations, currency)
     headline = current_reproducible_no_op_proven(portfolio, reproducible)
+    try:
+        issue_rows = _issue_funnel_rows(root)
+    except (HandoffError, ApprovalProvenanceError):
+        issue_rows = []  # a damaged ledger is the issue commands' failure to report, not status's
+    issue_counts = issues_funnel.funnel_counts(issue_rows)
     if as_json:
         print(
             json.dumps(
@@ -2842,6 +3257,7 @@ def run_status(
                     "examples": {"executed": executed, "total": example_total},
                     "canary": cursor.canary,
                     "candidate_states": _candidate_state_counts(root, held),
+                    "issues": issue_counts,
                     "held_updates": [
                         {
                             "repository_dir": update.repository_dir,
@@ -2860,6 +3276,10 @@ def run_status(
                         }
                         for candidate in found
                     ],
+                    "recheck": {
+                        "counts": currency_counts(rechecked),
+                        "currency": currency,
+                    },
                     "portfolio": None if portfolio is None else portfolio.to_json(),
                 },
                 indent=2,
@@ -2882,6 +3302,14 @@ def run_status(
         print(f"canary: {cursor.canary}")
         for line in _candidate_state_lines(root, held):
             print(line)
+        if issue_rows:
+            print(issues_funnel.render_funnel(issue_counts))
+        if rechecked:
+            counts = currency_counts(rechecked)
+            print(
+                "recheck (behind or holding an update): "
+                + ", ".join(f"{state} {number}" for state, number in counts.items())
+            )
         if portfolio is not None:
             for line in render_portfolio_lines(portfolio):
                 print(line)
@@ -2901,6 +3329,59 @@ def run_status(
             f"but {on_disk} sealed on disk"
         )
         return EXIT_INCONSISTENT
+    return EXIT_OK
+
+
+def _status_rechecks(
+    root: Path, found: Sequence[StaleCandidate], held: Sequence[HeldUpdate], *, compute: bool
+) -> list[Recheck]:
+    """The consumed-scope rechecks ``status`` needs: only the bundles behind the running code or
+    holding an update, from receipts or (``compute``) computed. Degrades to nothing (the pre-recheck
+    behavior, every such bundle uncounted) when the prompt manifests do not load."""
+    directories = sorted({c.repository_dir for c in found} | {u.repository_dir for u in held})
+    if not directories:
+        return []
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+    except PresenterError:
+        return []
+    return recheck_portfolio(root, current_code, repositories=directories, compute=compute)
+
+
+def run_recheck(
+    root_argument: Path | None,
+    *,
+    repositories: Sequence[str] | None = None,
+    write_receipts: bool = False,
+    as_json: bool = False,
+) -> int:
+    """``recheck``: the currency of every CURRENT bundle (or the named ones) under the running
+    code. Offline, no provider call, never invalidates or edits a sealed bundle; the only write is
+    ``--write-receipts``, a cache beside the bundle."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        current_code = code_dependencies(load_manifests(root / PROMPTS_DIRNAME))
+        rows = recheck_portfolio(
+            root, current_code, repositories=repositories, write_receipts=write_receipts
+        )
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    if repositories and not rows:
+        _fail(f"no current bundle for {', '.join(repositories)}")
+        return EXIT_USAGE
+    if as_json:
+        print(
+            json.dumps(
+                {"counts": currency_counts(rows), "bundles": [row.to_json() for row in rows]},
+                indent=2,
+            )
+        )
+    else:
+        for line in render_recheck_lines(rows):
+            print(line)
     return EXIT_OK
 
 
@@ -2954,11 +3435,14 @@ def _print_routing_dry_run(root: Path) -> None:
     except PresenterError as exc:
         print(f"routing: unavailable ({exc})")
         return
-    rows = [row for row in portfolio_routing(root, current_code) if row.routing.state]
+    routed = portfolio_routing(root, current_code)
+    rows = [row for row in routed if row.routing.state]
     if not rows:
         print("routing: no current candidate would change state")
-        return
-    print(f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -")
+    else:
+        print(
+            f"routing: {len(rows)} current candidate(s) would change state (dry run, no writes) -"
+        )
     for row in rows:
         routing = row.routing
         print(
@@ -2966,6 +3450,13 @@ def _print_routing_dry_run(root: Path) -> None:
             f"(scope {routing.triggering_scope}; scopes {', '.join(routing.scopes)}; "
             f"re-enters {routing.stage})"
         )
+    # A check or version the sealed record lacks cannot reopen it, but it is not skipped: it runs.
+    for row in routed:
+        if row.unrecorded:
+            print(
+                f"  {row.repository_dir}: the sealed record lacks {', '.join(row.unrecorded)}; "
+                "`recheck` runs them"
+            )
 
 
 def _portfolio_report(
@@ -2973,6 +3464,7 @@ def _portfolio_report(
     found: Sequence[StaleCandidate],
     drift: Mapping[str, DriftObservation] | None,
     authorizations: Mapping[str, Sequence[ProposalAuthorization]] | None,
+    currency: Mapping[str, str] | None = None,
 ) -> PortfolioReport | None:
     """The seven separated counts over the live registry, or None when there is no registry.
 
@@ -2993,10 +3485,38 @@ def _portfolio_report(
         now=_cli_utc_now(),
         drift=drift,
         authorizations=authorizations,
+        currency=currency,
     )
 
 
 PREFLIGHT_FILENAME = "preflight.json"
+
+
+def _record_defect_class_handoffs(
+    root: Path,
+    entry: RegistryEntry,
+    revision: str,
+    clone_path: Path,
+    tree_paths: list[str],
+    manifest: Path | None,
+) -> None:
+    """G6-W07: run the defect-class detectors (`components/issues/classes.py`) over the verified
+    clone and record each new finding as a `HANDOFF_PENDING` artifact under
+    `evidence/upstream-defects/` - deterministic, no provider call, no GitHub write. Nothing
+    firing, a finding that fails the issue quality gate, and one already in the ledger all record
+    nothing; none of them can change the run's exit code."""
+    observation = observation_from_clone(
+        entry.repository, revision, clone_path, tuple(tree_paths), manifest=manifest
+    )
+    try:
+        written = record_class_handoffs_if_new(
+            root / "evidence" / UPSTREAM_DEFECTS_DIRNAME, observation=observation
+        )
+    except (OSError, LedgerError, HandoffError) as exc:
+        print(f"upstream-defect handoffs: not recorded ({exc})")
+        return
+    for path in written:
+        print(f"upstream-defect handoff: {path.relative_to(root).as_posix()} (HANDOFF_PENDING)")
 
 
 def _report_facts_only(
@@ -3282,6 +3802,7 @@ def _run_present(
             f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
             f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
+        _record_defect_class_handoffs(root, entry, clone.revision, clone.path, tree_paths, manifest)
         if facts_only:
             return _report_facts_only(root, entry, clone.revision, document, transaction)
         # Fallback chains (core/llm/fallback.py), decided once at run start before any content

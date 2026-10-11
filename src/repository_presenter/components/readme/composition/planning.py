@@ -41,6 +41,7 @@ from repository_presenter.components.readme.composition.link_budget import (
     plan_time_budget,
     slot_violations,
 )
+from repository_presenter.components.readme.composition.list_coverage import list_items
 from repository_presenter.components.readme.composition.placement import PLACED, placements
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
@@ -681,8 +682,8 @@ def planning_schema(
     return schema
 
 
-def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
-    """Why two capabilities may not rest on the same facts, with the bookkeeping composed here.
+def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> None:
+    """Compose, in place, which facts two capabilities share, from the citations themselves.
 
     Overlapping fact sets are why a subset check cannot separate one capability's prose from
     another's even in principle (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC2). What matters
@@ -692,26 +693,24 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
     RC1, the same reason the shell's inclusion decisions are composed below.
 
     Measured 2026-09-06: `shared_fact_ids` unstated by one of the citing capabilities rejected
-    `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six
-    - each naming a fact the model had already declared shared everywhere else.
+    `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six -
+    each naming a fact the model had already declared shared everywhere else.
 
     The rule has always offered two equal arms - give each capability its own facts, *or* declare
     the sharing - so declaring was always sufficient and distinctness was never demanded. The
     fold supplies the declaration and always supplies it correctly; nothing the rule enforced is
     lost. Requiring a discriminating fact as well was tried the same day and rejected the first
     .NET candidate on three capabilities at once, which is a bar the rule never set.
+
+    The same fold now also drops a declared fact the capability does not cite (Aspose.Cells for
+    Python, 2026-10-11: capabilities 3 and 5 listed `public_symbol:aspose.cells_foss.workbook` as
+    shared without citing it; the plan was refused twice on a field the code overwrites anyway and
+    the repository failed). The field is a pure function of the citations, so the overwrite is
+    exact: no citation, claim or fact is added or removed, only a derived list is made true.
     """
-    errors: list[str] = []
     holders: dict[str, set[int]] = {}
     for index, item in enumerate(capabilities, start=1):
-        cited = set(item.get("fact_ids", []))
-        stray = sorted(set(item.get("shared_fact_ids") or []) - cited)
-        if stray:
-            errors.append(
-                f"capability {index} declares shared facts it does not cite: {', '.join(stray)}; "
-                "shared_fact_ids is a subset of that capability's fact_ids"
-            )
-        for fact_id in cited:
+        for fact_id in set(item.get("fact_ids", [])):
             holders.setdefault(fact_id, set()).add(index)
     shared = {fact_id for fact_id, holding in holders.items() if len(holding) > 1}
     for item in capabilities:
@@ -721,7 +720,6 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
         # capabilities share nothing keeps the shape the model wrote.
         if declared or item.get("shared_fact_ids"):
             item["shared_fact_ids"] = declared
-    return errors
 
 
 # RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08: a free-form plan field that must
@@ -802,6 +800,103 @@ def _apply_links(output: dict[str, Any], missing: list[Any]) -> None:
     output["links"] = [*output.get("links", []), *missing]
 
 
+def _kept_list_links(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> dict[str, str]:
+    """Every ``link_target`` fact a list kept as written in Documentation and Resources cites,
+    mapped to that section, when the plan already carries at least one of them there.
+
+    Placement drops a kept list as soon as ONE fact it cites is among the section's planned links
+    (``placement.placements``: the plan's content "already covers that material"), and the section
+    prints one authored line per planned link - so a plan that carried four of a list's eight
+    links dropped the other four (3D Java 3d2ed6be: the four repository documents; wave-3
+    acceptance review, LST-01). Completing the plan with the rest of the list's verified links
+    makes that premise true. A list none of whose links the plan carries here is printed whole by
+    placement and owes nothing; a shell-owned target, an unverified one and an in-page anchor are
+    never assignable.
+    """
+    if dispositions is None:
+        return {}
+    texts = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
+    assignable = {
+        fact.id
+        for fact in facts.by_kind("link_target")
+        if fact.polarity == "SUPPORTED"
+        and fact.id not in _SHELL_OWNED_LINKS
+        and not fact.value.startswith("#")  # an in-page anchor is no documentation resource
+    }
+    planned_here = {
+        str(link.get("link_fact_id"))
+        for link in output.get("links", [])
+        if link.get("section_id") == "documentation_resources"
+    }
+    required: dict[str, str] = {}
+    for entry in dispositions.get("dispositions", []):
+        unit = str(entry.get("unit_id", ""))
+        if (
+            entry.get("disposition") not in PLACED
+            or entry.get("destination_section") != "documentation_resources"
+            or not unit.endswith(".list")
+            or len(list_items(texts.get(unit, ""))) < 2
+        ):
+            continue
+        targets = [str(i) for i in entry.get("fact_ids") or [] if str(i) in assignable]
+        if planned_here.intersection(targets):
+            required.update(dict.fromkeys(targets, "documentation_resources"))
+    return required
+
+
+def _missing_kept_list_links(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> list[dict[str, str]]:
+    planned = {str(link.get("link_fact_id")) for link in output.get("links", [])}
+    return [
+        {"link_fact_id": fact_id, "section_id": section}
+        for fact_id, section in _kept_list_links(output, facts, dispositions).items()
+        if fact_id not in planned
+    ]
+
+
+def _hand_off_dropped_lists(
+    output: dict[str, Any],
+    facts: FactsDocument,
+    dispositions: dict[str, Any] | None,
+    ecosystem: str,
+) -> None:
+    """Hand every list kept as written that placement drops from Scope and Limitations to the
+    limitation slots, so the section's authored units must state its items.
+
+    ``placement.placements`` drops a kept list when any fact it cites is covered by a limitation
+    slot's facts, on the premise that the composer states the list there; but the plan handed it to
+    no slot (``unit_ids`` empty), so nothing owed the composer its items and 3D Java, 3D TypeScript,
+    Cells Java and 3D .NET each lost between one and six of them (wave-3 acceptance review, LST-01).
+    The list unit is appended to every limitation's ``unit_ids`` - each limitation slot may cite
+    only its own set (README_CONTRACT.md check 4), and a list's items are folded into whichever
+    slots suit them - and a plan with no limitation at all gets one that carries the list.
+    ``list_coverage`` then holds the section to every item.
+    """
+    if dispositions is None:
+        return
+    limitations = output.get("material_limitations") or []
+    handed = {str(unit) for item in limitations for unit in item.get("unit_ids") or []}
+    dropped = [
+        decision.unit_id
+        for decision in placements(output, dispositions, facts, ecosystem)
+        if decision.destination == "scope_limitations"
+        and decision.outcome == "overlap"
+        and decision.unit_id.endswith(".list")
+        and decision.unit_id not in handed
+        and len(list_items(decision.text)) >= 2
+    ]
+    if not dropped:
+        return
+    if not limitations:
+        limitations = [{"fact_ids": [], "unit_ids": []}]
+        output["material_limitations"] = limitations
+    for item in limitations:
+        item["unit_ids"] = [*dict.fromkeys([*(item.get("unit_ids") or []), *dropped])]
+
+
 def _placed_into(dispositions: dict[str, Any] | None, section: str) -> bool:
     """Whether reconciliation preserves or moves an inherited unit into ``section``."""
     if dispositions is None:
@@ -831,6 +926,7 @@ def _documentation_resources_holds(
 _BACKSTOPS: tuple[tuple[str, _BackstopRequired, _BackstopApply], ...] = (
     ("additional_example_ids", _missing_additional_examples, _apply_additional_examples),
     ("links", _missing_links, _apply_links),
+    ("links", _missing_kept_list_links, _apply_links),
 )
 
 
@@ -892,6 +988,7 @@ def plan_checks(
     output["sections"] = [_decision(section, conditions[section.id]) for section in SEMANTIC_SHELL]
     decisions = {entry["section_id"]: entry for entry in output["sections"]}
     included = {section for section, entry in decisions.items() if entry["include"]}
+    _hand_off_dropped_lists(output, facts, dispositions, ecosystem)
     # G4-W17 arrival item 32. A VERIFIED_MOVE/VERIFIED_PRESERVE unit renders its own Aspose
     # links verbatim - reconciliation's decision, not this plan's - so BC-06's ceiling on the
     # whole rendered document can be exceeded with nothing left in the plan's own links list to
@@ -933,7 +1030,7 @@ def plan_checks(
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")
-    errors.extend(_capability_facts_apart(capabilities))
+    _capability_facts_apart(capabilities)
     # README_CONTRACT.md check 4: a capability title is supported by the facts its own capability
     # cites. This used to judge a title's format terms against every format fact in the whole
     # document, while authoring.py's unit_checks (~1099-1118) judges the very same title against
@@ -1110,7 +1207,10 @@ def plan_checks(
     # item 125). Computed from dispositions directly, independent of this plan's own links, so a
     # required target is recognised whether the model already carried it or the backstop above
     # had to append it.
-    required_link_sections = _required_link_sections(dispositions)
+    required_link_sections = {
+        **_required_link_sections(dispositions),
+        **_kept_list_links(output, facts, dispositions),
+    }
     # An Aspose link beyond the ceiling is trimmable in the plan's own order - a plan that placed
     # five ahead of a ceiling of four still named the right four first - so it is dropped here
     # rather than failing the whole plan for a count a fixed rule already knows how to enforce.

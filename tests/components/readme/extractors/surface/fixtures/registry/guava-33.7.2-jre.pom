@@ -1,0 +1,4 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <artifactId>guava</artifactId>
+  <url>https://github.com/google/guava</url>
+</project>

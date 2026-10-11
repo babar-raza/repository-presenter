@@ -29,7 +29,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -295,6 +295,36 @@ def reconciliation_batch_facts(facts: FactsDocument, batch_units: Sequence[Fact]
     )
 
 
+def reconciliation_narrowing(
+    entry: RegistryEntry,
+    batch_facts: FactsDocument,
+    investigation: Mapping[str, Any],
+    manifest: LoadedManifest,
+    batch_units: Sequence[Fact],
+) -> Callable[[Sequence[str]], tuple[dict[str, Any], dict[str, Any]]]:
+    """The ``narrow`` argument of ``run_job`` for one batch: the same job asked about only the
+    units both of its replies left without a disposition.
+
+    Cut-2 wave, 2026-10-11, BarCode-Python: a 19-unit batch's first reply stopped at unit 052 and
+    its re-ask at 056, so units 057-059 had no disposition and the whole repository failed
+    ("output rejected twice ... no disposition for inherited units"). The narrowed ask is the
+    batch's own request rebuilt around just those units - the same prompt, the same packet
+    builder (so the facts, the investigation and the shell's sections travel unchanged) and the
+    same schema builder, whose unit enum and size bound now name only those units. The merged
+    reply is judged by the full batch's checks, so nothing is accepted unjudged.
+    """
+    known = frozenset(fact.id for fact in batch_units)
+
+    def narrow(unit_ids: Sequence[str]) -> tuple[dict[str, Any], dict[str, Any]]:
+        wanted = frozenset(unit_ids)
+        units = [fact for fact in batch_units if fact.id in wanted and fact.id in known]
+        scoped = reconciliation_batch_facts(batch_facts, units)
+        packet = reconciliation_packet(entry, scoped, dict(investigation), manifest.manifest, units)
+        return packet, reconciliation_schema(manifest, units, scoped, investigation)
+
+    return narrow
+
+
 def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
     """Every batch's own accepted dispositions, concatenated in batch order into one flat
     document - the reconciliation sibling of ``composition/authoring.py``'s ``merge_units()``.
@@ -417,7 +447,12 @@ def reconciliation_schema(
     units = [fact.id for fact in batch_units]
     if not units:
         return schema
-    dispositions["minItems"] = len(units)
+    # No minItems: a floor equal to the batch size forbids closing the array, and a reply that
+    # stops early (a re-ask that returned only the units it was asked to fix: Imaging-.NET,
+    # 2026-10-10, 18 of 20) can then only emit whitespace, which the grammar allows without end -
+    # 45,845 whitespace characters until the 32,000-token budget cut it, with no typed
+    # rejection to repair. A short reply now closes and is refused by the unit binding ("no
+    # disposition for inherited units"), which names what is missing. maxItems still bounds it.
     dispositions["maxItems"] = len(units)
     dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
     return schema
@@ -561,7 +596,13 @@ _SECTION_RENDERS: dict[str, frozenset[str]] = {
 _NAVIGATION_ITEM = re.compile(r"^\s*[-*+]\s*\[[^\]]+\]\(#[^)\s]*\)\s*$")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
-_SYMBOL_SPAN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::)[A-Za-z_][A-Za-z0-9_]*)*")
+# A name as a README writes it in a listing: dotted or `::`-qualified, told apart from a same-named
+# type by a module suffix (`Arc-template`), generic (`Collection<T>`) or an array (`Mode[]`).
+# Anything with a call, a path, an assignment or a space outside the brackets is code, not a name.
+_NAME_SPAN = re.compile(
+    r"[A-Za-z_][A-Za-z0-9_]*(?:(?:\.|::|-)[A-Za-z0-9_]+)*"
+    r"(?:<[A-Za-z0-9_.,:\s\[\]<>-]*>)?(?:\[\])?"
+)
 _VERSION_PIN = re.compile(r"(?<=\S)(?:==|>=|<=|~=|!=|>|<)[^\s]+|\s--version\s+\S+")
 _PROMPT = re.compile(r"^\s*(?:[$>]\s+)")
 
@@ -679,7 +720,11 @@ def _rendered_commands(facts: FactsDocument) -> frozenset[str]:
     )
     kind = (install.attributes or {}).get("install_kind") if install is not None else None
     if executed and repository and kind not in {"source", "source_checkout"}:
-        lines.update(_command_lines(spec.clone_and_build(repository, repository.split("/")[-1])))
+        lines.update(
+            _command_lines(
+                spec.source_checkout_command(install, repository, repository.split("/")[-1])
+            )
+        )
     imported = [
         fact.value
         for fact in facts.by_kind("import_path")
@@ -768,10 +813,17 @@ def _uncovered_members(text: str, members: frozenset[str], names: frozenset[str]
     column), a list or a paragraph by every name it spells."""
     found: list[str] = []
     for span in _CODE_SPAN.findall(text):
-        for token in _IDENTIFIER.findall(span):
-            if token in members and token not in names and token not in found:
-                found.append(token)
+        token = _type_name(span.strip())
+        if token in members and token not in names and token not in found:
+            found.append(token)
     return found
+
+
+def _type_name(span: str) -> str:
+    """The name a listing's span stands for: its last dotted segment, without the generic,
+    array or module suffix the README adds to tell two same-named types apart."""
+    base = re.split(r"[<\[]", span, maxsplit=1)[0].split("-", 1)[0]
+    return re.split(r"::|\.", base)[-1]
 
 
 def _supersession_gap(
@@ -861,7 +913,7 @@ def _supersession_gap(
         )
         spelled = _table_first_column(text) if kind == "table" else text
         spans = [span.strip() for span in _CODE_SPAN.findall(spelled)]
-        if not spans or not all(_SYMBOL_SPAN.fullmatch(span) for span in spans):
+        if not spans or not all(_NAME_SPAN.fullmatch(span) for span in spans):
             # A listing of classes writes names. A tree of paths, a command or a signature in a
             # code span is something else (Cells-Rust Project Structure), not the table's content.
             return (NOT_AN_API_LISTING, "it lists paths or code, not the classes the table prints")
@@ -1053,6 +1105,25 @@ def _prune_incidental_coverage(output: dict[str, Any], ctx: _Coverage) -> None:
             entry["fact_ids"] = sorted(cited - ctx.api_ids)
 
 
+# BC-07 (validation/registry.py) counts these rows of the API Reference against the verified types.
+_API_ROW = re.compile(r"^\| `([^`]+)` \|", re.M)
+
+
+def _is_row_table(unit: str, entry: Mapping[str, Any], ctx: _Coverage) -> bool:
+    """An API Reference table whose rows BC-07 would count, that the Core API table does not cover.
+
+    Wave 1 (cut-1 code) failed 7 repositories with 1.6-4x as many rows as verified types when
+    such tables were placed beside the renderer's own. A table placed verbatim in api_reference
+    adds its rows to the count, so it can be placed only if it has none."""
+    return (
+        entry.get("destination_section") == "api_reference"
+        and unit.endswith(".table")
+        and bool(_API_ROW.search(ctx.text(unit)))
+        and _supersession_gap(unit, "api_reference", set(entry.get("fact_ids") or []), ctx)
+        is not None
+    )
+
+
 def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage) -> None:
     """Fold every disposition that claims more than reconciliation can prove into the one it can.
 
@@ -1086,7 +1157,9 @@ def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage
         elif entry.get("disposition") == "SUPERSEDE_REDUNDANT" and (
             entry.get("destination_section") in ctx.placeable
         ):
-            entry["disposition"] = "VERIFIED_PRESERVE"
+            entry["disposition"] = (
+                "VERIFIED_REWRITE" if _is_row_table(unit, entry, ctx) else "VERIFIED_PRESERVE"
+            )
 
 
 def normalize(
@@ -1271,6 +1344,14 @@ def normalize(
             entry["disposition"] = "SUPERSEDE_REDUNDANT"
             entry["destination_section"] = "api_reference"
             continue
+        if disposition in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"} and _is_row_table(
+            unit, entry, coverage
+        ):
+            # The table lists something the Core API table does not (a function, a member), so it
+            # is not redundant - but its rows cannot be placed verbatim either: BC-07 counts every
+            # row of the section against the verified types. Its substance is kept as a rewrite.
+            entry["disposition"] = "VERIFIED_REWRITE"
+            continue
         if (
             disposition in PLACING
             and destination == "at_a_glance"
@@ -1393,7 +1474,16 @@ def coordinate_neighbor_promises(
     dispositions: dict[str, Any], facts: FactsDocument
 ) -> dict[str, Any]:
     """Defer a placed unit whose own text promises the block immediately following it in the
-    original document when that neighbor's own disposition does not survive to render anywhere.
+    original document when that neighbor's own disposition does not survive to render anywhere,
+    and keep a lead-in and its payload one thing otherwise.
+
+    A lead-in (a paragraph or list ending ``:``) is never carried alone. Its payload is the next
+    code block, list or table: withheld (OMIT/DEFER) -> the lead-in is deferred with it; a
+    verified example the plan renders under its own lead-in -> the lead-in is superseded into the
+    example's section; a list placed in the same carry section -> the lead-in is superseded into
+    it, so the unit that carries the list states it. Cut-2 BC-10 triage cause 4 (Cells-Rust,
+    Cells-.NET, 3D-Python, Slides-Python): the composer otherwise authored a slot from the
+    sentence alone and invented the payload.
 
     BC-10 coherence-gap, ``aspose-slides-foss/Aspose.Slides-FOSS-for-.NET``
     (``docs/DECISION_LOG.md`` 2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC):
@@ -1436,6 +1526,7 @@ def coordinate_neighbor_promises(
     entries_by_id = {
         str(entry.get("unit_id", "?")): entry for entry in dispositions.get("dispositions", [])
     }
+    examples = _example_status(facts)
     for entry in dispositions.get("dispositions", []):
         if entry.get("disposition") not in PLACING:
             continue
@@ -1445,18 +1536,78 @@ def coordinate_neighbor_promises(
         unit_fact = units_by_id.get(unit)
         if unit_fact is None or not unit_fact.value.rstrip().endswith(":"):
             continue
-        ordinal = _unit_ordinal(unit)
-        if ordinal is None:
+        payload = _payload_of(unit, units_by_id)
+        neighbor = entries_by_id.get(payload) if payload is not None else None
+        if payload is None or neighbor is None:
             continue
-        neighbor = entries_by_id.get(f"inherited_unit:{ordinal + 1:03d}.code_block")
-        if neighbor is None or neighbor.get("disposition") not in {
-            "OMIT_UNSUPPORTED",
-            "DEFER_UNRESOLVED",
-        }:
+        kind = _unit_kind(payload)
+        if neighbor.get("disposition") in {"OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"}:
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
             continue
-        entry["disposition"] = "DEFER_UNRESOLVED"
-        entry["destination_section"] = None
+        destination = entry.get("destination_section")
+        if kind == "code_block" and examples.get(payload, ("", ""))[0] == "SUPPORTED":
+            # Lead-in without payload (BC-10, Cells-Rust 025 / Cells-.NET / 3D-Python): the plan
+            # renders every verified example once, under its own authored lead-in (README_CONTRACT
+            # rows 10 and 12), and never places the inherited block behind it. The sentence that
+            # introduced that block is therefore redundant wherever the reconciler sent it, and
+            # preserved it lands detached, after the example, promising a block that is not there.
+            target = next(
+                (
+                    section
+                    for section in (destination, neighbor.get("destination_section"))
+                    if section in _EXAMPLE_SECTIONS
+                ),
+                None,
+            )
+            if target is not None and neighbor.get("disposition") in PLACING | {
+                "SUPERSEDE_REDUNDANT"
+            }:
+                _supersede_lead_in(entry, target)
+        elif (
+            kind == "list"
+            and unit.rsplit(".", 1)[-1] == "paragraph"
+            and destination in _CARRY_SECTIONS
+            and neighbor.get("disposition") in PLACING
+            and neighbor.get("destination_section") == destination
+        ):
+            # Lead-in without payload (BC-10, Slides-Python 114/115): a carry section authors one
+            # slot per unit, so a preserved lead-in became a slot of its own with no list under
+            # it, and the composer invented one (58 names, none from the README). Superseded into
+            # the section, the unit that carries the list must state it (authoring.carried_units).
+            _supersede_lead_in(entry, str(destination))
     return dispositions
+
+
+_PAYLOAD_KINDS = frozenset({"code_block", "list", "table"})
+_EXAMPLE_SECTIONS = frozenset({"quick_start", "additional_examples"})
+_LEAD_IN_RATIONALE = "Lead-in of the block that follows: carried together with it, never alone."
+
+
+def _payload_of(unit_id: str, units: Mapping[str, Fact]) -> str | None:
+    """The block that immediately follows ``unit_id`` in the source README when it is the kind of
+    block a colon introduces (a code block, a list or a table), else ``None``.
+
+    Split units of one block (``077.003.list``) share an ordinal; the first of the next ordinal
+    is the neighbour."""
+    ordinal = _unit_ordinal(unit_id)
+    if ordinal is None:
+        return None
+    following = sorted(
+        (other, nxt)
+        for other in units
+        if (nxt := _unit_ordinal(other)) is not None and nxt > ordinal
+    )
+    if not following:
+        return None
+    first = min(following, key=lambda pair: (pair[1], pair[0]))
+    return first[0] if _unit_kind(first[0]) in _PAYLOAD_KINDS else None
+
+
+def _supersede_lead_in(entry: dict[str, Any], destination: str) -> None:
+    entry["disposition"] = "SUPERSEDE_REDUNDANT"
+    entry["destination_section"] = destination
+    entry["rationale"] = _LEAD_IN_RATIONALE
 
 
 UNCITED_PROSE_OMIT = "uncited_prose_omit"
@@ -1627,6 +1778,14 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
 RECOVERED_OMIT_RATIONALE = (
     "No fact cited for this omission; held as unresolved for the owner. Reason given: "
 )
+RECOVERED_COVERAGE_RATIONALE = "Not provably carried by the section named; held for the owner. "
+
+# An uncited prose omit whose own text spells SUPPORTED facts: the facts exist, so "no fact cited"
+# is not the cause. It opens with RECOVERED_COVERAGE_RATIONALE, the typed prefix deferrals.py reads
+# (ADVISORY NOT_CARRIED_BY_NAMED_SECTION), and states the real cause after it.
+RECOVERED_NAMED_OMIT_RATIONALE = (
+    RECOVERED_COVERAGE_RATIONALE + "Omitted uncited, yet its text spells SUPPORTED facts. "
+)
 _RATIONALE_LIMIT = _RATIONALE_MAX_CHARS
 
 
@@ -1637,9 +1796,6 @@ def _uncited_prose_omit(entry: Mapping[str, Any]) -> bool:
         and not entry.get("fact_ids")
         and str(entry.get("unit_id", "?")).rsplit(".", 1)[-1] in _PROSE_UNIT_KINDS
     )
-
-
-RECOVERED_COVERAGE_RATIONALE = "Not provably carried by the section named; held for the owner. "
 
 
 def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
@@ -1672,8 +1828,32 @@ def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
     return changed
 
 
+_DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
+
+
+def _code_spans_name_a_symbol(text: str, facts: FactsDocument) -> bool:
+    """Whether an inline code span of ``text`` holds a name equal to a SUPPORTED symbol or import
+    path - the test BC-05's ``NO_EVIDENCE_EITHER_WAY`` applies (``validation/deferrals.py``,
+    ``DeferralContext.names_verified_symbol``, prose shape), which is looser than
+    ``uncited_omit_candidates``: it also reads a directory segment of a path such as
+    ``Aspose.Words/Aspose.Words.csproj`` as the symbol ``Aspose.Words``. A deferral written under
+    the no-evidence wording would then be UNCLASSIFIED and block, so such a unit takes the typed
+    prefix too even when it has nothing to cite (Words-.NET 020 on the cut-2 tree, where the
+    path-segment guard leaves it with no candidate). ``test_dispositions.py`` pins the two
+    agreeing through ``review_deferrals``."""
+    symbols = {
+        fact.value
+        for kind in ("public_symbol", "import_path")
+        for fact in facts.by_kind(kind)
+        if fact.polarity == "SUPPORTED"
+    }
+    return any(
+        name in symbols for span in _CODE_SPAN.findall(text) for name in _DOTTED_NAME.findall(span)
+    )
+
+
 def recover_uncited_prose_omits(
-    output: dict[str, Any], facts: FactsDocument
+    output: dict[str, Any], facts: FactsDocument, citable: Collection[str] | None = None
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``source_reconciliation``'s final rejected attempt only
     (``recover=``, ``core/llm/jobs.py``): a prose omission still uncited after the one re-ask
@@ -1690,11 +1870,23 @@ def recover_uncited_prose_omits(
     contradict, listed for the owner and never rendered. Nothing is published either way; the
     deferral is the version that stays visible.
 
-    Safe only when the deferral hides nothing the facts already cover. A unit whose own text spells
-    a SUPPORTED fact (``uncited_omit_candidates``) is not unresolved: the evidence is in its
-    sentence, so the omission should have cited it, and this declines. Declining is all or
-    nothing - one unsafe omission returns ``None`` rather than a partial fix the checks would
-    reject anyway - and so is a unit the facts do not hold (its text cannot be examined).
+    A unit whose own text spells a SUPPORTED fact (``uncited_omit_candidates``) is not "unresolved"
+    - the evidence is in its sentence - so it is deferred on a different, truthful footing and is
+    never silently dropped (G3-W08 / TC-DSP-01 follow-up; G7-W12 REG-18). It takes the typed
+    ``RECOVERED_COVERAGE_RATIONALE`` prefix the supersession fold already writes (the ADVISORY
+    ``NOT_CARRIED_BY_NAMED_SECTION`` class, never ``NO_EVIDENCE_EITHER_WAY``, which a spelled
+    symbol rightly falsifies) and cites the facts it spells so they stay attached to the owner's
+    list, limited to ``citable`` (the batch's decoder enum) and the per-disposition cap. Declining
+    for it, as this once did, failed the whole transaction with nothing repaired: Words-.NET
+    ``020.paragraph`` spelled only the product's own namespace ``Aspose.Words`` inside a project
+    path, and PDF-TypeScript ``356.paragraph`` named ``Attachment.SetField``, which the batch's
+    enum does not offer, so no citation could be written there at all (replayed 2026-10-11 from
+    the archived rejected replies). A deferral is listed and never rendered, which is the same
+    visibility a cited omission would have given the facts.
+
+    Still declines, all or nothing, when a unit is one the facts do not hold (its text cannot be
+    examined): one unsafe omission returns ``None`` rather than a partial fix the checks would
+    reject anyway.
 
     Never accepted on this function's say-so: ``run_job`` re-validates the returned copy through
     the schema, the unit binding and ``reconcile_checks`` exactly as it does any reply, so a reply
@@ -1706,22 +1898,35 @@ def recover_uncited_prose_omits(
         return None
     uncited = [entry for entry in entries if isinstance(entry, dict) and _uncited_prose_omit(entry)]
     unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
+    spelled: dict[str, list[str]] = {}
+    typed: dict[str, bool] = {}
     for entry in uncited:
-        text = unit_text.get(str(entry.get("unit_id")))
-        if text is None or uncited_omit_candidates(text, facts):
+        unit = str(entry.get("unit_id"))
+        text = unit_text.get(unit)
+        if text is None:
             return None
+        spelled[unit] = uncited_omit_candidates(text, facts)
+        typed[unit] = bool(spelled[unit]) or _code_spans_name_a_symbol(text, facts)
     recovered = copy.deepcopy(output)
     for entry in recovered["dispositions"]:
         if not _uncited_prose_omit(entry):
             continue
+        named = spelled[str(entry.get("unit_id"))]
+        lead = (
+            RECOVERED_NAMED_OMIT_RATIONALE
+            if typed[str(entry.get("unit_id"))]
+            else RECOVERED_OMIT_RATIONALE
+        )
         reason = str(entry.get("rationale") or "").strip()
-        room = _RATIONALE_LIMIT - len(RECOVERED_OMIT_RATIONALE)
+        room = _RATIONALE_LIMIT - len(lead)
         if len(reason) > room:
             reason = reason[: room - 3].rstrip() + "..."
         entry["disposition"] = "DEFER_UNRESOLVED"
         entry["destination_section"] = None
-        entry["fact_ids"] = []
-        entry["rationale"] = RECOVERED_OMIT_RATIONALE + reason
+        entry["fact_ids"] = [fact_id for fact_id in named if citable is None or fact_id in citable][
+            :RECONCILIATION_FACT_IDS_PER_DISPOSITION
+        ]
+        entry["rationale"] = lead + reason
     # An entry deferred above is no longer an omission, so the coverage fold sees what is left.
     folded = _recover_uncovered(recovered, facts)
     return recovered if uncited or folded else None

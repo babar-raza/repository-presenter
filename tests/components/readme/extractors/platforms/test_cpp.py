@@ -10,7 +10,7 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     plugin_for,
 )
 from repository_presenter.core.ecosystems import spec_for
-from repository_presenter.core.facts import Fact
+from repository_presenter.core.facts import Evidence, Fact
 
 # A super-build at the root that declares a project and builds nothing: depth alone would choose
 # it, exactly as it chose `Directory.Build.props` for .NET and the samples project for Cells.
@@ -281,3 +281,156 @@ def test_a_repository_with_no_cmakelists_has_no_manifest(tmp_path: Path) -> None
     (tmp_path / "README.md").write_text("# nothing here\n", encoding="utf-8", newline="\n")
     assert cpp.PLUGIN.detect_manifest(tmp_path) is None
     assert cpp.PLUGIN.include_root(tmp_path) == tmp_path
+
+
+def _stub_toolchain(monkeypatch, phrase: str, calls: list[str]) -> None:  # type: ignore[no-untyped-def]
+    from repository_presenter.components.readme.extractors.platforms import cpp_examples
+
+    cpp_examples._BUILT.clear()
+    monkeypatch.setattr(cpp_examples, "cpp_compiler", lambda: "/tools/gcc/bin/g++")
+    monkeypatch.setattr(cpp_examples, "cmake_executable", lambda: "/tools/cmake")
+    monkeypatch.setattr(cpp_examples, "ninja_executable", lambda: "/tools/ninja")
+
+    def built(*args: object, **kwargs: object) -> tuple[str, list[Path]]:
+        calls.append(phrase)
+        return phrase, []
+
+    monkeypatch.setattr(cpp_examples, "build_product", built)
+
+
+def test_a_successful_cmake_build_is_a_measured_build_with_no_example_at_all(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """Aspose.PDF for C++ (CUT-2, 2026-10-11): install_command:cmake stayed UNRESOLVED -> BC-02
+    unless a README snippet happened to compile. The library's own build, driven with no example,
+    is the proof a registry-less install stands on, and the command is exactly the two steps."""
+    manifest = _repository(tmp_path)
+    calls: list[str] = []
+    _stub_toolchain(monkeypatch, "succeeded", calls)
+    build = cpp.PLUGIN.verify_build(tmp_path, manifest, tmp_path / "build-run")
+    assert build.verified is True
+    assert build.command == "cmake -S Widget -B build\ncmake --build build"
+    assert build.summary.startswith("succeeded (")
+    assert calls == ["succeeded"]
+
+
+def test_a_failed_or_impossible_build_advertises_nothing(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    manifest = _repository(tmp_path)
+    for phrase in ("failed", "configure failed", "configure timed out"):
+        _stub_toolchain(monkeypatch, phrase, [])
+        build = cpp.PLUGIN.verify_build(tmp_path, manifest, tmp_path / "build-run")
+        assert (build.verified, build.command) == (False, "")
+        assert build.summary == phrase
+    from repository_presenter.components.readme.extractors.platforms import cpp_examples
+
+    cpp_examples._BUILT.clear()
+    monkeypatch.setattr(cpp_examples, "cpp_compiler", lambda: None)
+    none = cpp.PLUGIN.verify_build(tmp_path, manifest, tmp_path / "build-run")
+    assert (none.verified, none.command) == (False, "")
+    assert none.summary == "not attempted (no C++ compiler on this machine)"
+
+
+def test_the_examples_build_and_the_measured_build_are_one_build(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """A configure that fetches dependencies measured 95-140 s; running it twice per repository
+    would double the cost and could disagree with itself."""
+    from repository_presenter.components.readme.extractors.platforms import cpp_examples
+    from repository_presenter.core.examples import ExampleCandidate
+    from repository_presenter.core.execution import ExecutionResult
+
+    manifest = _repository(tmp_path)
+    calls: list[str] = []
+    _stub_toolchain(monkeypatch, "succeeded", calls)
+    monkeypatch.setattr(cpp_examples, "_version", lambda *a, **k: "g++ 16.2.0")
+    monkeypatch.setattr(
+        cpp_examples,
+        "execute",
+        lambda argv, **k: ExecutionResult(tuple(argv), 0, "", "", False, ()),
+    )
+    candidate = ExampleCandidate(1, "cpp", "int main() { return 0; }\n", "README.md", 1, 3, "u1")
+    receipts = cpp.PLUGIN.verify_examples(tmp_path, [], [candidate], tmp_path / "ex-run")
+    assert [r.outcome for r in receipts] == ["EXECUTED"] and receipts[0].build_verified
+    build = cpp.PLUGIN.verify_build(tmp_path, manifest, tmp_path / "build-run")
+    assert build.verified and calls == ["succeeded"]
+
+
+CELLS_README = """# Aspose.Cells FOSS for C++
+
+[![NuGet version](https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/)
+
+Aspose.Cells FOSS for C++ is published on NuGet as `Aspose.Cells.Cpp.FOSS`.
+
+```bash
+nuget install Aspose.Cells.Cpp.FOSS
+```
+
+```xml
+<PackageReference Include="Aspose.Cells.Cpp.FOSS" Version="26.4.1" />
+```
+"""
+
+
+def _nuget_reading(published, matched, name):  # type: ignore[no-untyped-def]
+    from repository_presenter.components.readme.extractors.surface.registry import (
+        RegistryObservation,
+    )
+
+    return RegistryObservation(
+        "nuget",
+        name,
+        published,
+        published is None,
+        f"https://api.nuget.org/v3-flatcontainer/{name.lower()}/index.json",
+        "flat-container",
+        "test",
+        repository_matched=matched,
+    )
+
+
+def test_the_nuget_package_the_readme_names_is_a_distribution_fact_apart_from_the_cmake_name(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """Aspose.Cells for C++ (CUT-2, 2026-10-11): `package:name` is the CMake project
+    `Widget` - a build target - while the repository's own README, badge and install command name
+    the NuGet package a reader installs. That is a second identity fact, derived from the same
+    README and confirmed by NuGet only when NuGet's own project URL points back here."""
+    manifest = _repository(tmp_path)
+    (tmp_path / "README.md").write_text(CELLS_README, encoding="utf-8", newline="\n")
+    declared = cpp.PLUGIN.manifest_facts(tmp_path, manifest, ["README.md", "Widget/CMakeLists.txt"])
+    [candidate] = [f for f in declared if f.id.startswith("package:distribution")]
+    assert candidate.value == "Aspose.Cells.Cpp.FOSS" and candidate.polarity == "UNRESOLVED"
+    assert candidate.evidence[0].path == "README.md"
+    assert {f.id: f for f in declared}["package:name"].value == "Widget"
+    repository = Fact(
+        "identity:repository", "identity", "aspose-cells-foss/Cells-Cpp", (Evidence("x"),)
+    )
+    for published, matched, wanted in (
+        (True, True, "SUPPORTED"),
+        (True, False, "UNRESOLVED"),  # a name another project owns
+        (True, None, "UNRESOLVED"),
+        (False, None, "CONTRADICTED"),
+        (None, None, "UNRESOLVED"),
+    ):
+        seen: list[tuple[object, ...]] = []
+
+        def observed(ecosystem, name, published=published, matched=matched, seen=seen, **kwargs):  # type: ignore[no-untyped-def]
+            seen.append((ecosystem, name, kwargs.get("repository")))
+            return _nuget_reading(published, matched, name)
+
+        monkeypatch.setattr(cpp, "_observe", observed)
+        resolved, probes = cpp.PLUGIN.registry_facts([repository, *declared])
+        by_id = {f.id: f for f in resolved}
+        distribution = next(f for f in resolved if f.id.startswith("package:distribution"))
+        assert distribution.polarity == wanted
+        assert seen == [("net", "Aspose.Cells.Cpp.FOSS", "aspose-cells-foss/Cells-Cpp")]
+        assert by_id["install_command:cmake"].polarity == "UNRESOLVED"
+        assert [p.outcome for p in probes] == ["UNRESOLVED", wanted]
+
+
+def test_a_readme_naming_no_nuget_package_yields_no_distribution_fact(tmp_path: Path) -> None:
+    manifest = _repository(tmp_path)
+    (tmp_path / "README.md").write_text("# Widget\n\nBuild with CMake.\n", encoding="utf-8")
+    facts = cpp.PLUGIN.manifest_facts(tmp_path, manifest, ["README.md"])
+    assert not [f for f in facts if f.id.startswith("package:distribution")]
+    assert cpp.declared_nuget_packages(CELLS_README) == ["Aspose.Cells.Cpp.FOSS"]

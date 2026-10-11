@@ -89,3 +89,70 @@ def elide_noncanonical(text: str, canonical: str) -> tuple[str, tuple[str, ...]]
 
     elided = pattern.sub(_replace, text)
     return elided, tuple(removed)
+
+
+# What a variant may sit beside without being a spelling of the product name: it continues, or is
+# continued by, a longer dotted/slashed/scoped identifier (``Aspose.Pdf.Foss.Tests``,
+# ``src/Aspose.Pdf.Foss/Scene.cs``, ``Aspose::Pdf::Foss``), or a "for <something>" tail the
+# canonical name does not have (``Aspose.3D FOSS for Java``), which is another product's name.
+_IDENTIFIER_CONTINUES = re.compile(r"^(?:\.[A-Za-z0-9_]|[/\\_]|::)")
+_IDENTIFIER_CONTINUED = re.compile(r"(?:[A-Za-z0-9_]\.|[/\\_]|::)$")
+_ANOTHER_TAIL = re.compile(r"^\s+for\b", re.IGNORECASE)
+# Spans the renderer and the readers treat as code: left exactly as the author wrote them.
+_CODE = re.compile(r"```.*?```|`[^`\n]*`", re.DOTALL)
+
+
+def _is_spelling_of_the_name(found: str, canonical: str, before: str, after: str) -> bool:
+    """Whether ``found`` (BC-12's own variant match) stands for the product name in running prose,
+    as opposed to the canonical name itself, a technical identifier or part of a longer one."""
+    if found == canonical or _is_technical_identifier(found, before, after):
+        return False
+    if _IDENTIFIER_CONTINUES.match(after) or _IDENTIFIER_CONTINUED.search(before[-2:]):
+        return False
+    return _ANOTHER_TAIL.match(after) is None
+
+
+def canonicalise_name_variants(text: str, canonical: str) -> str:
+    """``text`` with every separator, case or suffix variant of ``canonical`` that stands for the
+    product name in running prose rewritten to ``canonical``.
+
+    The model shortens the name ("usage in Aspose.3D FOSS.", "between Aspose.PSD FOSS and the
+    original ...") and BC-12 refuses it; the repair loop asks for a rewrite three times and the
+    variant comes back (3D-.NET limitation:6, PSD-Python's TestAsposeCompatibility row, 2026-10-10
+    baseline). The canonical name is a function of the registry name alone, so the code owns this
+    spelling exactly as it owns a code span and an abbreviation's case, and the correction is
+    made where the prose is authored (``authoring.unit_checks``). BC-12 itself is unchanged and
+    still judges the result.
+
+    Left alone, because they are not spellings of the product name: the canonical name, a slug
+    with a hyphen or underscore, a name beside a package or namespace cue, a longer dotted or
+    slashed identifier that starts with the family name (a project, a type, a path), a name
+    followed by another "for <platform>", and anything inside a code span or fence.
+    """
+    pattern = _noncanonical_name_pattern(canonical)
+
+    def _rewrite(segment: str, base: int) -> str:
+        def _replace(match: re.Match[str]) -> str:
+            start, end = base + match.start(), base + match.end()
+            before, after = text[max(0, start - 24) : start], text[end : end + 24]
+            if _is_spelling_of_the_name(match.group(0), canonical, before, after):
+                return canonical
+            return match.group(0)
+
+        return pattern.sub(_replace, segment)
+
+    out: list[str] = []
+    cursor = 0
+    for code in _CODE.finditer(text):
+        out.append(_rewrite(text[cursor : code.start()], cursor))
+        out.append(code.group(0))
+        cursor = code.end()
+    out.append(_rewrite(text[cursor:], cursor))
+    return "".join(out)
+
+
+def spells_the_product(token: str, canonical: str) -> bool:
+    """Whether the whole ``token`` is a separator, case or suffix variant of ``canonical`` (BC-12's
+    own match), so that admitting it as a spellable identifier would put a short name for the
+    product into running prose inside a code span, where BC-12 does not look."""
+    return _noncanonical_name_pattern(canonical).fullmatch(token) is not None

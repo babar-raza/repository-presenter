@@ -10,7 +10,7 @@ and judges nothing it has no fact for. A registry that could not be read leaves 
 `package:published_version` fact, so a version is then held to the manifest alone and the
 candidate records a pending note (`claim_notes`) instead of failing.
 
-Three rules, all deterministic and independent of the LLM:
+Four rules, all deterministic and independent of the LLM:
 
 (a) Versions. A version attached to the package name or an install command - ``name==1.2``,
     ``name@1.2``, ``group:artifact:1.2``, ``name version 1.2``, ``--version 1.2``,
@@ -21,7 +21,11 @@ Three rules, all deterministic and independent of the LLM:
     distribution is published.
 (c) Identity. An install command whose package is a near-miss of the package identity fact (the
     same name without ``-foss``, a prefix, a different separator) is flagged; an unrelated package
-    (a test runner) and a declared dependency are not.
+    (a test runner), a declared dependency, and a distribution fact a registry confirmed as this
+    repository's own (``package:distribution.*``) are not.
+(d) Exclusivity. A sentence calling a release the "sole", "only" or "first" published version
+    (or saying "no other versions" exist) must agree with the registry's version count; the
+    current release alone cannot back it.
 
 This module imports nothing from `validation/registry.py`: it reports a line index and a causal
 stage, and the registry maps the line to its shell section.
@@ -33,7 +37,10 @@ import re
 from dataclasses import dataclass
 
 from repository_presenter.core.facts import Fact, FactsDocument
-from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    PUBLISHED_VERSION_FACT_ID,
+)
 
 _VERSION = r"v?\d+(?:\.\d+)+(?:[-+][0-9A-Za-z.]*[0-9A-Za-z])?"
 _VERSION_RE = re.compile(_VERSION)
@@ -76,6 +83,22 @@ _PACKAGE_CONTEXT = re.compile(
 )
 _SENTENCES = re.compile(r"(?<=[.!?])\s+")
 _REGISTRY_FOUND = re.compile(r"package registry: found")
+
+# "26.7.0 is the sole published version", "the first release", "no other versions": a statement
+# that the registry holds exactly one version, or which one came first. Only a registry reading
+# that lists every version can back it; the current release alone cannot (rule (d)).
+_EXCLUSIVE_VERSION = re.compile(
+    r"""(?ix)
+    \b(?:sole|only|single|lone|first|initial|inaugural|one\s+and\s+only)\s+
+        (?:(?:currently\s+)?(?:published|released|available|public|stable|registry)\s+){0,2}
+        (?:version|release)s?\b
+  | \bno\s+(?:other|earlier|previous|prior|older|newer|later)\s+
+        (?:(?:published|released)\s+)?(?:versions?|releases?)\b
+    """
+)
+_PUBLICATION_WORDS = re.compile(
+    r"(?i)\b(?:published|publish|released|registry|pypi|nuget|npm|maven|crates\.io)\b"
+)
 
 _INSTALL_VERBS = (
     re.compile(r"^(?:python3?\s+-m\s+)?pip3?\s+install\b(?P<rest>.*)$"),
@@ -251,6 +274,48 @@ def _publication_findings(
     return findings
 
 
+def _exclusivity_findings(lines: list[_Line], facts: FactsDocument) -> list[ClaimFinding]:
+    """Rule (d): "the sole published version" is held to the registry's whole version list.
+
+    Measured on the wave-3 reseal (f69f75c7, 2026-10-11): Aspose.Cells FOSS for Java was sealed
+    saying 26.7.0 "is the sole published version" while Maven Central lists 26.5.0 and 26.7.0.
+    The registry reading that backs rule (a) names the current release only; whether it is the
+    only one is a different fact, ``package:published_version``'s ``version_count``. A statement
+    of exclusivity (or of which release came first) passes only when that count is exactly one;
+    with a reading but no count it is unverifiable, and an unverifiable exclusivity claim is a
+    claim no fact supports, so the sentence is to be rephrased rather than judged. Without any
+    reading the rule is silent, as rule (b) is: this check flags only against a reading.
+    """
+    published = _fact(facts, PUBLISHED_VERSION_FACT_ID)
+    if published is None:
+        return []  # no registry reading at all: nothing to hold the sentence to (see rule (b))
+    count = (published.attributes or {}).get("version_count")
+    if count == "1":
+        return []
+    findings: list[ClaimFinding] = []
+    for line in lines:
+        if line.in_fence:
+            continue
+        for sentence in _SENTENCES.split(line.text.replace("`", "")):
+            if _EXCLUSIVE_VERSION.search(sentence) and _PUBLICATION_WORDS.search(sentence):
+                basis = (
+                    f"the registry lists {count} versions"
+                    if count
+                    else "no registry reading lists every published version"
+                )
+                findings.append(
+                    ClaimFinding(
+                        line.index,
+                        "COMPOSING",
+                        f"the README says which published version is the only or first one "
+                        f"({sentence.strip()!r}), but {basis}; state the current release "
+                        "without claiming exclusivity",
+                    )
+                )
+                break
+    return findings
+
+
 def _install_targets(command: str) -> list[str]:
     """The package names on one install command line, versions and extras removed."""
     command = _PROMPT.sub("", command.strip())
@@ -300,6 +365,14 @@ def _identity_findings(
         for fact in facts.by_kind("dependency")
         if (match := _REQUIREMENT_NAME.match(fact.value))
     }
+    # A distribution the repository's own README names and a registry confirmed as this
+    # repository's (a C++ library's NuGet package; its manifest names only a CMake project) is a
+    # second fact-backed identity, so an install command naming it is not a near-miss of the first.
+    distributions = {
+        _pep503(fact.value)
+        for fact in facts.facts
+        if fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+    }
     stem = _stem(identity.value)
     install_values = " ".join(f.value for f in facts.by_kind("install_command"))
     findings: list[ClaimFinding] = []
@@ -311,7 +384,11 @@ def _identity_findings(
         if coordinate:
             targets.append(coordinate)
         for target in targets:
-            if _same_identity(target, identity.value) or _pep503(target) in dependencies:
+            if (
+                _same_identity(target, identity.value)
+                or _pep503(target) in dependencies
+                or _pep503(target) in distributions
+            ):
                 continue
             candidate = _stem(target)
             if candidate and stem and (candidate.startswith(stem) or stem.startswith(candidate)):
@@ -337,6 +414,7 @@ def claim_findings(readme: str, facts: FactsDocument) -> list[ClaimFinding]:
     return [
         *versions,
         *_publication_findings(lines, facts, identity),
+        *_exclusivity_findings(lines, facts),
         *_identity_findings(lines, facts, identity),
     ]
 

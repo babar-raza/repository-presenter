@@ -120,6 +120,51 @@ def investigation_schema(loaded: LoadedManifest, facts: FactsDocument) -> dict[s
     return schema
 
 
+# S3 output budget. The manifest's max_output_tokens is a ceiling derived from the schema, not a
+# measured average: output_chars_bound() is the longest reply the per-call schema admits, and a
+# test holds it, at this rate, inside the budget. 4.0 sits under every rate measured on
+# identifier-dense JSON (4.36 on Aspose.Font-FOSS-for-Python's truncated reply, 4.2 on the S4
+# reply, 4.6 on the largest sealed investigation). Without the string and list bounds the schema
+# admitted an infinite reply and the 3000-token budget cut Font-Python's (2026-10-10).
+OUTPUT_CHARS_PER_TOKEN = 4.0
+
+
+class _UnboundedError(Exception):
+    """A field the schema leaves open: the longest reply is infinite."""
+
+
+def _longest_value(node: dict[str, Any], defs: dict[str, Any]) -> Any:
+    """The value that serializes longest under ``node``; ``_UnboundedError`` if none does."""
+    if "$ref" in node:
+        return _longest_value(defs[node["$ref"].rsplit("/", 1)[-1]], defs)
+    if "enum" in node:
+        return max(node["enum"], key=lambda value: len(json.dumps(value, ensure_ascii=False)))
+    kind = node.get("type")
+    if kind == "string":
+        if "maxLength" not in node:
+            raise _UnboundedError
+        return "x" * int(node["maxLength"])
+    if kind == "array":
+        if "maxItems" not in node:
+            raise _UnboundedError
+        return [_longest_value(node.get("items", {}), defs)] * int(node["maxItems"])
+    if kind == "object":
+        return {key: _longest_value(value, defs) for key, value in node["properties"].items()}
+    raise _UnboundedError
+
+
+def output_chars_bound(schema: dict[str, Any]) -> int | None:
+    """The longest reply, in characters, that ``schema`` admits (pretty-printed, the wider of the
+    forms a model writes); ``None`` when a string or list it leaves open makes the bound infinite.
+    Computed from the schema the job is decoded under, so it tracks that schema; it is a bound only
+    to the extent the decoder enforces it."""
+    try:
+        reply = _longest_value(schema, schema.get("$defs", {}))
+    except _UnboundedError:
+        return None
+    return len(json.dumps(reply, indent=2, ensure_ascii=False))
+
+
 def write_investigation(output: dict[str, Any], path: Path) -> str:
     """Write the accepted output as deterministic JSON; returns its SHA-256."""
     data = (json.dumps(output, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")

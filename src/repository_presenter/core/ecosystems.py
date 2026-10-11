@@ -19,6 +19,11 @@ from typing import Final
 from urllib.parse import quote
 
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Fact,
+)
 
 # The checkout every source install starts from. An ecosystem's own build steps follow it, whether
 # a spec's ``source_install`` template spells them or a verifier's receipt names the exact steps it
@@ -32,6 +37,27 @@ CLONE_PREFIX: Final = "git clone https://github.com/{repository}.git\ncd {name}\
 # floor to print, and the badge is omitted rather than guessed.
 _FLOOR_BOUND = re.compile(r">=\s*(\d+(?:\.\d+)*)")
 _PLAIN_FLOOR = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+
+
+@dataclass(frozen=True)
+class SuiteFileRule:
+    """How one ecosystem tells a test source from what sits beside it in a test directory.
+
+    TC-TST-01: a test directory also holds project files, logs, fixtures, setup modules, and
+    scenario factories, and "N test files" counted them all (Aspose.3D for .NET: 18, of which 16
+    are tests; Aspose.Cells for Java: 38, of which 23 are). ``name`` is a regex over the file's
+    base name; ``marker`` is a regex over its text, empty when the name alone settles it. A file
+    is a test source when its name matches and, if a marker is declared, its text carries one.
+    """
+
+    name: str
+    marker: str = ""
+
+    def accepts_name(self, path: str) -> bool:
+        return re.search(self.name, path.rsplit("/", 1)[-1]) is not None
+
+    def accepts_text(self, text: str) -> bool:
+        return not self.marker or re.search(self.marker, text) is not None
 
 
 @dataclass(frozen=True)
@@ -102,6 +128,14 @@ class EcosystemSpec:
     floor_is_minimum: bool = False
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
+    # Other declarations of the same published package a reader of this ecosystem uses besides the
+    # install command (a Maven POM entry, a Gradle line): `(lead, fence, template)` over
+    # `{group}`, `{artifact}` and `{version}`, derived only from the verified package coordinate
+    # and the version the registry or manifest names - never authored. Empty means none.
+    install_alternatives: tuple[tuple[str, str, str], ...] = ()
+    # What makes a file under a test directory a test (TC-TST-01). ``None`` means the ecosystem
+    # cannot tell, and a suite size is then never stated rather than guessed.
+    suite_files: SuiteFileRule | None = None
 
     @property
     def example_fences(self) -> frozenset[str]:
@@ -127,6 +161,22 @@ class EcosystemSpec:
         group, _, artifact = package.partition(":")
         return self.version_badge.format(package=package, group=group, artifact=artifact or group)
 
+    def install_alternative_blocks(self, package: str, version: str) -> list[tuple[str, str, str]]:
+        """``(lead, fence, body)`` for each alternative declaration of ``package`` at ``version``.
+
+        Empty when the ecosystem declares none or the coordinate has no group to name
+        (``{group}`` is the part before the colon, as `badge` reads it).
+        """
+        if not self.install_alternatives or not version:
+            return []
+        group, _, artifact = package.partition(":")
+        if not artifact:
+            return []
+        return [
+            (lead, fence, template.format(group=group, artifact=artifact, version=version))
+            for lead, fence, template in self.install_alternatives
+        ]
+
     def runtime_badge(self, floor: str) -> str:
         """The language-or-runtime badge for the manifest ``floor`` this ecosystem's floor fact
         carries, or an empty string when the ecosystem declares no floor or ``floor`` has no
@@ -136,7 +186,12 @@ class EcosystemSpec:
             return ""
         bound = _FLOOR_BOUND.search(floor)
         text = bound.group(1) if bound else floor.strip()
-        if bound is None and _PLAIN_FLOOR.fullmatch(text) is None:
+        # A project may target several frameworks (`net8.0;net10.0`): the fact lists them all,
+        # `;`-separated, and the badge names each rather than only the first.
+        parts = [part.strip() for part in text.split(";")] if bound is None else [text]
+        if len(parts) > 1 and all(_PLAIN_FLOOR.fullmatch(part) for part in parts):
+            text = " | ".join(parts)
+        elif bound is None and _PLAIN_FLOOR.fullmatch(text) is None:
             return ""
         if self.floor_is_minimum:
             text += "+"
@@ -162,6 +217,25 @@ class EcosystemSpec:
         if not self.source_install:
             return ""
         return self.source_install.format(repository=repository, name=name)
+
+    def source_checkout_command(self, install: Fact | None, repository: str, name: str) -> str:
+        """The clone-and-build block the Installation section may offer beside a registry
+        install, or an empty string when none may be stated (TC-TST-01).
+
+        The template ``clone_and_build`` spells is the ecosystem's guess at a command that works
+        from the checkout root. Aspose.3D for .NET (2026-10-11): the rendered ``dotnet build``
+        failed with MSB1003 at a root that holds no project or solution, and BC-02 had nothing to
+        say about it because the block was never a fact. The facts stage now records on the
+        install fact either the exact command a build proved from the checkout root, or why none
+        did; this method reads that record. A fact carrying neither was extracted before the
+        record existed and keeps the template, so a sealed candidate re-renders to its own bytes.
+        """
+        attributes = (install.attributes or {}) if install is not None else {}
+        if attributes.get(SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE):
+            return ""
+        return attributes.get(SOURCE_CHECKOUT_COMMAND_ATTRIBUTE) or self.clone_and_build(
+            repository, name
+        )
 
     def clone_and_run(self, repository: str, name: str, steps: str) -> str:
         """The checkout, then the ``steps`` a verifier drove and proved for this repository.
@@ -224,6 +298,9 @@ PYTHON: Final = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("pyproject.toml", "setup.cfg", "setup.py"),
     source_suffixes=frozenset({".py"}),
+    # pytest's own collection rule (`python_files = test_*.py *_test.py`): a conftest, an
+    # `__init__`, and a data file beside the tests are not tests.
+    suite_files=SuiteFileRule(name=r"^(?:test_.+|.+_test)\.py$"),
 )
 
 NET: Final = EcosystemSpec(
@@ -254,6 +331,16 @@ NET: Final = EcosystemSpec(
     floor_declaration="TargetFramework",
     manifest_globs=("*.csproj", "*.fsproj", "Directory.Build.props"),
     source_suffixes=frozenset({".cs"}),
+    # A .cs file in a test project is a test only when it declares a test method: the project
+    # file, the run log, the fixture loader, and the helper classes beside the tests are not
+    # (Aspose.3D for .NET: 18 files under src/test, 16 of them tests). xUnit `[Fact]`/`[Theory]`,
+    # NUnit `[Test]`/`[TestCase]`/`[TestCaseSource]`, MSTest `[TestMethod]`/`[DataTestMethod]`;
+    # A word boundary after the name keeps `[TestClass]` and `[TestFixture]`, which mark a class
+    # and not a test, out.
+    suite_files=SuiteFileRule(
+        name=r"\.cs$",
+        marker=r"\[\s*(?:Fact|Theory|Test|TestCase|TestCaseSource|TestMethod|DataTestMethod)\b",
+    ),
 )
 
 # Deliberately a plain, mutable dict and not Final, unlike PYTHON and NET beside it: this file

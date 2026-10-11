@@ -1,0 +1,17 @@
+# log: urls-Cells-Python
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+# head: 4f6768a7b349a1309644f456eb43bc35f70c16d7
+# utc: 2026-10-10T15:34:45Z
+# cwd: shallow clone of the default branch
+# command: grep -n -A6 'project.urls' pyproject.toml; curl -s -o /dev/null -w 'old repository name URL (final status after redirects): HTTP %{http_code} -> %{url_effective}\n' -L https://github.com/aspose-cells-foss/aspose-cells-python
+# ---- output (capped at 60000 bytes) ----
+42:[project.urls]
+43-Homepage = "https://github.com/aspose-cells-foss/aspose-cells-python"
+44-Documentation = "https://github.com/aspose-cells-foss/aspose-cells-python#readme"
+45-Repository = "https://github.com/aspose-cells-foss/aspose-cells-python.git"
+46-Issues = "https://github.com/aspose-cells-foss/aspose-cells-python/issues"
+47-
+48-[tool.setuptools]
+old repository name URL (final status after redirects): HTTP 200 -> https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+
+# exit: 0

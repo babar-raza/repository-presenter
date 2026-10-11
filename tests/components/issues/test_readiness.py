@@ -219,6 +219,17 @@ def test_a_dry_run_registry_entry_is_a_blocker_but_does_not_make_it_unapprovable
     assert not row.fileable_now
 
 
+def test_issues_mode_file_opens_the_gate_for_a_dry_run_entry_and_off_closes_it_for_a_full_one(
+    tmp_path: Path,
+) -> None:
+    for mode, issues_mode, open_ in (("dry_run", "file", True), ("full", "off", False)):
+        entry = monitor_registry_entry(HTML, mode=mode, repository_id=1)
+        entry["issues_mode"] = issues_mode
+        registry = load_registry(write_registry_file(tmp_path / mode, [entry]))
+        state, ok = readiness._registry_state(registry, HTML)
+        assert ok is open_ and f"issues_mode {issues_mode}" in state
+
+
 def test_a_handoff_changed_after_verification_is_stale_and_unapprovable(
     world: dict[str, Any],
 ) -> None:

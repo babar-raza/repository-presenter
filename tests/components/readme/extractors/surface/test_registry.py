@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -265,3 +266,256 @@ def test_the_reading_summarises_itself_in_the_vocabulary_a_check_expects() -> No
     assert ambiguous.summary == "package registry: nuget answered ambiguously"
     # The registry's current version is never in the evidence: it is the registry's state.
     assert all("version" not in o.summary for o in (found, missing, unread, ambiguous))
+
+
+# TC-EXT-01 (G3-W08 cut 2): registry presence is not ownership. Trimmed real registry bodies
+# (2026-10-11): npm `left-pad` (repository git+ssh://git@github.com/stevemao/left-pad.git), and
+# Maven Central's `com.google.guava:guava` metadata and POM (<url>https://github.com/google/guava).
+_REGISTRY_FIXTURES = Path(__file__).parent / "fixtures" / "registry"
+
+
+class _Body:
+    def __init__(self, text: str, status: int = 200) -> None:
+        self.status_code = status
+        self.body = text.encode("utf-8")
+
+
+def _registry_fetch(served: dict[str, str]) -> Any:
+    """A fetch serving fixture files by URL suffix; everything else is a 404."""
+
+    def fetch(url: str, **_kwargs: Any) -> _Body:
+        for suffix, name in served.items():
+            if url.endswith(suffix):
+                return _Body((_REGISTRY_FIXTURES / name).read_text(encoding="utf-8"))
+        return _Body("", 404)
+
+    return fetch
+
+
+def _npm(repository: str, **kwargs: Any) -> RegistryObservation:
+    return observe(
+        "typescript",
+        "left-pad",
+        repository=repository,
+        fetch=_registry_fetch({"registry.npmjs.org/left-pad": "npm-left-pad.json"}),
+        sleep=_no_sleep,
+        **kwargs,
+    )
+
+
+def test_a_registry_url_that_points_at_the_repository_corroborates_the_package() -> None:
+    reading = _npm("stevemao/left-pad")
+    assert reading.published and reading.repository_matched is True and reading.owned
+    assert reading.install_verdict()[:2] == ("SUPPORTED", 1.0)
+
+
+def test_a_name_taken_by_another_project_is_never_supported_ownership() -> None:
+    reading = _npm("someone-else/left-pad", resolve_url=lambda _url: None)
+    assert reading.published and reading.repository_matched is False and not reading.owned
+    polarity, confidence, detail = reading.install_verdict()
+    assert (polarity, confidence) == ("UNRESOLVED", 0.5)
+    assert "ownership not confirmed" in detail and "point at another repository" in detail
+
+
+def test_a_registry_that_lists_no_source_repository_is_unresolved_not_supported() -> None:
+    body = json.loads((_REGISTRY_FIXTURES / "npm-left-pad.json").read_text(encoding="utf-8"))
+    del body["repository"], body["homepage"]
+    reading = observe(
+        "typescript",
+        "left-pad",
+        repository="stevemao/left-pad",
+        fetch=lambda url, **_: _Body(json.dumps(body)),
+        sleep=_no_sleep,
+    )
+    assert reading.published and reading.repository_matched is None and not reading.owned
+    assert reading.install_verdict()[:2] == ("UNRESOLVED", 0.5)
+    assert "lists no source repository" in reading.install_verdict()[2]
+
+
+def test_a_renamed_repository_is_corroborated_through_the_redirect_once() -> None:
+    seen: list[str] = []
+
+    def resolve(url: str) -> str | None:
+        seen.append(url)
+        return "https://github.com/steve-renamed/left-pad"
+
+    reading = _npm("steve-renamed/left-pad", resolve_url=resolve)
+    assert reading.owned and seen == ["git+ssh://git@github.com/stevemao/left-pad.git"]
+
+
+def test_no_repository_means_no_ownership_claim() -> None:
+    reading = observe(
+        "typescript",
+        "left-pad",
+        fetch=_registry_fetch({"registry.npmjs.org/left-pad": "npm-left-pad.json"}),
+        sleep=_no_sleep,
+    )
+    assert reading.published and reading.repository_matched is None and not reading.owned
+
+
+def test_a_missing_package_is_still_contradicted_regardless_of_ownership() -> None:
+    reading = observe(
+        "typescript",
+        "left-pad",
+        repository="stevemao/left-pad",
+        fetch=lambda url, **_: _Body("", 404),
+        sleep=_no_sleep,
+    )
+    assert reading.install_verdict()[:2] == ("CONTRADICTED", 1.0)
+
+
+def _maven(repository: str, pom: str = "guava-33.7.2-jre.pom") -> RegistryObservation:
+    return observe(
+        "java",
+        "com.google.guava:guava",
+        repository=repository,
+        fetch=_registry_fetch(
+            {
+                "guava/maven-metadata.xml": "maven-metadata-guava.xml",
+                "guava/33.7.2-jre/guava-33.7.2-jre.pom": pom,
+            }
+        ),
+        sleep=_no_sleep,
+        resolve_url=lambda _url: None,
+    )
+
+
+def test_a_maven_artifact_is_corroborated_by_the_url_its_own_pom_declares() -> None:
+    reading = _maven("google/guava")
+    assert reading.published
+    assert reading.owned and reading.project_urls == ("https://github.com/google/guava",)
+    other = _maven("someone/guava")
+    assert other.published and other.repository_matched is False and not other.owned
+
+
+# TC-EXT-01 (CUT-2 lane L-nuget): NuGet names a package's source in the catalog leaf's `repository`
+# element (type/url/commit), which the registration `catalogEntry` omits. Measured 2026-10-11:
+# Aspose.3D.FOSS and Aspose.Email.Foss carry no `projectUrl`, and the vendored adapter then fell
+# back to `licenseUrl` (a nuget.org license page), so two published .NET packages read "ownership
+# not confirmed". Trimmed real api.nuget.org bodies: registration, catalog leaf, flatcontainer.
+_NET_REPOSITORY = {
+    "Aspose.3D.FOSS": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+    "Aspose.Email.Foss": "aspose-email-foss/Aspose.Email-FOSS-for-.NET",
+}
+
+
+def _nuget_served(package: str, *, leaf: str | None = None, registration: str | None = None) -> Any:
+    """A NuGet that serves ``package``'s recorded bodies; ``leaf`` / ``registration`` replace the
+    recorded body text and ``None`` for a leaf means the catalog leaf is not served at all."""
+    slug = package.lower().replace(".", "-")
+    key = package.lower()
+    bodies = {
+        f"v3-flatcontainer/{key}/index.json": f"nuget-flatcontainer-{slug}.json",
+        f"registration5-semver1/{key}/index.json": f"nuget-registration-{slug}.json",
+        f"/{key}.26.1.0.json" if package == "Aspose.3D.FOSS" else f"/{key}.26.7.0.json": (
+            f"nuget-leaf-{slug}.json"
+        ),
+    }
+    requested: list[str] = []
+
+    def fetch(url: str, **_kwargs: Any) -> _Body:
+        requested.append(url)
+        for suffix, name in bodies.items():
+            if url.endswith(suffix):
+                text = (_REGISTRY_FIXTURES / name).read_text(encoding="utf-8")
+                if name.startswith("nuget-leaf") and leaf is not None:
+                    text = leaf
+                if name.startswith("nuget-registration") and registration is not None:
+                    text = registration
+                return _Body(text)
+        return _Body("", 404)
+
+    fetch.requested = requested  # type: ignore[attr-defined]
+    return fetch
+
+
+def _nuget(
+    package: str, repository: str, fetch: Any, resolve: Any = lambda _url: None
+) -> RegistryObservation:
+    return observe(
+        "net", package, repository=repository, fetch=fetch, sleep=_no_sleep, resolve_url=resolve
+    )
+
+
+@pytest.mark.parametrize("package", sorted(_NET_REPOSITORY))
+def test_a_nuget_package_with_no_project_url_is_owned_by_the_repository_its_leaf_names(
+    package: str,
+) -> None:
+    repository = _NET_REPOSITORY[package]
+    registration = json.loads(
+        (
+            _REGISTRY_FIXTURES / f"nuget-registration-{package.lower().replace('.', '-')}.json"
+        ).read_text(encoding="utf-8")
+    )
+    entry = registration["items"][0]["items"][0]["catalogEntry"]
+    assert "projectUrl" not in entry and "licenseUrl" in entry, "the recorded shape that failed"
+
+    reading = _nuget(package, repository, _nuget_served(package))
+
+    assert reading.published and reading.repository_matched is True and reading.owned
+    assert reading.project_urls == (f"https://github.com/{repository}",)
+    assert reading.install_verdict()[:2] == ("SUPPORTED", 1.0)
+
+
+def test_a_nuget_licence_page_is_never_read_as_the_packages_source_url() -> None:
+    """No leaf `repository` and no `projectUrl`: the registry lists no source, not a mismatch."""
+    leaf = json.dumps({"id": "Aspose.3D.FOSS", "licenseUrl": "https://licenses.nuget.org/MIT"})
+    reading = _nuget(
+        "Aspose.3D.FOSS",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        _nuget_served("Aspose.3D.FOSS", leaf=leaf),
+    )
+    assert reading.published and reading.project_urls == ()
+    assert reading.repository_matched is None and not reading.owned
+    assert reading.install_verdict()[:2] == ("UNRESOLVED", 0.5)
+    assert "lists no source repository" in reading.install_verdict()[2]
+    # An unreadable catalog leaf is the same reading, never an exception or a licence-page URL.
+    unread = _nuget(
+        "Aspose.3D.FOSS",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        _nuget_served("Aspose.3D.FOSS", leaf=""),
+    )
+    assert unread.project_urls == () and unread.repository_matched is None
+
+
+def test_a_nuget_package_whose_leaf_names_another_repository_stays_unresolved() -> None:
+    leaf = json.dumps(
+        {
+            "id": "Aspose.3D.FOSS",
+            "repository": {"type": "git", "url": "https://github.com/someone-else/Their-3D"},
+        }
+    )
+    reading = _nuget(
+        "Aspose.3D.FOSS",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        _nuget_served("Aspose.3D.FOSS", leaf=leaf),
+    )
+    assert reading.published and reading.repository_matched is False and not reading.owned
+    assert reading.project_urls == ("https://github.com/someone-else/Their-3D",)
+    polarity, confidence, detail = reading.install_verdict()
+    assert (polarity, confidence) == ("UNRESOLVED", 0.5)
+    assert "point at another repository" in detail
+
+
+def test_a_nuget_repository_element_is_preferred_over_the_project_url() -> None:
+    """The nuspec `repository` element is the exact statement of source; `projectUrl` is free text
+    (a docs site, a vendor page) and is used only when the package declares no repository."""
+    registration = json.loads(
+        (_REGISTRY_FIXTURES / "nuget-registration-aspose-3d-foss.json").read_text(encoding="utf-8")
+    )
+    registration["items"][0]["items"][0]["catalogEntry"]["projectUrl"] = (
+        "https://docs.aspose.example/3d"
+    )
+    served = _nuget_served("Aspose.3D.FOSS", registration=json.dumps(registration))
+    reading = _nuget("Aspose.3D.FOSS", "aspose-3d-foss/Aspose.3D-FOSS-for-.NET", served)
+    assert reading.owned
+    assert reading.project_urls == ("https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET",)
+
+    bare = json.dumps({"id": "Aspose.3D.FOSS"})
+    fallback = _nuget(
+        "Aspose.3D.FOSS",
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        _nuget_served("Aspose.3D.FOSS", leaf=bare, registration=json.dumps(registration)),
+    )
+    assert fallback.project_urls == ("https://docs.aspose.example/3d",)
+    assert fallback.repository_matched is False

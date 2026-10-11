@@ -120,42 +120,56 @@ def test_a_changed_file_the_candidate_does_not_depend_on_never_drifts(tmp_path: 
     assert observation.detail is None
 
 
-def test_a_moved_head_is_drifted_without_reading_the_tree(tmp_path: Path) -> None:
+def test_a_moved_head_that_changed_no_recorded_dependency_is_current(tmp_path: Path) -> None:
+    # The reseal-storm case: the head moved (a release commit) but every recorded dependency still
+    # has its sealed blob id. The bundle is still true of the new head, so nothing is due.
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL", upstream_blobs=RECORDED)
-    tree = FakeTreeReader(dict(RECORDED))
+    tree = FakeTreeReader({**RECORDED, UNRELATED: "ee" * 20})
+
+    observation = observe_one(tmp_path, NEWER, tree)
+
+    assert observation.status == "CURRENT"
+    assert observation.change == "IRRELEVANT_CHANGE"
+    assert observation.head_revision == NEWER
+    assert observation.bundle_revision == BUNDLED
+    assert tree.calls == [(PYTHON, NEWER)]
+
+
+def test_a_moved_head_that_changed_a_recorded_dependency_is_drifted(tmp_path: Path) -> None:
+    write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL", upstream_blobs=RECORDED)
+    tree = FakeTreeReader({**RECORDED, MANIFEST: "dd" * 20})
 
     observation = observe_one(tmp_path, NEWER, tree)
 
     assert observation.status == "DRIFTED"
-    assert observation.detail is None
-    assert tree.calls == []
+    assert observation.change == "RELEVANT_CHANGE"
+    assert observation.detail is not None and MANIFEST in observation.detail
 
 
-def test_a_bundle_sealed_without_recorded_hashes_is_unknown_until_resealed(
+def test_a_bundle_sealed_without_recorded_hashes_at_the_head_is_current_without_a_read(
     tmp_path: Path,
 ) -> None:
-    # A bundle sealed before upstream blob ids were recorded has no such field. Sealed bundles are
-    # not rewritten, so it reads UNKNOWN - neither CURRENT nor DRIFTED - until a re-seal records
-    # them. Its tree is never read: there is nothing to compare against.
+    # A bundle sealed before upstream blob ids were recorded, head unchanged: the revision is
+    # immutable, so nothing can differ. CURRENT, and the tree is never read.
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL")
     tree = FakeTreeReader(dict(RECORDED))
 
     observation = observe_one(tmp_path, BUNDLED, tree)
 
-    assert observation.status == "UNKNOWN"
+    assert observation.status == "CURRENT"
+    assert observation.change == "NO_CHANGE"
     assert observation.head_revision == BUNDLED
     assert observation.bundle_revision == BUNDLED
-    assert observation.detail is not None and "re-seal" in observation.detail
     assert tree.calls == []
 
 
-def test_an_empty_record_of_hashes_is_unknown_too(tmp_path: Path) -> None:
+def test_an_empty_record_of_hashes_is_judged_like_none(tmp_path: Path) -> None:
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL", upstream_blobs={})
     tree = FakeTreeReader(dict(RECORDED))
 
     observation = observe_one(tmp_path, BUNDLED, tree)
 
-    assert observation.status == "UNKNOWN"
+    assert observation.status == "CURRENT"
     assert tree.calls == []
 
 
@@ -206,7 +220,8 @@ def test_a_failing_tree_read_never_stops_the_other_repositories(tmp_path: Path) 
 
 def test_the_summary_counts_unknown_as_its_own_status(tmp_path: Path) -> None:
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL")
-    observation = observe_one(tmp_path, BUNDLED, FakeTreeReader(dict(RECORDED)))
+    # Head moved, no recorded blob ids, no sealed facts: undecidable.
+    observation = observe_one(tmp_path, NEWER, FakeTreeReader(dict(RECORDED)))
 
     document: dict[str, Any] = drift_document(
         [observation], observed_at="2026-10-06T00:00:00+00:00", owner=None

@@ -36,6 +36,27 @@ prefix (``RECOVERED_COVERAGE_RATIONALE``). ``NOT_CARRIED_BY_NAMED_SECTION`` clas
 cause ADVISORY (OWNER-14: a deferred unit is never public, and blocks only in specific classes),
 matched on the typed prefix and never on free text, and last in precedence so every BLOCK class
 above still decides first.
+
+CUT-2 (G3-W08/G7-W12) read the three free-text rationales the 2026-10-10 baseline left UNCLASSIFIED
+(3D-.NET 066, Page-Python 014/016/038/040, Email-Cpp 032) and added no class: two existing classes
+learned the cause. ``NO_EVIDENCE_EITHER_WAY`` accepts the model's other words for the same
+attestation ("unsupported by facts", "uncertain", "cannot be verified") and still vetoes it on the
+facts (a cited fact, a spelled verified symbol); ``EXCLUDED_BY_PLAN`` also reads the unit's own
+source heading, so an examples-section unit the plan excludes needs no "additional" in the
+rationale. A rationale that says only "supported, no section" with the source section included
+still blocks: that is a lost placement, not an unresolved claim.
+
+CUT-2 follow-up (same BC-05 v5, no new version): ``_NOTICES`` stopped reading the bare words
+"licence", "notice" and "third-party" (the upstream's own MIT paragraph and "no third-party
+dependency" blocked on them), so a block remains only for bundled-material attribution. Four
+ADVISORY classes took the causes that left: the upstream's own License section when a licence
+fact is verified (``OWN_LICENSE_COVERED_BY_LICENSE_SECTION``) or absent
+(``OWN_LICENSE_UNVERIFIED``), its Dependencies section
+(``DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES``), and an unverified code block under Installation
+(``INSTALL_SNIPPET_COVERED_BY_INSTALLATION``, last, behind every other cause). A lead-in now
+follows any withheld next block, not only a code block. The bundled-material notices a
+repository keeps as ``LICENSE-FONTS`` or ``fonts/LICENSE.txt`` are recorded by the snapshot
+inventory, so their attribution has a record to render from.
 """
 
 from __future__ import annotations
@@ -63,14 +84,28 @@ Stage = Literal["EXTRACTING", "RECONCILING"]
 UNCLASSIFIED = "UNCLASSIFIED"
 # The rationale and text patterns below are matched case-insensitively where noted.
 _INTERNAL_FILE = re.compile(r"AGENTS\.md|CLAUDE\.md")
-# Licensing or attribution language. A bare "font" is not: it names a Mermaid label, an examples
-# row or an API member (``FontScheme``) as often as bundled font files, so a font counts only
-# when it is bundled, embedded or redistributed (G7-W12: three real units blocked on it wrongly).
+# Attribution language about material the upstream does not own: a notices heading or file, a
+# third-party licence or attribution, an SPDX expression, or fonts/code that are bundled, embedded,
+# vendored or redistributed under a licence. It is deliberately NOT the bare words "licence",
+# "third-party" or "notice": the upstream's own "licensed under the MIT License ... provided its
+# copyright and permission notice are retained" is the License section's content, and "no
+# third-party dependency is fetched to build it" is a dependency statement (CUT-2: PSD-.NET 060 and
+# Email-Cpp 016 blocked on those words with nothing to attribute). A bare "font" is not either: it
+# names a Mermaid label, an examples row or an API member (``FontScheme``) as often as bundled font
+# files, so a font counts only when it is bundled, embedded or redistributed (G7-W12).
 _NOTICES = re.compile(
-    r"third[ _-]?party|licen[cs]e|SPDX|\bnotices?\b"
-    r"|\b(?:bundled|embedded|redistributed|included)\s+fonts?\b",
+    r"third[ _-]?party[ _-]+(?:notices?|licen[cs]es?|attributions?|credits?)"
+    r"|(?<!copyright )(?<!permission )\bnotices?\b"
+    r"|\battributions?\b|\bSPDX\b"
+    r"|\b(?:bundl(?:es?|ed|ing)|embedded|redistributed|included|vendored)\b[^.\n]{0,80}\bfonts?\b"
+    r"|\b(?:bundled|embedded|redistributed|vendored)\b[^.\n]{0,80}\blicen[cs]",
     re.IGNORECASE,
 )
+# A source heading that names the upstream's own licence ("License", "Licensing").
+_LICENSE_SECTION = re.compile(r"^licen[cs]")
+# A source heading that is the upstream's dependency breakdown ("Dependencies", "Required Package
+# Dependencies", "Development Dependencies").
+_DEPENDENCIES_SECTION = re.compile(r"\bdependenc(?:y|ies)\b")
 _ENTERPRISE = re.compile(r"enterprise", re.IGNORECASE)
 _EXAMPLES = re.compile(r"\bexamples?\b|\bbelow\b", re.IGNORECASE)
 _DEVELOPMENT = re.compile(r"development|testing|\btests?\b|\bbuild|\bsamples?\b", re.IGNORECASE)
@@ -83,10 +118,18 @@ _API_SECTION = re.compile(r"\bapi\b")
 # nor contradict") produce.
 _NO_EVIDENCE = re.compile(
     r"\bno fact\b|\bany fact\b|\bnot (?:supported|contradicted|verified)\b"
-    r"|lacks? supporting evidence|neither support",
+    r"|lacks? supporting evidence|neither support"
+    # CUT-2: the same attestation in the model's other words ("unsupported by facts", "its public
+    # use is uncertain", "cannot be verified"), read from the 2026-10-10 baseline's rationales.
+    r"|\bunsupported\b|\bunverified\b|\buncertain(?:ty|ties)?\b|\bunresolved\b"
+    r"|\bno evidence\b|\bcannot be (?:confirmed|verified)\b",
     re.IGNORECASE,
 )
+# A source heading that is an examples section ("Additional Examples", "Examples").
+_EXAMPLES_SECTION = re.compile(r"\bexamples?\b")
 _CODE_SPAN = re.compile(r"`([^`\n]+)`")
+# A PDF name literal: a slash opening a token (not the slash inside a path "src/Foo"), then a name.
+_PDF_NAME = re.compile(r"(?<![\w.)\]/])/[A-Za-z_]\w*")
 _DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
 _MIN_SYMBOL_TAIL = 4
 
@@ -118,6 +161,8 @@ class DeferralContext:
     symbol_tails: frozenset[str]
     enterprise_sections: frozenset[tuple[str, ...]]
     contradicted: frozenset[str]
+    license_rendered: bool
+    verified_code: frozenset[str]
 
     @classmethod
     def build(
@@ -175,6 +220,12 @@ class DeferralContext:
                 and sections.get(unit_id)
             ),
             contradicted=contradicted_code_units(facts),
+            verified_code=frozenset(code_units_by_polarity(facts, "SUPPORTED")),
+            # The License section renders only from a SUPPORTED licence identity (renderer.py).
+            license_rendered=any(
+                fact.id == "license:spdx" and fact.polarity == "SUPPORTED"
+                for fact in facts.by_kind("license")
+            ),
         )
 
     def text(self, unit_id: str) -> str:
@@ -201,7 +252,12 @@ class DeferralContext:
         counts only when it reads as a type or member name (capitalised, or snake_case) of at
         least ``_MIN_SYMBOL_TAIL`` characters, so ordinary words in a code span never do."""
         listing = shape == "listing"
-        spans = _CODE_SPAN.findall(self.text(unit_id))
+        # A PDF name literal ("/Root /Metadata", "/Perms") is a dictionary key of the file format,
+        # not the API symbol of the same letters (PDF-TypeScript 359 reads `/Metadata` beside a
+        # public class Metadata): the slash-led tokens are removed before names are read.
+        spans = [
+            _PDF_NAME.sub(" ", span).strip() for span in _CODE_SPAN.findall(self.text(unit_id))
+        ]
         for span in spans[:1] if listing else spans:
             names = _DOTTED_NAME.findall(span)
             for name in names[:1] if listing else names:
@@ -219,12 +275,20 @@ class DeferralContext:
         return False
 
     def neighbor_dropped(self, unit_id: str) -> bool:
-        """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED."""
+        """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED.
+
+        The next block is whatever the extractor numbered next, of any content kind: a lead-in
+        introduces a code block, a link line ("see:" then ``**[Guide](docs/guide.md)**``) or a
+        list alike (CUT-2, Font-Python 087, whose linked guide was omitted as CONTRADICTED). A
+        heading is not content the lead-in introduces, so it never counts."""
         match = re.match(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$", unit_id)
         if match is None:
             return False
-        neighbor = self.entries.get(f"inherited_unit:{int(match.group(1)) + 1:03d}.code_block")
-        return neighbor is not None and neighbor.get("disposition") in {
+        prefix = f"inherited_unit:{int(match.group(1)) + 1:03d}."
+        following = sorted(
+            key for key in self.entries if key.startswith(prefix) and _kind(key) != "heading"
+        )
+        return bool(following) and self.entries[following[0]].get("disposition") in {
             "OMIT_UNSUPPORTED",
             "DEFER_UNRESOLVED",
         }
@@ -275,6 +339,33 @@ def _notices(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bo
     return not ctx.notices and bool(_NOTICES.search(ctx.text(unit_id)))
 
 
+def _in_license_section(unit_id: str, ctx: DeferralContext) -> bool:
+    return any(_LICENSE_SECTION.match(part) for part in ctx.parts(unit_id)[1:])
+
+
+def _own_license(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The unit sits under the upstream's own License heading (or is that heading) and the facts
+    hold a SUPPORTED licence identity, which is all the License section renders from. It runs
+    after ``_notices``, so a License-section unit that documents bundled material still blocks
+    until its attribution is recorded; what reaches here states only the project's own licence."""
+    return ctx.license_rendered and _in_license_section(unit_id, ctx)
+
+
+def _own_license_unverified(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The same unit when the facts hold no SUPPORTED licence identity: the repository has no
+    licence file the extractor could classify and its manifest declares none (PSD-.NET and
+    PSD-Python at the 2026-10-10 baseline: README says MIT, the tree has no LICENSE)."""
+    return not ctx.license_rendered and _in_license_section(unit_id, ctx)
+
+
+def _dependency_text(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """The unit sits under the upstream's Dependencies heading and the candidate renders its own
+    Dependencies section (required, or present because dependency facts exist)."""
+    return "dependencies" not in ctx.absent and any(
+        _DEPENDENCIES_SECTION.search(part) for part in ctx.parts(unit_id)[1:]
+    )
+
+
 def _unverified(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
     return unit_id in ctx.unresolved
 
@@ -294,7 +385,18 @@ def _enterprise_non_prose(unit_id: str, entry: Mapping[str, Any], ctx: DeferralC
 
 
 def _excluded_by_plan(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
-    return ctx.examples_consumed and "additional" in _rationale(entry)
+    """The plan's quick starts consume every verified example, so Additional Examples is excluded.
+    A unit is deferred for that when its rationale says "additional", or (CUT-2, Email-Cpp 032:
+    "no section is available") when its own source section is an examples section, read from the
+    recorded heading path as the At a Glance and Installation classes read theirs. Prose in that
+    section that spells a verified symbol is a claim about the API, not example scaffolding, so it
+    is not withheld on this ground."""
+    if not ctx.examples_consumed:
+        return False
+    if "additional" in _rationale(entry):
+        return True
+    in_examples_section = any(_EXAMPLES_SECTION.search(part) for part in ctx.parts(unit_id)[1:])
+    return in_examples_section and not ctx.names_verified_symbol(unit_id)
 
 
 def _section_absent(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
@@ -329,6 +431,23 @@ def _install_steps(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext)
 
 def _withheld_command(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
     return unit_id in ctx.commands and _uncited(entry) and ctx.build_or_install
+
+
+def _install_snippet(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
+    """A code block under the upstream's Installation heading that is not itself a verified
+    example, while the facts hold a verified install: the Installation row states the verified
+    install, and the upstream's own variant (a CMake ``add_subdirectory`` integration, Email-Cpp
+    013) cannot be shown as verified. A command block decides in ``_withheld_command`` first; a
+    deferral the reconciler typed (``_not_carried``) and a contradicted block keep their own
+    reading, so this class takes only what no other class names."""
+    return (
+        _kind(unit_id) == "code_block"
+        and unit_id not in ctx.verified_code
+        and unit_id not in ctx.contradicted
+        and not str(entry.get("rationale") or "").startswith(RECOVERED_COVERAGE_RATIONALE.rstrip())
+        and ctx.install_verified
+        and any(_INSTALLATION.match(part) for part in ctx.parts(unit_id)[1:])
+    )
 
 
 def _api_listing(unit_id: str, entry: Mapping[str, Any], ctx: DeferralContext) -> bool:
@@ -402,6 +521,38 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         _notices,
     ),
     DeferralClass(
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "ADVISORY",
+        None,
+        "The unit is the upstream's own License section (its heading, or a sentence stating the "
+        "project's licence), and the facts hold a verified licence identity. The candidate's "
+        "License section is rendered from that fact and the licence file (README_CONTRACT.md), so "
+        "the inherited wording has no second home and is withheld, never published beside it. "
+        "Bundled-material attribution is a different cause (NOTICES_WITHOUT_RECORD) and decides "
+        "first.",
+        _own_license,
+    ),
+    DeferralClass(
+        "OWN_LICENSE_UNVERIFIED",
+        "ADVISORY",
+        None,
+        "The unit is the upstream's own License section, but the facts hold no verified licence "
+        "identity at this revision (no classifiable licence file and no manifest declaration), "
+        "so the candidate cannot state a licence the tree does not show. The claim is withheld, "
+        "never published; the reviewer sees the deferral, and the missing licence file is the "
+        "owner's to add.",
+        _own_license_unverified,
+    ),
+    DeferralClass(
+        "DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES",
+        "ADVISORY",
+        None,
+        "The unit came from the upstream's Dependencies section. The candidate's Dependencies "
+        "section is rendered from the verified dependency facts (README_CONTRACT.md), so the "
+        "inherited wording has no second home and is withheld rather than published beside it.",
+        _dependency_text,
+    ),
+    DeferralClass(
         "UNVERIFIED_EXAMPLE",
         "ADVISORY",
         None,
@@ -431,7 +582,8 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "ADVISORY",
         None,
         "The plan's quick starts already consume every verified example, so Additional Examples "
-        "is excluded at this plan. The examples themselves are shown in Quick Start.",
+        "is excluded at this plan. The examples themselves are shown in Quick Start, and prose "
+        "from the upstream's examples section has no public home beside them.",
         _excluded_by_plan,
     ),
     DeferralClass(
@@ -511,6 +663,16 @@ DEFERRAL_CLASSES: tuple[DeferralClass, ...] = (
         "its cited facts stay in the evidence. Last in precedence, so any cause that names a "
         "specific fix (a missing Quick Start, an unrecorded build path) still decides first.",
         _not_carried,
+    ),
+    DeferralClass(
+        "INSTALL_SNIPPET_COVERED_BY_INSTALLATION",
+        "ADVISORY",
+        None,
+        "A code block from the upstream's Installation section that is not a verified example. "
+        "The candidate's Installation row is rendered from the verified install command, so the "
+        "upstream's variant snippet has no verified home and is withheld, never published; the "
+        "reviewer sees the deferral.",
+        _install_snippet,
     ),
 )
 

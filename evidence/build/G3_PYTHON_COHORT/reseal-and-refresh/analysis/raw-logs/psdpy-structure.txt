@@ -1,0 +1,28 @@
+# log: psdpy-structure
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-Python
+# head: 664446b97952c063baf828f469995ad2a160bae7
+# utc: 2026-10-10T15:02:49Z
+# cwd: shallow clone of the default branch
+# command: ls; echo '--- README.md bytes/content:'; wc -c README.md; cat README.md; echo; echo '--- manifests (pyproject.toml setup.py setup.cfg):'; git ls-files | grep -E '(^|/)(pyproject.toml|setup.py|setup.cfg)$' || echo NONE; echo '--- aspose_psd_foss/__init__.py lines:'; wc -l aspose_psd_foss/__init__.py; echo '--- tracked MSBuild obj/ python files:'; git ls-files | grep '/obj/'; echo '--- pip install --dry-run .:'; python -m pip install --dry-run --no-deps --no-build-isolation . 2>&1 | tail -3
+# ---- output (capped at 60000 bytes) ----
+README.md
+aspose_psd_foss
+aspose_psd_foss_test
+--- README.md bytes/content:
+67 README.md
+# Aspose.PSD-FOSS-for-Python
+FOSS version of Aspose.PSD for Python
+
+--- manifests (pyproject.toml setup.py setup.cfg):
+NONE
+--- aspose_psd_foss/__init__.py lines:
+0 aspose_psd_foss/__init__.py
+--- tracked MSBuild obj/ python files:
+aspose_psd_foss/obj/debug/net10_0/aspose_psd_foss_assemblyinfo.py
+aspose_psd_foss/obj/debug/net10_0/aspose_psd_foss_globalusings_g.py
+aspose_psd_foss_test/obj/debug/net10_0/aspose_psd_foss_test_assemblyinfo.py
+aspose_psd_foss_test/obj/debug/net10_0/aspose_psd_foss_test_globalusings_g.py
+--- pip install --dry-run .:
+ERROR: Directory '.' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.
+
+# exit: 0

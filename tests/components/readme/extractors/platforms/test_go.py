@@ -316,6 +316,7 @@ def test_a_published_module_supports_the_install_claim(monkeypatch: Any, tmp_pat
             "https://proxy.golang.org/x/@v/list",
             "go-proxy-api",
             "live_probe",
+            repository_matched=True,
         )
 
     monkeypatch.setattr(go, "observe", published)

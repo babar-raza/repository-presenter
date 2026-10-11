@@ -76,6 +76,10 @@ src/repository_presenter/
       placement.py             where each inherited unit renders, under the three placement rules
       policy.py                the planning policy: capability, hub, line, and Aspose-link ceilings
       link_budget.py           Aspose-link ceilings derived per document, domain, and surface slot (plans/idea.md), or configured; the plan trim and BC-06 both read it
+      type_fallback.py        the last-attempt recovery for one API Reference type description refused only for an unevidenced identifier (README_CONTRACT.md row 14)
+      audience.py              the section-authoring guard that an audience, use case, or spared cost in the opening is stated only when an accepted fact states it, with its last-resort deletion; called by unit_checks (BC-04 too)
+      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE) states every item, layered on unit_checks by repair/rounds.py
+      list_coverage.py         the section-authoring guard that a list kept as written (VERIFIED_PRESERVE/MOVE) states every item, layered on unit_checks by repair/rounds.py; its item test also serves BC-05
     components/                 semantic-shell template components (README_CONTRACT.md §2)
       ecosystems.py            per-ecosystem presentation knowledge: package registry names
       terminology.py           the governed technical-terminology registry and heading-case grammar: the one owner of canonical abbreviations (PS, PDF, glTF, npm) and title case
@@ -95,11 +99,13 @@ src/repository_presenter/
       evaluation.py            dependency evaluation: changed inputs and the stage they reopen
       invalidation.py          typed invalidation scopes: scope -> stage and state tables, and the routing (STATE_MACHINE.md §9)
       dry_run.py               read-only dry run: every CURRENT bundle's routing under the running code, and held updates
+      recheck.py               consumed-scope recheck (G7-W25, investigation 13): is a sealed bundle still current under the running code? CURRENT / RECHECKED_CURRENT / UPDATE_OPTIONAL / UPDATE_REQUIRED / UNVERIFIED; offline, no provider call, never invalidates or edits a bundle; receipts are a cache
       portfolio.py             plans/idea.md's seven separated portfolio counts and the one-bucket-per-entry partition `status` prints (pure read; predicates defined in its docstring)
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
         product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
         assets.py               build and test assets from the tree, and the build-status badge target (a push-triggered build or test workflow read from the clone)
+        commands.py             the build command, the test command and the CI matrix, read from the clone's workflows, package.json, Makefile and toolchain manifests
         repository_files.py     the file names an inherited unit spells that the pinned tree contains, recorded on the unit so prose may cite them (G7-W23)
   components/metadata/       workstream 2 (docs/investigations/02-repo-metadata-community-files.md §5); never README-specific
     capture.py                Phase 0: read GitHub's observed description/homepage/topics via core/github, write the typed evidence artifact
@@ -113,8 +119,10 @@ src/repository_presenter/
     effect.py                  the gated write: commit the sealed bundle to a dedicated branch and open/update the one pull request that carries it - gated behind REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED, a write-scoped GH_CANDIDATES_WRITE_TOKEN (a short-lived App installation token scoped to this repository, minted in the write job - never the ambient GITHUB_TOKEN, which cannot open the PR or trigger its required checks), and core/github/token_provenance.py's verify_installation_token plus verify_pull_request_app; idempotent by construction (the target branch's own currently-committed revision is read before anything is written)
     git_ops.py                 the real local git plumbing (branch fetch/checkout, stage-and-commit, push) the effect above composes, built on core/git_safety/git.py's run_git/github_https_auth_env
 
-  components/monitor/        G7-W06 (docs/EXECUTION_STATE_MACHINE.md G7 work item 3); scheduled read-only drift observation: each enabled registry repository's upstream default-branch head against its CURRENT sealed bundle's revision (CURRENT/DRIFTED/NO_BUNDLE/UNREACHABLE); never README-specific; no provider call, no write
+  components/monitor/        G7-W06 (docs/EXECUTION_STATE_MACHINE.md G7 work item 3); scheduled read-only drift observation: each enabled registry repository's upstream default-branch head against its CURRENT sealed bundle's revision (CURRENT/DRIFTED/UNKNOWN/NO_BUNDLE/UNREACHABLE, with a relevance class per row: a head change that touches nothing the README consumed is not drift); never README-specific; no provider call, no write
     drift.py                  the observation and its evidence document (runs/monitor/drift.json); the `repository-presenter monitor` command (cli.py) is its only caller
+    relevance.py              classify_change: NO_CHANGE / IRRELEVANT_CHANGE / RELEVANT_CHANGE / UNKNOWN / UNREACHABLE from the bundle's recorded upstream blob ids, consumed_fact_ids, or (no blob ids) its facts' cited paths over the sealed-revision and head trees (G7-W06 TC-REF-01)
+    freshness.py              the 30-day zero-provider-call registry re-check against the sealed package facts (G7-W06 TC-REF-01-02)
 
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
@@ -136,13 +144,17 @@ evidence/sbom/requirements-lock.cdx.json  committed CycloneDX SBOM for this proj
 evidence/g6-w02/proof-readme-v1.md  the disposable-target README input (G6-W02 live proof) passed to `repository-presenter propose --readme-file` in propose.yml's own dispatch; a fixed proof fixture for the write path, never a product candidate, and never read by any product stage. Its redacted run record lives beside it as evidence/g6-w02/LIVE_PROOF.md
 candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRACT.md §7)
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
+candidates/<owner>__<name>/rechecks/<revision>.json  cached consumed-scope recheck of that bundle (`repository-presenter recheck --write-receipts`), keyed by the manifest digest and the running code's consumed inputs and self-digested; a cache beside the bundle, never inside it, never an authority, ignored when its key or digest does not match (G7-W25)
 ops/proposal-authorizations/  one reviewed JSON record per authorized README proposal (`repository-presenter draft-proposal-authorization` writes it; a person merges it through a pull request before the propose run is triggered); `propose --propose` refuses without one (docs/DECISION_LOG.md 2026-10-05)
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
+  fixtures/propose_pr/       golden title and body of the README-proposal pull request (tests/components/propose/test_pull_request.py; TC-PRP-01)
+  components/readme/extractors/{platforms,surface}/fixtures/  trimmed copies of real repository files and registry bodies (python src layout, segment-geospatial pyproject, aspose cells-ts/3d-java/3d-net/email-cpp manifests, spring-petclinic and commons-lang POMs, the dtolnay/ryu crate, recorded PyPI/npm/Maven answers) that the extractor defect tests read; test data only, never read by a product stage (TC-EXT-01)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
 scripts/                     ci_check.sh (the local CI-equivalent; see its own header for exactly which ci.yml steps it mirrors and which it deliberately omits), ci_output_dir.sh (sourced by ci_check.sh: a private mktemp -d output directory per invocation, removed by an EXIT trap, so concurrent runs sharing one tools venv never overwrite each other's SBOM/audit files), check_import_root.py (ci_check.sh's preflight: fails when `import repository_presenter` resolves outside this checkout's src/, e.g. a worktree sharing a venv), check_lock_drift.sh (G7-W02: regenerates requirements-lock.txt in a scratch copy and diffs against the committed one, CI-only - needs network the same way ci.yml's own "Install from the lock" step does), sync_main.sh (fast-forwards local main to origin/main only when safe; typed refusals), new_worktree.sh (the one way to start work: a worktree under runs/wt from a freshly fetched origin/main, shared .venv linked), check_staleness.sh (ci_check.sh's warn-only preflight: HEAD more than 20 commits behind origin/main); all three are described in section 6, and tests/test_worktree_scripts.py drives them against temporary git repositories
-tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
+tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate; tools/workflow_rehearsal/ runs every .github/workflows file locally against fakes and generates the workflow inventory embedded in docs/OPERATIONS_RUNBOOK.md (TC-REF-10; tests/test_workflow_rehearsal.py), and cycle.py with fake_rest.py drives the code those workflows call through every failure mode against local fakes (TC-REF-11; tests/test_workflow_rehearsal_cycle.py), its scratch output under runs/ (gitignored)
+docs/OPERATIONS_RUNBOOK.md   schedules, per-workflow variables/secrets/permissions (generated block), kill switch, rollback, rotation pointer, local rehearsal results and hosted-vs-local differences (TC-REF-10)
   reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, unblock_monitor.py, research_edit.py (reusable governance-edit helpers), procedure.md; .local/ gitignored (state, never portfolio content)
   reviewer/bump_cost/         read-only measurement scripts behind docs/investigations/13-bump-cost-and-recheck-design.md (bump timeline and history, pre/post runs of each bump commit, current-state, inherited-units and reviewer-replay probes, build_evidence.py -> evidence/bump-cost/); no provider call, no network
   census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)

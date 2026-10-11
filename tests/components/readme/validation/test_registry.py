@@ -43,10 +43,16 @@ from repository_presenter.components.readme.validation.registry import (
     validate_candidate,
     write_validation,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    SOURCE_CHECKOUT_COMMAND_ATTRIBUTE,
+    SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
+    Evidence,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
-from support import REPO_ROOT
+from support import JAVA3D_DOCS_LIST, JAVA3D_SCOPE_LIST, REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -109,7 +115,7 @@ BASE_FACTS: tuple[Fact, ...] = (
         "link_target",
         "https://docs.example.com/3d",
         "line 9; external; text 'Docs'",
-        "RESOLVED: HTTP 200",
+        "RESOLVED",
     ),
     _fact("inherited_unit:001.heading", "inherited_unit", "# Old"),
     _fact("inherited_unit:002.paragraph", "inherited_unit", "Kept verbatim from the old README."),
@@ -313,11 +319,13 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     # the UNCLASSIFIED deferral family; VALIDATOR_VERSION 17: BC-04 v3 honours the omissions S6
     # recorded (G7-W15); VALIDATOR_VERSION 18: BC-14 v1 (TC-CLM-01) holds version, install-package
     # and publication statements to the facts; VALIDATOR_VERSION 19: BC-05 v4 classifies the typed
-    # "not provably carried" deferral ADVISORY (TC-DSP-01 companion). This candidate names no
+    # "not provably carried" deferral ADVISORY (TC-DSP-01 companion); VALIDATOR_VERSION 20: BC-05
+    # v5 reads "unsupported"/"uncertain" attestations and an excluded examples section (CUT-2).
+    # This candidate names no
     # edition, spells its name whole, and passes all of them (it has badge-worthy facts and a
     # rendered badge row, no docstring eliciting an elision, and a clean single-read ACCEPT with no
     # triggered second read, so v13's, v14's, and v15's own allowance/note/detail never fire).
-    assert document["source_revision"] == REVISION and document["validator_version"] == "19"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "21"
 
 
 def test_a_blocking_deferral_cause_fails_bc05_and_an_advisory_one_is_only_recorded(
@@ -1080,6 +1088,34 @@ def test_an_anchor_to_a_heading_the_candidate_dropped_names_the_section_it_rende
     )
     assert resolving != readme
     assert _verdicts(validate_candidate(_candidate(resolving), tmp_path, ()))["BC-06"] == "PASS"
+
+
+def test_a_broken_external_link_fact_still_fails_bc06_on_its_verdict_alone(
+    tmp_path: Path,
+) -> None:
+    """TC-INV-02: link evidence is the verdict word only (the HTTP status lives in the probe
+    record), and a CONTRADICTED link target still fails BC-06 and names that verdict."""
+    broken = tuple(
+        Fact(
+            fact.id,
+            fact.kind,
+            fact.value,
+            (fact.evidence[0], Evidence(fact.value, "MISSING")),
+            polarity="CONTRADICTED",
+        )
+        if fact.id == "link_target:001"
+        else fact
+        for fact in BASE_FACTS
+    )
+    facts = FactsDocument(ENTRY.repository, REVISION, broken)
+    placed = _candidate(facts=facts)
+    assert "https://docs.example.com/3d" in placed.readme
+    failed = _failed(validate_candidate(placed, tmp_path, ()), "BC-06")
+    assert any(
+        "https://docs.example.com/3d is CONTRADICTED: MISSING" in str(failure)
+        for failure in failed["failures"]
+    )
+    assert _verdicts(validate_candidate(_candidate(), tmp_path, ()))["BC-06"] == "PASS"
 
 
 def test_unsafe_raw_html_surviving_from_an_adversarial_readme_fails_bc06(tmp_path: Path) -> None:
@@ -2318,6 +2354,71 @@ def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_pro
     assert _check_install(_install_candidate(templated, f"```bash\n{templated.value}\n```")) == []
 
 
+# --- TC-TST-01: BC-02 holds the source-checkout block to the directory a build proved it in ---
+# Aspose.3D for .NET (2026-10-11): `dotnet build` at a checkout root with no project or solution
+# fails with MSB1003, and BC-02 passed it because the block was never a fact.
+
+CHECKOUT_CLONE = (
+    "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+    "cd Aspose.3D-FOSS-for-Python\n"
+)
+
+
+def _registry_install(**attributes: str) -> Fact:
+    return Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-3d-foss",
+        (
+            Evidence("setup.py", "install command for the name declared by the manifest"),
+            Evidence("https://pypi.org/pypi/aspose-3d-foss/json", "package registry: found"),
+        ),
+        attributes=attributes or None,
+    )
+
+
+def _with_checkout_block(install: Fact, command: str) -> str:
+    return (
+        f"```bash\n{install.value}\n```\n\n"
+        f"To work from a source checkout instead, install the clone with pip:\n\n"
+        f"```bash\n{command}\n```\n"
+    )
+
+
+def test_bc_02_accepts_the_source_checkout_block_the_facts_recorded() -> None:
+    recorded = CHECKOUT_CLONE + "pip install ."
+    install = _registry_install(**{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: recorded})
+    assert (
+        _check_install(_install_candidate(install, _with_checkout_block(install, recorded))) == []
+    )
+    # A fact extracted before the record existed keeps the template, and the template passes.
+    legacy = _registry_install()
+    assert _check_install(_install_candidate(legacy, _with_checkout_block(legacy, recorded))) == []
+    # No block rendered at all is nothing to hold.
+    assert _check_install(_install_candidate(install, f"```bash\n{install.value}\n```")) == []
+
+
+def test_bc_02_refuses_a_source_checkout_block_no_build_proved_from_the_root() -> None:
+    install = _registry_install(
+        **{SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE: "no build exited 0: failed (exited 1)"}
+    )
+    readme = _with_checkout_block(install, CHECKOUT_CLONE + "pip install .")
+    failures = _check_install(_install_candidate(install, readme))
+    assert [(f.stage, f.section) for f in failures] == [("COMPOSING", "installation")]
+    assert "no build proved from the checkout root" in failures[0].detail
+    assert "no build exited 0: failed (exited 1)" in failures[0].detail
+
+
+def test_bc_02_refuses_a_source_checkout_block_that_is_not_the_recorded_command() -> None:
+    install = _registry_install(
+        **{SOURCE_CHECKOUT_COMMAND_ATTRIBUTE: CHECKOUT_CLONE + "pip install .[dev]"}
+    )
+    readme = _with_checkout_block(install, CHECKOUT_CLONE + "pip install .")
+    failures = _check_install(_install_candidate(install, readme))
+    assert [f.stage for f in failures] == ["COMPOSING"]
+    assert "not the command the facts record as proven from the checkout root" in failures[0].detail
+
+
 def test_bc_02_accepts_a_source_checkout_fact_that_never_claims_a_verified_build() -> None:
     """`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation, reproducing
     `aspose-html-foss/Aspose.HTML-FOSS-for-Python`'s exact shape: a `source_checkout`-kind fact
@@ -2638,3 +2739,153 @@ def test_check_four_honours_a_must_carry_omission_the_authoring_recorded(tmp_pat
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": reason}]) == []
     assert verdict([{"section": "scope_limitations", "fact_id": unit, "reason": " "}]) != []
     assert verdict([{"section": "development_testing", "fact_id": unit, "reason": reason}]) != []
+
+
+# --- LST-01: BC-05 judges the items of a list placement dropped as covered -----------------------
+# 3D Java 3d2ed6be (wave-3 acceptance review, reseal f69f75c7): both kept lists were dropped by
+# placement because one fact each cites is covered by the plan, and the candidate rendered four of
+# the eight documentation links and six of the nine scope bullets with BC-05 passing.
+_DOCS_UNIT = "inherited_unit:070.list"
+_SCOPE_UNIT = "inherited_unit:072.list"
+_JAVA_LINKS = {
+    "link_target:022": "https://docs.aspose.org/3d/java/",
+    "link_target:023": "https://kb.aspose.org/3d/java/",
+    "link_target:024": "https://reference.aspose.org/3d/java/",
+    "link_target:025": "PUBLISHING.md",
+    "link_target:026": "docs/api-diff-26.1.0.md",
+    "link_target:027": "docs/directory-structures.md",
+    "link_target:028": "docs/foss-java-progress.md",
+    "link_target:029": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues",
+}
+_JAVA_DOCS_SECTION = "\n".join(
+    [
+        "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — The guide.",
+        "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — The how-to guides.",
+        "- **[Full API reference](https://reference.aspose.org/3d/java/)** — The reference.",
+        "- Found a bug? [Open an issue]"
+        "(https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues).",
+    ]
+)
+_JAVA_SCOPE_SECTION = "\n".join(
+    [
+        "- The only fully functional format in the published 26.5.0 package is STL.",
+        "- OBJ import is a stub in the published Maven Central artifact; do not rely on it.",
+        "- Several recognized-but-unfinished formats fail silently rather than with an error.",
+        "- Additional format coverage beyond STL is a commercial-edition feature.",
+        "- A handful of primitive-shape classes have a mesh-conversion method not implemented.",
+        "- Scene rendering is not implemented in this edition.",
+    ]
+)
+_JAVA_SCOPE_COMPLETE = (
+    _JAVA_SCOPE_SECTION
+    + "\n- NurbsCurve sampling points along the curve is not yet implemented."
+    + "\n- The PbrSpecularMaterial accessors are unimplemented in this edition."
+    + "\n- Licensing, trial and DRM functionality, cryptographic helpers and ZIP read and write"
+    " are excluded."
+)
+
+
+def _java_candidate(docs: str, scope: str, handed: bool = True) -> Candidate:
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *(f for f in BASE_FACTS if f.kind != "inherited_unit"),
+            *(_fact(fact_id, "link_target", url) for fact_id, url in _JAVA_LINKS.items()),
+            _fact("install_command:maven", "install_command", "mvn dependency:get"),
+            _fact(_DOCS_UNIT, "inherited_unit", JAVA3D_DOCS_LIST),
+            _fact(_SCOPE_UNIT, "inherited_unit", JAVA3D_SCOPE_LIST),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [{**s, "include": s["section_id"] in INCLUDED} for s in PLAN["sections"]],
+        "links": [
+            {"link_fact_id": fact_id, "section_id": "documentation_resources"}
+            for fact_id in (
+                "link_target:022",
+                "link_target:023",
+                "link_target:024",
+                "link_target:029",
+            )
+        ],
+        "material_limitations": [
+            {"fact_ids": ["install_command:maven"], "unit_ids": [_SCOPE_UNIT] if handed else []}
+        ],
+    }
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": _DOCS_UNIT,
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "documentation_resources",
+                "fact_ids": list(_JAVA_LINKS),
+                "rationale": "All links in the list are verified by the link_target facts.",
+            },
+            {
+                "unit_id": _SCOPE_UNIT,
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["install_command:maven"],
+                "rationale": "All list items are supported by facts.",
+            },
+        ]
+    }
+    readme = (
+        "# Aspose.3D FOSS for Java\n\n## Documentation & Resources\n\n"
+        + docs
+        + "\n\n## Scope and Limitations\n\n"
+        + scope
+        + "\n"
+    )
+    return _candidate(readme=readme, facts=facts, dispositions=dispositions, plan=plan)
+
+
+def test_a_kept_list_placement_dropped_must_have_every_item_rendered() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    failures = _check_dispositions(_java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION))
+    by_section = {failure.section: failure for failure in failures}
+    assert set(by_section) == {"documentation_resources", "scope_limitations"}, failures
+    docs, scope = by_section["documentation_resources"], by_section["scope_limitations"]
+    assert docs.stage == "PLANNING" and scope.stage == "COMPOSING"
+    for document in ("PUBLISHING.md", "api-diff-26.1.0.md", "directory-structures.md"):
+        assert document in docs.detail
+    assert f"{_DOCS_UNIT}: kept as written" in docs.detail and "of its 8 items" in docs.detail
+    assert "PbrSpecularMaterial" in scope.detail and "NurbsCurve" in scope.detail
+    assert "of its 9 items" in scope.detail
+
+
+def test_a_kept_list_every_item_of_which_is_rendered_passes_bc05() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    docs = (
+        _JAVA_DOCS_SECTION
+        + "\n"
+        + "\n".join(f"- [{url}]({url})" for url in list(_JAVA_LINKS.values())[3:7])
+    )
+    assert _check_dispositions(_java_candidate(docs, _JAVA_SCOPE_COMPLETE)) == []
+
+
+def test_a_scope_list_the_plan_never_handed_on_is_a_planning_defect() -> None:
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    failures = _check_dispositions(
+        _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION, handed=False)
+    )
+    scope = next(f for f in failures if f.section == "scope_limitations")
+    assert scope.stage == "PLANNING"
+
+
+def test_a_list_placement_prints_whole_is_checked_by_the_placed_rule_as_before() -> None:
+    """Negative control: a list nothing in the plan covers is placed verbatim, and the existing
+    rule (placed units appear in their destination) judges it; the new rule never fires."""
+    from repository_presenter.components.readme.validation.registry import _check_dispositions
+
+    candidate = _java_candidate(_JAVA_DOCS_SECTION, _JAVA_SCOPE_SECTION)
+    candidate = dataclasses.replace(
+        candidate,
+        plan={**candidate.plan, "links": [], "material_limitations": []},
+        readme=candidate.readme + "\n" + JAVA3D_DOCS_LIST + "\n" + JAVA3D_SCOPE_LIST,
+    )
+    assert [f for f in _check_dispositions(candidate) if "kept as written" in f.detail] == []

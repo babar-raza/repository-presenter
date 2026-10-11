@@ -55,6 +55,8 @@ def _no_live_github(monkeypatch: pytest.MonkeyPatch) -> None:
     by default, the recheck confirms the defect still fires, and any PATCH is recorded, never sent.
     A test that needs a different answer overrides the one name it cares about."""
     monkeypatch.setattr(cli, "find_issue_with_marker", lambda *a, **k: None)
+    monkeypatch.setattr(cli, "scan_marker_issues", lambda *a, **k: ())
+    monkeypatch.setattr(cli, "_pace_sleep", lambda seconds: None)
     monkeypatch.setattr(cli, "redetect", _fires_true)
     monkeypatch.setattr(cli, "default_patch", _RecordingCreate(status_code=200, body={}))
     monkeypatch.setattr(cli, "default_post", _RecordingCreate())
@@ -516,7 +518,9 @@ def test_a_run_files_only_for_the_repository_it_is_bound_to(
 def test_a_failed_filing_is_reported_and_leaves_the_artifact_pending(
     project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    failing = _RecordingCreate(status_code=500, body={"message": "boom"})
+    # A definite rejection (HTTP 422): nothing was created, so there is nothing to reconcile and
+    # the create is not repeated. An ambiguous 5xx is covered by test_filing_reconciliation.py.
+    failing = _RecordingCreate(status_code=422, body={"message": "Validation Failed"})
     _open_gates(monkeypatch, failing)
 
     exit_code = main(
@@ -1003,8 +1007,8 @@ class _Found:
 # ---------------------------------------------------------------------------
 
 
-def _file_args(project: Path) -> list[str]:
-    return ["file-upstream-defects", "--root", str(project), "--file", "--repo", REPOSITORY]
+def _file_args(project: Path, *extra: str) -> list[str]:
+    return ["file-upstream-defects", "--root", str(project), "--file", "--repo", REPOSITORY, *extra]
 
 
 def _set_registry_mode(project: Path, mode: str) -> None:
@@ -1131,3 +1135,367 @@ def test_end_to_end_an_approved_handoff_is_not_filed_with_an_unverified_write_to
     assert asked == [(REPOSITORY, "fake-write-token-for-this-test-only")]
     assert load_handoff(_handoff_path(project_with_handoff)).status == "HANDOFF_PENDING"
     assert str(code) in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# TC-ISS-09/11: a batch is capped per repository and paced; a lost response is reconciled.
+# ---------------------------------------------------------------------------
+
+
+def _write_more_handoffs(project: Path, count: int) -> list[str]:
+    """``count`` further independent defects for the same repository, each its own fingerprint."""
+    fingerprints = []
+    for index in range(count):
+        fingerprint = f"{index + 1:x}" * 64
+        payload = {
+            **HANDOFF_PAYLOAD,
+            "defect_fingerprint": f"sha256:{fingerprint}",
+            "suggested_issue_title": f"independent defect number {index + 1}",
+            "suggested_issue_body": f"finding {index + 1}\n",
+        }
+        path = project / "evidence" / "upstream-defects" / REPO_DIR / f"{fingerprint}.json"
+        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        fingerprints.append(fingerprint)
+    return fingerprints
+
+
+def test_a_batch_files_at_most_the_daily_cap_and_reports_the_rest(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_more_handoffs(project_with_handoff, 3)  # four approved defects in all
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    exit_code = main(_file_args(project_with_handoff, "--daily-cap", "2", "--pace-seconds", "0"))
+
+    assert exit_code == EXIT_OK
+    assert len(create.calls) == 2
+    out = capsys.readouterr().out
+    assert out.count("filed=True") == 2
+    assert out.count("daily cap reached") == 2
+
+
+def test_issues_filed_earlier_today_are_counted_from_the_target_repository(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.core.github.client import MarkerIssue
+
+    today = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    seen: list[dict[str, Any]] = []
+
+    def scan(owner: str, name: str, **kwargs: Any) -> tuple[MarkerIssue, ...]:
+        seen.append({"repo": f"{owner}/{name}", **kwargs})
+        return (MarkerIssue(1, "https://x/issues/1", "open", today),)
+
+    monkeypatch.setattr(cli, "scan_marker_issues", scan)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    main(_file_args(project_with_handoff, "--daily-cap", "1"))
+
+    assert create.calls == []
+    assert "daily cap reached" in capsys.readouterr().out
+    assert {call["repo"] for call in seen} == {REPOSITORY}
+
+
+def test_the_open_issue_cap_stops_filing(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.core.github.client import MarkerIssue
+
+    def scan(owner: str, name: str, *, state: str, **kwargs: Any) -> tuple[MarkerIssue, ...]:
+        old = MarkerIssue(1, "https://x/issues/1", "open", "2026-01-01T00:00:00Z")
+        return (old,) if state == "open" else ()
+
+    monkeypatch.setattr(cli, "scan_marker_issues", scan)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    main(_file_args(project_with_handoff, "--open-cap", "1"))
+
+    assert create.calls == []
+    assert "open-issue cap reached" in capsys.readouterr().out
+
+
+def test_an_unreadable_count_refuses_the_filing(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.core.errors import RepositoryMetadataError
+
+    def scan(*args: Any, **kwargs: Any) -> tuple[Any, ...]:
+        raise RepositoryMetadataError("o/n: GET returned HTTP 403")
+
+    monkeypatch.setattr(cli, "scan_marker_issues", scan)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    main(_file_args(project_with_handoff))
+
+    assert create.calls == []
+    assert "cannot count" in capsys.readouterr().out
+
+
+def test_writes_in_one_run_are_paced(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_more_handoffs(project_with_handoff, 2)
+    slept: list[float] = []
+    monkeypatch.setattr(cli, "_pace_sleep", slept.append)
+    create = _RecordingCreate()
+    _open_gates(monkeypatch, create)
+
+    main(_file_args(project_with_handoff, "--daily-cap", "9", "--pace-seconds", "30"))
+
+    assert len(create.calls) == 3
+    assert len(slept) == 2 and all(0 < seconds <= 30 for seconds in slept)
+
+
+def test_the_dry_run_reports_the_cap_it_would_hit(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_more_handoffs(project_with_handoff, 2)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+
+    exit_code = main(
+        ["file-upstream-defects", "--root", str(project_with_handoff), "--daily-cap", "1"]
+    )
+
+    assert exit_code == EXIT_OK
+    out = capsys.readouterr().out
+    assert out.count("WOULD-FILE") == 1
+    assert out.count("daily cap reached") == 2
+
+
+def test_a_lost_response_is_reconciled_at_the_cli_and_the_handoff_is_recorded_filed(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from repository_presenter.components.issues.model import IssueRef
+
+    create = _RecordingCreate(status_code=-1, body="ReadTimeout: timed out")
+    _open_gates(monkeypatch, create)
+    answers = iter([None, _Found(number=7, url="https://x/issues/7")])  # none before, found after
+    monkeypatch.setattr(cli, "find_issue_with_marker", lambda *a, **k: next(answers))
+
+    exit_code = main(_file_args(project_with_handoff))
+
+    assert exit_code == EXIT_OK
+    assert len(create.calls) == 1  # never re-POSTed
+    assert "reconciled" in capsys.readouterr().out
+    updated = load_handoff(_handoff_path(project_with_handoff))
+    assert updated.status == "FILED"
+    assert updated.issue_ref == IssueRef(number=7, url="https://x/issues/7")
+
+
+def test_a_negative_cap_is_a_usage_error(
+    project_with_handoff: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(_file_args(project_with_handoff, "--daily-cap", "-1")) == EXIT_USAGE
+
+
+# ---------------------------------------------------------------------------
+# TC-ISS-10: the lifecycle cycle - an update comment, never a duplicate issue; a resolved defect
+# resumes its blocked candidate.
+# ---------------------------------------------------------------------------
+
+COMMENTS_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED"
+NEW_HEAD = "b" * 40
+
+
+def _fires_with_new_evidence(handoff: object) -> object:
+    from repository_presenter.components.issues.model import EvidenceEntry
+    from repository_presenter.components.issues.redetect import RedetectionResult
+
+    return RedetectionResult(
+        repository=REPOSITORY,
+        defect_fingerprint=f"sha256:{FINGERPRINT}",
+        triggering_check_id="BC-02",
+        checked_at="2026-10-11T09:00:00+00:00",
+        checked_at_revision=NEW_HEAD,
+        revision_drifted=True,
+        still_fires=True,
+        note="still fires: 2 of 3 named files still fail",
+        fresh_evidence=(EvidenceEntry(path="src/x/NumberFormat.cpp", detail="trigraph is fatal"),),
+        proposed_status=None,
+    )
+
+
+class _Thread:
+    """The comments on upstream issue #7, and every comment this run posts to it."""
+
+    def __init__(self) -> None:
+        self.comments: list[Any] = []
+
+    def listing(self, owner: str, name: str, number: int, **kwargs: Any) -> tuple[Any, ...]:
+        return tuple(self.comments)
+
+    def post(self, url: str, token: str, payload: dict[str, Any]) -> tuple[int, Any]:
+        from repository_presenter.core.github.client import IssueComment
+
+        comment = IssueComment(len(self.comments) + 1, payload["body"], "2026-10-11T09:00:00Z")
+        self.comments.append(comment)
+        return 201, {"id": comment.id, "body": comment.body, "created_at": comment.created_at}
+
+
+def _arm_update(
+    monkeypatch: pytest.MonkeyPatch, project: Path, thread: _Thread, *, comments_on: bool = True
+) -> None:
+    _write_filed_handoff(project)
+    monkeypatch.setattr(cli, "redetect", _fires_with_new_evidence)
+    monkeypatch.setattr(cli, "list_issue_comments", thread.listing)
+    monkeypatch.setattr(cli, "default_post", thread.post)
+    monkeypatch.setenv(AUTHORIZATION_VARIABLE, "1")
+    if comments_on:
+        monkeypatch.setenv(COMMENTS_VARIABLE, "1")
+    else:
+        monkeypatch.delenv(COMMENTS_VARIABLE, raising=False)
+    monkeypatch.setenv("GH_ISSUES_WRITE_TOKEN", "fake-write-token-for-this-test-only")
+
+
+def _comment_args(project: Path, *extra: str) -> list[str]:
+    return ["redetect-upstream-defects", "--root", str(project), "--repo", REPOSITORY, *extra]
+
+
+def test_a_changed_defect_gets_one_update_comment_and_never_a_second_issue(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread)
+
+    assert main(_comment_args(project_with_handoff, "--comment")) == EXIT_OK
+    assert len(thread.comments) == 1
+    assert "commented on #7" in capsys.readouterr().out
+    assert "src/x/NumberFormat.cpp" in thread.comments[0].body
+
+    # The next scheduled cycle finds the same evidence: silence, not a repeat.
+    assert main(_comment_args(project_with_handoff, "--comment")) == EXIT_OK
+    assert len(thread.comments) == 1
+    assert "already" in capsys.readouterr().out
+    updated = load_handoff(_handoff_path(project_with_handoff))
+    assert updated.status == "FILED"  # an update changes no handoff state
+
+
+def test_the_update_comment_needs_the_owners_separate_switch(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread, comments_on=False)
+
+    assert main(_comment_args(project_with_handoff, "--comment")) == EXIT_OK
+    assert thread.comments == []
+    assert "COMMENTS_AUTHORIZED" in capsys.readouterr().out
+
+
+def test_comment_requires_a_repo_binding_and_posts_nothing_without_one(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread)
+    exit_code = main(
+        ["redetect-upstream-defects", "--root", str(project_with_handoff), "--comment"]
+    )
+    assert exit_code == EXIT_USAGE
+    assert thread.comments == []
+
+
+def test_the_comment_is_refused_for_a_dry_run_registry_entry(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread)
+    write_registry_file(project_with_handoff, [monitor_registry_entry(REPOSITORY, mode="dry_run")])
+    main(_comment_args(project_with_handoff, "--comment"))
+    assert thread.comments == []
+    assert "not performed" in capsys.readouterr().out
+
+
+def test_the_dry_run_says_what_it_would_comment_without_writing(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread)
+    monkeypatch.setenv("GH_TOKEN", "fake-read-token-for-this-test-only")
+
+    assert main(_comment_args(project_with_handoff)) == EXIT_OK
+    assert thread.comments == []
+    assert "would comment on #7" in capsys.readouterr().out
+
+
+def test_the_dry_run_without_a_read_credential_says_the_update_was_not_evaluated(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    thread = _Thread()
+    _arm_update(monkeypatch, project_with_handoff, thread)
+    assert main(_comment_args(project_with_handoff)) == EXIT_OK
+    assert "update not evaluated" in capsys.readouterr().out
+
+
+def test_count_writable_with_updates_counts_every_filed_handoff(
+    project_with_handoff: Path,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+) -> None:
+    _write_filed_handoff(project_with_handoff)
+    close_policy["approved"] = set()
+    base = ["file-upstream-defects", "--root", str(project_with_handoff), "--count-writable"]
+    assert main([*base, "--repo", REPOSITORY]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "0"
+    assert main([*base, "--with-updates", "--repo", REPOSITORY]) == EXIT_OK
+    assert capsys.readouterr().out.strip() == "1"
+
+
+def test_a_resolved_defect_writes_the_resume_contract_the_sealing_plan_reads(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.core.sealing_plan import read_resume_contract
+
+    monkeypatch.setattr(cli, "redetect", _resolved_not_planned)
+    out = tmp_path / "resume.json"
+
+    exit_code = main(
+        ["redetect-upstream-defects", "--root", str(project_with_handoff), "--resume-out", str(out)]
+    )
+
+    assert exit_code == EXIT_OK
+    [record] = read_resume_contract(out)
+    assert record.repository == REPOSITORY
+    assert record.resolved_revision == REVISION
+    assert record.handoff_id is not None and record.handoff_id.endswith(FINGERPRINT)
+    assert "resume" in capsys.readouterr().out
+
+
+def test_a_defect_that_persists_writes_an_empty_resume_contract(
+    project_with_handoff: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from repository_presenter.core.sealing_plan import read_resume_contract
+
+    out = tmp_path / "resume.json"
+    exit_code = main(
+        ["redetect-upstream-defects", "--root", str(project_with_handoff), "--resume-out", str(out)]
+    )
+    assert exit_code == EXIT_OK
+    assert out.is_file() and read_resume_contract(out) == ()
+
+
+def test_a_synthetic_upstream_fix_is_noticed_in_one_cycle_and_waits_for_the_owner_to_close(
+    project_with_handoff: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    close_policy: dict[str, Any],
+) -> None:
+    """The acceptance case end to end: a FILED defect is fixed upstream; one cycle's dry run says
+    so and says what the owner must commit; with the close approval, the next run closes it."""
+    patch = _arm_close(monkeypatch, project_with_handoff)
+    close_policy["approved"] = set()
+
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+    assert patch.calls == []  # no approval: no close
+    out = capsys.readouterr().out
+    assert "no longer fires" in out and "ops/issue_close_approvals" in out
+
+    close_policy["approved"] = {REPOSITORY}
+    assert main(_close_args(project_with_handoff)) == EXIT_OK
+    assert len(patch.calls) == 1
+    assert load_handoff(_handoff_path(project_with_handoff)).status == "RESOLVED_UPSTREAM"

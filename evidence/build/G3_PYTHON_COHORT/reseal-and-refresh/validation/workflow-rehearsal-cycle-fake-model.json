@@ -1,0 +1,201 @@
+{
+  "authoritative_plan": "plans/reseal-and-refresh/PLAN.md",
+  "execution_authority": false,
+  "control_revision_at_run": "38456556f683855ac7ee0400e2bbd7347b531ab6",
+  "environment": {
+    "python": "3.13.2",
+    "platform": "Windows",
+    "git": "git version 2.55.0.windows.5"
+  },
+  "redaction": "every credential in a rehearsal is the literal fake ghs_FAKEREHEARSAL...; no real credential exists in this process, and every output was scanned (scenario no-credential-in-any-output)",
+  "work_item": "TC-REF-11 (G7-W06)",
+  "kind": "whole-cycle rehearsal with a scripted gateway (tests/test_cli.py's _ChatGateway) behind the real CLI, durable state on a local bare git remote, no network",
+  "scenarios": [
+    {
+      "scenario": "gateway-outage",
+      "acceptance": "provider outage is BLOCKED_EXTERNAL, no budget burn, retried next cycle",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "gateway_answered_the_documented_500": 1,
+        "content_calls_made_during_the_outage": 0,
+        "first_cycle_exit_code": 1,
+        "first_cycle_stderr": "repository-presenter: route qwen3-next: its model did not pass the availability probes (qwen3-next HTTP 500); no substitute model is used, and the run fails closed before any content call",
+        "provider_calls_recorded_in_the_ledger_before_recovery": 0,
+        "durable_state_after_the_outage": "FAILED_INTERNAL",
+        "failure_classification": "validation_failed",
+        "lease_released": true,
+        "recovery_cycle": {
+          "exit_code": 0,
+          "state": "ACCEPTED"
+        },
+        "no_op_cycle": {
+          "exit_code": 0,
+          "state": "READY_FOR_PROPOSAL"
+        },
+        "content_requests_to_complete": 12
+      },
+      "gap": "The outage is classified FAILED_INTERNAL, not BLOCKED_EXTERNAL: nothing in core/llm or core/state maps a gateway outage to BLOCKED_EXTERNAL (TC-REF-06, OWNER-12). The sealing plan's failure memory then treats the repository as a stuck defect and skips it for 24 hours unless a new commit lands (run_cap_and_cooldown shows the skip), so 'retried next cycle' holds for a manual or dispatched run and not for the scheduled plan. No call budget is spent: the probe fails before any content call and probes are not recorded in the ledger. Pinned by this test: when TC-REF-06 lands, the FAILED_INTERNAL assertion here must become BLOCKED_EXTERNAL."
+    },
+    {
+      "scenario": "gateway-outage-after-the-probes",
+      "acceptance": "provider outage is BLOCKED_EXTERNAL, no budget burn, retried next cycle",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "content_requests_sent": 3,
+        "ledger_attempts": [
+          [
+            "repository_investigation",
+            "http_error",
+            500
+          ],
+          [
+            "repository_investigation",
+            "http_error",
+            500
+          ],
+          [
+            "repository_investigation",
+            "http_error",
+            500
+          ]
+        ],
+        "run_stopped_at": "the first content job; the other jobs never ran",
+        "exit_code": 1,
+        "durable_state": "FAILED_INTERNAL"
+      },
+      "gap": "An outage that starts after the probes spends the llm_call policy's three attempts on the first job (3 of the 100-call per-process budget) and the run ends FAILED_INTERNAL; there is no outage-aware stop that spends nothing."
+    },
+    {
+      "scenario": "per-run-call-budget",
+      "acceptance": "the per-run call budget stops the cycle",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "budget": 4,
+        "requests_sent_when_stopped": 4,
+        "exit_code": 1,
+        "stderr": "repository-presenter: provider-call budget of 4 reached in this invocation; no further calls are made and the run stops",
+        "durable_state": "FAILED_INTERNAL",
+        "requests_in_total_after_the_resumed_run": 12,
+        "resumed_run": {
+          "exit_code": 0,
+          "state": "ACCEPTED"
+        }
+      },
+      "gap": "The ceiling is per process (PROVIDER_CALL_BUDGET = 100), so a cycle is bounded at 3 repositories x 100 calls; a per-day budget does not exist (TC-REF-02-02), and exhausting the ceiling ends FAILED_INTERNAL rather than a budget-specific stop."
+    },
+    {
+      "scenario": "whole-cycle-happy-path-and-no-op",
+      "acceptance": "a synthetic upstream commit that touches a consumed path produces exactly one candidate update and, at the propose step, one pull request; an irrelevant commit produces none; an unchanged revision makes zero provider calls",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "upstream": "the canary fixture of tests/test_cli.py served from a local bare repository through fake_github.route (no network)",
+        "phases": {
+          "seal": {
+            "provider_calls_first_run": 12,
+            "provider_calls_rerun": 0
+          },
+          "unchanged_revision": {
+            "status": "CURRENT",
+            "change": "NO_CHANGE",
+            "repositories": "[]",
+            "has_work": "false",
+            "publishable": "[]",
+            "has_publishable": "false",
+            "skipped": "[]",
+            "provider_calls": 0
+          },
+          "irrelevant_commit": {
+            "status": "CURRENT",
+            "change": "IRRELEVANT_CHANGE",
+            "repositories": "[]",
+            "has_work": "false",
+            "publishable": "[]",
+            "has_publishable": "false",
+            "skipped": "[]"
+          },
+          "relevant_commit": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "repositories": "[{\"repository\":\"aspose-3d-foss/Aspose.3D-FOSS-for-Python\",\"slug\":\"aspose-3d-foss__Aspose.3D-FOSS-for-Python\"}]",
+            "has_work": "true",
+            "publishable": "[]",
+            "has_publishable": "false",
+            "skipped": "[]"
+          },
+          "reseal": {
+            "provider_calls_first_run": 12,
+            "provider_calls_rerun": 0
+          },
+          "commit_back": {
+            "first": {
+              "effected": true,
+              "commit_written": true,
+              "pr_created": true,
+              "pr_updated": false,
+              "reason": "published",
+              "pr_number": 1
+            },
+            "second_run": {
+              "effected": true,
+              "commit_written": false,
+              "pr_created": false,
+              "pr_updated": false,
+              "reason": "candidates/ is already current at this revision; nothing to publish",
+              "pr_number": 1
+            },
+            "open_pull_requests": 1
+          },
+          "propose": {
+            "registry_gate_refuses_the_dry_run_canary": true,
+            "real_acceptance_gate_on_the_scripted_candidate": "refused: acceptance_not_passed: aspose-3d-foss/Aspose.3D-FOSS-for-Python @ 691cdc64bdea6ffefe3d7147b9b2fa5f76479aaa: the ratified 30-point acceptance outcome is 'INCOMPLETE' (28/30 points; triggered disqualifiers []; unevaluated {'criteria': [], 'disqualifiers': ['D14']}), not PASS",
+            "first_run": {
+              "effected": true,
+              "reason": "proposed",
+              "reason_code": null,
+              "commit_written": true,
+              "pr_created": true,
+              "pr_updated": false,
+              "pr_number": 1
+            },
+            "second_run": {
+              "effected": true,
+              "reason": "no change needed",
+              "reason_code": null,
+              "commit_written": false,
+              "pr_created": false,
+              "pr_updated": false,
+              "pr_number": 1
+            },
+            "pull_requests": 1,
+            "pull_request_title": "docs(readme): refresh Aspose.3D FOSS for Python README (11 sections updated)",
+            "pull_request_body_sections": [
+              "### What changed",
+              "### What was verified",
+              "### How to review",
+              "### How to decline"
+            ],
+            "default_branch_readme_untouched": true
+          },
+          "next_cycle": {
+            "status": "CURRENT",
+            "change": "NO_CHANGE",
+            "repositories": "[]",
+            "has_work": "false",
+            "publishable": "[]",
+            "has_publishable": "false",
+            "skipped": "[]",
+            "provider_calls": 0
+          }
+        },
+        "credential_scan_hits": 0
+      },
+      "gap": "The model is scripted (tests/test_cli.py's _ChatGateway), not the live gateway, and the product README is the canary's fixture: this proves the wiring, the idempotence and the zero-call no-op, not the quality of a real composition. The real 30-point acceptance gate does not pass the scripted candidate (recorded under phases.propose), so the propose step uses a permissive gate for mechanics only; the registry write gate is shown refusing the dry_run canary and a full-mode permit is constructed. The owner-named throwaway target (TC-REF-04-02) is where the live write is proven."
+    }
+  ],
+  "verdicts": {
+    "gateway-outage": "PROVEN_WITH_GAP",
+    "gateway-outage-after-the-probes": "PROVEN_WITH_GAP",
+    "per-run-call-budget": "PROVEN_WITH_GAP",
+    "whole-cycle-happy-path-and-no-op": "PROVEN_WITH_GAP"
+  }
+}

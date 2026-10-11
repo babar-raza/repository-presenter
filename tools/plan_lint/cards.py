@@ -67,6 +67,8 @@ class Parent:
     children: list[Child]
     raw: dict[str, Any]
     optional: bool = False
+    # `no_bump: true`: the card promises it cannot move any governed version (rules.rule_no_bump).
+    no_bump: bool = False
 
 
 @dataclass
@@ -171,6 +173,7 @@ def _parent(raw: dict[str, Any]) -> Parent:
         else [],
         raw=raw,
         optional=raw.get("optional") is True,
+        no_bump=raw.get("no_bump") is True,
     )
 
 

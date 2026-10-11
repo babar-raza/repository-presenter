@@ -18,6 +18,7 @@ from typing import Any
 import pytest
 
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    _API_ROW,
     API_MEMBERS,
     EXAMPLE_NOT_VERIFIED,
     NOT_AN_API_LISTING,
@@ -89,6 +90,12 @@ def _example(number: int, unit: str, polarity: str) -> Fact:
     )
 
 
+def _rows(*names: str) -> str:
+    """A class table as READMEs write it: one row per name."""
+    rows = "\n".join(f"| `{name}` | Described. |" for name in names)
+    return f"| Class | Description |\n|---|---|\n{rows}"
+
+
 FACTS = FactsDocument(
     REPOSITORY,
     "a" * 40,
@@ -145,6 +152,14 @@ FACTS = FactsDocument(
         _unit(25, "code_block", "```text\nwidget.render and Widget.render in one block\n```"),
         _unit(26, "table", "| Class | Description |\n|---|---|\n| `widget.Widget` | Renders. |"),
         _unit(27, "list", "- `Widget.render`"),
+        # The shapes wave 1 produced (BC-07 "the Core API table lists N rows for M types"):
+        # a README that tells same-named types apart by module (PDF-Java, PDF-Python,
+        # Cells-Python), a generic (Words-.NET) and a type the table names by suffix.
+        _unit(28, "table", _rows("Widget-template", "Mode-lexer")),
+        _unit(29, "table", _rows("Widget<T>", "Mode[]")),
+        _unit(30, "table", _rows("Widget-template", "render-template")),
+        _unit(31, "table", _rows("Ghost-template")),
+        _unit(32, "list", "- `Widget-template`\n- `Mode<T>`"),
     ),
 )
 WIDGET = "public_symbol:widget.widget"
@@ -205,16 +220,57 @@ def test_a_listing_that_spells_a_verified_member_is_not_covered_by_the_core_api_
     """Negative control: the table prints classes and enums, not what a class can do. The members
     list (Email-Python's Detailed Member Reference, RC-06) carries verified content the table
     does not, so calling it a duplicate drops it."""
-    for unit in ("inherited_unit:006.list", "inherited_unit:007.table"):
-        output = {"dispositions": [_entry(unit, "VERIFIED_PRESERVE", "api_reference", WIDGET)]}
-        assert normalize(output, FACTS) == []
-        assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE", unit
+    output = {
+        "dispositions": [_entry("inherited_unit:006.list", "VERIFIED_PRESERVE", "api_reference")]
+    }
+    assert normalize(output, FACTS) == []
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+    # A table of members is not redundant either, but its rows cannot be placed verbatim: BC-07
+    # counts every `| `name` |` row of the section against the verified types (wave 1). Its
+    # substance is kept as a rewrite, never as rows and never called covered.
+    table = {
+        "dispositions": [_entry("inherited_unit:007.table", "VERIFIED_PRESERVE", "api_reference")]
+    }
+    assert normalize(table, FACTS) == []
+    assert table["dispositions"][0]["disposition"] == "VERIFIED_REWRITE"
+    raw_table = _only("inherited_unit:030.table", "SUPERSEDE_REDUNDANT", "api_reference", WIDGET)
+    assert normalize(raw_table, FACTS) == []
+    assert raw_table["dispositions"][0]["disposition"] == "VERIFIED_REWRITE"
     raw = _only("inherited_unit:006.list", "SUPERSEDE_REDUNDANT", "api_reference", WIDGET)
     assert _reasons(raw) == {"inherited_unit:006.list": NOT_AN_API_LISTING}
     named = _only("inherited_unit:027.list", "SUPERSEDE_REDUNDANT", "api_reference", WIDGET)
     assert _reasons(named) == {"inherited_unit:027.list": API_MEMBERS}
     assert normalize(raw, FACTS) == []
     assert raw["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_table_naming_types_the_way_the_readme_tells_them_apart_is_superseded() -> None:
+    """Wave 1 (cut-1 code): 3D-.NET, Cells-Python, Cells-TypeScript, PDF-Python, PDF-.NET,
+    PDF-Java and Words-.NET failed BC-07 with 1.6-4x as many Core API rows as verified types.
+    Their inherited class tables write `Arc-template`, `Document-generated_document`,
+    `BaseWebExtensionCollection<T>`: a name plus the module that tells two same-named types apart,
+    or a generic. Those spans were not read as names, so every table was placed beside the
+    renderer's own and each of its rows counted again. A table of such names is the Core API
+    table in another spelling, whatever its shape."""
+    for unit in ("inherited_unit:028.table", "inherited_unit:029.table"):
+        output = _only(unit, "VERIFIED_PRESERVE", "api_reference", WIDGET)
+        assert normalize(output, FACTS) == []
+        entry = output["dispositions"][0]
+        assert (entry["disposition"], entry["destination_section"]) == (
+            "SUPERSEDE_REDUNDANT",
+            "api_reference",
+        ), unit
+    listing = _only("inherited_unit:032.list", "SUPERSEDE_REDUNDANT", "api_reference", WIDGET)
+    assert coverage_findings(listing, FACTS) == []
+    unverified = _only("inherited_unit:031.table", "VERIFIED_MOVE", "api_reference")
+    assert normalize(unverified, FACTS) == []
+    assert unverified["dispositions"][0]["disposition"] == "SUPERSEDE_REDUNDANT"
+
+
+def test_a_table_row_naming_a_member_under_a_module_suffix_is_still_not_covered() -> None:
+    """Negative control: the suffix is stripped to find the type, and a member is still a member."""
+    raw = _only("inherited_unit:030.table", "SUPERSEDE_REDUNDANT", "api_reference", WIDGET)
+    assert _reasons(raw) == {"inherited_unit:030.table": API_MEMBERS}
 
 
 def test_a_class_table_naming_an_unverified_class_is_still_superseded() -> None:
@@ -702,6 +758,16 @@ def test_the_replay_over_every_current_bundle_only_folds_and_never_drops() -> No
         assert row.facts is not None
         normalize(again, row.facts)
         assert again == row.after, row.repository
+        # BC-07 counts every `| `name` |` row of the API Reference against the verified types, so
+        # no inherited table with such rows may be placed verbatim (wave 1: 7 repositories).
+        units = {f.id: f.value for f in row.facts.by_kind("inherited_unit")}
+        for entry in row.after["dispositions"]:
+            if (
+                entry["destination_section"] == "api_reference"
+                and entry["disposition"] in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+                and entry["unit_id"].endswith(".table")
+            ):
+                assert not _API_ROW.search(units.get(entry["unit_id"], "")), entry["unit_id"]
         # And after the last attempt's recovery nothing is left that claims more than the stage
         # can prove: the transaction never fails closed on this rule.
         assert coverage_findings(row.final, row.facts) == [], row.repository

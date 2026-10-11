@@ -354,8 +354,10 @@ def link_facts(
     per link read over the network.
 
     ``fetch`` is looked up at call time so a test's patched ``fetch_status`` always applies.
-    The timing a probe record carries never reaches a fact: it differs on every run, and a fact's
-    evidence is hashed (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC7).
+    The timing, HTTP status, redirect target and error text a probe record carries never reach a
+    fact: they differ between runs without the link's verdict changing, and a fact's evidence is
+    hashed (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC7). An external link's evidence is its
+    verdict word only.
     """
     text = readme_bytes.decode("utf-8", errors="replace")
     slugs = heading_slugs(text)
@@ -372,17 +374,25 @@ def link_facts(
                     result.outcome,
                     status=result.status,
                     elapsed_ms=result.elapsed_ms,
+                    observation=result.detail,
                 )
             )
+            # The verdict alone is the fact's evidence (hashed into dependencies.json): the HTTP
+            # status, the redirect target and the transport error text change without the link's
+            # verdict changing, and live in the probe record above instead (TC-INV-02).
+            resolution: str = result.outcome
         elif target.kind == "anchor":
             result = check_anchor(target.href, slugs)
             where = readme_path
+            resolution = f"{result.outcome}: {result.detail}"
         elif target.kind == "relative":
             result = check_relative(target.href, tree_paths)
             where = readme_path
+            resolution = f"{result.outcome}: {result.detail}"
         else:
             result = LinkResult("UNCHECKED", f"{target.kind} link not checked")
             where = readme_path
+            resolution = f"{result.outcome}: {result.detail}"
         label = target.text[:60] or "(no text)"
         facts.append(
             Fact(
@@ -391,7 +401,7 @@ def link_facts(
                 target.href,
                 (
                     Evidence(readme_path, f"line {target.line}; {target.kind}; text {label!r}"),
-                    Evidence(where, f"{result.outcome}: {result.detail}"),
+                    Evidence(where, resolution),
                 ),
                 polarity=_POLARITY[result.outcome],
                 confidence=1.0 if result.outcome != "UNCHECKED" else 0.5,

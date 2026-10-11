@@ -19,7 +19,7 @@ import re
 import shutil
 import sys
 import tomllib
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -29,6 +29,7 @@ from packaging.version import InvalidVersion, Version
 from repository_presenter.core.ecosystems import PYTHON
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FixtureBinding
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.toolchains import installed_pythons
 
 # The spec owns the numbers; these names keep the module readable and the failure message
 # honest about what it waited for (RESEARCH_AND_GUIDELINES.md section 29.6 E5).
@@ -369,15 +370,26 @@ def pinned_interpreters(verify_root: Path) -> list[tuple[str, Path]]:
     return [(version, python) for _, version, python in sorted(found, key=lambda f: f[0])]
 
 
-def select_interpreter(requires_python: str, verify_root: Path) -> Interpreter | None:
+def select_interpreter(
+    requires_python: str,
+    verify_root: Path,
+    machine: Callable[[], list[tuple[str, Path]]] | None = None,
+) -> Interpreter | None:
     """The interpreter to verify under: the presenter's own whenever the declaration admits it (or
-    there is none), else the highest pinned toolchain that does, else None.
+    there is none), else the highest pinned toolchain that does, else the highest interpreter the
+    machine already has that does, else None.
 
     G4-W17 arrival item 52, measured 2026-09-07 on Aspose.Words for Python (G3 second pass): the
     venv came from ``sys.executable`` (3.13.2) while the manifest declares ``>=3.10,<3.13``, so
     pip refused before any example ran and all twelve read NOT_VERIFIED - a repository blocked by
     an interpreter choice, not by its code. A declaration nothing can parse constrains nothing
     here; pip reports it in its own words.
+
+    The resolution order is the toolchain resolver's (``core/toolchains.py``): what this run was
+    provisioned with (the presenter's own, then ``runs/verify``) before what the machine merely
+    has (the ``py`` launcher's record, the conventional install directories, versioned
+    ``python3.N`` commands). A lane worktree without ``runs/verify`` therefore still finds the
+    ``py -3.12`` the machine carries (measured 2026-10-11, Words-Python in a lane worktree).
     """
     running = ".".join(str(part) for part in sys.version_info[:3])
     presenter = Interpreter(Path(sys.executable), running, "")
@@ -392,7 +404,31 @@ def select_interpreter(requires_python: str, verify_root: Path) -> Interpreter |
     for version, python in reversed(pinned_interpreters(verify_root)):
         if wanted.contains(version, prereleases=True):
             return Interpreter(python, version, python.parent.parent.name)
+    for version, python in reversed((machine or installed_pythons)()):
+        if wanted.contains(version, prereleases=True):
+            return Interpreter(python, version, f"machine-py{version.replace('.', '')}")
     return None
+
+
+def no_interpreter_reason(
+    requires_python: str,
+    verify_root: Path,
+    machine: Callable[[], list[tuple[str, Path]]] | None = None,
+) -> str:
+    """The typed BLOCKED_TOOLCHAIN reason when no interpreter satisfies ``requires_python``.
+
+    Names the declaration, the presenter's own Python (and that it is outside the range), and
+    every pinned and machine interpreter that was looked at, so the reader of a receipt sees what
+    to provision - never a silent NOT_VERIFIED.
+    """
+    running = ".".join(str(part) for part in sys.version_info[:3])
+    pinned = ", ".join(version for version, _ in pinned_interpreters(verify_root)) or "none"
+    installed = ", ".join(version for version, _ in (machine or installed_pythons)()) or "none"
+    return (
+        f"BLOCKED_TOOLCHAIN: no interpreter satisfies requires-python {requires_python!r}: the "
+        f"presenter runs Python {running}, which is outside it, the pinned toolchains offer "
+        f"{pinned}, and the machine's installed interpreters are {installed}"
+    )
 
 
 def _toolchains_root(workspace: Path) -> Path:
@@ -430,13 +466,7 @@ def verify_python_examples(
     toolchains = _toolchains_root(workspace)
     interpreter = select_interpreter(declared, toolchains)
     if interpreter is None:
-        offered = ", ".join(version for version, _ in pinned_interpreters(toolchains)) or "none"
-        running = ".".join(str(part) for part in sys.version_info[:3])
-        return _all_not_verified(
-            candidates,
-            f"no interpreter satisfies requires-python {declared!r}: the presenter runs Python "
-            f"{running} and the pinned toolchains offer {offered}",
-        )
+        return _all_not_verified(candidates, no_interpreter_reason(declared, toolchains))
     bootstrap = execute(
         [str(interpreter.executable), "-m", "venv", "--without-pip", str(venv)],
         workspace=workspace,

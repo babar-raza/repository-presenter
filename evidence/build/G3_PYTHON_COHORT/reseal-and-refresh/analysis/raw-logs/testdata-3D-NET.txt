@@ -1,0 +1,20 @@
+# log: testdata-3D-NET
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+# head: 52b0f00ebf28a0b4173921725ff170685ec2c502
+# utc: 2026-10-10T15:39:37Z
+# cwd: shallow clone of the default branch
+# command: echo '--- .gitignore testdata rule:'; grep -n -i testdata .gitignore; echo '--- tracked testdata files:'; git ls-files | grep -i -c testdata; dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj -nologo > ../../probes/n3dtest.txt 2>&1; echo "dotnet test exit: $?"; grep -E 'Failed!|Passed!' ../../probes/n3dtest.txt | tr -s ' '; echo '--- failures by cause:'; grep -c 'FileNotFoundException : Test file not found' ../../probes/n3dtest.txt; grep -E 'FileNotFoundException : Test file not found' ../../probes/n3dtest.txt | sort | uniq -c | sort -rn | head -3 | cut -c1-200
+# ---- output (capped at 60000 bytes) ----
+--- .gitignore testdata rule:
+8:testdata
+--- tracked testdata files:
+0
+dotnet test exit: 1
+Failed! - Failed: 53, Passed: 130, Skipped: 0, Total: 183, Duration: 140 ms - Aspose.ThreeD.Tests.dll (net10.0)
+--- failures by cause:
+47
+      6    System.IO.FileNotFoundException : Test file not found: ../../../../../../testdata/input/cube.obj
+      5    System.IO.FileNotFoundException : Test file not found: ../../../../../../testdata/stl\stl_ascii.stl
+      4    System.IO.FileNotFoundException : Test file not found: ../../../../../../testdata/gltf/simple_cube.gltf
+
+# exit: 0

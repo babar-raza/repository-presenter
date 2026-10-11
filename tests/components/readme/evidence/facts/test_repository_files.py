@@ -8,12 +8,13 @@ main.go, Cells-TypeScript's AGENTS.md.
 
 from __future__ import annotations
 
+from repository_presenter.components.readme.composition.authoring import allowed_identifiers
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.repository_files import (
     repository_files,
     tree_index,
 )
-from repository_presenter.core.facts import REPOSITORY_FILES_ATTRIBUTE
+from repository_presenter.core.facts import REPOSITORY_FILES_ATTRIBUTE, FactsDocument
 
 SLIDES_NET_TREE = [
     "CHANGELOG.md",
@@ -120,3 +121,93 @@ def test_an_empty_tree_records_nothing() -> None:
     assert _files("Read CONTRIBUTING.md.", []) == []
     facts = inherited_unit_facts("README.md", SLIDES_NET_README.encode("utf-8"))
     assert all(REPOSITORY_FILES_ATTRIBUTE not in (fact.attributes or {}) for fact in facts)
+
+
+# CUT-2 (BC-12, G3-W08): the PDF-.NET stop. The upstream README names its test project in a code
+# span ("The test project (`Aspose.Pdf.Foss.Tests`) is an xUnit suite ..."); the model dropped the
+# span, the guard admitted the dotted proper noun, the renderer left it bare (a noun is never
+# wrapped), and BC-12 then read its "Aspose.Pdf.Foss" head as a short spelling of the product
+# name. The tree holds tests/Aspose.Pdf.Foss.Tests.csproj, so the name is a recorded fact of the
+# repository like a file name is: allowed_identifiers admits it, the renderer wraps it, BC-04 and
+# BC-12 see a code span.
+
+PDF_NET_TREE = [
+    "README.md",
+    "src/Aspose.Pdf.Foss.csproj",
+    "src/Document.cs",
+    "tests/Aspose.Pdf.Foss.Tests.csproj",
+    "tests/DocumentTests.cs",
+]
+PDF_NET_UNIT = (
+    "The test project (`Aspose.Pdf.Foss.Tests`) is an xUnit suite that runs on net8.0 and\n"
+    "net48 (add `-f net8.0` to run one target)."
+)
+
+
+def test_pdf_net_a_project_name_the_readme_spells_and_the_tree_holds_is_recorded() -> None:
+    assert "Aspose.Pdf.Foss.Tests" in _files(PDF_NET_UNIT, PDF_NET_TREE)
+    # The library project is a project name too; the authoring rule, not this record, decides
+    # that a name which is itself a spelling of the product is never a spellable identifier.
+    assert "Aspose.Pdf.Foss" in _files("Build `Aspose.Pdf.Foss` first.", PDF_NET_TREE)
+
+
+def test_gis_net_a_directory_name_the_readme_spells_is_recorded() -> None:
+    tree = ["Aspose.GIS.FOSS.Tests/UnitTest1.cs", "Aspose.GIS.FOSS/Aspose.GIS.FOSS.csproj"]
+    text = "Its test suite resides in the Aspose.GIS.FOSS.Tests/ directory."
+    assert "Aspose.GIS.FOSS.Tests" in _files(text, tree)
+
+
+def test_a_project_name_the_tree_lacks_or_spells_in_another_case_is_not_recorded() -> None:
+    # Negative controls: the README spells a project the tree does not hold, one that differs in
+    # case, and one that is only the prefix of a longer project's name.
+    assert "Aspose.Pdf.Foss.Benchmarks" not in _files(
+        "Run `Aspose.Pdf.Foss.Benchmarks`.", PDF_NET_TREE
+    )
+    assert "aspose.pdf.foss.tests" not in _files("Run `aspose.pdf.foss.tests`.", PDF_NET_TREE)
+    longer = ["tests/Aspose.Pdf.Foss.Tests.Integration.csproj"]
+    assert "Aspose.Pdf.Foss.Tests" not in _files(PDF_NET_UNIT, longer)
+
+
+def test_a_source_file_stem_is_not_a_project_name() -> None:
+    # Negative control: only a project or solution file names a project; Document.cs does not make
+    # "Document" or "Aspose.Pdf.Foss.Document" a recorded name.
+    tree = ["src/Aspose.Pdf.Foss.Document.cs"]
+    assert "Aspose.Pdf.Foss.Document" not in _files("See `Aspose.Pdf.Foss.Document`.", tree)
+
+
+def test_the_recorded_project_name_is_a_spellable_identifier() -> None:
+    facts = inherited_unit_facts(
+        "README.md", f"# Aspose.PDF FOSS for .NET\n\n{PDF_NET_UNIT}\n".encode(), (), PDF_NET_TREE
+    )
+    document = FactsDocument("aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET", "a" * 40, tuple(facts))
+    allowed = allowed_identifiers(document, "Aspose.PDF FOSS for .NET")
+    assert "Aspose.Pdf.Foss.Tests" in allowed
+    # Not recorded when the tree lacks it: the guard still refuses it.
+    bare = inherited_unit_facts("README.md", PDF_NET_UNIT.encode(), (), ["README.md"])
+    refused = allowed_identifiers(
+        FactsDocument("aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET", "a" * 40, tuple(bare)),
+        "Aspose.PDF FOSS for .NET",
+    )
+    assert "Aspose.Pdf.Foss.Tests" not in refused
+
+
+def test_a_project_name_that_is_a_spelling_of_the_product_is_never_a_spellable_identifier() -> None:
+    """Negative control (BC-12 must not be bypassed): the library project ``Aspose.Pdf.Foss`` is a
+    separator and case variant of the product name 'Aspose.PDF FOSS for .NET'. Recording that it
+    exists in the tree must not make the short spelling admissible, and so wrapped in a code
+    span where BC-12 would no longer see it."""
+    facts = inherited_unit_facts(
+        "README.md",
+        b"# Aspose.PDF FOSS for .NET\n\nBuild `Aspose.Pdf.Foss` first.\n",
+        (),
+        PDF_NET_TREE,
+    )
+    assert any(
+        "Aspose.Pdf.Foss" in (fact.attributes or {}).get(REPOSITORY_FILES_ATTRIBUTE, "")
+        for fact in facts
+    )
+    allowed = allowed_identifiers(
+        FactsDocument("aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET", "a" * 40, tuple(facts)),
+        "Aspose.PDF FOSS for .NET",
+    )
+    assert "Aspose.Pdf.Foss" not in allowed

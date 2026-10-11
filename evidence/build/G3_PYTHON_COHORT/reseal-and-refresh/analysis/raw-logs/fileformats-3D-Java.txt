@@ -1,0 +1,34 @@
+# log: fileformats-3D-Java
+# repository: aspose-3d-foss/Aspose.3D-FOSS-for-Java
+# head: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
+# utc: 2026-10-10T15:36:22Z
+# cwd: shallow clone of the default branch
+# command: grep -n -i -E '^#+ .*(gltf|fbx)' FILE_FORMATS.md; echo '--- README upstream-issues reference:'; grep -n -i 'upstream issues' README.md | head -3; git grep -n -i 'upstream' -- '*.md' | head -5; echo '--- workflows:'; ls .github/workflows; grep -n 'mvn' .github/workflows/*.yml
+# ---- output (capped at 60000 bytes) ----
+32:### glTF/GLB
+39:### FBX
+48:### glTF/GLB
+53:### FBX
+--- README upstream-issues reference:
+587:- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issues in this repository, and build from source instead if you need it).
+README.md:587:- OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there — do not rely on OBJ import from the published package (see Upstream Issues in this repository, and build from source instead if you need it).
+--- workflows:
+maven-central-release.yml
+40:          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
+41:          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
+42:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+50:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+64:        run: mvn -B clean verify -Dgpg.skip=true -DskipTests
+69:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+150:        run: mvn -B clean verify '-Dgpg.skip=true' '-DskipTests'
+197:          GID="$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)"
+198:          AID="$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)"
+199:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+210:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+223:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+240:        run: mvn -B clean verify -DskipTests
+245:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+268:        run: mvn -B deploy -DskipTests
+274:          VER="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+
+# exit: 0

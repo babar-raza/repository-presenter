@@ -49,7 +49,7 @@ import json
 import platform
 import shutil
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from importlib.metadata import distributions
@@ -336,15 +336,67 @@ def upstream_dependencies(
     }
 
 
+# The sealed artifacts whose fact citations define which fact records a candidate consumed.
+_CITING_ARTIFACTS = (
+    "plan.json",
+    "dispositions.json",
+    "content_units.json",
+    "investigation.json",
+)
+
+
+def _strings(node: Any) -> Iterator[str]:
+    """Every string value and mapping key under a decoded JSON node."""
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, Mapping):
+        for key, value in node.items():
+            yield str(key)
+            yield from _strings(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _strings(value)
+
+
+def consumed_fact_ids(transaction: Path, facts: FactsDocument) -> list[str] | None:
+    """The fact ids the accepted plan, dispositions, content units and investigation cite: the
+    fact records this candidate consumed (docs/STATE_MACHINE.md section 9; AGENTS.md - invalidate
+    only through an input the candidate consumed). A fact id appearing anywhere in those artifacts
+    as a value or key counts, which over-approximates a citation and never under-approximates it.
+    ``None`` when no citing artifact is readable, so the record names no subset and an evaluation
+    falls back to comparing every fact record, as it did before this field existed."""
+    known = {fact.id for fact in facts.facts}
+    cited: set[str] = set()
+    readable = False
+    for name in _CITING_ARTIFACTS:
+        path = transaction / name
+        if not path.is_file():
+            continue
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        readable = True
+        cited.update(known.intersection(_strings(document)))
+    return sorted(cited) if readable else None
+
+
 def dependencies_document(inputs: SealInputs) -> dict[str, Any]:
     """Exactly the inputs the candidate consumed: the upstream inputs plus the protected-content
-    fingerprint the accepted dispositions produced; nothing else can invalidate the candidate."""
-    return {
+    fingerprint the accepted dispositions produced; nothing else can invalidate the candidate.
+    ``facts`` keeps the digest of every fact record (reconstruction lineage reads it);
+    ``consumed_fact_ids`` names the subset the candidate cited, and is the only part of ``facts``
+    that ``evaluation.evaluate`` compares. Additive: a record without it compares every fact."""
+    document = {
         **upstream_dependencies(
             inputs.source_revision, inputs.tree_sha256, inputs.facts, inputs.prompts
         ),
         "protected_content_fingerprint": inputs.validation.get("protected_content_fingerprint"),
     }
+    consumed = consumed_fact_ids(inputs.transaction, inputs.facts)
+    if consumed is not None:
+        document["consumed_fact_ids"] = consumed
+    return document
 
 
 def _canonical_json(document: Mapping[str, Any]) -> bytes:

@@ -1,0 +1,28 @@
+# log: pdfplumber-Words-Python
+# repository: aspose-words-foss/Aspose.Words-FOSS-for-Python
+# head: 2d2efee2787cb9e56d071d17f8d7b740dce8b784
+# utc: 2026-10-10T15:06:20Z
+# cwd: shallow clone of the default branch
+# command: echo '--- pyproject dev extra:'; sed -n 42,47p pyproject.toml; echo '--- imports of pdfplumber in tracked files:'; git grep -n 'pdfplumber' -- . ':!*.md' | head; echo '--- installed after pip install -e .[dev] (--ignore-requires-python, Python 3.13): pdfplumber ->'; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/wp/Scripts/python.exe -c 'import pdfplumber' 2>&1 | tail -1; echo '--- ApiExamples run as documented in README:'; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/wp/Scripts/python.exe -m pytest ApiExamples/ -q --rootdir=ApiExamples -c ApiExamples/pytest.ini -p no:cacheprovider 2>&1 | tail -6
+# ---- output (capped at 60000 bytes) ----
+--- pyproject dev extra:
+[project.optional-dependencies]
+dev = [
+    "Pillow>=10.0.0",
+    "pytest>=9.0.2",
+]
+
+--- imports of pdfplumber in tracked files:
+ApiExamples/loading_markdown.py:163:        import pdfplumber
+ApiExamples/loading_markdown.py:165:        with pdfplumber.open(pdf_path) as pdf:
+--- installed after pip install -e .[dev] (--ignore-requires-python, Python 3.13): pdfplumber ->
+ModuleNotFoundError: No module named 'pdfplumber'
+--- ApiExamples run as documented in README:
+E       ModuleNotFoundError: No module named 'pdfplumber'
+
+ApiExamples\loading_markdown.py:163: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED ApiExamples\loading_markdown.py::LoadingMarkdown::test_save_markdown_with_base64_image_to_docx_and_pdf
+1 failed, 26 passed in 10.15s
+
+# exit: 0

@@ -26,7 +26,10 @@ from repository_presenter.components.readme.extractors.surface.manifest import (
     PackageIdentity,
     read_identity,
 )
-from repository_presenter.components.readme.extractors.surface.registry import observe
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
 from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -35,7 +38,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
     MeasuredBuild,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -150,11 +153,18 @@ def _package_id(declared_name: str | None, manifest: Path) -> tuple[str, bool]:
 
 
 def _floor(identity: PackageIdentity) -> str:
-    """The lowest framework the project targets, or what the reader gave when it lists none."""
+    """Every framework the project targets, broadest first and `;`-separated as MSBuild spells
+    them, or what the reader gave when it lists none.
+
+    A single target is returned unchanged. Keeping only the lowest of several lost the others:
+    Aspose.Slides-FOSS for .NET declares `net8.0;net10.0` and its badge and Dependencies row
+    named `net8.0` alone (BC-10 triage, cause 2). Order is deterministic (`_framework_order`).
+    """
     targets = identity.raw.get("target_frameworks")
     if not isinstance(targets, list) or not targets:
         return identity.floor
-    return min((str(target) for target in targets), key=_framework_order)
+    unique = dict.fromkeys(str(target).strip() for target in targets if str(target).strip())
+    return ";".join(sorted(unique, key=_framework_order)) or identity.floor
 
 
 def _dependency_facts(project: Path, where: str) -> list[Fact]:
@@ -233,7 +243,7 @@ class NetPlugin:
             path
             for pattern in self.manifest_globs
             for path in root.rglob(pattern)
-            if not any(part in _IGNORED_DIRECTORIES for part in path.parts)
+            if not any(part in _IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
         ]
         if not candidates:
             return None
@@ -300,12 +310,23 @@ class NetPlugin:
             )
         floor = _floor(identity)
         if floor:
+            several = ";" in floor
             facts.append(
                 Fact(
                     fact_id("package", "target_framework"),
                     "package",
                     floor,
-                    (Evidence(where, "lowest target framework the project declares"),),
+                    (
+                        Evidence(
+                            where,
+                            "target frameworks the project declares"
+                            if several
+                            else "lowest target framework the project declares",
+                        ),
+                    ),
+                    # The property that lists several is the plural one; the spec's generic
+                    # `TargetFramework` would cite a declaration the project does not make.
+                    attributes={"floor_declaration": "TargetFrameworks"} if several else None,
                 )
             )
         facts.extend(_dependency_facts(manifest, where))
@@ -348,15 +369,8 @@ class NetPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
-        if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
-        detail = reading.summary
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         resolved = Fact(
             install.id,
             install.kind,

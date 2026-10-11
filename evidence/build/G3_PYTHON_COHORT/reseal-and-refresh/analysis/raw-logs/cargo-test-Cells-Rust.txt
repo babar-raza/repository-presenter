@@ -1,0 +1,15 @@
+# log: cargo-test-Cells-Rust
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust
+# head: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+# utc: 2026-10-10T15:50:17Z
+# cwd: shallow clone of the default branch
+# command: echo '--- static: #[test]/#[cfg(test)] occurrences:'; git grep -c -E '#\[(test|cfg\(test\))' -- '*.rs' | wc -l; ../../dn.sh rust:1 aspose-cells-foss/Aspose.Cells-FOSS-for-Rust 'bash /p/c_rust.sh'
+# ---- output (capped at 60000 bytes) ----
+--- static: #[test]/#[cfg(test)] occurrences:
+0
+cargo 1.99.0 (5f94df478 2026-08-27)
+cargo test --all-targets exit: 0
+     15 running 0 tests
+     15 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+# exit: 0

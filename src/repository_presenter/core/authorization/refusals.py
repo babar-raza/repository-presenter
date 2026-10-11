@@ -23,6 +23,12 @@ class Refusal(StrEnum):
     BUNDLE_NOT_READY = "bundle_not_ready"
     BUNDLE_INCONSISTENT = "bundle_inconsistent"
     SOURCE_MOVED = "source_moved"
+    # The propose gate's honesty checks (core/candidates.py::proposal_gate_refusal, TC-PRP-01): a
+    # READY_FOR_PROPOSAL bundle is not by itself proposable.
+    REVIEW_PREDATES_HONESTY_RECORD = "review_predates_honesty_record"
+    REVIEW_REJECTION_OVERRIDDEN = "review_rejection_overridden"
+    NO_OP_PROOF_MISSING = "no_op_proof_missing"
+    ACCEPTANCE_NOT_PASSED = "acceptance_not_passed"
     LOCAL_TEST_CANNOT_WRITE = "local_test_cannot_write"
     # Owner switch and credential presence (components/propose/effect.py).
     WRITE_NOT_ENABLED = "write_not_enabled"

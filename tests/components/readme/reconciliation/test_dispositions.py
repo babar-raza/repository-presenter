@@ -13,6 +13,9 @@ from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.evidence.facts.product_pages import BANNER_FACT_ID
 from repository_presenter.components.readme.reconciliation.dispositions import (
+    RECONCILIATION_FACT_IDS_PER_DISPOSITION,
+    RECOVERED_COVERAGE_RATIONALE,
+    citable_fact_ids,
     contradicted_code_units,
     contradicted_embedded_links,
     contradicted_link_hrefs,
@@ -23,6 +26,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     reconcile_checks,
     reconciliation_batch_facts,
     reconciliation_batches,
+    reconciliation_narrowing,
     reconciliation_packet,
     reconciliation_schema,
     recover_uncited_prose_omits,
@@ -1365,19 +1369,207 @@ def test_recover_truncates_a_long_reason_inside_the_rationale_limit() -> None:
     assert len(folded["rationale"]) == 160 and folded["rationale"].endswith("...")
 
 
-def test_recover_declines_when_the_units_own_text_spells_a_verified_symbol() -> None:
-    """The unit is not unresolved: a verified fact is already in its sentence, so deferring it
-    would hide evidence the omission should have cited. It fails closed as it always did."""
+def _folded(recovered: dict[str, Any] | None, unit: str = "018.paragraph") -> dict[str, Any]:
+    assert recovered is not None
+    return next(e for e in recovered["dispositions"] if e["unit_id"].endswith(unit))
+
+
+def test_recover_defers_a_unit_whose_own_text_spells_a_verified_symbol_citing_it() -> None:
+    """TC-DSP-01 follow-up (G3-W08, G7-W12 REG-18). The unit is not "unresolved" - a verified fact
+    is in its sentence - so it is deferred on the truthful typed footing and the fact stays
+    attached, rather than the whole transaction failing with nothing repaired. It is never
+    silently dropped: the entry stays, as a listed deferral, and is not an OMIT_UNSUPPORTED."""
     spelled = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
-    assert recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled) is None
+    folded = _folded(recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), spelled))
+    assert (folded["disposition"], folded["destination_section"]) == ("DEFER_UNRESOLVED", None)
+    assert folded["fact_ids"] == ["public_symbol:aspose.psd.foss"]
+    assert folded["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+    assert "spells SUPPORTED facts" in folded["rationale"]
+    assert "not published to NuGet" in folded["rationale"]  # the model's reason survives
+    assert len(folded["rationale"]) <= 160
+
+
+# Words-.NET inherited_unit:020.paragraph (2026-10-11 archive): the only fact the text spells is
+# the product's own root namespace, inside a project path. The recovery once declined on it.
+_WORDS_TEXT = (
+    "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
+)
+
+
+def _words_facts(*extra: Fact) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *_prose_omit_facts().facts,
+            _fact("inherited_unit:020.paragraph", "inherited_unit", _WORDS_TEXT),
+            _symbol("Aspose.Words", "namespace"),
+            *extra,
+        ),
+    )
+
+
+def _words_reply() -> dict[str, Any]:
+    reply = _s4_output(
+        {
+            "disposition": "VERIFIED_REWRITE",
+            "destination_section": "opening",
+            "fact_ids": ["identity:repository"],
+        }
+    )
+    reply["dispositions"].append(  # type: ignore[union-attr]
+        {**_UNCITED_OMIT, "unit_id": "inherited_unit:020.paragraph"}
+    )
+    return reply  # type: ignore[return-value]
+
+
+def test_recover_does_not_decline_for_the_products_own_namespace_in_a_path() -> None:
+    facts = _words_facts()
+    assert uncited_omit_candidates(_WORDS_TEXT, facts) == ["public_symbol:aspose.words"]
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    assert folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["fact_ids"] == ["public_symbol:aspose.words"]
+
+
+def test_the_recovered_symbol_deferral_is_advisory_never_unclassified() -> None:
+    """NO_EVIDENCE_EITHER_WAY is falsified by a spelled symbol (it would block at BC-05), so the
+    deferral must carry the typed prefix and classify as NOT_CARRIED_BY_NAMED_SECTION."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    facts = _words_facts()
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    findings = review_deferrals({"dispositions": [folded]}, facts)
+    assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
+        ("inherited_unit:020.paragraph", "NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+    ]
+
+
+# PDF-TypeScript inherited_unit:356.paragraph spells `Attachment.SetField`, a verified symbol the
+# batch's decoder enum does not offer, so no schema-valid citation of it exists.
+def test_recover_cites_only_what_the_batch_may_cite() -> None:
+    folded = _folded(
+        recover_uncited_prose_omits(
+            _words_reply(), _words_facts(), citable={"identity:repository"}
+        ),
+        "020.paragraph",
+    )
+    assert folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["fact_ids"] == []  # still deferred and still typed; nothing uncitable cited
+    assert folded["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+
+
+def test_recover_caps_the_citations_at_the_per_disposition_limit() -> None:
+    names = [f"Widget{i:02d}" for i in range(RECONCILIATION_FACT_IDS_PER_DISPOSITION + 4)]
+    text = "Uses " + ", ".join(f"`{name}.run`" for name in names) + "."
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *_prose_omit_facts().facts,
+            _fact("inherited_unit:020.paragraph", "inherited_unit", text),
+            *(_symbol(f"{name}.run", "function") for name in names),
+        ),
+    )
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), facts), "020.paragraph")
+    assert len(folded["fact_ids"]) == RECONCILIATION_FACT_IDS_PER_DISPOSITION
+    assert folded["fact_ids"] == sorted(folded["fact_ids"])
+
+
+def test_an_omission_with_no_spelled_fact_is_still_deferred_the_original_way() -> None:
+    """Negative control: with nothing in the unit's text for a fact to support, the original
+    no-evidence deferral (wording and all) is what is written, and no fact is invented."""
+    facts = _words_facts()
+    bare = FactsDocument(
+        facts.repository,
+        facts.source_revision,
+        tuple(f for f in facts.facts if f.kind != "public_symbol"),
+    )
+    folded = _folded(recover_uncited_prose_omits(_words_reply(), bare), "020.paragraph")
+    assert folded["fact_ids"] == [] and folded["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["rationale"].startswith("No fact cited for this omission")
+
+
+def test_a_cited_omission_is_left_exactly_alone_beside_a_recovered_one() -> None:
+    """A cited OMIT_UNSUPPORTED (the model said which fact shows the claim unsupported) is the
+    legitimate omission and must survive the recovery of its uncited neighbour untouched."""
+    reply = _words_reply()
+    cited = _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None, "identity:repository")
+    reply["dispositions"][1] = cited
+    recovered = recover_uncited_prose_omits(reply, _words_facts())
+    assert recovered is not None
+    assert recovered["dispositions"][1] == cited
+    assert placement_errors(recovered, _words_facts()) == []
+
+
+def test_recover_defers_a_unit_whose_only_symbol_is_the_directory_of_a_path_it_names() -> None:
+    """Words-.NET (7c5acbf7 reseal, inherited_unit:020.paragraph): the sentence names the project
+    file `Aspose.Words/Aspose.Words.csproj`, whose directory segment is also the verified module
+    symbol `Aspose.Words`. Read as spelling that symbol, the omission was declined as unsafe and
+    S4 failed closed on "Then add a project reference ...". Two layers now agree on the outcome:
+    the extractor recorded the path as one the pinned tree holds, so its segments are not names
+    the sentence spells (the earlier stage: nothing to cite); and a unit BC-05 reads as naming a
+    verified symbol is deferred under the typed prefix instead of declined (this stage). Either
+    way the unit is deferred, never dropped, and BC-05 classifies it ADVISORY, not UNCLASSIFIED
+    BLOCK - the invariant is the outcome."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    text = (
+        "Then add a project reference to `Aspose.Words/Aspose.Words.csproj` from your application."
+    )
+    path = Fact(
+        "inherited_unit:018.paragraph",
+        "inherited_unit",
+        text,
+        (Evidence("README.md"),),
+        attributes={"repository_files": "Aspose.Words.csproj,Aspose.Words/Aspose.Words.csproj"},
+    )
+    base = _prose_omit_facts().facts
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*base, _symbol("Aspose.Words", "module"), path)
+    )
+
+    def deferred(doc: FactsDocument) -> dict[str, Any]:
+        folded = _folded(recover_uncited_prose_omits(_psd_reply(_UNCITED_OMIT), doc))
+        assert folded["disposition"] == "DEFER_UNRESOLVED" and folded["destination_section"] is None
+        findings = review_deferrals({"dispositions": [folded]}, doc)
+        assert [(f.unit_id, f.decision) for f in findings] == [
+            ("inherited_unit:018.paragraph", "ADVISORY")
+        ]
+        return folded
+
+    # Tree-verified path: the segment is not spelled, so there is nothing to cite.
+    # BC-05 still reads that segment as a verified symbol (a looser test than the extractor-side
+    # guard), so the deferral takes the typed prefix, which classifies ADVISORY; the no-evidence
+    # wording would be UNCLASSIFIED and block the candidate downstream.
+    original = deferred(facts)
+    assert original["fact_ids"] == []
+    assert original["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
+    # The same sentence naming the namespace in prose does spell it: deferred under the typed
+    # prefix, citing the symbol, where this once declined and failed the transaction.
+    spelled = Fact(
+        "inherited_unit:018.paragraph",
+        "inherited_unit",
+        text + " It adds the Aspose.Words namespace.",
+        (Evidence("README.md"),),
+        attributes=path.attributes,
+    )
+    named = deferred(
+        FactsDocument(
+            FACTS.repository,
+            FACTS.source_revision,
+            (*base, _symbol("Aspose.Words", "module"), spelled),
+        )
+    )
+    assert named["fact_ids"] == ["public_symbol:aspose.words"]
+    assert named["rationale"].startswith(RECOVERED_COVERAGE_RATIONALE)
 
 
 def test_recover_declines_when_any_uncited_omit_is_unsafe_even_if_another_is_safe() -> None:
-    """All or nothing: a partial fix would be accepted only to fail the same checks."""
-    facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
+    """All or nothing: a unit the facts do not hold cannot be examined, and a partial fix would be
+    accepted only to fail the same checks."""
     reply = _psd_reply(_UNCITED_OMIT)
-    reply["dispositions"][1] = _entry("inherited_unit:002.paragraph", "OMIT_UNSUPPORTED", None)
-    assert recover_uncited_prose_omits(reply, facts) is None
+    reply["dispositions"][1] = _entry("inherited_unit:099.paragraph", "OMIT_UNSUPPORTED", None)
+    assert recover_uncited_prose_omits(reply, _psd_facts()) is None
 
 
 def test_recover_leaves_cited_omits_and_non_prose_omits_alone() -> None:
@@ -1398,9 +1590,15 @@ def _run_s4_psd(
     monkeypatch: pytest.MonkeyPatch,
     *replies: httpx.Response,
     facts: FactsDocument | None = None,
+    undecodable: tuple[str, ...] = (),
+    narrow: bool = False,
+    seen: list[dict[str, object]] | None = None,
 ) -> JobResult:
-    """The production S4 call, with the recover= rounds.py passes."""
-    seen: list[dict[str, object]] = []
+    """The production S4 call, with the recover= rounds.py passes. ``undecodable`` names IDs the
+    batch's decoder enum does not offer (a record the packet's cap left out), as the live
+    reconciliation_packet does for a long README. ``narrow`` wires the narrowed ask as rounds.py
+    does; ``seen`` collects every request body."""
+    seen = [] if seen is None else seen
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(json.loads(request.content))
@@ -1419,9 +1617,31 @@ def _run_s4_psd(
         store=CallStore(tmp_path / "calls"),
         context=JobContext(ENTRY.repository, facts.source_revision),
         checks=functools.partial(reconcile_checks, facts=facts),
-        call_schema=reconciliation_schema(loaded, units, facts, {}),
-        recover=functools.partial(recover_uncited_prose_omits, facts=facts),
+        call_schema=_without_ids(reconciliation_schema(loaded, units, facts, {}), undecodable),
+        recover=functools.partial(
+            recover_uncited_prose_omits,
+            facts=facts,
+            citable=frozenset(citable_fact_ids(facts, loaded.manifest, units, {}))
+            - set(undecodable),
+        ),
+        narrow=reconciliation_narrowing(ENTRY, facts, {}, loaded, units) if narrow else None,
     )
+
+
+def _without_ids(schema: Any, ids: tuple[str, ...]) -> Any:
+    """``schema`` with ``ids`` removed from every enum, whatever its depth."""
+    if isinstance(schema, dict):
+        return {
+            key: (
+                [item for item in value if item not in ids]
+                if key == "enum" and isinstance(value, list)
+                else _without_ids(value, ids)
+            )
+            for key, value in schema.items()
+        }
+    if isinstance(schema, list):
+        return [_without_ids(item, ids) for item in schema]
+    return schema
 
 
 def test_two_uncited_omits_are_recovered_once_and_the_deferral_is_advisory(
@@ -1455,19 +1675,426 @@ def test_a_recovered_reply_is_judged_by_the_real_checks_and_fails_closed_when_it
     assert "recover's correction was rejected too" in str(caught.value)
 
 
-def test_a_spelled_symbol_omit_still_fails_the_job_closed_after_recover(
+def test_a_spelled_symbol_omit_is_recovered_by_the_real_job_and_stays_advisory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """The production S4 path end to end (Words-.NET shape): both attempts keep the uncited omit,
+    recover defers it citing the symbol, the corrected copy passes the schema and every check."""
+    from repository_presenter.components.readme.validation.deferrals import review_deferrals
+
+    facts = _psd_facts(_symbol("Aspose.PSD.FOSS", "namespace"))
     reply = _reply(_psd_reply(_UNCITED_OMIT))
+    result = _run_s4_psd(tmp_path, monkeypatch, reply, reply, facts=facts)
+    assert result.attempts == 2
+    folded = _folded(result.output)
+    # the symbol is not in this batch's decoder enum, so it is deferred without citing it (a
+    # citation outside the enum would fail the corrected copy's schema)
+    assert (folded["disposition"], folded["fact_ids"]) == ("DEFER_UNRESOLVED", [])
+    findings = review_deferrals(result.output, facts)
+    assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
+        ("inherited_unit:018.paragraph", "NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
+    ]
+
+
+# ---- BC-10 lead-in without payload (cut 2, cause 4: cells-rust/net, 3d-python, slides-python)
+
+
+def _lead_in_facts(*units: Fact) -> FactsDocument:
+    return FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *units))
+
+
+def _by_unit(dispositions: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {entry["unit_id"]: entry for entry in dispositions["dispositions"]}
+
+
+CELLS_RUST_LEAD_IN = (
+    "Create a workbook, write typed values and a formula with a cached result, save it as XLSX, "
+    "and load it back:"
+)
+
+
+def test_a_lead_in_before_a_verified_example_is_superseded_with_it() -> None:
+    """Cells-Rust (cut 2): inherited_unit:025.paragraph was VERIFIED_PRESERVE'd into quick_start
+    with no citation, beside the code block behind example:001. The plan renders that example
+    once, under its own authored lead-in, so the preserved sentence landed after the example,
+    directly before `## API Reference`, promising a block that is not there."""
+    facts = _lead_in_facts(
+        _fact("example:009", "example", "print(9)", detail="unit inherited_unit:034.code_block"),
+        _fact("inherited_unit:033.paragraph", "inherited_unit", CELLS_RUST_LEAD_IN),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```rust\nfn main() {}\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "quick_start"),
+            _entry(
+                "inherited_unit:034.code_block", "VERIFIED_PRESERVE", "quick_start", "example:009"
+            ),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    folded = _by_unit(dispositions)
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded["inherited_unit:033.paragraph"]["destination_section"] == "quick_start"
+    assert folded["inherited_unit:034.code_block"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_lead_in_before_a_superseded_verified_example_follows_it_to_its_section() -> None:
+    """Cells-.NET (cut 1): the lead-in was preserved while the verified example it introduces was
+    superseded into the plan's example section; the lead-in now goes with it."""
+    facts = _lead_in_facts(
+        _fact("example:009", "example", "print(9)", detail="unit inherited_unit:034.code_block"),
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Export a worksheet to PDF:"),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nsave();\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "development_testing"),
+            _entry(
+                "inherited_unit:034.code_block",
+                "SUPERSEDE_REDUNDANT",
+                "additional_examples",
+                "example:009",
+            ),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    entry = _by_unit(dispositions)["inherited_unit:033.paragraph"]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "additional_examples",
+    )
+
+
+def test_a_lead_in_before_an_unverified_command_block_is_left_with_it() -> None:
+    """Negative control: only a block the plan renders under its own lead-in (a SUPPORTED example)
+    makes the inherited sentence redundant; an ordinary preserved block keeps its sentence."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Build it with:"),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```bash\nmake\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "development_testing"),
+            _entry("inherited_unit:034.code_block", "VERIFIED_PRESERVE", "development_testing"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert _by_unit(dispositions)["inherited_unit:033.paragraph"]["disposition"] == (
+        "VERIFIED_PRESERVE"
+    )
+
+
+SLIDES_LEAD_IN = (
+    "The following are not implemented, and the API member is absent rather than present and inert:"
+)
+SLIDES_LIST = (
+    "- **Rendering and conversion of any kind** - no PDF, HTML, XPS, or image export.\n"
+    "- Reading is limited to `.pptx` files."
+)
+
+
+def test_a_limitations_lead_in_is_carried_by_its_list_never_authored_alone() -> None:
+    """Slides-Python (cut 1): 114.paragraph and 115.list were both preserved into
+    scope_limitations, where every unit becomes its own authored slot. The lead-in's slot had no
+    list to introduce, so the composer invented a 58-name 'absent API' list from fact values.
+    The lead-in is superseded into the section, so the unit that carries the list states it."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    folded = _by_unit(dispositions)
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded["inherited_unit:033.paragraph"]["destination_section"] == "scope_limitations"
+    assert folded["inherited_unit:034.list"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_lead_in_before_a_dropped_list_is_withheld_with_it() -> None:
+    """The payload may be a list: unsupported, both go (not only a dropped code block)."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    for dropped in ("OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"):
+        dispositions = {
+            "dispositions": [
+                _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+                _entry("inherited_unit:034.list", dropped, None),
+            ]
+        }
+        coordinate_neighbor_promises(dispositions, facts)
+        folded = _by_unit(dispositions)
+        assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+        assert folded["inherited_unit:033.paragraph"]["destination_section"] is None
+        assert folded["inherited_unit:034.list"]["disposition"] == dropped
+
+
+def test_a_lead_in_and_its_list_in_a_verbatim_section_stay_together() -> None:
+    """Negative control: where a section prints preserved units as written, the pair is already
+    one block in order and nothing is superseded."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Resources:"),
+        _fact(
+            "inherited_unit:034.list",
+            "inherited_unit",
+            "- [Docs](https://x/y)\n- [FAQ](https://x/z)",
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "documentation_resources"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "documentation_resources"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert [e["disposition"] for e in dispositions["dispositions"]] == ["VERIFIED_PRESERVE"] * 2
+
+
+def test_the_lead_in_fold_is_idempotent() -> None:
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    once = json.dumps(dispositions, sort_keys=True)
+    coordinate_neighbor_promises(dispositions, facts)
+    assert json.dumps(dispositions, sort_keys=True) == once
+
+
+def test_a_recovered_correction_may_cite_a_fact_the_decoder_enum_never_offered(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-11, six repositories (3D-Python, Cells-Cpp, Cells-Go twice, PDF-Go):
+    recover= folded a coverage gap into a deferral citing the unit's own verified example, which
+    the packet's cap had left out of the decoder enum, so the corrected copy failed the *decoder*
+    schema ("'example:004' is not one of [... hundreds of IDs]") and the repository failed on a
+    constraint that exists only to steer a model. recover is deterministic code, not a decoder:
+    its copy is judged by the manifest's schema, the binding and the checks."""
+    bad = _psd_reply(_UNCITED_OMIT)
+    bad["dispositions"][2] = _entry("inherited_unit:003.code_block", "OMIT_UNSUPPORTED", None)
+    reply = _reply(bad)
+    result = _run_s4_psd(tmp_path, monkeypatch, reply, reply, undecodable=("example:001",))
+    folded = next(
+        e for e in result.output["dispositions"] if e["unit_id"].endswith("003.code_block")
+    )
+    assert folded["disposition"] in {"SUPERSEDE_REDUNDANT", "DEFER_UNRESOLVED"}
+    assert folded["fact_ids"] == ["example:001"]
+
+
+def test_a_re_ask_that_answers_only_the_rejected_unit_keeps_the_first_replys_other_units(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-11 on PDF-TypeScript (two batches): the re-ask quotes only the units that
+    were wrong, the model re-answered those (4 of 40) and nothing else, and the reply was refused
+    as "no disposition for inherited units: <36 IDs>" - the first reply had answered all 36
+    validly. A unit the re-ask is silent on keeps its first disposition; the stated one is the
+    re-ask's own and every unit is judged again."""
+    first = _psd_reply(_UNCITED_OMIT)
+    fixed = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            )
+        ]
+    }
+    result = _run_s4_psd(tmp_path, monkeypatch, _reply(first), _reply(fixed))
+    assert result.attempts == 2
+    by_unit = {entry["unit_id"]: entry for entry in result.output["dispositions"]}
+    assert set(by_unit) == {fact.id for fact in _psd_facts().by_kind("inherited_unit")}
+    assert by_unit["inherited_unit:018.paragraph"]["disposition"] == "VERIFIED_REWRITE"
+    assert by_unit["inherited_unit:003.code_block"] == next(
+        e
+        for e in first["dispositions"]
+        if e["unit_id"] == "inherited_unit:003.code_block"  # type: ignore[attr-defined]
+    )
+
+
+def test_a_re_ask_silent_on_a_unit_the_first_reply_also_left_out_is_still_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: completion copies only what the first reply stated."""
+    first = _psd_reply(_UNCITED_OMIT)
+    first["dispositions"] = [  # type: ignore[index]
+        e
+        for e in first["dispositions"]
+        if not e["unit_id"].startswith("inherited_unit:005")  # type: ignore[attr-defined]
+    ]
+    fixed = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "identity:repository"
+            )
+        ]
+    }
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(tmp_path, monkeypatch, _reply(first), _reply(fixed))
+    assert "no disposition for inherited units: inherited_unit:005.paragraph" in str(caught.value)
+
+
+def _units_of(reply: dict[str, object], *ids: str) -> dict[str, object]:
+    """``reply`` narrowed to the dispositions of the units whose ID starts with one of ``ids``."""
+    return {
+        "dispositions": [
+            e
+            for e in reply["dispositions"]  # type: ignore[attr-defined]
+            if any(e["unit_id"].split(":")[1].startswith(prefix) for prefix in ids)
+        ]
+    }
+
+
+_ALL_UNITS = ("001.", "002.", "003.", "004.", "005.", "006.", "018.")
+_REWRITE = {
+    "disposition": "VERIFIED_REWRITE",
+    "destination_section": "opening",
+    "fact_ids": ["identity:repository"],
+    "rationale": "because",
+}
+
+
+def test_units_both_replies_are_silent_on_get_one_narrowed_ask_and_the_job_is_accepted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """BarCode-Python, cut-2 wave 2026-10-11: a batch's first reply stopped short, its re-ask
+    stopped a little later, and the repository failed "output rejected twice ... no disposition
+    for inherited units: 057.paragraph, 058.heading, 059.paragraph". The units neither reply
+    answered are now asked about once more, alone, and the merged reply is judged as any other."""
+    full = _psd_reply(_REWRITE)
+    first = _units_of(full, *_ALL_UNITS[:4])  # 001-004
+    second = _units_of(full, *_ALL_UNITS[:5])  # 001-005
+    third = _units_of(full, "006.", "018.")
+    seen: list[dict[str, object]] = []
+    result = _run_s4_psd(
+        tmp_path,
+        monkeypatch,
+        _reply(first),
+        _reply(second),
+        _reply(third),
+        narrow=True,
+        seen=seen,
+    )
+    assert result.attempts == result.provider_calls == 3
+    assert {e["unit_id"] for e in result.output["dispositions"]} == {
+        fact.id for fact in _psd_facts().by_kind("inherited_unit")
+    }
+    # The third request is a fresh, narrowed one: only the silent units, in its packet and schema.
+    asked = seen[2]
+    assert [m["role"] for m in asked["messages"]] == ["system", "user"]  # type: ignore[attr-defined]
+    user = asked["messages"][1]["content"]  # type: ignore[index]
+    assert "inherited_unit:006.html_block" in user and "inherited_unit:018.paragraph" in user
+    assert "inherited_unit:003.code_block" not in user
+    shape = asked["response_format"]["json_schema"]["schema"]["properties"]["dispositions"]  # type: ignore[index]
+    assert shape["items"]["properties"]["unit_id"]["enum"] == [
+        "inherited_unit:006.html_block",
+        "inherited_unit:018.paragraph",
+    ]
+    assert shape["maxItems"] == 2
+    # Every call is in the ledger under the one logical call; the third is attempt 3, a re-ask.
+    records = [
+        json.loads(line)
+        for line in (tmp_path / "calls.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    calls = [
+        r for r in records if r["disposition"] == "provider_call" and r["outcome"] == "success"
+    ]
+    assert [r["attempt"] for r in calls] == [1, 2, 3]
+    assert {r["logical_call_id"] for r in calls} == {result.request_sha256}
+    assert calls[2]["request_sha256"] != result.request_sha256
+    assert calls[2]["derived_via_reask"] is True
+    # The accepted output is stored under the logical request: the same request later is free.
+    mock_gateway(monkeypatch, lambda request: pytest.fail("a stored output made a provider call"))
+    again = _run_s4_psd(tmp_path, monkeypatch, narrow=True)
+    assert again.cache_reused and again.provider_calls == 0
+    assert again.output == result.output
+
+
+def test_a_unit_still_silent_after_the_narrowed_ask_fails_the_job_naming_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Negative control: no unit is accepted without a disposition."""
+    full = _psd_reply(_REWRITE)
     with pytest.raises(JobError) as caught:
         _run_s4_psd(
             tmp_path,
             monkeypatch,
-            reply,
-            reply,
-            facts=_psd_facts(_symbol("Aspose.PSD.FOSS", "namespace")),
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            _reply(_units_of(full, "006.")),  # 018 stays silent
+            narrow=True,
         )
     message = str(caught.value)
-    assert "output rejected twice" in message
-    assert "inherited_unit:018.paragraph: uncited_prose_omit:" in message
-    assert "recover's correction" not in message  # declined, not attempted
+    assert "no disposition for inherited units: inherited_unit:018.paragraph" in message
+    assert "narrowed ask" in message
+    kept = sorted(path.name.split(".", 1)[1] for path in (tmp_path / "calls").iterdir())
+    assert kept == ["rejected-1.json", "rejected-2.json", "rejected-3.json"]
+
+
+def test_without_a_narrowing_the_second_silence_still_fails_after_two_asks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The narrowed ask is opt-in: a caller that passes no ``narrow`` is unchanged."""
+    full = _psd_reply(_REWRITE)
+    seen: list[dict[str, object]] = []
+    with pytest.raises(JobError, match="output rejected twice"):
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            seen=seen,
+        )
+    assert len(seen) == 2
+
+
+def test_the_narrowed_ask_cannot_change_a_unit_the_earlier_replies_answered(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A unit the earlier replies answered keeps that answer whatever the narrowed reply says."""
+    full = _psd_reply(_REWRITE)
+    narrowed = _units_of(full, "006.", "018.")
+    narrowed["dispositions"].append(  # type: ignore[attr-defined]
+        _entry("inherited_unit:003.code_block", "OMIT_UNSUPPORTED", None, "example:002")
+    )
+    result = _run_s4_psd(
+        tmp_path,
+        monkeypatch,
+        _reply(_units_of(full, *_ALL_UNITS[:4])),
+        _reply(_units_of(full, *_ALL_UNITS[:5])),
+        _reply(narrowed),
+        narrow=True,
+    )
+    by_unit = {e["unit_id"]: e for e in result.output["dispositions"]}
+    assert len(by_unit) == len(result.output["dispositions"]) == 7
+    assert by_unit["inherited_unit:003.code_block"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_narrowed_answer_is_judged_by_the_same_checks_as_any_reply(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A silent unit's answer citing a fact that does not exist is refused, naming the fact."""
+    full = _psd_reply(_REWRITE)
+    narrowed = _units_of(full, "006.")
+    narrowed["dispositions"].append(  # type: ignore[attr-defined]
+        _entry("inherited_unit:018.paragraph", "VERIFIED_REWRITE", "opening", "package:nope")
+    )
+    with pytest.raises(JobError) as caught:
+        _run_s4_psd(
+            tmp_path,
+            monkeypatch,
+            _reply(_units_of(full, *_ALL_UNITS[:4])),
+            _reply(_units_of(full, *_ALL_UNITS[:5])),
+            _reply(narrowed),
+            narrow=True,
+        )
+    assert "package:nope" in str(caught.value) and "no disposition" not in str(caught.value)

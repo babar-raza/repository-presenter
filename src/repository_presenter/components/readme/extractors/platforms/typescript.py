@@ -36,8 +36,11 @@ from repository_presenter.components.readme.extractors.platforms.typescript_exam
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
-from repository_presenter.components.readme.extractors.surface.registry import observe
-from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
+from repository_presenter.components.readme.extractors.surface.registry import (
+    observe,
+    repository_of,
+)
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec, SuiteFileRule
 from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
@@ -45,7 +48,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
     MeasuredBuild,
 )
-from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id, slug
+from repository_presenter.core.facts import Evidence, Fact, fact_id, slug
 from repository_presenter.core.grammars import get_parser
 from repository_presenter.core.probes import ProbeRecord
 
@@ -75,6 +78,10 @@ TYPESCRIPT = EcosystemSpec(
     floor_is_minimum=True,
     manifest_globs=("package.json",),
     source_suffixes=frozenset({".ts", ".tsx"}),
+    # Jest, Vitest, and Mocha all collect `*.test.*` and `*.spec.*`; `tests/setup.ts` (a global
+    # hook the runner loads first) and fixtures beside them are not tests. A suite that names
+    # its tests otherwise gets no size rather than a guess.
+    suite_files=SuiteFileRule(name=r"\.(?:test|spec)\.[cm]?[jt]sx?$"),
 )
 # The spec layer registers by name and never grows a list of ecosystems (§29.6 E3): a plugin
 # module declares its own spec when it is imported, which is what `plugin_for` does before any
@@ -270,7 +277,7 @@ class TypeScriptPlugin:
             path
             for pattern in self.manifest_globs
             for path in root.rglob(pattern)
-            if not any(part in IGNORED_DIRECTORIES for part in path.parts)
+            if not any(part in IGNORED_DIRECTORIES for part in path.relative_to(root).parts)
         ]
         if not candidates:
             return None
@@ -399,21 +406,15 @@ class TypeScriptPlugin:
         name = by_id.get("package:name")
         if install is None or name is None:
             return [], []
-        reading = observe(self.ecosystem, name.value)
-        polarity: Polarity
-        if not reading.conclusive:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif reading.published:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
+        reading = observe(self.ecosystem, name.value, repository=repository_of(facts))
+        polarity, confidence, detail = reading.install_verdict()
         resolved = Fact(
             install.id,
             install.kind,
             install.value,
             (
                 *install.evidence,
-                Evidence(reading.evidence_url or reading.registry, reading.summary),
+                Evidence(reading.evidence_url or reading.registry, detail),
             ),
             polarity=polarity,
             confidence=confidence,

@@ -341,7 +341,7 @@ manifest's `update.triggering_scope` (or `invalidated.scope`) records which one 
 
 | Scope | Consumed inputs | Re-enters | Result |
 |---|---|---|---|
-| `facts` | source revision and tree, extraction environment, fact records | `EXTRACTING` | `INVALIDATED` |
+| `facts` | source revision and tree, the extraction environment (host-observed: Python, OS, toolchains, package set; the extractor and inherited-unit versions only reopen `EXTRACTING` as an update), fact records | `EXTRACTING` | `INVALIDATED` |
 | `evidence` | investigation prompt, route, schema | `INVESTIGATING` | `VALID_UPDATE_AVAILABLE` |
 | `reconciliation` | reconciliation prompt, route, contract | `RECONCILING` | `VALID_UPDATE_AVAILABLE` |
 | `presentation` | template components (shell, renderer) | `RECONCILING` | `VALID_UPDATE_AVAILABLE` |
@@ -357,6 +357,32 @@ not a scope, and invalidates through `seal.invalidates` as before. The recorded 
 `INVALIDATED` or `VALID_UPDATE_AVAILABLE` bundle waits in the transaction until a fresh zero-call
 process reproduces it and the bundle adopts it. `status --stale` prints the dry-run routing of every
 current candidate (no clone, no call, no write).
+
+A version is a proxy for a code change, not a fact: an `environment.*_version` difference reopens
+`EXTRACTING` as `VALID_UPDATE_AVAILABLE` ("would re-extract"; the scope name stays `facts`, which
+the manifest schema enumerates) and only a difference in the `facts` hash map, the source, or the
+host-observed environment invalidates (G7-W25). A check or key the sealed record lacks cannot reopen the candidate -
+it never consumed it - but it is not skipped: `status --stale` names it and `recheck` runs it.
+
+**Consumed-scope recheck and currency (G7-W25, `docs/investigations/13-bump-cost-and-recheck-design.md`).**
+`repository-presenter recheck` re-runs, offline and over a bundle's own sealed artifacts, exactly the
+scopes whose recorded inputs differ from the running code - the re-render for `presentation`, the
+authoring gate (BC-04) for `authoring`, every deterministic judge for `validator` (and for any check
+the record lacks, which must pass), a `review_document` replay from the retained raw reads for
+`reviewer`, and the inherited-unit regeneration for `extraction` - and reports a *currency* beside
+the manifest state (which it never changes): `CURRENT`, `RECHECKED_CURRENT` (differences exist and
+every triggered recheck passed), `UPDATE_OPTIONAL` (only provenance differs: prompts, the policy,
+`contract_version`, `acceptance_profile_version`), `UPDATE_REQUIRED` (a recheck failed;
+`rerender_only` when only the re-render differs, otherwise `recompose`) and `UNVERIFIED` (a triggered
+recheck could not run - no retained raw reads, an extractor change that needs a clone). It never
+invalidates, edits a sealed bundle, clones or calls a provider; judges that see less than a real run
+say so (`tree_approximated`, `original_unavailable`, `secret_scan_not_rerun`). Results cache as
+`candidates/<owner>__<name>/rechecks/<revision>.json`, keyed by the manifest digest and the running
+code's consumed inputs; `verify_bundle` runs first and a receipt under another key is ignored.
+`status` counts a bundle behind the recorded versions only when its currency is `CURRENT`,
+`RECHECKED_CURRENT` or `UPDATE_OPTIONAL` (an `UNVERIFIED` scope does not count as independently
+accepted), and splits the `update_available` partition bucket into `update_required` and
+`update_unverified`; no bundle state and no `READY_FOR_PROPOSAL` rule changes.
 
 ## 10. No-op proof
 

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "source_revision": "469ce77a07b988c49deb930632b8276c89ec6b66",
+  "defect_fingerprint": "sha256:8b8b2cae91e5dc2049a5be857e132d30a473f6a0df2dfd284c20361964df413b",
+  "triggering_check": {
+    "id": "BC-03",
+    "version": "2",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "README.md",
+      "detail": "code blocks starting at lines 241 (Quick Start), 284, 315, 341, 367 and 393 (Additional Examples) all use pres.slides()[0] without including slide.h (revision 469ce77a07b988c49deb930632b8276c89ec6b66; unchanged at the live head)"
+    },
+    {
+      "path": "docker gcc:13 (g++ 13.5.0, libpugixml-dev 1.13): g++ -std=c++20 -fsyntax-only -Iinclude on each README block wrapped in main()",
+      "detail": "2026-10-10T15:48Z: 6 of 10 blocks fail with error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide' (Quick Start: snippet:14:19); with #include <Aspose/Slides/Foss/slide.h> added the Quick Start compiles (exit 0)"
+    },
+    {
+      "path": "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/snippets-Slides-Cpp.txt",
+      "detail": "raw command output of the reproduction (per-block table; blocks 02 and 10 are fragments)"
+    }
+  ],
+  "claim": "At revision 469ce77a07b988c49deb930632b8276c89ec6b66, six README C++ blocks (the Quick Start and five Additional Examples) that call pres.slides()[0] fail to compile with g++ 13.5.0 (invalid use of incomplete type 'class Aspose::Slides::Foss::Slide') because none of them includes <Aspose/Slides/Foss/slide.h>.",
+  "suggested_issue_title": "Aspose.Slides FOSS for Cpp: README C++ examples do not compile, <Aspose/Slides/Foss/slide.h> is not included",
+  "suggested_issue_body": "Reproduced independently against the current default-branch head `469ce77a07b988c49deb930632b8276c89ec6b66` on 2026-10-10.\n\n## Summary\n\nSix of the README's C++ examples (the Quick Start at `README.md:241` and the Additional Examples at `:284`, `:315`, `:341`, `:367` and `:393`) call `pres.slides()[0]` and then use the returned `Slide`. None of them includes `<Aspose/Slides/Foss/slide.h>`, so `Slide` is only forward-declared at that point and the code does not compile.\n\n## Environment\n\n- Revision `469ce77a07b988c49deb930632b8276c89ec6b66` (default branch `main`)\n- g++ 13.5.0 (Docker image `gcc:13`), `-std=c++20`, libpugixml-dev 1.13 for the pugixml headers\n\n## Steps to reproduce\n\nPut the Quick Start block (`README.md:242-260`) in `quickstart.cpp` (it already has `int main()`), then:\n\n```sh\ng++ -std=c++20 -fsyntax-only -Iinclude quickstart.cpp\n```\n\nThe five Additional Examples need the same treatment (wrapped in `int main() { ... }`) and fail the same way.\n\n## Expected\n\nThe Quick Start and the Additional Examples compile as written.\n\n## Actual result\n\n```\nquickstart.cpp:14:19: error: invalid use of incomplete type 'class Aspose::Slides::Foss::Slide'\n```\n\nAdding `#include <Aspose/Slides/Foss/slide.h>` to the Quick Start makes it compile (exit 0).\n\n## Where in the repository\n\n- `README.md:241`, `:284`, `:315`, `:341`, `:367`, `:393`\n\n## Suggested fix\n\nAdd `#include <Aspose/Slides/Foss/slide.h>` (and any other header each example uses) to these blocks, or provide and use an umbrella header.\n\n<!-- repository-presenter-defect: sha256:8b8b2cae91e5dc2049a5be857e132d30a473f6a0df2dfd284c20361964df413b -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}

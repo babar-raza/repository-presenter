@@ -1,0 +1,22 @@
+# log: maven-Slides-Java
+# repository: aspose-slides-foss/Aspose.Slides-FOSS-for-Java
+# head: 620a2614418854b4a18966a361e6907ddc88c7cb
+# utc: 2026-10-10T15:23:00Z
+# cwd: shallow clone of the default branch
+# command: curl -s https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml | grep -E '<(latest|release|version)>'; curl -s -o /dev/null -w 'pom 26.8.0: HTTP %{http_code}\n' https://repo1.maven.org/maven2/org/aspose/aspose-slides-foss/26.8.0/aspose-slides-foss-26.8.0.pom; grep -n -m1 '<version>' pom.xml; grep -n -i 'not published\|XML hardening\|26.7.0' SECURITY.md README.md | head -8
+# ---- output (capped at 60000 bytes) ----
+    <latest>26.7.0</latest>
+    <release>26.7.0</release>
+      <version>26.7.0</version>
+pom 26.8.0: HTTP 404
+9:    <version>26.8.0</version>
+SECURITY.md:10:| `26.8.0` and later | yes — a fix goes into the next version. `26.8.0` is the version in this source tree and is not published yet. |
+SECURITY.md:11:| `26.7.0` | no. It is the only version published so far, and it predates a large body of correctness and hardening work. Upgrade when `26.8.0` is out, or build from source, rather than asking for a patch release. |
+SECURITY.md:14:If you are pinning `26.7.0` today, read [CHANGELOG.md](CHANGELOG.md) before deciding to stay on it.
+README.md:95:`aspose-slides-foss` is published on Maven Central as `org.aspose:aspose-slides-foss:26.7.0`.
+README.md:103:    <version>26.7.0</version>
+README.md:110:implementation 'org.aspose:aspose-slides-foss:26.7.0'
+README.md:113:**Before you depend on `26.7.0`, read this.** It predates a hardening fix: every parser and
+README.md:115:declaration outright and disables external entities, external DTD loading, and XInclude. `26.7.0`
+
+# exit: 0

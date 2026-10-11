@@ -1,0 +1,22 @@
+# log: quickstart-Note-Python
+# repository: aspose-note-foss/Aspose.Note-FOSS-for-Python
+# head: 17b5d7fe200297fdc135e6f95f4f16b82e8fc31c
+# utc: 2026-10-10T15:16:21Z
+# cwd: shallow clone of the default branch
+# command: cd testfiles && E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/nt/Scripts/python.exe -c "
+from aspose.note import Document
+doc = Document('SimpleTable.one')
+print(doc.DisplayName)
+for page in doc:
+    print(page.Title.TitleText.Text)
+"; echo exit=$?
+# ---- output (capped at 60000 bytes) ----
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    print(page.Title.TitleText.Text)
+          ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'TitleText'
+SimpleTable
+exit=1
+
+# exit: 0

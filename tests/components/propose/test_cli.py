@@ -29,6 +29,7 @@ from repository_presenter.core.authorization.proposal import (
     authorize_proposal,
     render_record,
 )
+from repository_presenter.core.authorization.refusals import Refusal
 from repository_presenter.core.github.client import (
     CommitOutcome,
     FileContents,
@@ -42,9 +43,11 @@ from repository_presenter.core.github.token_provenance import (
 from repository_presenter.core.hashing import sha256_text
 from support import (
     REPO_ROOT,
+    accepting_acceptance,
     head_revision,
     merge_to_origin_main,
     monitor_registry_entry,
+    rejecting_acceptance,
     write_proposable_bundle,
     write_registry_file,
 )
@@ -76,6 +79,14 @@ def _no_ambient_trigger(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("GITHUB_SHA", raising=False)
     monkeypatch.delenv(AUTHORIZATION_VARIABLE, raising=False)
     monkeypatch.delenv("GH_PROPOSAL_WRITE_TOKEN", raising=False)
+
+
+@pytest.fixture(autouse=True)
+def _acceptance_scores_pass(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The propose gate's ratified-acceptance check needs a real, fully validated bundle; these
+    tests drive the other gates with synthetic ones (the gate itself is tested in
+    tests/core/test_candidates.py and test_wave.py)."""
+    monkeypatch.setattr(cli, "proposal_acceptance_gate", lambda _root: accepting_acceptance)
 
 
 @pytest.fixture
@@ -270,6 +281,90 @@ def test_propose_authorized_with_token_creates_branch_and_pr(
     assert [call["text"] for call in remote.put_calls] == [README_TEXT]
     assert len(remote.create_pr_calls) == 1
     assert f"candidate_hash: {sha256_text(README_TEXT)}" in remote.create_pr_calls[0]["body"]
+
+
+def test_the_pull_request_names_the_change_and_is_idempotent_on_a_second_run(
+    control: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """TC-PRP-01 end to end through the fake transport: the PR is created with a title naming the
+    product and the change and a body carrying the diff against the target's live README and the
+    bundle's verification counts; a second run changes and creates nothing."""
+    bundle = control / "candidates" / REPOSITORY.replace("/", "__") / REVISION
+    (bundle / "examples.json").write_text(
+        json.dumps([{"outcome": "EXECUTED"}, {"outcome": "EXECUTED"}, {"outcome": "NEEDS_INPUT"}]),
+        encoding="utf-8",
+    )
+    (bundle / "validation.json").write_text(
+        json.dumps(
+            {"checks": [{"id": "BC-02", "verdict": "PASS"}, {"id": "BC-03", "verdict": "PASS"}]}
+        ),
+        encoding="utf-8",
+    )
+    record, trigger = commit_record(control)
+    remote = Remote()
+    remote.files[("main", "README.md")] = FileContents(
+        "README.md", "sha-live", "# Cells\n\nOld content.\n"
+    )
+    remote.install(monkeypatch)
+    _arm(monkeypatch)
+
+    assert main(_propose_args(control, record, trigger, "--propose")) == EXIT_OK
+    first = remote.create_pr_calls[0]
+    assert first["title"] == "docs(readme): refresh Cells README (1 section updated)"
+    assert "**Introduction**" in first["body"]
+    assert "Code examples: 2 of 3 executed" in first["body"]
+    assert "Install command: check passed" in first["body"]
+    assert f"- candidate_hash: {sha256_text(README_TEXT)}" in first["body"]
+    assert f"- source_revision: {REVISION}" in first["body"]
+    assert "Update README via repository-presenter" not in first["body"]
+    capsys.readouterr()
+
+    assert main(_propose_args(control, record, trigger, "--propose")) == EXIT_OK
+    assert "no change needed" in capsys.readouterr().out
+    assert len(remote.create_pr_calls) == 1
+    assert remote.update_pr_calls == []
+    assert len(remote.put_calls) == 1
+
+
+@pytest.mark.parametrize("propose", [True, False])
+def test_a_candidate_below_the_ratified_acceptance_is_not_proposed(
+    control: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    propose: bool,
+) -> None:
+    """READY_FOR_PROPOSAL does not itself depend on the score; the propose gate does."""
+    record, trigger = commit_record(control)
+    remote = Remote()
+    remote.install(monkeypatch)
+    _arm(monkeypatch)
+    monkeypatch.setattr(cli, "proposal_acceptance_gate", lambda _root: rejecting_acceptance)
+    args = _propose_args(control, record, trigger, *(["--propose"] if propose else []))
+    _run_refused(capsys, args, str(Refusal.ACCEPTANCE_NOT_PASSED))
+    assert not remote.wrote
+
+
+def test_a_review_that_predates_the_honesty_record_is_not_proposed(
+    control: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_proposable_bundle(
+        control,
+        REPOSITORY,
+        REVISION,
+        README_TEXT,
+        review={"schema_version": 1, "verdict": "ACCEPT", "findings": [], "advisory": []},
+    )
+    record, trigger = commit_record(control)
+    remote = Remote()
+    remote.install(monkeypatch)
+    _arm(monkeypatch)
+    output = _run_refused(
+        capsys,
+        _propose_args(control, record, trigger, "--propose"),
+        str(Refusal.REVIEW_PREDATES_HONESTY_RECORD),
+    )
+    assert "predates the honesty record" in output
+    assert not remote.wrote
 
 
 def test_the_base_branch_defaults_to_the_targets_live_default_branch(

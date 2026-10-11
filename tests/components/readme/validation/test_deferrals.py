@@ -25,6 +25,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
 )
 from repository_presenter.components.readme.validation.deferrals import (
     DEFERRAL_CLASSES,
+    DeferralContext,
     review_deferrals,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -95,13 +96,16 @@ def _only(findings: list[Any]) -> Any:
     return findings[0]
 
 
-def test_the_registry_holds_exactly_the_sixteen_real_causes() -> None:
+def test_the_registry_holds_exactly_the_twenty_real_causes() -> None:
     """A new class is an explicit change here, so it is reviewed rather than slipped in."""
     assert [cls.id for cls in DEFERRAL_CLASSES] == [
         "NO_VERIFIED_QUICK_START",
         "INTERNAL_DETAIL",
         "BUILD_TEST_PATH_UNRECORDED",
         "NOTICES_WITHOUT_RECORD",
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "OWN_LICENSE_UNVERIFIED",
+        "DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES",
         "UNVERIFIED_EXAMPLE",
         "ENTERPRISE_NO_VERIFIED_TARGET",
         "ENTERPRISE_NON_PROSE",
@@ -114,6 +118,7 @@ def test_the_registry_holds_exactly_the_sixteen_real_causes() -> None:
         "API_LISTING_COVERED_BY_CORE_API",
         "NO_EVIDENCE_EITHER_WAY",
         "NOT_CARRIED_BY_NAMED_SECTION",
+        "INSTALL_SNIPPET_COVERED_BY_INSTALLATION",
     ]
     assert {cls.decision for cls in DEFERRAL_CLASSES} == {"BLOCK", "ADVISORY"}
 
@@ -291,6 +296,24 @@ def test_a_colon_lead_in_whose_block_was_withheld_is_advisory() -> None:
     }
     finding = _only(review_deferrals(dispositions, facts))
     assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+
+
+def test_a_colon_lead_in_whose_list_was_withheld_is_advisory() -> None:
+    """Cut-2 triage cause 4: the payload a colon promises may be a list or a table, not only a
+    code block; the lead-in is withheld with it (coordinate_neighbor_promises)."""
+    for kind, value in (("list", "- one" + chr(10) + "- two"), ("table", "| a | b |")):
+        facts = _facts(
+            _unit(1, "paragraph", "The following are not implemented:"),
+            _unit(2, kind, value),
+        )
+        dispositions = {
+            "dispositions": [
+                _deferred("inherited_unit:001.paragraph", "Preserved."),
+                _kept(f"inherited_unit:002.{kind}"),
+            ]
+        }
+        finding = _only(review_deferrals(dispositions, facts))
+        assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
 
 
 def test_an_unmatched_cause_fails_closed() -> None:
@@ -695,12 +718,12 @@ _INSTALLATION = "Widget > Installation"
 _XML = "```xml\n<dependency><artifactId>widget</artifactId></dependency>\n```"
 
 
-def _carry_facts(*extra: Fact) -> FactsDocument:
+def _carry_facts(*extra: Fact, section: str = _INSTALLATION) -> FactsDocument:
     """A repository whose verified install command the Installation row prints; an inherited
     XML install block is not that command, so the row cannot carry it."""
     return _facts(
         _fact("install_command", "pip", "pip install widget"),
-        _unit(11, "code_block", _XML, _INSTALLATION),
+        _unit(11, "code_block", _XML, section),
         *extra,
     )
 
@@ -755,7 +778,8 @@ def test_a_unit_the_named_section_cannot_carry_is_an_advisory_deferral() -> None
 def test_a_look_alike_without_the_typed_prefix_stays_unclassified_and_blocks() -> None:
     """Negative control: the same words in the model's own rationale, or after other text, are
     free text and not the reconciler's typed marker; an unmatched cause fails closed."""
-    facts = _carry_facts()
+    # Outside Installation: under it, the same block is INSTALL_SNIPPET_COVERED_BY_INSTALLATION.
+    facts = _carry_facts(section="Widget > Usage")
     for rationale in (
         "The installation section cannot carry this block.",
         "Not carried by the section named; held for the owner.",
@@ -796,3 +820,452 @@ def test_a_specific_blocking_cause_still_decides_before_the_not_carried_class() 
     entry = _deferred("inherited_unit:001.code_block", RECOVERED_COVERAGE_RATIONALE + "Held.")
     finding = _only(review_deferrals({"dispositions": [entry]}, facts))
     assert (finding.class_id, finding.decision) == ("NO_VERIFIED_QUICK_START", "BLOCK")
+
+
+# CUT-2 (G3-W08 / G7-W12): the three free-text rationales the 2026-10-10 baseline left as
+# UNCLASSIFIED. The strings below are the real units and rationales read from the archived
+# transactions of Aspose.3D-FOSS-for-.NET, Aspose.Page-FOSS-for-Python and
+# Aspose.Email-FOSS-for-Cpp; the facts are reduced to what the class reads.
+
+_TWO_STARTS = {
+    "quick_start_example_id": "example:001",
+    "second_quick_start_example_id": "example:002",
+}
+
+
+def test_3d_net_a_lead_in_the_model_calls_uncertain_is_a_no_evidence_deferral() -> None:
+    """3D-.NET inherited_unit:066: the model's investigation records 'whether the console converter
+    tool is intended for public use' as an uncertainty, cites no fact, and says so in its own
+    words ("uncertain"). That is DEFER_UNRESOLVED's definition; the facts hold no converter."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.threed.scene", "Aspose.ThreeD.Scene"),
+        _fact("build_test_asset", "tests", "src/test/Aspose.ThreeD.Tests/"),
+        _unit(
+            66,
+            "paragraph",
+            "The console converter tool builds separately as a project reference to the library:",
+            "Aspose.3D FOSS for .NET > Development and Testing",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:066.paragraph",
+        "The paragraph mentions a console converter tool, but its public use is uncertain per "
+        "uncertainties.",
+    )
+    finding = _classify(facts, deferred)
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize(
+    ("number", "text", "rationale"),
+    [
+        (
+            14,
+            "To build and verify a wheel from a clone of the repository instead, install `uv`, "
+            "`setuptools`,\nand `wheel`, then run:",
+            "The build/verify workflow is unsupported by facts; the claim is material and cannot "
+            "be placed or omitted with evidence.",
+        ),
+        (
+            16,
+            "The wheel version comes from `local/Version.txt`. To upload the built wheel, use\n"
+            "`python package.py publish-test` for TestPyPI or `python package.py publish` for "
+            "PyPI.",
+            "The wheel versioning and publishing workflow is unsupported by facts; the claim is "
+            "material and cannot be placed or omitted with evidence.",
+        ),
+        (
+            38,
+            "XPS-to-PDF-to-PNG conversion:",
+            "The XPS-to-PDF-to-PNG conversion description is unsupported by facts; the claim is "
+            "material and cannot be placed or omitted with evidence.",
+        ),
+    ],
+)
+def test_page_python_a_claim_the_model_calls_unsupported_by_facts_is_a_no_evidence_deferral(
+    number: int, text: str, rationale: str
+) -> None:
+    """Page-Python 014/016/038/040: the upstream's build-from-clone, publishing and result-caption
+    claims. Its facts hold `install_command:pip` and `tests/` and no `package.py` or wheel, so the
+    model's "unsupported by facts" holds; "unsupported" is the same attestation as "no fact"."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.page.xpsdocument", "aspose.page.XpsDocument"),
+        _fact("install_command", "pip", "pip install aspose-page-foss"),
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(number, "paragraph", text, "Aspose.Page FOSS for Python > Installation"),
+    )
+    finding = _classify(facts, _deferred(f"inherited_unit:{number:03d}.paragraph", rationale))
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+def test_an_unsupported_attestation_is_refused_when_the_unit_spells_a_verified_symbol() -> None:
+    """Negative control: "unsupported by facts" is false for a unit that spells a SUPPORTED public
+    symbol, so a lost fact stays a blocking, unclassified cause."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.page.xpsdocument", "aspose.page.XpsDocument"),
+        _unit(
+            14,
+            "paragraph",
+            "Open a file with `aspose.page.XpsDocument` before you convert it.",
+            "Aspose.Page FOSS for Python > Usage",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:014.paragraph", "The workflow is unsupported by facts and uncertain."
+    )
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
+def test_a_deferral_that_only_says_the_unit_is_supported_and_unplaceable_still_blocks() -> None:
+    """Negative control: a rationale that says the facts support the unit, with nowhere to put
+    it, signals a lost fact, not an unresolved claim; with no excluded source section it blocks."""
+    facts = _facts(
+        _fact("link_target", "021", "examples/"),
+        _unit(
+            32,
+            "paragraph",
+            "Runnable CLI examples live in the [`examples/`](examples/) directory.",
+            "Aspose.Email FOSS for C++ > Development and Testing",
+        ),
+    )
+    deferred = _deferred(
+        "inherited_unit:032.paragraph",
+        "The paragraph describes the examples directory and is supported by the link facts; no "
+        "section is available to place it.",
+    )
+    deferred["fact_ids"] = ["link_target:021"]
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
+_EMAIL_032 = (
+    "Runnable CLI examples live in the [`examples/`](examples/) directory - turn on\n"
+    "`ASPOSE_EMAIL_FOSS_BUILD_EXAMPLES` to build them (see\n"
+    "[Development and Testing](#development-and-testing)); [`examples/README.md`]"
+    "(examples/README.md)\nmaps each one to the specific API calls it exercises."
+)
+_EMAIL_032_RATIONALE = (
+    "The paragraph describes the examples directory and is supported by the link facts; no "
+    "section is available to place it."
+)
+_ADDITIONAL = "Aspose.Email FOSS for C++ > Additional Examples"
+
+
+def _email_facts(section: str = _ADDITIONAL) -> FactsDocument:
+    return _facts(
+        _fact("public_symbol", "aspose.email.mapi_message", "aspose.email.MapiMessage"),
+        _fact("link_target", "021", "examples/"),
+        _fact("link_target", "022", "examples/README.md"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(32, "paragraph", _EMAIL_032, section),
+    )
+
+
+def _email_032() -> dict[str, Any]:
+    deferred = _deferred("inherited_unit:032.paragraph", _EMAIL_032_RATIONALE)
+    deferred["fact_ids"] = ["link_target:021", "link_target:022"]
+    return deferred
+
+
+def test_email_cpp_a_unit_from_the_additional_examples_the_plan_excludes_is_advisory() -> None:
+    """Email-Cpp inherited_unit:032: its own source section is Additional Examples, which the plan
+    excludes because the quick starts consume every verified example (so 'no section is
+    available'). The rationale names neither 'additional' nor a section, so it is read from the
+    unit's source section, as the At a Glance and Installation classes are."""
+    findings = review_deferrals({"dispositions": [_email_032()]}, _email_facts(), _TWO_STARTS)
+    finding = _only(findings)
+    assert (finding.class_id, finding.decision) == ("EXCLUDED_BY_PLAN", "ADVISORY")
+
+
+def test_a_unit_from_an_examples_section_the_plan_includes_still_blocks() -> None:
+    """Negative control: when a verified example is left over the plan includes Additional
+    Examples, so a deferral for 'no section' has a real home and is a lost placement."""
+    plan = {"quick_start_example_id": "example:001", "second_quick_start_example_id": None}
+    findings = review_deferrals({"dispositions": [_email_032()]}, _email_facts(), plan)
+    assert _only(findings).decision == "BLOCK"
+
+
+def test_a_unit_from_another_section_is_not_excluded_by_the_examples_plan() -> None:
+    """Negative control: the same deferral from a section that is not about examples."""
+    facts = _email_facts("Aspose.Email FOSS for C++ > Development and Testing")
+    findings = review_deferrals({"dispositions": [_email_032()]}, facts, _TWO_STARTS)
+    assert _only(findings).decision == "BLOCK"
+
+
+def test_an_excluded_examples_unit_that_spells_a_verified_symbol_still_blocks() -> None:
+    """Negative control: prose in the excluded section that makes a claim about a verified API
+    member is a lost fact, not withheld example scaffolding."""
+    facts = _facts(
+        _fact("public_symbol", "aspose.email.mapi_message", "aspose.email.MapiMessage"),
+        _example(1, "SUPPORTED", unit=2),
+        _example(2, "SUPPORTED", unit=3),
+        _unit(
+            32,
+            "paragraph",
+            "Use `aspose.email.MapiMessage` to read a message.",
+            _ADDITIONAL,
+        ),
+    )
+    deferred = _deferred("inherited_unit:032.paragraph", "No section is available to place it.")
+    findings = review_deferrals({"dispositions": [deferred]}, facts, _TWO_STARTS)
+    assert _only(findings).decision == "BLOCK"
+
+
+# CUT-2 (S4 lane, PDF-TypeScript inherited_unit:359.paragraph): a code span that spells a PDF name
+# literal ("/Root /Metadata", "/Perms", "/Type") is a dictionary key of the file format, not the
+# API symbol of the same letters. `Metadata` is a SUPPORTED public symbol of the package; the
+# upstream sentence about XMP never names it.
+
+_XMP = (
+    "`GetXmp()` parses the `/Root /Metadata` packet (Dublin Core, XMP basic, and PDF\n"
+    "schemas) leniently - malformed packets never throw, and the original text is\n"
+    "returned in `raw`. Shared fields auto-mirror with `/Info` in both directions\n"
+    "(`SetMetadata` -> XMP, `SetXmp` -> `/Info`)."
+)
+
+
+def _pdf_ts_facts(text: str) -> FactsDocument:
+    return _facts(
+        _fact("public_symbol", "metadata", "Metadata"),
+        _fact("public_symbol", "perms", "Perms"),
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(359, "paragraph", text, "Aspose.PDF FOSS for TypeScript > Additional Examples"),
+    )
+
+
+def test_pdf_typescript_a_pdf_name_literal_is_not_the_symbol_of_the_same_letters() -> None:
+    deferred = _deferred(
+        "inherited_unit:359.paragraph", "No fact confirms the XMP packet behaviour described."
+    )
+    finding = _classify(_pdf_ts_facts(_XMP), deferred)
+    assert (finding.class_id, finding.decision) == ("NO_EVIDENCE_EITHER_WAY", "ADVISORY")
+
+
+@pytest.mark.parametrize("name", ["/Metadata", "/Perms", "/Root /Metadata", "/Info /Perms"])
+def test_a_slash_led_pdf_name_never_names_a_verified_symbol(name: str) -> None:
+    facts = _pdf_ts_facts(f"The catalog key `{name}` holds it.")
+    assert not DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:359.paragraph"
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The `Metadata` class holds the packet.",
+        "Read `/Root /Metadata` through `Metadata` first.",
+        "Set `/Perms` with `Perms`.",
+    ],
+)
+def test_a_real_symbol_in_a_code_span_still_names_a_verified_symbol(text: str) -> None:
+    """Negative control: the PDF-name rule removes only the slash-led literal; the symbol itself,
+    spelled without a slash, is still evidence the facts hold what the unit claims."""
+    facts = _pdf_ts_facts(text)
+    assert DeferralContext.build({"dispositions": []}, facts).names_verified_symbol(
+        "inherited_unit:359.paragraph"
+    )
+    deferred = _deferred("inherited_unit:359.paragraph", "No fact confirms the behaviour.")
+    assert _classify(facts, deferred).decision == "BLOCK"
+
+
+# CUT-2 (BC-05 v5 extension): the notices, licence, dependency, lead-in and install-snippet causes
+# the 2026-10-10 baseline and the first cut-2 wave left blocking. Each unit is trimmed from the
+# real transaction named in its docstring.
+
+_MIT = (
+    "This project is licensed under the MIT License. The MIT License permits use, copying,\n"
+    "modification, distribution, sublicensing, and commercial use, provided its copyright and\n"
+    "permission notice are retained. The software is provided without warranty."
+)
+_PSD = "Aspose.PSD.FOSS for .NET"
+
+
+def _license_fact() -> Fact:
+    return _fact("license", "spdx", "MIT")
+
+
+def test_the_projects_own_mit_paragraph_is_not_a_third_party_notice() -> None:
+    """PSD-.NET 85ed7eec inherited_unit:060: 'copyright and permission notice are retained' is the
+    MIT text, the License section's content. It blocked as unrecorded third-party notices."""
+    facts = _facts(_license_fact(), _unit(60, "paragraph", _MIT, f"{_PSD} > License"))
+    finding = _classify(
+        facts, _deferred("inherited_unit:060.paragraph", "Rendered from the license fact.")
+    )
+    assert (finding.class_id, finding.decision) == (
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "ADVISORY",
+    )
+
+
+def test_the_projects_license_heading_is_covered_by_the_license_section() -> None:
+    facts = _facts(_license_fact(), _unit(59, "heading", "## License", _PSD))
+    finding = _classify(facts, _deferred("inherited_unit:059.heading", "Superseded."))
+    assert (finding.class_id, finding.decision) == (
+        "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
+        "ADVISORY",
+    )
+
+
+def test_a_license_claim_with_no_license_fact_is_advisory_and_never_published() -> None:
+    """PSD-.NET and PSD-Python have no LICENSE file and declare none, so the README's 'MIT' is a
+    claim the tree does not show. Withheld and listed for the owner; not an extractor gap."""
+    facts = _facts(_unit(60, "paragraph", _MIT, f"{_PSD} > License"))
+    finding = _classify(facts, _deferred("inherited_unit:060.paragraph", "Rendered."))
+    assert (finding.class_id, finding.decision) == ("OWN_LICENSE_UNVERIFIED", "ADVISORY")
+
+
+_GO_LICENSE = (
+    "The library also bundles the Arimo, Tinos, Cousine, and Carlito font families under the SIL "
+    "Open Font License 1.1, used to render the PDF Standard-14 fonts - see "
+    "[fonts/LICENSE.txt](fonts/LICENSE.txt) (SPDX: `MIT AND OFL-1.1`). The MIT license above "
+    "covers the library's own code."
+)
+
+
+def test_bundled_material_under_the_license_heading_still_blocks_without_a_record() -> None:
+    """Negative control: PDF-Go 092 sits under License but documents bundled fonts, so the
+    own-license class never decides it; the attribution needs its record first."""
+    facts = _facts(
+        _license_fact(), _unit(92, "paragraph", _GO_LICENSE, "Aspose.PDF FOSS > License")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:092.paragraph", "Repeats."))
+    assert (finding.class_id, finding.decision, finding.stage) == (
+        "NOTICES_WITHOUT_RECORD",
+        "BLOCK",
+        "EXTRACTING",
+    )
+
+
+def test_bundled_material_with_a_notices_record_is_covered_by_the_license_section() -> None:
+    notices = _fact("third_party_notices", "file", "fonts/LICENSE.txt")
+    facts = _facts(
+        _license_fact(), notices, _unit(92, "paragraph", _GO_LICENSE, "Aspose.PDF FOSS > License")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:092.paragraph", "Repeats."))
+    assert finding.decision == "ADVISORY"
+
+
+def test_a_no_third_party_dependency_sentence_is_not_a_notice() -> None:
+    """Email-Cpp c844a467 inherited_unit:016: 'no third-party dependency is fetched to build it'
+    is a build statement. The bare words 'third-party' no longer mean attribution."""
+    facts = _facts(
+        _fact("build_test_asset", "tests", "tests/"),
+        _fact("install_command", "cmake", "cmake --build"),
+        _unit(
+            16,
+            "paragraph",
+            "The library target is `AsposeEmailFoss`; no third-party dependency is fetched to "
+            "build or test it.",
+            "Aspose.Email FOSS for C++ > Installation > Build",
+        ),
+    )
+    deferred = _deferred("inherited_unit:016.paragraph", RECOVERED_COVERAGE_RATIONALE + "Covered.")
+    assert _classify(facts, deferred).class_id == "NOT_CARRIED_BY_NAMED_SECTION"
+
+
+def test_a_third_party_notices_heading_without_a_record_still_blocks() -> None:
+    facts = _facts(_unit(88, "heading", "## Third-Party Notices", "Aspose.PDF FOSS for Go"))
+    finding = _classify(facts, _deferred("inherited_unit:088.heading", "Placeable."))
+    assert (finding.class_id, finding.decision) == ("NOTICES_WITHOUT_RECORD", "BLOCK")
+
+
+def test_a_dependencies_section_unit_is_covered_by_the_rendered_dependencies() -> None:
+    """PSD-Python dbc90f46 inherited_unit:021 and 023: lists under 'Dependencies' the model
+    deferred as 'rendered by the deterministic dependencies section'."""
+    facts = _facts(
+        _fact("build_test_asset", "tests", "tests/"),
+        _unit(
+            23,
+            "list",
+            "- `pytest` - the test runner used by the test modules. No version is pinned.",
+            "Aspose.PSD-FOSS for Python > Dependencies > Development Dependencies",
+        ),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:023.list", "Covered."))
+    assert (finding.class_id, finding.decision) == (
+        "DEPENDENCY_TEXT_COVERED_BY_DEPENDENCIES",
+        "ADVISORY",
+    )
+
+
+def test_prose_outside_a_dependencies_section_is_not_covered_by_it() -> None:
+    """Negative control: only the source heading decides, never a stray word in the text."""
+    facts = _facts(
+        _unit(5, "paragraph", "Plain prose about dependencies.", "Aspose.PSD-FOSS > Overview")
+    )
+    finding = _classify(facts, _deferred("inherited_unit:005.paragraph", "Held."))
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+def test_a_lead_in_to_a_withheld_link_line_is_advisory() -> None:
+    """Font-Python adf4885a inherited_unit:087: 'see:' introduces a guide link the model omitted
+    as CONTRADICTED. The lead-in is withheld with it, whatever kind the next block is."""
+    facts = _facts(
+        _unit(
+            87,
+            "paragraph",
+            "For comprehensive documentation of the `web-optimize` command, see:",
+            "aspose-font > CLI Usage",
+        ),
+        _unit(88, "paragraph", "**[Guide](docs/one_command_web_optimizer.md)**"),
+    )
+    dispositions = [
+        _deferred("inherited_unit:087.paragraph", "The link is contradicted."),
+        _kept("inherited_unit:088.paragraph"),
+    ]
+    finding = _classify(facts, dispositions[0], dispositions[1])
+    assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+
+
+def test_a_lead_in_whose_next_block_is_placed_stays_unclassified() -> None:
+    """Negative control: a placed neighbour means the sentence's promise is kept."""
+    facts = _facts(
+        _unit(87, "paragraph", "For the guide, see:", "aspose-font > CLI Usage"),
+        _unit(88, "paragraph", "**[Guide](docs/guide.md)**"),
+    )
+    placed = {
+        "unit_id": "inherited_unit:088.paragraph",
+        "disposition": "KEEP_VERBATIM",
+        "destination_section": "documentation_resources",
+        "fact_ids": [],
+        "rationale": "Kept.",
+    }
+    finding = _classify(facts, _deferred("inherited_unit:087.paragraph", "Held."), placed)
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+_CMAKE = (
+    "```cmake\nadd_subdirectory(Aspose.Email-FOSS-for-Cpp)\n"
+    "target_link_libraries(app PRIVATE X)\n```"
+)
+
+
+def test_an_installation_snippet_that_is_not_a_verified_example_is_advisory() -> None:
+    """Email-Cpp c844a467 inherited_unit:013: a CMake integration snippet under Installation, with
+    a verified install_command. The model deferred it 'because no renderable section carries it'."""
+    facts = _facts(
+        _fact("install_command", "cmake", "git clone ..."),
+        _unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "No section carries it."))
+    assert (finding.class_id, finding.decision) == (
+        "INSTALL_SNIPPET_COVERED_BY_INSTALLATION",
+        "ADVISORY",
+    )
+
+
+def test_a_verified_example_under_installation_is_not_an_install_snippet() -> None:
+    """Negative control: a code block whose own example is SUPPORTED is the plan's to place."""
+    facts = _facts(
+        _fact("install_command", "cmake", "git clone ..."),
+        _example(1, "SUPPORTED", unit=13),
+        _unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"),
+    )
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "Held."))
+    assert finding.class_id == "UNCLASSIFIED"
+
+
+def test_an_installation_snippet_without_a_verified_install_is_not_this_class() -> None:
+    facts = _facts(_unit(13, "code_block", _CMAKE, "Aspose.Email FOSS for C++ > Installation"))
+    finding = _classify(facts, _deferred("inherited_unit:013.code_block", "Held."))
+    assert finding.class_id == "INSTALL_STEPS_UNVERIFIED"

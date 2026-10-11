@@ -1,0 +1,19 @@
+# log: pytest-PSD-Python
+# repository: aspose-psd-foss/Aspose.PSD-FOSS-for-Python
+# head: 664446b97952c063baf828f469995ad2a160bae7
+# utc: 2026-10-10T15:03:51Z
+# cwd: shallow clone of the default branch
+# command: PY=../../venvs/cp/Scripts/python.exe; echo '--- plain pytest from repo root (default python_files is test_*.py / *_test.py):'; $PY -m pytest -p no:cacheprovider 2>&1 | tail -3; echo '--- test modules named *tests.py / test_*.py:'; ls aspose_psd_foss_test | grep -c 'tests.py$'; ls aspose_psd_foss_test | grep -c '^test_'; echo '--- same modules passed explicitly (summary line):'; $PY -m pytest -q -p no:cacheprovider aspose_psd_foss_test/*tests.py 2>&1 | grep -E '[0-9]+ (passed|failed)'; echo '--- fixture-path helper (aspose_psd_foss_test/psdtestfixturebase.py:73-74):'; sed -n 73,74p aspose_psd_foss_test/psdtestfixturebase.py
+# ---- output (capped at 60000 bytes) ----
+--- plain pytest from repo root (default python_files is test_*.py / *_test.py):
+
+no tests ran in 0.05s
+--- test modules named *tests.py / test_*.py:
+11
+0
+--- same modules passed explicitly (summary line):
+--- fixture-path helper (aspose_psd_foss_test/psdtestfixturebase.py:73-74):
+        test_dir = os.path.abspath(os.getenv('PYTEST_CURRENT_TEST', ''))
+        test_directory_path = os.path.join(test_dir, 'testdata', file_name)
+
+# exit: 0

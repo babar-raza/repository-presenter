@@ -1,0 +1,16 @@
+# log: license-Cells-Java
+# repository: aspose-cells-foss/Aspose.Cells-FOSS-for-Java
+# head: c65329e7257b1311abb9686d7e4957a8cc002955
+# utc: 2026-10-10T15:01:55Z
+# cwd: shallow clone of the default branch
+# command: echo '--- tracked files whose name looks like a license:'; git ls-files | grep -i -E '(^|/)(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- tracked at repository root:'; git ls-files | grep -i -E '^(licen[sc]e|copying)[^/]*$' || echo NONE; echo '--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java --jq .license:'; gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java --jq '"license=" + (.license|tostring)'
+# ---- output (capped at 60000 bytes) ----
+--- tracked files whose name looks like a license:
+License/LICENSE.txt
+docs/apidocs/legal/LICENSE
+--- tracked at repository root:
+NONE
+--- GitHub license detection: gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java --jq .license:
+license=null
+
+# exit: 0

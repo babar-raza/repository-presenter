@@ -32,6 +32,21 @@ CloseReason = Literal["completed", "not planned"]
 CLOSE_REASONS: tuple[CloseReason, ...] = ("completed", "not planned")
 _STATUSES_REQUIRING_CLOSE_REASON = frozenset({"RESOLVED_UPSTREAM"})
 
+# The defect classes a handoff may name in its optional `defect_class` field (G6-W07; the schema
+# admission is the DECISION_LOG entry "supervisor decisions D-OWN-1 to D-OWN-7 ..."). The ids are
+# fixed here and in the schema's enum; `classes.py` holds the behavior (detector, redetector,
+# issue template) registered under each, and a test holds the three lists equal.
+DEFECT_CLASSES: tuple[str, ...] = (
+    "LICENSE_MISSING_ROOT",
+    "LICENSE_MISMATCH",
+    "MANIFEST_PLACEHOLDER_METADATA",
+    "README_MISSING_OR_PLACEHOLDER",
+    "SOURCE_UNPARSEABLE",
+    "BUILD_OR_TESTS_FAIL",
+    "EXAMPLE_FAILS",
+    "INSTALL_FAILS",
+)
+
 
 class HandoffError(ValueError):
     """A handoff artifact on disk does not have the shape the ledger/redetector depend on."""
@@ -79,6 +94,10 @@ class Handoff:
     status: Status
     issue_ref: IssueRef | None
     close_reason: CloseReason | None = None
+    # Optional and additive: absent on every handoff drafted before the class registry existed,
+    # which stay valid unchanged. When set, it names the `classes.py` registry entry that detected
+    # the defect.
+    defect_class: str | None = None
 
     @property
     def key(self) -> tuple[str, str]:
@@ -139,6 +158,9 @@ def handoff_from_dict(payload: dict[str, Any], *, path: Path) -> Handoff:
         raise HandoffError(f"{path}: status {status!r} requires close_reason to be set")
     if status not in _STATUSES_REQUIRING_CLOSE_REASON and close_reason is not None:
         raise HandoffError(f"{path}: status {status!r} must not carry a close_reason")
+    defect_class = payload.get("defect_class")
+    if defect_class is not None and defect_class not in DEFECT_CLASSES:
+        raise HandoffError(f"{path}: unknown defect_class {defect_class!r}")
     return Handoff(
         schema_version=_require(payload, "schema_version", path),
         repository=_require(payload, "repository", path),
@@ -152,6 +174,7 @@ def handoff_from_dict(payload: dict[str, Any], *, path: Path) -> Handoff:
         status=status,
         issue_ref=issue_ref,
         close_reason=close_reason,
+        defect_class=defect_class,
     )
 
 
@@ -167,8 +190,13 @@ def load_handoff(path: Path) -> Handoff:
 
 
 def handoff_to_dict(handoff: Handoff) -> dict[str, Any]:
-    """The JSON-serializable shape, field order matching the schema's own `required` list."""
+    """The JSON-serializable shape, field order matching the schema's own `required` list.
+
+    `defect_class` is written only when set, so a handoff drafted without one serializes exactly
+    as it did before the field existed."""
     payload = asdict(handoff)
+    if payload["defect_class"] is None:
+        del payload["defect_class"]
     return payload
 
 

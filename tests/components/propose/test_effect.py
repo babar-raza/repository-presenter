@@ -12,6 +12,7 @@ from repository_presenter.components.propose.effect import (
     ProposalEffectResult,
     propose_candidate,
 )
+from repository_presenter.components.propose.pull_request import PullRequestContent
 from repository_presenter.core.authorization.proposal import (
     ProposalAuthorization,
     authorize_proposal,
@@ -677,3 +678,102 @@ def test_a_newly_created_pr_attributed_to_another_app_is_reported_not_effected()
     assert result.pr_created is True  # the PR exists; the result says so and says to review it
     assert result.pr_url is not None
     assert result.pr_url in result.reason
+
+
+# ---------------------------------------------------------------------------
+# the pull request text is composed after the gates, from the base branch's live README (TC-PRP-01)
+# ---------------------------------------------------------------------------
+
+LIVE_README = "# Disposable Target\n\nOld content.\n"
+
+
+def _composer(seen: list[str | None]) -> object:
+    def compose(live_readme: str | None) -> PullRequestContent:
+        seen.append(live_readme)
+        return PullRequestContent(title="composed title", body=f"composed body\n{len(seen)}\n")
+
+    return compose
+
+
+def _compose_kwargs(seen: list[str | None]) -> dict[str, object]:
+    return {"pr_title": None, "pr_body": None, "compose_pull_request": _composer(seen)}
+
+
+def test_the_composed_text_is_used_for_the_created_pull_request() -> None:
+    github = FakeGitHub()
+    github.files[(BASE_BRANCH, "README.md")] = FileContents("README.md", "live-sha", LIVE_README)
+    seen: list[str | None] = []
+    result = _propose(github, **_compose_kwargs(seen))
+    assert result.effected is True and result.pr_created is True
+    assert seen == [LIVE_README]  # the base branch's README, not the presenter branch's
+    pr = github.prs[BRANCH]
+    assert (pr.title, pr.body) == ("composed title", "composed body\n1\n")
+
+
+def test_a_target_with_no_readme_composes_from_none() -> None:
+    github = FakeGitHub()
+    seen: list[str | None] = []
+    assert _propose(github, **_compose_kwargs(seen)).effected is True
+    assert seen == [None]
+
+
+def test_composing_is_idempotent_across_runs_that_compose_the_same_text() -> None:
+    """A second run reads the same live README, composes the same bytes and writes nothing."""
+    github = FakeGitHub()
+    github.files[(BASE_BRANCH, "README.md")] = FileContents("README.md", "live-sha", LIVE_README)
+
+    def compose(live_readme: str | None) -> PullRequestContent:
+        return PullRequestContent(title="t", body=f"live was {live_readme!r}")
+
+    kwargs: dict[str, object] = {
+        "pr_title": None,
+        "pr_body": None,
+        "compose_pull_request": compose,
+    }
+    first = _propose(github, **kwargs)
+    second = _propose(github, **kwargs)
+    assert first.pr_created is True
+    assert second.reason == "no change needed"
+    assert github.create_pr_calls == 1 and github.update_pr_calls == 0
+
+
+def test_a_changed_composed_text_updates_the_existing_pull_request_in_place() -> None:
+    github = FakeGitHub()
+    seen: list[str | None] = []
+    kwargs = _compose_kwargs(seen)
+    _propose(github, **kwargs)
+    github.files[(BASE_BRANCH, "README.md")] = FileContents("README.md", "live-sha", LIVE_README)
+    second = _propose(github, **kwargs)
+    assert second.pr_updated is True and second.pr_created is False
+    assert github.create_pr_calls == 1 and github.update_pr_calls == 1
+
+
+def test_nothing_is_composed_when_a_gate_refuses() -> None:
+    """Composing reads the target; it must come after every gate, like the other target reads."""
+    github = FakeGitHub()
+    seen: list[str | None] = []
+    for overrides in ({"environment": {}}, {"token": None}, {"recheck_source": lambda: "a" * 40}):
+        result = _propose(github, **_compose_kwargs(seen), **overrides)
+        assert result.effected is False
+    assert seen == []
+
+
+def test_a_failed_read_of_the_base_readme_is_a_github_error_before_any_write() -> None:
+    github = FakeGitHub()
+
+    def failing(*args: object, ref: str, **kwargs: object) -> FileContents | None:
+        if ref == BASE_BRANCH:
+            raise RepositoryMetadataError("boom")
+        return None
+
+    result = _propose(github, get_contents=failing, **_compose_kwargs([]))
+    assert result.effected is False and result.reason_code is Refusal.GITHUB_ERROR
+    assert github.put_calls == [] and github.create_pr_calls == 0
+
+
+def test_the_text_must_come_from_exactly_one_source() -> None:
+    github = FakeGitHub()
+    with pytest.raises(ValueError, match="pr_title and pr_body, or compose_pull_request"):
+        _propose(github, pr_title=None, pr_body=None)
+    with pytest.raises(ValueError, match="not both"):
+        _propose(github, **{**_compose_kwargs([]), "pr_title": "t", "pr_body": "b"})

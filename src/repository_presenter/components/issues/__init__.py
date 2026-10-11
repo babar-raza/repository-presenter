@@ -36,9 +36,20 @@ neither of which needs a GitHub write scope:
   duplicate. It runs only from
   `.github/workflows/issues-scheduled.yml`'s gated write job.
 
-Every other module here (`model.py`, `ledger.py`, `redetect.py`, `draft.py`) stays read + local-
-JSON only and calls no GitHub Issues write endpoint; only `file.py` ever does, and only past its
-own gates.
+- `batch.py` — the per-repository bounds on a batch of approved filings: a daily cap, an
+  open-issue cap, and pacing between writes (TC-ISS-09/11). Counts come from the target
+  repository's own marked issues; `file.py` calls its hook once, just before the first POST. A lost
+  create response is reconciled in `file.py` (search for the fingerprint marker before any retry).
+- `lifecycle.py` — the pure decisions of a scheduled cycle (TC-ISS-10): whether a persisting
+  defect with changed evidence earns one update comment (never a second issue, never a repeat),
+  and the resume record that lets `core/sealing_plan.py` take up the candidate a resolved defect
+  was blocking. `file.py::comment_on_filed` is its gated write.
+- `funnel.py` — where every handoff stands (PENDING, APPROVED, FILED, RESOLVED) and the warning
+  annotation for one that has waited too long (TC-ISS-11); shown by `status` and `issue-funnel`.
+
+Every other module here (`model.py`, `ledger.py`, `redetect.py`, `draft.py`, `batch.py`,
+`lifecycle.py`, `funnel.py`) stays read + local-JSON only and calls no GitHub Issues write
+endpoint; only `file.py` ever does, and only past its own gates.
 """
 
 from __future__ import annotations

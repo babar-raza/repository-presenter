@@ -51,6 +51,14 @@ Three further guards hold even with every gate open:
   this system did not file (the handoff's own ``issue_ref``, re-proved by the marker on the live
   issue), and never on an inconclusive check.
 
+A lost response is reconciled, not repeated (TC-ISS-09). When the create call's outcome is unknown
+(the connection dropped, a timeout, a 5xx, a 201 with no body: ``IssueOutcomeUnknownError``), the
+issue may exist although no answer arrived. ``file_handoff`` then searches the target for the
+fingerprint marker before it does anything else: found, the issue is recorded as this handoff's
+(``reconciled``); absent, the create is attempted once more (``MAX_CREATE_ATTEMPTS`` in all); a
+search that cannot complete ends the filing as an error without a second POST. A definite
+rejection (4xx) is neither searched nor retried.
+
 Each function here reports what it did or would do and never raises for an ordinary refusal, a
 network failure, or a GitHub rejection - a failed effect for one handoff is returned to the caller,
 which keeps processing the others.
@@ -58,7 +66,7 @@ which keeps processing the others.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -70,14 +78,18 @@ from repository_presenter.components.issues.approval import (
     verify_approval,
 )
 from repository_presenter.components.issues.close_approval import verify_close_approval
+from repository_presenter.components.issues.lifecycle import decide_update
 from repository_presenter.components.issues.model import CloseReason, Handoff, IssueRef
 from repository_presenter.components.issues.redetect import RedetectionResult
 from repository_presenter.core.errors import RepositoryMetadataError
 from repository_presenter.core.github.client import (
+    IssueComment,
+    IssueOutcomeUnknownError,
     IssueSnapshot,
     WriteFn,
     close_issue,
     create_issue,
+    create_issue_comment,
     default_patch,
     default_post,
 )
@@ -85,6 +97,9 @@ from repository_presenter.core.github.token_provenance import TokenDecision
 from repository_presenter.core.registry.write_gate import WritePermit
 
 AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED"
+# A second, narrower switch for update comments on issues already filed (TC-ISS-10). Off unless the
+# owner sets it to 1; it never replaces the main kill switch, which must also be on.
+COMMENTS_AUTHORIZATION_VARIABLE = "REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED"
 _AUTHORIZED_VALUES = frozenset({"1", "true", "yes"})
 
 _NOT_AUTHORIZED_REASON = (
@@ -99,12 +114,24 @@ _NO_TOKEN_REASON = "no write-scoped token available (GH_ISSUES_WRITE_TOKEN, neve
 # GitHub's own state_reason values for a closed issue; CloseReason ("not planned") is ours.
 _STATE_REASON = {"completed": "completed", "not planned": "not_planned"}
 
+# One attempt plus one retry, and the retry only after a conclusive search found no issue.
+MAX_CREATE_ATTEMPTS = 2
+
 
 def write_authorized(environment: Mapping[str, str]) -> bool:
     """``True`` only while the owner's kill switch ``AUTHORIZATION_VARIABLE`` is set to a truthy
     value. Absence, an empty string, or any other value disables writes - fail closed. A ``True``
     here is necessary and never sufficient: filing also needs the handoff's own approval record."""
     return environment.get(AUTHORIZATION_VARIABLE, "").strip().lower() in _AUTHORIZED_VALUES
+
+
+def comments_authorized(environment: Mapping[str, str]) -> bool:
+    """``True`` only while the owner set ``COMMENTS_AUTHORIZATION_VARIABLE`` to a truthy value.
+    Necessary, never sufficient: ``comment_on_filed`` also needs the main kill switch, the gates a
+    filing passes, and the live issue's marker."""
+    return (
+        environment.get(COMMENTS_AUTHORIZATION_VARIABLE, "").strip().lower() in _AUTHORIZED_VALUES
+    )
 
 
 def fingerprint_marker(defect_fingerprint: str) -> str:
@@ -146,6 +173,9 @@ class FileResult:
     reason: str
     issue_ref: IssueRef | None
     error: bool = False
+    # ``True`` when the create call's answer was lost and a search of the target found the issue it
+    # had made: ``issue_ref`` is set, ``filed`` stays ``False`` (no POST was confirmed).
+    reconciled: bool = False
 
 
 @dataclass(frozen=True)
@@ -280,6 +310,8 @@ def file_handoff(
     expected_repository: str | None = None,
     permit: WritePermit,
     verify_token: Callable[[str], TokenDecision],
+    before_write: Callable[[], str | None] | None = None,
+    max_attempts: int = MAX_CREATE_ATTEMPTS,
 ) -> FileResult:
     """File ``handoff`` as a real GitHub issue - but only past every gate in this module's own
     docstring. Every early return below makes no network call at all.
@@ -289,7 +321,13 @@ def file_handoff(
     which no permit can be obtained - can never reach this function. ``verify_token`` proves the
     write token is an installation token scoped to exactly the target
     (``core/github/token_provenance.py``): a hand-set personal access token, a token that reaches
-    more than the target, or one that cannot be verified is refused before any lookup or POST."""
+    more than the target, or one that cannot be verified is refused before any lookup or POST.
+
+    ``before_write`` is the batch governor's hook (``batch.py``): called once, after every other
+    gate has passed and immediately before the first POST, it returns a refusal (a daily cap, an
+    open-issue cap, an unreadable count) or ``None``, and may pace the write by sleeping. It is
+    never called for a handoff that is refused, already filed upstream or stale, so a cap is spent
+    only by a filing that would really be made."""
     if permit.effect != "issue_filing" or permit.entry.repository != handoff.repository:
         raise ValueError("the write permit does not clear this effect for this repository")
 
@@ -338,27 +376,72 @@ def file_handoff(
     if plan.refusal is not None:
         return _refuse(True, plan.refusal)
 
-    owner, name = _split(handoff.repository)
-    try:
-        created = create_issue(
-            owner,
-            name,
-            title=handoff.suggested_issue_title,
-            body=body_with_marker(handoff),
-            token=token,
-            write=create,
-        )
-    except RepositoryMetadataError as exc:
-        return _refuse(True, str(exc), error=True)
+    if before_write is not None:
+        hold = before_write()
+        if hold is not None:
+            return _refuse(True, hold)
 
-    return FileResult(
-        repository=handoff.repository,
-        defect_fingerprint=handoff.defect_fingerprint,
-        authorized=True,
-        filed=True,
-        reason="filed",
-        issue_ref=IssueRef(number=created.number, url=created.url),
-    )
+    owner, name = _split(handoff.repository)
+    for attempt in range(1, max(1, max_attempts) + 1):
+        try:
+            created = create_issue(
+                owner,
+                name,
+                title=handoff.suggested_issue_title,
+                body=body_with_marker(handoff),
+                token=token,
+                write=create,
+            )
+        except IssueOutcomeUnknownError as exc:
+            # The issue may exist. Look before anything else is written (AGENTS.md: reconcile an
+            # uncertain remote effect before retrying).
+            if existing is None:
+                return _refuse(
+                    True,
+                    f"{exc} - no upstream search is configured to reconcile it, so it is not "
+                    "retried",
+                    error=True,
+                )
+            try:
+                landed = existing()
+            except RepositoryMetadataError as search_exc:
+                return _refuse(
+                    True,
+                    f"{exc} - the outcome cannot be reconciled because the upstream search "
+                    f"failed ({search_exc}); not retried",
+                    error=True,
+                )
+            if landed is not None:
+                return FileResult(
+                    repository=handoff.repository,
+                    defect_fingerprint=handoff.defect_fingerprint,
+                    authorized=True,
+                    filed=False,
+                    reason=(
+                        f"the create response was lost ({exc}); reconciled: the issue exists "
+                        f"upstream as #{landed.number} ({landed.url}) - recorded, not re-filed"
+                    ),
+                    issue_ref=landed,
+                    reconciled=True,
+                )
+            if attempt >= max_attempts:
+                return _refuse(
+                    True,
+                    f"{exc} - after {attempt} attempt(s) no issue for this defect exists upstream",
+                    error=True,
+                )
+            continue
+        except RepositoryMetadataError as exc:
+            return _refuse(True, str(exc), error=True)
+        return FileResult(
+            repository=handoff.repository,
+            defect_fingerprint=handoff.defect_fingerprint,
+            authorized=True,
+            filed=True,
+            reason="filed",
+            issue_ref=IssueRef(number=created.number, url=created.url),
+        )
+    raise AssertionError("unreachable: the loop returns on every path")  # pragma: no cover
 
 
 @dataclass(frozen=True)
@@ -569,3 +652,132 @@ def close_handoff(
         reason=f"closed #{handoff.issue_ref.number} as {result.proposed_close_reason!r}",
         close_reason=result.proposed_close_reason,
     )
+
+
+@dataclass(frozen=True)
+class CommentResult:
+    """The outcome of one ``comment_on_filed`` call. ``commented`` is ``True`` only after GitHub
+    answered HTTP 201 for the comment. ``reconciled`` means the answer was lost and the thread
+    showed the comment had landed (nothing more was posted)."""
+
+    repository: str
+    defect_fingerprint: str
+    authorized: bool
+    commented: bool
+    reason: str
+    error: bool = False
+    reconciled: bool = False
+
+
+def comment_on_filed(
+    handoff: Handoff,
+    result: RedetectionResult,
+    *,
+    token: str | None,
+    environment: Mapping[str, str],
+    permit: WritePermit,
+    verify_token: Callable[[str], TokenDecision],
+    issue_lookup: Callable[[], IssueSnapshot],
+    comments_lookup: Callable[[], Sequence[IssueComment]],
+    create: WriteFn = default_post,
+    expected_repository: str | None = None,
+) -> CommentResult:
+    """Post one update comment on the issue ``handoff`` filed, when the evidence changed
+    (``lifecycle.py::decide_update`` decides; a comment never duplicates an earlier one and is never
+    a second issue).
+
+    A comment is a write to a product repository, so it passes the gates a filing passes: the
+    registry ``issue_filing`` permit (the same ``issues:write`` capability), the kill switch, a
+    write-scoped token whose provenance is verified, the handoff's own recorded target; and it
+    proves the target is this system's own *open* issue by the fingerprint marker on the live issue
+    before it writes. The comment text is a fixed rendering of the redetector's evidence held to
+    ``quality.text_quality_findings``. An unknown outcome (a lost response) is reconciled by listing
+    the thread, never re-posted within the cycle: absent, the next cycle decides again."""
+    if permit.effect != "issue_filing" or permit.entry.repository.casefold() != (
+        handoff.repository.casefold()
+    ):
+        raise ValueError("the write permit does not clear this effect for this repository")
+
+    def _result(
+        authorized: bool,
+        reason: str,
+        *,
+        commented: bool = False,
+        error: bool = False,
+        reconciled: bool = False,
+    ) -> CommentResult:
+        return CommentResult(
+            repository=handoff.repository,
+            defect_fingerprint=handoff.defect_fingerprint,
+            authorized=authorized,
+            commented=commented,
+            reason=reason,
+            error=error,
+            reconciled=reconciled,
+        )
+
+    if not write_authorized(environment):
+        return _result(False, _NOT_AUTHORIZED_REASON)
+    if not comments_authorized(environment):
+        return _result(
+            False,
+            f"update comments are off: {COMMENTS_AUTHORIZATION_VARIABLE} is not 1 (the owner "
+            "enables them separately from filing)",
+        )
+    if not token:
+        return _result(True, _NO_TOKEN_REASON)
+    decision_token = verify_token(token)
+    if not decision_token.ok:
+        return _result(
+            True, f"write token refused ({decision_token.code}): {decision_token.reason}"
+        )
+    target_refusal = _target_refusal(handoff, expected_repository)
+    if target_refusal is not None:
+        return _result(True, target_refusal)
+    if handoff.status != "FILED" or handoff.issue_ref is None:
+        return _result(
+            True, f"status is {handoff.status!r}: only a FILED handoff's issue is updated"
+        )
+
+    try:
+        refusal = _issue_refusal(handoff, issue_lookup())
+        if refusal is not None:
+            return _result(True, refusal)
+        thread = comments_lookup()
+    except RepositoryMetadataError as exc:
+        return _result(True, f"upstream read inconclusive ({exc}) - not commenting")
+    decision = decide_update(handoff, result, thread)
+    if not decision.post or decision.plan is None:
+        return _result(True, decision.reason)
+    plan = decision.plan
+
+    owner, name = _split(handoff.repository)
+    try:
+        create_issue_comment(
+            owner, name, plan.issue_number, body=plan.body, token=token, write=create
+        )
+    except IssueOutcomeUnknownError as exc:
+        try:
+            landed = decide_update(handoff, result, comments_lookup())
+        except RepositoryMetadataError as listing_exc:
+            return _result(
+                True,
+                f"{exc} - the outcome cannot be reconciled because the thread could not be read "
+                f"({listing_exc}); not reposted",
+                error=True,
+            )
+        if not landed.post:
+            return _result(
+                True,
+                f"the comment response was lost ({exc}); reconciled: the update is on the issue "
+                "- not reposted",
+                reconciled=True,
+            )
+        return _result(
+            True,
+            f"{exc} - the comment is not on the issue; left for the next cycle",
+            error=True,
+        )
+    except RepositoryMetadataError as exc:
+        return _result(True, str(exc), error=True)
+    return _result(True, f"commented on #{plan.issue_number}: {decision.reason}", commented=True)

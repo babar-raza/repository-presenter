@@ -46,14 +46,25 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from repository_presenter.components.readme.composition.audience import (
+    AUDIENCE_SECTIONS,
+    strip_audience_claims,
+    support_texts,
+    unsupported_audience_sentences,
+)
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
+    restates_own_title,
     section_spellings,
     slot_records,
     uncarried_units,
     unit_checks,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.output_bounds import (
+    largest_slot_citation_count,
+    omittable_count,
+)
 from repository_presenter.core.facts import FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -215,6 +226,14 @@ def coherence_schema(
     citable = coherence_citable_ids(tasks)
     if citable:
         units["items"]["properties"]["fact_ids"]["items"] = {"type": "string", "enum": citable}
+        # A unit cites only its own slot's facts (coherence_checks' per-section unit_checks), so no
+        # unit can legitimately cite more distinct facts than its largest slot may - not the
+        # union above, which is every section's. The decoder cannot enforce uniqueness (HTTP 400
+        # to uniqueItems), so without a count a repeating list runs to the whole budget
+        # (Cells-Rust's section_authoring, 2026-10-10; the same class as S3 and S4).
+        scoped = [task for task in tasks if not task.is_batch]
+        units["items"]["properties"]["fact_ids"]["maxItems"] = largest_slot_citation_count(scoped)
+        schema["properties"]["omitted"]["maxItems"] = omittable_count(scoped)
     else:
         units["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     count = len(existing_units)
@@ -574,6 +593,107 @@ def recover_coherence_carried_units(
     return output if changed else None
 
 
+def recover_coherence_title_restatements(
+    output: dict[str, Any],
+    *,
+    existing_units: list[dict[str, Any]],
+    tasks: list[SectionTask],
+    facts: FactsDocument,
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_content_loss``: a unit whose coherence revision now restates its own slot
+    title (``unit_checks`` item 99/106) while the unit S6 accepted did not is reverted, in full, to
+    the pre-coherence text and fact_ids - restoring exactly what already passed, never a rewrite.
+
+    Baseline reseal of 7c5acbf7 (2026-10-10): Slides-Java's S6 had repaired ``Embed images`` and
+    ``Apply visual effects`` off their titles, then S8 wrote both back as ``Embed images into
+    presentations ...`` on the first attempt and on the re-ask, and the transaction failed closed
+    (docs/RESEARCH notes already record Words-Python's coherence silently reverting six repaired
+    units the same way). The S6 call site has had a deterministic title recovery since NORMALISATION
+    "16"; this call site had only the content-loss and must-carry reverts.
+
+    A unit whose accepted text restated its title too has nothing sound to revert to and is left
+    for the model's re-ask; every unit whose revision does not restate its title keeps its
+    revision. ``run_job`` re-validates the result through the real checks before accepting it.
+
+    Returns ``None`` when nothing was reverted.
+    """
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    changed = False
+    for task in tasks:
+        for unit in units:
+            if not isinstance(unit, dict) or unit.get("section") != task.section_id:
+                continue
+            slot = str(unit.get("slot"))
+            title = task.slot_titles.get(slot)
+            existing = existing_by_key.get((task.section_id, slot))
+            if not title or existing is None:
+                continue
+            if not restates_own_title(str(unit.get("text", "")), title, facts):
+                continue
+            if restates_own_title(str(existing.get("text", "")), title, facts):
+                continue
+            unit["text"] = existing.get("text", unit.get("text"))
+            existing_fact_ids = existing.get("fact_ids")
+            if isinstance(existing_fact_ids, list) and existing_fact_ids:
+                unit["fact_ids"] = list(existing_fact_ids)
+            changed = True
+    return output if changed else None
+
+
+def recover_coherence_audience_claims(
+    output: dict[str, Any],
+    *,
+    existing_units: list[dict[str, Any]],
+    tasks: list[SectionTask],
+    facts: FactsDocument,
+) -> dict[str, Any] | None:
+    """Last-resort correction for S8 coherence's own ``run_job`` call, alongside
+    ``recover_coherence_title_restatements``: an opening the coherence pass rewrote so that it now
+    states an audience, use case, or spared cost no accepted fact states (``composition/
+    audience.py``; the wave-3 acceptance review's U-AUDIENCE) is reverted, in full, to the S6 text
+    when that text stated none - restoring exactly what already passed - and otherwise has the
+    claim deleted. Nothing is rewritten; ``run_job`` re-validates the result through the real
+    checks. Returns ``None`` when nothing was corrected."""
+    units = output.get("units")
+    if not isinstance(units, list):
+        return None
+    existing_by_key = {
+        (str(unit.get("section")), str(unit.get("slot"))): unit for unit in existing_units
+    }
+    changed = False
+    for task in tasks:
+        if task.section_id not in AUDIENCE_SECTIONS:
+            continue
+        support = support_texts(task.accepted_ids, facts)
+        for unit in units:
+            if not isinstance(unit, dict) or unit.get("section") != task.section_id:
+                continue
+            text = str(unit.get("text", ""))
+            if not unsupported_audience_sentences(text, support):
+                continue
+            existing = existing_by_key.get((task.section_id, str(unit.get("slot"))))
+            if existing is not None and not unsupported_audience_sentences(
+                str(existing.get("text", "")), support
+            ):
+                unit["text"] = existing.get("text", text)
+                existing_fact_ids = existing.get("fact_ids")
+                if isinstance(existing_fact_ids, list) and existing_fact_ids:
+                    unit["fact_ids"] = list(existing_fact_ids)
+                changed = True
+                continue
+            stripped = strip_audience_claims(text, support)
+            if stripped is not None:
+                unit["text"] = stripped
+                changed = True
+    return output if changed else None
+
+
 def recover_coherence_regressions(
     output: dict[str, Any],
     *,
@@ -581,16 +701,19 @@ def recover_coherence_regressions(
     facts: FactsDocument,
     tasks: list[SectionTask],
 ) -> dict[str, Any] | None:
-    """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: both of S8
+    """The one ``recover=`` callable ``repair/rounds.py``'s S8 call site passes: all of S8
     coherence's own last-resort corrections, composed - ``recover_coherence_content_loss`` first
     (the generic dropped-fact-with-no-trace revert, G3-W05), then
     ``recover_coherence_carried_units`` (the must-carry-specific revert and stray-citation strip,
-    above) against whatever the first pass left. Running the must-carry fix second means it always
-    judges the live, possibly-already-corrected output rather than a stale view. ``run_job`` only
-    ever accepts the result on its own re-validation against the real checks, never on either
-    function's say-so, so an incomplete correction here changes nothing: the job fails exactly as
-    it would have without this at all. Returns ``None`` only when neither correction found
-    anything to fix."""
+    above) against whatever the first pass left, then ``recover_coherence_title_restatements``
+    (a revision that newly restates its own slot title reverts to the accepted unit), then
+    ``recover_coherence_audience_claims`` (an opening that newly states an unsupported audience
+    reverts to the accepted unit, or loses the claim). Each correction judges the live,
+    possibly-already-corrected output rather than a stale view.
+    ``run_job`` only ever accepts the result on its own re-validation against the real checks,
+    never on either function's say-so, so an incomplete correction here changes nothing: the job
+    fails exactly as it would have without this at all. Returns ``None`` only when no correction
+    found anything to fix."""
     changed = False
     content_fixed = recover_coherence_content_loss(
         output, existing_units=existing_units, facts=facts
@@ -603,6 +726,18 @@ def recover_coherence_regressions(
     )
     if carry_fixed is not None:
         output = carry_fixed
+        changed = True
+    title_fixed = recover_coherence_title_restatements(
+        output, existing_units=existing_units, tasks=tasks, facts=facts
+    )
+    if title_fixed is not None:
+        output = title_fixed
+        changed = True
+    audience_fixed = recover_coherence_audience_claims(
+        output, existing_units=existing_units, tasks=tasks, facts=facts
+    )
+    if audience_fixed is not None:
+        output = audience_fixed
         changed = True
     return output if changed else None
 

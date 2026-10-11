@@ -1,0 +1,21 @@
+# log: stdout-logging-PDF-Python
+# repository: aspose-pdf-foss/Aspose-PDF-FOSS-for-Python
+# head: 8f0edbe6930f300088fc72f64711be3265a723d1
+# utc: 2026-10-10T15:17:30Z
+# cwd: shallow clone of the default branch
+# command: sed -n 8,13p src/aspose_pdf/engine/logging.py; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/pp/Scripts/python.exe -c "
+from aspose_pdf import Document
+with Document('tests/fixtures_4pages.pdf') as d:
+    pass
+" 2>NUL 1>stdout.txt; echo '--- captured STDOUT only (stderr discarded):'; cat stdout.txt; rm -f stdout.txt
+# ---- output (capped at 60000 bytes) ----
+if not _logger.handlers:
+    _logger.setLevel(logging.INFO)
+    _handler = logging.StreamHandler(sys.stdout)
+    _formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    _handler.setFormatter(_formatter)
+    _logger.addHandler(_handler)
+--- captured STDOUT only (stderr discarded):
+2026-10-10 20:17:29,028 [INFO] aspose_pdf: Document resources released.
+
+# exit: 0

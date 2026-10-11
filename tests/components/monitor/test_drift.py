@@ -25,7 +25,7 @@ from repository_presenter.components.monitor.drift import (
     write_drift_document,
 )
 from repository_presenter.core.errors import ConfigError
-from repository_presenter.core.github.read_client import DefaultBranchRead
+from repository_presenter.core.github.read_client import DefaultBranchRead, TreeRead
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
     enabled_entries,
@@ -53,32 +53,44 @@ def entries_of(*raw: dict[str, Any]) -> tuple[RegistryEntry, ...]:
     return Registry.model_validate({"schema_version": 1, "entries": list(raw)}).entries
 
 
+def _empty_tree(repository: str, revision: str, *, token: str | None = None) -> TreeRead:
+    return TreeRead(repository, revision)
+
+
 def observe_one(root: Path, repository: str, reader: FakeDefaultBranchReader) -> RepositoryDrift:
     (observation,) = observe_drift(
-        root, entries_of(monitor_registry_entry(repository)), token=TOKEN, read_head=reader
+        root,
+        entries_of(monitor_registry_entry(repository)),
+        token=TOKEN,
+        read_head=reader,
+        read_tree=_empty_tree,
     )
     return observation
 
 
-def test_head_equal_to_a_bundle_without_recorded_hashes_is_unknown(tmp_path: Path) -> None:
-    # A bundle sealed before upstream blob ids were recorded: the head matches, but its
-    # dependencies cannot be judged, so it is UNKNOWN (never CURRENT) until it is re-sealed.
-    # The CURRENT path with recorded hashes is covered in test_drift_content.py.
+def test_head_equal_to_a_bundle_without_recorded_hashes_is_current(tmp_path: Path) -> None:
+    # A bundle sealed before upstream blob ids were recorded, head unchanged: a git revision is
+    # immutable, so nothing it consumed can have changed. CURRENT, with no tree read to prove it.
+    # The recorded-hash paths are covered in test_drift_content.py.
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL")
 
     observation = observe_one(tmp_path, PYTHON, FakeDefaultBranchReader({PYTHON: BUNDLED}))
 
-    assert observation.status == "UNKNOWN"
+    assert observation.status == "CURRENT"
+    assert observation.change == "NO_CHANGE"
     assert observation.head_revision == BUNDLED
     assert observation.bundle_revision == BUNDLED
 
 
-def test_a_different_head_is_drifted_and_both_revisions_are_recorded(tmp_path: Path) -> None:
+def test_a_different_head_with_nothing_to_judge_by_is_unknown_not_drifted(tmp_path: Path) -> None:
+    # No recorded blob ids and no readable sealed facts: whether anything consumed changed is
+    # undecidable, so the row is UNKNOWN (never work for a sealing run) and both revisions are kept.
     write_bundle(tmp_path, PYTHON_DIR, BUNDLED, "READY_FOR_PROPOSAL")
 
     observation = observe_one(tmp_path, PYTHON, FakeDefaultBranchReader({PYTHON: NEWER}))
 
-    assert observation.status == "DRIFTED"
+    assert observation.status == "UNKNOWN"
+    assert observation.change == "UNKNOWN"
     assert observation.head_revision == NEWER
     assert observation.bundle_revision == BUNDLED
 
@@ -134,13 +146,15 @@ def test_a_read_failure_is_unreachable_and_never_stops_the_other_repositories(
         monitor_registry_entry(PYTHON, repository_id=1),
     )
 
-    observations = observe_drift(tmp_path, registry, token=TOKEN, read_head=reader)
+    observations = observe_drift(
+        tmp_path, registry, token=TOKEN, read_head=reader, read_tree=_empty_tree
+    )
 
     assert reader.calls == [JAVA, NET, PYTHON]
     assert [(o.repository, o.status) for o in observations] == [
         (JAVA, "UNREACHABLE"),
         (NET, "UNREACHABLE"),
-        (PYTHON, "UNKNOWN"),
+        (PYTHON, "CURRENT"),
     ]
     assert observations[0].detail == "ConnectionError: connection reset"
     assert observations[1].detail == "HTTP 503"
@@ -190,15 +204,22 @@ def test_the_document_counts_every_status_and_lists_repositories_in_order(tmp_pa
     assert document["schema_version"] == 1
     assert document["owner"] == "aspose-3d-foss"
     assert document["summary"] == {
-        "CURRENT": 0,
+        "CURRENT": 1,
         "DRIFTED": 0,
-        "UNKNOWN": 1,
+        "UNKNOWN": 0,
         "NO_BUNDLE": 1,
         "UNREACHABLE": 1,
     }
+    assert document["changes"] == {
+        "NO_CHANGE": 1,
+        "IRRELEVANT_CHANGE": 0,
+        "RELEVANT_CHANGE": 0,
+        "UNKNOWN": 0,
+        "UNREACHABLE": 0,
+    }
     # Sorted by repository name: "." (in ".NET") sorts before "J" (in "Java").
     assert [row["repository"] for row in document["repositories"]] == [NET, JAVA, PYTHON]
-    assert document["repositories"][2]["status"] == "UNKNOWN"
+    assert document["repositories"][2]["status"] == "CURRENT"
 
 
 # The handoff (G7-W06): the monitor's per-owner evidence must become the one sealing contract the

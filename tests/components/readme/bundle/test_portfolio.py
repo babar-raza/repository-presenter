@@ -169,6 +169,7 @@ def _bucket(
     drift: dict[str, DriftObservation] | None = None,
     authorizations: Any = None,
     ratified: bool = False,
+    currency: dict[str, str] | None = None,
 ) -> tuple[str, int]:
     report = assess_portfolio(
         root,
@@ -179,6 +180,7 @@ def _bucket(
         drift=drift,
         authorizations=authorizations,
         acceptance_ratified=ratified,
+        currency=currency,
     )
     assessed = report.entries[0]
     return assessed.bucket, assessed.depth
@@ -241,7 +243,7 @@ def test_a_failing_structure_check_is_fact_valid_but_not_presentation_valid(
 def test_valid_update_available_is_its_own_bucket_and_not_accepted(tmp_path: Path) -> None:
     entry = _entry("Python")
     _seal(tmp_path, entry, state="VALID_UPDATE_AVAILABLE")
-    assert _bucket(tmp_path, entry, drift=_current(entry)) == ("update_available", 2)
+    assert _bucket(tmp_path, entry, drift=_current(entry)) == ("update_unverified", 2)
 
 
 def test_a_stale_ready_bundle_is_update_available_and_excluded_from_acceptance(
@@ -250,7 +252,10 @@ def test_a_stale_ready_bundle_is_update_available_and_excluded_from_acceptance(
     entry = _entry("Python")
     _seal(tmp_path, entry)
     stale = (entry.repository.replace("/", "__"),)
-    assert _bucket(tmp_path, entry, stale=stale, drift=_current(entry)) == ("update_available", 2)
+    assert _bucket(tmp_path, entry, stale=stale, drift=_current(entry)) == (
+        "update_unverified",
+        2,
+    )
 
 
 def test_a_stale_ready_bundle_is_still_reported_as_ready_acceptance_advisory(
@@ -499,8 +504,8 @@ def test_every_live_entry_is_in_exactly_one_bucket_and_counts_are_a_funnel(
     assert landed["Missing"] == "no_bundle"
     assert landed["Corrupt"] == "bundle_corrupt"
     assert landed["Invalid"] == "not_fact_valid"
-    assert landed["Update"] == "update_available"
-    assert landed["Stale"] == "update_available"
+    assert landed["Update"] == "update_unverified"
+    assert landed["Stale"] == "update_unverified"
     assert landed["Struct"] == "fact_valid"
     assert landed["Review"] == "presentation_valid"
     assert landed["Proof"] == "independently_accepted"
@@ -826,3 +831,105 @@ def test_funnel_lines_are_printed_unchanged_by_the_headline(tmp_path: Path) -> N
         "independently accepted 1, no-op-proven 1, source-fresh 1, publication-eligible 0, "
         "effect-authorized 0"
     )
+
+
+# --- the PROPOSE gate's acceptance check (TC-PRP-01) ---------------------------------------------
+
+
+def test_the_proposal_gate_passes_only_a_ratified_pass(tmp_path: Path) -> None:
+    from repository_presenter.components.readme.bundle.portfolio import proposal_acceptance_gate
+
+    records = {
+        "pass": {"ratified": True, "outcome": "PASS"},
+        "fail": {
+            "ratified": True,
+            "outcome": "FAIL",
+            "points_earned": 12,
+            "points_possible": 30,
+            "triggered_disqualifiers": ["D3"],
+        },
+        "unratified": {"ratified": False, "outcome": "PASS"},
+    }
+
+    def scorer(_bundle: Path, directory: str) -> dict[str, Any]:
+        return records[directory]
+
+    gate = proposal_acceptance_gate(tmp_path, scorer=scorer)
+    assert gate(tmp_path, "pass") is None
+    reason = gate(tmp_path, "fail")
+    assert reason is not None and "'FAIL'" in reason and "12/30" in reason and "D3" in reason
+    assert gate(tmp_path, "unratified") is not None
+    unratified_profile = proposal_acceptance_gate(tmp_path, ratified=False, scorer=scorer)
+    assert "not ratified" in str(unratified_profile(tmp_path, "pass"))
+
+
+# --- the consumed-scope recheck splits the update bucket (G7-W25, doc 13 section 6.3) -----------
+
+
+@pytest.mark.parametrize("state", ["CURRENT", "RECHECKED_CURRENT", "UPDATE_OPTIONAL"])
+def test_a_stale_bundle_whose_recheck_is_counted_is_not_stale(tmp_path: Path, state: str) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry)
+    directory = entry.repository.replace("/", "__")
+    bucket = _bucket(
+        tmp_path, entry, stale=(directory,), drift=_current(entry), currency={directory: state}
+    )
+    assert bucket == ("source_fresh", 5)  # behind the recorded versions, yet it counts
+
+
+@pytest.mark.parametrize("state", ["UNVERIFIED", None])
+def test_a_stale_bundle_that_is_unverified_or_unchecked_stays_uncounted(
+    tmp_path: Path, state: str | None
+) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry)
+    directory = entry.repository.replace("/", "__")
+    currency = {} if state is None else {directory: state}
+    assert _bucket(tmp_path, entry, stale=(directory,), currency=currency) == (
+        "update_unverified",
+        2,
+    )
+
+
+def test_a_stale_bundle_whose_recheck_failed_is_update_required(tmp_path: Path) -> None:
+    entry = _entry("Python")
+    _seal(tmp_path, entry)
+    directory = entry.repository.replace("/", "__")
+    bucket = _bucket(tmp_path, entry, stale=(directory,), currency={directory: "UPDATE_REQUIRED"})
+    assert bucket == ("update_required", 2)
+
+
+def test_a_held_update_stays_an_update_whatever_its_recheck_says(tmp_path: Path) -> None:
+    """Negative control: only the status split changes; a manifest state never reads as current."""
+    entry = _entry("Python")
+    _seal(tmp_path, entry, state="VALID_UPDATE_AVAILABLE")
+    directory = entry.repository.replace("/", "__")
+    assert _bucket(tmp_path, entry, currency={directory: "CURRENT"})[0] == "update_unverified"
+    assert _bucket(tmp_path, entry, currency={directory: "UPDATE_REQUIRED"})[0] == "update_required"
+
+
+def test_the_split_partition_still_sums_to_the_denominator_and_the_funnel_is_monotone(
+    tmp_path: Path,
+) -> None:
+    entries = [_entry(name) for name in ("Python", "Java", "Go", "Rust")]
+    for entry in entries:
+        _seal(tmp_path, entry)
+    directories = [entry.repository.replace("/", "__") for entry in entries]
+    report = assess_portfolio(
+        tmp_path,
+        entries,
+        stale_directories=directories,
+        expected_branch=BRANCH,
+        now=NOW,
+        currency={
+            directories[0]: "RECHECKED_CURRENT",
+            directories[1]: "UPDATE_REQUIRED",
+            directories[2]: "UNVERIFIED",
+        },
+    )
+    assert report.buckets["update_required"] == 1
+    assert report.buckets["update_unverified"] == 2  # the unverified one and the unchecked one
+    assert sum(report.buckets.values()) == report.denominator == len(entries)
+    series = [report.counts[name] for name in COUNT_NAMES if report.counts[name] is not None]
+    assert all(left >= right for left, right in pairwise(series))
+    assert report.counts["independently_accepted"] == 1

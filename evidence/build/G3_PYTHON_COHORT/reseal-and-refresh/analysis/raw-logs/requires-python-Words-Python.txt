@@ -1,0 +1,14 @@
+# log: requires-python-Words-Python
+# repository: aspose-words-foss/Aspose.Words-FOSS-for-Python
+# head: 2d2efee2787cb9e56d071d17f8d7b740dce8b784
+# utc: 2026-10-10T15:07:29Z
+# cwd: shallow clone of the default branch
+# command: python --version; python -m venv E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/wp2 && E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/wp2/Scripts/python.exe -m pip install . 2>&1 | tail -3; ls .github 2>&1 | head -2
+# ---- output (capped at 60000 bytes) ----
+Python 3.13.15
+  Preparing metadata (pyproject.toml): finished with status 'done'
+INFO: pip is looking at multiple versions of aspose-words-foss to determine which version is compatible with other requirements. This could take a while.
+ERROR: Package 'aspose-words-foss' requires a different Python: 3.13.15 not in '<3.13,>=3.10'
+ls: cannot access '.github': No such file or directory
+
+# exit: 0

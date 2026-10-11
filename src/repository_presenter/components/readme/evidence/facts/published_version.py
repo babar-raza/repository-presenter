@@ -8,8 +8,9 @@ statement to it (`validation/claims.py`).
 
 Rules the fact keeps:
 
-- It exists only when the registry answered conclusively that the distribution is published and
-  named a stable release. An unreachable registry, an ambiguous answer, a 404, an ecosystem with
+- It exists only when the registry answered conclusively that the distribution is published,
+  that its project URL points back at this repository, and named a stable release. An
+  unreachable registry, an ambiguous answer, a 404, a name another project owns, an ecosystem with
   no registry (C++), or a body that lists only pre-releases yields no fact at all: a version is
   never guessed, and BC-14 judges nothing it has no fact for.
 - Its evidence is a fixed sentence plus the registry URL - no timestamp, no HTTP status, no
@@ -21,6 +22,8 @@ Rules the fact keeps:
 """
 
 from __future__ import annotations
+
+from dataclasses import replace
 
 from repository_presenter.components.readme.extractors.surface.registry import (
     RegistryObservation,
@@ -41,19 +44,56 @@ def published_version_fact(entry: RegistryEntry, package_name: Fact | None) -> F
     """``package:published_version`` for ``entry``'s package, or None when nothing conclusive."""
     if package_name is None or package_name.polarity != "SUPPORTED":
         return None
-    reading: RegistryObservation = _observe(entry.ecosystem, package_name.value)
-    if not reading.conclusive or not reading.published or not reading.latest_version:
+    reading: RegistryObservation = _observe(
+        entry.ecosystem, package_name.value, repository=entry.repository
+    )
+    # A version listed under a name this repository did not publish is someone else's release:
+    # the registry must point back here before its current version is stated as ours (TC-EXT-01).
+    if not reading.owned or not reading.latest_version:
         return None
+    detail = (
+        f"current stable release the {reading.registry} registry lists for the package; "
+        "the registry's state, not the repository's"
+    )
+    attributes = {"registry": reading.registry}
+    # How many versions the registry lists, when its body said: the only thing that can back a
+    # README's "the sole published version" (or refute it - Aspose.Cells FOSS for Java was
+    # called that while Maven Central lists 26.5.0 and 26.7.0). Absent when the body could not
+    # be read, so silence is never counted as a single release. The evidence says it too, so an
+    # author reading only the evidence does not take "current" for "only".
+    if reading.versions:
+        count = len(reading.versions)
+        attributes["version_count"] = str(count)
+        detail += f"; the registry lists {count} version{'' if count == 1 else 's'} in all"
     return Fact(
         PUBLISHED_VERSION_FACT_ID,
         "package",
         reading.latest_version,
-        (
-            Evidence(
-                reading.evidence_url or reading.registry,
-                f"current stable release the {reading.registry} registry lists for the package; "
-                "the registry's state, not the repository's",
-            ),
-        ),
-        attributes={"registry": reading.registry},
+        (Evidence(reading.evidence_url or reading.registry, detail),),
+        attributes=attributes,
     )
+
+
+_SOURCE_KINDS = frozenset({"source", "source_checkout"})
+
+
+def pin_install_version(install: Fact, manifest_version: str, published: Fact | None) -> Fact:
+    """``install`` with the manifest's version replaced by the registry's published release.
+
+    A coordinate-form registry command (Maven's ``-Dartifact=group:artifact:<version>``) embeds
+    the version the POM declares, while a reader can fetch only what the registry lists; BC-14
+    holds the command to the registry's release when it is known. Applies only to a registry
+    install whose value ends in ``:<manifest version>`` - a source-build command, a command that
+    names no version, and a repository whose manifest already agrees are returned unchanged.
+    """
+    if (
+        published is None
+        or not manifest_version
+        or published.value == manifest_version
+        or install.kind != "install_command"
+        or (install.attributes or {}).get("install_kind") in _SOURCE_KINDS
+        or not install.value.endswith(f":{manifest_version}")
+    ):
+        return install
+    pinned = install.value.removesuffix(manifest_version) + published.value
+    return replace(install, value=pinned)

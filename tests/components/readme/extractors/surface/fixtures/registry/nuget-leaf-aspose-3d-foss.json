@@ -1,0 +1,14 @@
+{
+  "@id": "https://api.nuget.org/v3/catalog0/data/2026.06.22.08.17.24/aspose.3d.foss.26.1.0.json",
+  "authors": "Aspose",
+  "id": "Aspose.3D.FOSS",
+  "licenseUrl": "https://licenses.nuget.org/MIT",
+  "licenseExpression": "MIT",
+  "repository": {
+    "@id": "https://api.nuget.org/v3/catalog0/data/2026.06.22.08.17.24/aspose.3d.foss.26.1.0.json#repository",
+    "commit": "71581fddee6e661b330b3e4f45824b6cb7a561fa",
+    "type": "git",
+    "url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET"
+  },
+  "version": "26.1.0"
+}

@@ -1,0 +1,18 @@
+# log: pypi-Slides-Python
+# repository: aspose-slides-foss/Aspose.Slides-FOSS-for-Python
+# head: 4e63447ba79d1c27a5192844847d9f872c5b92ad
+# utc: 2026-10-10T15:40:56Z
+# cwd: shallow clone of the default branch
+# command: cd E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/probes; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/sp/Scripts/python.exe -I -m pip list 2>/dev/null | grep -i aspose; E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/runs/wt/liss1/runs/iss01/venvs/sp/Scripts/python.exe -I -c 'import aspose.slides_foss as m; print(m.__file__); from aspose.slides_foss import Hyperlink' 2>&1 | tail -3; echo '--- README statement:'; cd - >/dev/null; sed -n 134,136p README.md; grep -n -m1 '^version' pyproject.toml
+# ---- output (capped at 60000 bytes) ----
+aspose-slides-foss 26.8.0
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'Hyperlink' from 'aspose.slides_foss' (E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\venvs\sp\Lib\site-packages\aspose\slides_foss\__init__.py)
+E:\Users\prora\OneDrive\Documents\GitHub\repository-presenter\runs\wt\liss1\runs\iss01\venvs\sp\Lib\site-packages\aspose\slides_foss\__init__.py
+--- README statement:
+**The PyPI release predates the source tree behind this page.** `pip install` gets `26.8.0`, and
+the changes listed in [CHANGELOG.md](CHANGELOG.md) under `## [Unreleased]` — including hyperlinks,
+which several examples on this page use, and the six distinct PowerPoint save formats — are not in
+11:version = "26.8.0"
+
+# exit: 0

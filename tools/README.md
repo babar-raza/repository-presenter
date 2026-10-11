@@ -177,6 +177,44 @@ governance tracks, two directories, no overlap.
     has no API path around a first cross-org installation's consent. Full guide:
     `docs/DECISION_LOG.md`, 2026-09-23 16:04 UTC.
 
+- `workflow_rehearsal/` — runs this repository's GitHub workflows locally in their hosted shape
+  (TC-REF-10, `plans/reseal-and-refresh/PLAN.md` section 11). Nothing here writes to GitHub: every
+  write endpoint is a local fake.
+  - `inventory.py` — parses `.github/workflows/*.yml` and renders the triggers / permissions /
+    variables / secrets / job-graph tables embedded between markers in `docs/OPERATIONS_RUNBOOK.md`
+    (`--write` splices, `--check` fails on a stale block; a test does the same).
+  - `shape_checks.py` — YAML shape checks (needs graph, step and matrix references, pinned actions,
+    cron, untrusted event fields) plus a wrapper for `actionlint` when a binary is installed
+    (`ACTIONLINT`, PATH, or `D:/tools/actionlint`).
+  - `scenarios.py` — deterministic synthetic bare upstreams (relevant change, irrelevant change,
+    maintainer README edit, force-pushed history, deleted, archived, unchanged) and `world.json`.
+  - `fake_github.py` — stdlib HTTPS server answering the REST endpoints the workflows read, the App
+    token exchange (a fake token), recording pull requests and issues, and serving the bare
+    repositories over git smart HTTP.
+  - `harness.py` — `dryrun` (`act -n` over every workflow), `monitor` (`monitor.yml` end to end in
+    the act image on a Docker network where `api.github.com` is the fake), `down`, and the
+    per-workflow plan (what runs locally, what is a documented gap). Needs Docker and `act`.
+  - `no_bump_check.py` — `no_bump_check.py <base-ref> [--no-src]`: fails when a branch's diff since
+    its merge-base touches a governed source (the list is parsed from
+    `tests/test_version_bump_discipline.py` by `tools/plan_lint/governed.py`) or moves any `src/`
+    version constant; the diff-level proof behind the plan's `no_bump: true` cards (TC-REF-10/11/12).
+  - `hosting_preflight.py` — read-only go/no-go table for the staged go-live H0 to H4
+    (`docs/OPERATIONS_RUNBOOK.md` section 9): requirements generated from the workflow YAML,
+    compared with read-only `gh` calls; prints names and verdicts, never values.
+  - Tests: `tests/test_workflow_rehearsal.py`, `tests/test_no_bump_check.py` and
+    `tests/test_hosting_preflight.py` (no network, Docker, act or real `gh`).
+  - `fake_rest.py` — an in-process, stateful model of the GitHub REST write paths (refs, contents with
+    sha rules, pull requests, issues, the installation scope) behind the `fetch` / `write` seams of
+    `core/github/client.py`; injects dropped requests, lost responses and HTTP errors; never records a
+    token value.
+  - `cycle.py` — the whole-cycle rehearsal (TC-REF-11): stale lease, killed run, pause, cap and cooldown,
+    monitor to sealing plan on the synthetic upstreams, propose and commit-back idempotence, lost
+    responses, rate limits, and a credential scan over every output. `PYTHONPATH=src python
+    tools/workflow_rehearsal/cycle.py --out <dir>` writes the evidence JSON.
+  - Tests: `tests/test_workflow_rehearsal.py` (no network, Docker or act) and
+    `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
+    of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's

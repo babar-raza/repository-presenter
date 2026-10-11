@@ -18,6 +18,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Any
 
+from packaging.requirements import InvalidRequirement, Requirement
+
 from repository_presenter.components.readme.extractors.platforms.python_examples import (
     verify_python_examples,
 )
@@ -46,14 +48,16 @@ from repository_presenter.core.examples import (
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
-    Polarity,
     fact_id,
 )
+from repository_presenter.core.package_registry import install_verdict
 from repository_presenter.core.probes import ProbeRecord
 
 MANIFEST_NAMES = ("pyproject.toml", "setup.cfg", "setup.py")
 _NON_PRODUCT_TOP_LEVEL = frozenset({"tests", "test", "docs", "examples", "pyi", "scripts", "build"})
 _MAX_IMPORT_PATH_DEPTH = 2
+# The conventional "src layout": packages live under `src/`, which is a directory, not a package.
+_SOURCE_LAYOUT_DIRECTORY = "src"
 # Extras whose requirements serve development, not users of the package.
 _DEVELOPMENT_EXTRAS = frozenset({"dev", "develop", "development", "test", "tests", "testing"})
 _NOT_DECLARED = {
@@ -61,6 +65,31 @@ _NOT_DECLARED = {
     "setup.cfg": "no `options.install_requires` is declared",
     "setup.py": "no `install_requires` is declared",
 }
+_DYNAMIC_DEPENDENCIES = (
+    "`dependencies` is declared dynamic in pyproject.toml, so the requirements are computed at "
+    "build time and not statically known"
+)
+
+
+def _requirement_fact(identifier: str, requirement: str, path: str, detail: str) -> Fact:
+    """A dependency fact for one declared requirement string.
+
+    The string is taken whole: a PEP 508 specifier is ``numpy>=1.20,<2``, one requirement with
+    two clauses, never two requirements. One a PEP 508 parser rejects (a ``-r file`` line, a
+    URL typo) is recorded but not asserted, so a README never states it as a package.
+    """
+    try:
+        Requirement(requirement)
+    except InvalidRequirement:
+        return Fact(
+            identifier,
+            "dependency",
+            requirement,
+            (Evidence(path, f"{detail}; not a valid PEP 508 requirement"),),
+            polarity="UNRESOLVED",
+            confidence=0.5,
+        )
+    return Fact(identifier, "dependency", requirement, (Evidence(path, detail),))
 
 
 def _literal_assignment(path: Path, name: str) -> str | None:
@@ -135,8 +164,13 @@ def parse_pyproject(pyproject_path: Path) -> dict[str, str]:
     if project.get("requires-python"):
         info["requires_python"] = project["requires-python"]
     dependencies = [d for d in project.get("dependencies", []) if isinstance(d, str) and d.strip()]
+    dynamic = project.get("dynamic", [])
     if dependencies:
-        info["dependencies"] = ",".join(d.strip() for d in dependencies)
+        info["dependencies"] = json.dumps([d.strip() for d in dependencies])
+    elif isinstance(dynamic, list) and "dependencies" in dynamic:
+        # PEP 621: a field listed in `dynamic` is computed by the build backend. "Not written
+        # here" is not "none": the requirements exist, and only a build would reveal them.
+        info["dependencies_dynamic"] = _DYNAMIC_DEPENDENCIES
     elif "dependencies" in project:
         info["dependency_evidence"] = "the `project.dependencies` list is empty"
     optional = project.get("optional-dependencies", {})
@@ -180,9 +214,15 @@ def parse_setup_cfg(setup_cfg_path: Path) -> dict[str, str]:
         if requires_python:
             info["requires_python"] = requires_python
         if parser.has_option("options", "install_requires"):
-            declared = _requirement_lines(parser.get("options", "install_requires"))
-            if declared:
-                info["dependencies"] = ",".join(declared)
+            raw = parser.get("options", "install_requires")
+            declared = _requirement_lines(raw)
+            if raw.strip().startswith(("file:", "attr:")):
+                info["dependencies_dynamic"] = (
+                    "`options.install_requires` reads its requirements from "
+                    f"`{raw.strip().split(maxsplit=1)[0]}`, which is not statically known"
+                )
+            elif declared:
+                info["dependencies"] = json.dumps(declared)
             else:
                 info["dependency_evidence"] = "the `options.install_requires` list is empty"
     if parser.has_section("options.extras_require"):
@@ -212,18 +252,36 @@ def parse_manifests(root: Path) -> dict[str, dict[str, str]]:
     return parsed
 
 
-def package_directories(tree_paths: list[str]) -> list[str]:
-    """Dotted import paths of the package directories the tree proves, shallowest first."""
-    found: set[str] = set()
+def package_locations(tree_paths: list[str]) -> list[tuple[str, str]]:
+    """``(dotted import path, repository-relative directory)`` per proven package directory.
+
+    Shallowest first. In a src layout (``src/`` holds packages and is itself no package) the
+    import path omits ``src``: ``src/pkg/__init__.py`` is imported as ``pkg``, which is also the
+    name the public surface reads its symbols under.
+    """
+    in_tree = set(tree_paths)
+    src_layout = f"{_SOURCE_LAYOUT_DIRECTORY}/__init__.py" not in in_tree
+    found: dict[str, str] = {}
     for path in tree_paths:
         parts = path.split("/")
-        if parts[-1] != "__init__.py" or len(parts) < 2 or len(parts) - 1 > _MAX_IMPORT_PATH_DEPTH:
+        if parts[-1] != "__init__.py" or len(parts) < 2:
             continue
-        package = parts[:-1]
+        directory = parts[:-1]
+        package = (
+            directory[1:] if src_layout and directory[0] == _SOURCE_LAYOUT_DIRECTORY else directory
+        )
+        if not package or len(package) > _MAX_IMPORT_PATH_DEPTH:
+            continue
         if package[0] in _NON_PRODUCT_TOP_LEVEL or not all(part.isidentifier() for part in package):
             continue
-        found.add(".".join(package))
-    return sorted(found, key=lambda dotted: (dotted.count("."), dotted))
+        found.setdefault(".".join(package), "/".join(directory))
+    ordered = sorted(found, key=lambda dotted: (dotted.count("."), dotted))
+    return [(dotted, found[dotted]) for dotted in ordered]
+
+
+def package_directories(tree_paths: list[str]) -> list[str]:
+    """Dotted import paths of the package directories the tree proves, shallowest first."""
+    return [dotted for dotted, _ in package_locations(tree_paths)]
 
 
 class PythonPlugin:
@@ -241,7 +299,7 @@ class PythonPlugin:
         return None
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
-        package_dirs = [dotted.replace(".", "/") for dotted in package_directories(tree_paths)]
+        package_dirs = [directory for _, directory in package_locations(tree_paths)]
         return public_symbol_facts(inspect_public_surface(root, package_dirs))
 
     def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
@@ -257,14 +315,16 @@ class PythonPlugin:
         if install is None or name is None:
             return [], []
         version = by_id.get("package:version")
-        observation = observe_pypi(name.value, version.value if version else None)
-        polarity: Polarity
-        if observation.error is not None:
-            polarity, confidence = "UNRESOLVED", 0.5
-        elif observation.found:
-            polarity, confidence = "SUPPORTED", 1.0
-        else:
-            polarity, confidence = "CONTRADICTED", 1.0
+        repository = next((f.value for f in facts if f.id == "identity:repository"), None)
+        observation = observe_pypi(
+            name.value, version.value if version else None, repository=repository
+        )
+        polarity, confidence, detail = install_verdict(
+            conclusive=observation.error is None,
+            published=observation.found,
+            repository_matched=observation.repository_matched,
+            summary=observation.summary,
+        )
         return [
             Fact(
                 install.id,
@@ -274,7 +334,7 @@ class PythonPlugin:
                     Evidence(
                         install.evidence[0].path, "distribution name declared by the manifest"
                     ),
-                    Evidence(observation.url, observation.summary),
+                    Evidence(observation.url, detail),
                 ),
                 polarity=polarity,
                 confidence=confidence,
@@ -325,17 +385,27 @@ class PythonPlugin:
         # The dependency snapshot (README_CONTRACT.md section 2 row 9): every required
         # requirement, or the verified-zero marker citing the manifest clause that proves it,
         # then each extra's requirements in the optional or development bucket.
-        for requirement in merged.get("dependencies", "").split(","):
-            if requirement:
-                facts.append(
-                    Fact(
-                        fact_id("dependency", requirement),
-                        "dependency",
-                        requirement,
-                        (Evidence(sources["dependencies"], "install requirement declared"),),
-                    )
+        for requirement in json.loads(merged.get("dependencies", "[]")):
+            facts.append(
+                _requirement_fact(
+                    fact_id("dependency", requirement),
+                    requirement,
+                    sources["dependencies"],
+                    "install requirement declared",
                 )
-        if "dependencies" not in merged and "name" in merged:
+            )
+        if "dependencies_dynamic" in merged:
+            facts.append(
+                Fact(
+                    fact_id("dependency", "dynamic"),
+                    "dependency",
+                    "dynamic",
+                    (Evidence(sources["dependencies_dynamic"], merged["dependencies_dynamic"]),),
+                    polarity="UNRESOLVED",
+                    confidence=0.5,
+                )
+            )
+        elif "dependencies" not in merged and "name" in merged:
             # A parsed manifest that declares no requirement proves verified-zero: an empty
             # list when the manifest spells one out, else the absence of the declaration.
             path = sources.get("dependency_evidence", sources["name"])
@@ -347,11 +417,11 @@ class PythonPlugin:
             bucket = "development" if extra.lower() in _DEVELOPMENT_EXTRAS else "optional"
             for requirement in requirements:
                 facts.append(
-                    Fact(
+                    _requirement_fact(
                         fact_id("dependency", bucket, extra, requirement),
-                        "dependency",
                         requirement,
-                        (Evidence(sources["extras"], f"extra '{extra}' declared"),),
+                        sources["extras"],
+                        f"extra '{extra}' declared",
                     )
                 )
 
@@ -368,13 +438,13 @@ class PythonPlugin:
             )
 
         declared = merged.get("declared_packages", "")
-        import_paths = declared.split(",") if declared else package_directories(tree_paths)
-        for dotted in import_paths:
-            evidence_path = (
-                sources["declared_packages"]
-                if declared
-                else "/".join(dotted.split(".")) + "/__init__.py"
-            )
+        locations = (
+            [(dotted, "") for dotted in declared.split(",")]
+            if declared
+            else package_locations(tree_paths)
+        )
+        for dotted, directory in locations:
+            evidence_path = sources["declared_packages"] if declared else f"{directory}/__init__.py"
             facts.append(
                 Fact(
                     fact_id("import_path", dotted),

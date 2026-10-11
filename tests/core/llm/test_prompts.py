@@ -48,6 +48,19 @@ def test_the_real_manifests_load_with_stable_hashes_and_bound_templates() -> Non
     assert registry["independent_review"].manifest.output.binding == "finding_ids"
 
 
+def test_the_review_and_authoring_prompts_carry_the_cut2_scope_rules() -> None:
+    """BC-10 triage (cut 1/2): reviewer error and invented prose are bounded in the prompts."""
+    registry = load_manifests(REAL_PROMPTS)
+    review = " ".join(registry["independent_review"].manifest.system.split())
+    assert "a fact ID is an internal reference, not README text" in review
+    assert "renderer-owned" in review and "At-a-Glance" in review
+    assert "the original is evidence, not the standard" in review
+    authoring = " ".join(registry["section_authoring"].manifest.system.split())
+    assert "Invent nothing." in authoring
+    assert "Model-View-Presenter" in authoring and "MHT" in authoring
+    assert "unless a fact states the expansion" in authoring
+
+
 def test_a_manifest_edit_changes_only_its_own_hash(tmp_path: Path) -> None:
     prompts = _copy(tmp_path)
     before = load_manifests(prompts).hashes()

@@ -27,7 +27,6 @@ from repository_presenter.components.readme.composition.authoring import (
     carried_unit_errors,
     merge_units,
     reconstructed_task_output,
-    recover_section_authoring_output,
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
     unit_checks,
@@ -44,6 +43,13 @@ from repository_presenter.components.readme.composition.coherence import (
     recover_coherence_regressions,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.list_coverage import (
+    kept_list_units,
+    list_coverage_errors,
+)
+from repository_presenter.components.readme.composition.output_bounds import (
+    bound_authoring_citations,
+)
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
@@ -65,6 +71,9 @@ from repository_presenter.components.readme.composition.renderer import (
     renderer_sentences,
     write_text,
 )
+from repository_presenter.components.readme.composition.type_fallback import (
+    recover_section_authoring_with_type_fallback,
+)
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
     investigation_packet,
@@ -73,11 +82,13 @@ from repository_presenter.components.readme.investigation.dossier import (
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
+    citable_fact_ids,
     coordinate_neighbor_promises,
     merge_dispositions,
     reconcile_checks,
     reconciliation_batch_facts,
     reconciliation_batches,
+    reconciliation_narrowing,
     reconciliation_packet,
     reconciliation_schema,
     recover_uncited_prose_omits,
@@ -377,8 +388,21 @@ def run_round(tx: TransactionInputs) -> Round:
                 loaded, batch_units, batch_facts, investigation.output
             ),
             # G7-W12 follow-up (b): a prose omission still uncited after the one re-ask becomes
-            # an explicit deferral (PSD-.NET 018.paragraph), re-validated by reconcile_checks.
-            recover=functools.partial(recover_uncited_prose_omits, facts=batch_facts),
+            # an explicit deferral (PSD-.NET 018.paragraph), re-validated by reconcile_checks. It
+            # may cite only what this batch's decoder enum offers, so it is handed that set.
+            recover=functools.partial(
+                recover_uncited_prose_omits,
+                facts=batch_facts,
+                citable=frozenset(
+                    citable_fact_ids(
+                        batch_facts, loaded.manifest, batch_units, investigation.output
+                    )
+                ),
+            ),
+            # CUT-2 (BarCode-Python): units both replies left silent get one narrowed ask.
+            narrow=reconciliation_narrowing(
+                entry, batch_facts, investigation.output, loaded, batch_units
+            ),
             **{**common, "facts": batch_facts},
         )
     dispositions = merge_dispositions([result.output for result in reconciled.values()])
@@ -409,7 +433,7 @@ def run_round(tx: TransactionInputs) -> Round:
     tasks = authoring_tasks(entry, facts, investigation.output, dispositions, planned.output)
     authored: dict[str, JobResult] = {}
     for task in tasks:
-        call_schema = authoring_schema(loaded, task)
+        call_schema = bound_authoring_citations(authoring_schema(loaded, task), task)
         # G5-W02 (27.2 RC4): a fresh clone of an already-sealed revision has nothing in its own
         # runs/ to reuse, but the sealed bundle's own content_units.json may already answer this
         # exact task - seed the store at the hash this call would use before making it.
@@ -429,7 +453,12 @@ def run_round(tx: TransactionInputs) -> Round:
         authored[task.label] = run_job(
             loaded,
             task.packet,
-            checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
+            checks=_reject_unlisted_items(
+                functools.partial(unit_checks, task=task, facts=facts, name=name),
+                task,
+                dispositions,
+                facts,
+            ),
             call_schema=call_schema,
             # G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (PROPOSAL, Page-Python's
             # first-ever seal attempt) and 2026-09-27 (docs/DEFECT_INDEX.md
@@ -441,9 +470,15 @@ def run_round(tx: TransactionInputs) -> Round:
             # needed, gets one deterministic last-resort correction (composed - either, both,
             # or neither may apply), re-validated through the real unit_checks before ever
             # being accepted.
+            # Plus the API Reference type-description fallback (composition/type_fallback.py):
+            # a type: unit refused only for an unevidenced identifier takes its verified summary
+            # instead of failing the whole batch (3D-Java, baseline reseal 7c5acbf7).
             recover=functools.partial(
-                recover_section_authoring_output,
+                recover_section_authoring_with_type_fallback,
                 slot_titles=task.slot_titles,
+                task=task,
+                facts=facts,
+                name=name,
             ),
             **common,
         )
@@ -856,6 +891,29 @@ def _reject_uncarried_units(
     return guarded
 
 
+def _reject_unlisted_items(
+    checks: Callable[[dict[str, Any]], list[str]] | None,
+    task: SectionTask,
+    dispositions: Mapping[str, Any],
+    facts: FactsDocument,
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer the list-coverage rule onto a section_authoring check - the initial draft's
+    ``unit_checks`` and an S6 repair's stage_checks alike: a list reconciliation kept as written
+    (VERIFIED_PRESERVE) owes every one of its items to the units that cite it, so a reply that
+    condenses the list and loses one is refused with the missing items named, before the section
+    reaches independent review (cut-2 BC-10 triage, cause 5; composition/list_coverage.py).
+    A section with no such list gets its own checks back unchanged."""
+    if not kept_list_units(dispositions, task, facts):
+        return checks if checks is not None else (lambda revised: [])
+
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        errors.extend(list_coverage_errors(revised, task, dispositions, facts))
+        return errors
+
+    return guarded
+
+
 def repair_defect(
     tx: TransactionInputs, current: Round, defect: Defect, repairs: RepairLedger
 ) -> None:
@@ -898,6 +956,9 @@ def repair_defect(
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
         stage_checks = _reject_uncarried_units(stage_checks, section_task)
+        stage_checks = _reject_unlisted_items(
+            stage_checks, section_task, current.dispositions, tx.facts
+        )
     # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
     # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
     # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,

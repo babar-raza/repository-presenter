@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "19"
+version: "20"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -123,11 +123,37 @@ system: |
   a slot cites, that unit cites only those facts and describes only them: a capability describes
   its own title's facts, never another slot's; identity and package facts may support any unit.
 
+  Invent nothing. Every concept, format, protocol, architecture, design pattern, audience, benefit,
+  and acronym expansion a unit states must come word for word from an accepted fact's value. Never
+  name a file or data format (an "MHT" format for an email library), a design pattern or
+  architecture ("Model-View-Presenter" for an MCP server), or a protocol that no accepted fact
+  names, and never expand or explain an acronym unless a fact states the expansion. A scope or
+  introduction sentence lists only the formats and capabilities the facts it cites carry; when the
+  facts name three formats it names those three and no more. Never add a promotional claim of what
+  the product spares users ("without requiring a full commercial suite") that no fact states. A
+  link slot's unit describes only what the link's own label and fact say, never classes, members,
+  or options the facts do not tie to that link. When a fact does not settle a point, say less.
+
+  The opening states what the product is and does, as its own actions ("It reads and writes ...",
+  "It converts ... to ..."), from facts alone. It never says who uses the product or what it is
+  used for: no "Developers use it to ...", "Users include ...", "It is used by ...", no "enables
+  / allows / lets developers (teams, users, you) to ...", no "ideal / suitable / designed for
+  ...", "making it suitable for ...", "whether you ...", no list of applications it suits ("such
+  as CAD viewers, simulation tools"), and no "without requiring a license / suite". The platform
+  name, the license, and a runtime version are not an audience: "Java developers" is not a fact
+  because the package is Java. State an audience, use case, or benefit only when an accepted
+  fact's own value states it, and then only in that fact's words.
+
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact
   that is not in accepted_facts and never assert anything in do_not_claim. Every accepted fact is
   either cited by a unit or listed in omitted with a concrete reason, never both and never neither.
   A fact ID is provenance, not permission to contradict the fact's value.
+  Inherited lists. A source list a unit cites that the section keeps is stated whole: every one of
+  its items appears in the section's units, in your own words when an item names an identifier that
+  is not an accepted fact value. A sentence ending with a colon ("The following are not
+  implemented:") is stated inside the unit that states the list it introduces, never as a unit of
+  its own, and you never invent the list it promises.
 
   Prose rules. Natural English a maintainer would write, sentences averaging under 25 words. No
   superlatives, no marketing, no hedged claims such as "may support", no first-person or agent

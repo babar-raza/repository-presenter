@@ -1,0 +1,493 @@
+{
+  "authoritative_plan": "plans/reseal-and-refresh/PLAN.md",
+  "execution_authority": false,
+  "control_revision_at_run": "38456556f683855ac7ee0400e2bbd7347b531ab6",
+  "environment": {
+    "python": "3.13.2",
+    "platform": "Windows",
+    "git": "git version 2.55.0.windows.5"
+  },
+  "redaction": "every credential in a rehearsal is the literal fake ghs_FAKEREHEARSAL...; no real credential exists in this process, and every output was scanned (scenario no-credential-in-any-output)",
+  "work_item": "TC-REF-11 (G7-W06)",
+  "kind": "offline whole-cycle rehearsal: real code, local fakes, no model, no network",
+  "scenarios": [
+    {
+      "scenario": "stale-lease-fenced",
+      "acceptance": "a stale lease is fenced",
+      "verdict": "PROVEN",
+      "observations": {
+        "durable_refs_on_the_remote": [
+          "refs/repository-presenter-state/records/rehearsal-org__relevant-change"
+        ],
+        "ref_commit_count": 6,
+        "fencing_tokens": {
+          "worker_a": 1,
+          "worker_b": 2
+        },
+        "contended_acquire_while_live": "refused",
+        "recovery_swept": [
+          [
+            "SNAPSHOTTING",
+            "stale_or_missing_lease"
+          ]
+        ],
+        "transaction_id_unchanged": true,
+        "zombie_commit": "transition for 'rehearsal-org/relevant-change' rejected: lease/fencing token is stale",
+        "zombie_renewal": "refused",
+        "lease_after_zombie_attempts": {
+          "worker_b_holds": true,
+          "worker_a_holds": false,
+          "holder": "worker-b"
+        },
+        "state_after_zombie_attempts": "SNAPSHOTTING",
+        "worker_b_continues_to": "EXTRACTING",
+        "final_state_version": 6
+      },
+      "seconds": 35.0
+    },
+    {
+      "scenario": "kill-mid-transaction",
+      "acceptance": "a run killed mid-transaction recovers without double processing",
+      "verdict": "PROVEN",
+      "observations": {
+        "victim_exit_code": 137,
+        "victim_work_done_before_death": "investigation call made",
+        "state_the_dead_worker_left": "INVESTIGATING",
+        "dead_worker_fencing_token": 1,
+        "recovery_run_exit_code": 0,
+        "pipeline_runs_in_recovery": 1,
+        "same_transaction_resumed": true,
+        "recovery_count": 1,
+        "final_state": "READY_FOR_PROPOSAL",
+        "final_fencing_token": 2,
+        "lease_released": true,
+        "replay_of_the_dead_trigger": {
+          "exit_code": 0,
+          "pipeline_runs": 0,
+          "state_version_unchanged": true
+        }
+      },
+      "seconds": 62.3
+    },
+    {
+      "scenario": "pause-variable",
+      "acceptance": "the pause variable stops the cycle",
+      "verdict": "PROVEN",
+      "observations": {
+        "plan_when_paused": {
+          "repositories": "[]",
+          "has_work": "false",
+          "publishable": "[]",
+          "has_publishable": "false",
+          "skipped": "[]",
+          "exit_code": "0"
+        },
+        "plan_when_not_paused": {
+          "repositories": "[{\"repository\":\"aspose-3d-foss/Aspose.3D-FOSS-for-.NET\",\"slug\":\"aspose-3d-foss__Aspose.3D-FOSS-for-.NET\"}]",
+          "has_work": "true",
+          "publishable": "[]",
+          "has_publishable": "false",
+          "skipped": "[]",
+          "exit_code": "0"
+        },
+        "values_that_do_not_pause": {
+          "0": false,
+          "true": false,
+          " 1": false,
+          "": false,
+          "yes": false,
+          "01": false
+        },
+        "seal_job_runs_only_on_plan_has_work": true,
+        "workflow_passes_the_variable_to_the_plan_step": true
+      },
+      "seconds": 0.1
+    },
+    {
+      "scenario": "run-cap-and-cooldown",
+      "acceptance": "the per-run repository cap bounds a cycle; a failed repository waits out its cooldown",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "cap": 3,
+        "cycle_1": {
+          "drifted": 5,
+          "selected": [
+            "rehearsal-org/repo-a",
+            "rehearsal-org/repo-c",
+            "rehearsal-org/repo-d"
+          ],
+          "deferred": [
+            "rehearsal-org/repo-e"
+          ],
+          "publishable": [
+            "rehearsal-org/repo-a",
+            "rehearsal-org/repo-c"
+          ],
+          "skipped_by_failure_memory": [
+            "rehearsal-org/repo-b"
+          ]
+        },
+        "cycle_2": {
+          "selected": [
+            "rehearsal-org/repo-b",
+            "rehearsal-org/repo-e"
+          ],
+          "deferred": []
+        },
+        "dry_run_entries_are_sealed_never_published": [
+          "rehearsal-org/repo-d"
+        ]
+      },
+      "gap": "No per-day provider-call budget and no cross-repository open-PR cap exist in code (TC-REF-02-02 is not landed): the planner bounds a cycle at 3 repositories and a process at 100 provider calls, and propose/commit-back keep one open PR per target. A day of cycles is bounded only by the schedule (daily) times those two numbers.",
+      "seconds": 0.0
+    },
+    {
+      "scenario": "monitor-to-plan-relevance",
+      "acceptance": "a synthetic upstream commit that touches a consumed path is selected exactly once; an irrelevant commit selects nothing; a maintainer README edit is flagged, not overwritten",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "scenarios": {
+          "relevant-change": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "detail": "consumed upstream content changed since 014afde1fbac: src/synthetic/__init__.py"
+          },
+          "irrelevant-change": {
+            "status": "CURRENT",
+            "change": "IRRELEVANT_CHANGE",
+            "detail": "head moved 014afde1fbac -> 7a156cbbf0e4 but none of the 3 consumed paths changed"
+          },
+          "maintainer-readme-edit": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "detail": "consumed upstream content changed since 014afde1fbac: README.md"
+          },
+          "force-pushed-history": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "detail": "consumed upstream content changed since 014afde1fbac: README.md"
+          },
+          "deleted-repository": {
+            "status": "UNREACHABLE",
+            "change": null,
+            "detail": "HTTP 404"
+          },
+          "archived-repository": {
+            "status": "CURRENT",
+            "change": "NO_CHANGE",
+            "detail": null
+          },
+          "unchanged": {
+            "status": "CURRENT",
+            "change": "NO_CHANGE",
+            "detail": null
+          }
+        },
+        "contract_status": {
+          "archived-repository": "CURRENT",
+          "deleted-repository": "UNKNOWN",
+          "force-pushed-history": "RELEVANT_CHANGE",
+          "irrelevant-change": "IRRELEVANT_CHANGE",
+          "maintainer-readme-edit": "RELEVANT_CHANGE",
+          "relevant-change": "RELEVANT_CHANGE",
+          "unchanged": "CURRENT"
+        },
+        "sealing_plan_selected": [
+          "force-pushed-history",
+          "maintainer-readme-edit",
+          "relevant-change"
+        ],
+        "sealing_plan_publishable": [],
+        "registry_mode": "dry_run (every fixture entry)",
+        "legacy_bundle_without_recorded_blobs": {
+          "relevant-change": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "detail": "consumed upstream content changed since 014afde1fbac: src/synthetic/__init__.py"
+          },
+          "irrelevant-change": {
+            "status": "CURRENT",
+            "change": "IRRELEVANT_CHANGE",
+            "detail": "head moved 014afde1fbac -> 7a156cbbf0e4 but none of the 3 paths the sealed facts cite changed"
+          },
+          "force-pushed-history": {
+            "status": "DRIFTED",
+            "change": "RELEVANT_CHANGE",
+            "detail": "consumed upstream content changed since 014afde1fbac: README.md"
+          },
+          "force-pushed-history (sealed commit collected)": {
+            "status": "UNKNOWN",
+            "change": "UNKNOWN",
+            "detail": "sealed-revision tree unreadable: HTTP 404"
+          }
+        },
+        "provider_calls": 0
+      },
+      "gap": "An archived repository is unchanged by nature, so the monitor reports it CURRENT; no code reads the archived flag, so a stale README on an archived repository would reach the propose write and be refused only by GitHub itself.",
+      "seconds": 9.8
+    },
+    {
+      "scenario": "propose-create-then-noop",
+      "acceptance": "exactly one pull request on the fake remote; a second run creates nothing",
+      "verdict": "PROVEN",
+      "observations": {
+        "first_run": {
+          "effected": true,
+          "reason": "proposed",
+          "reason_code": null,
+          "commit_written": true,
+          "pr_created": true,
+          "pr_updated": false,
+          "pr_number": 1
+        },
+        "applied_writes_after_first": 3,
+        "second_run_unchanged": {
+          "effected": true,
+          "reason": "no change needed",
+          "reason_code": null,
+          "commit_written": false,
+          "pr_created": false,
+          "pr_updated": false,
+          "pr_number": 1
+        },
+        "applied_writes_added_by_second_run": 0,
+        "new_candidate_updates_in_place": {
+          "effected": true,
+          "reason": "proposed",
+          "reason_code": null,
+          "commit_written": true,
+          "pr_created": false,
+          "pr_updated": true,
+          "pr_number": 1
+        },
+        "open_pull_requests_after_update": 1,
+        "base_branch_readme_untouched": true,
+        "presenter_branch_readme": true,
+        "after_merge_same_candidate": {
+          "effected": false,
+          "reason": "pull request #1 (https://github.com/rehearsal-org/target-product/pull/1) for this candidate was already merged; it is not recreated unless the authorization record names it in supersedes_prs",
+          "reason_code": "pr_already_merged",
+          "commit_written": false,
+          "pr_created": false,
+          "pr_updated": false,
+          "pr_number": null
+        },
+        "writes_added_after_merge": 0
+      },
+      "seconds": 0.0
+    },
+    {
+      "scenario": "maintainer-edit-not-overwritten",
+      "acceptance": "a maintainer edit to the README upstream is never overwritten",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "maintainer_edit_status": 200,
+        "propose_after_the_edit": {
+          "effected": false,
+          "reason": "stale source: the target's live current revision (2222222222222222222222222222222222222222) no longer matches the authorized source revision (1111111111111111111111111111111111111111) - refusing to propose against a moved target; recapture and reauthorize",
+          "reason_code": "source_moved",
+          "commit_written": false,
+          "pr_created": false,
+          "pr_updated": false,
+          "pr_number": null
+        },
+        "writes_made_by_propose": 0,
+        "base_branch_readme_is_the_maintainers": true,
+        "presenter_branch_exists": false,
+        "pull_requests": 0
+      },
+      "gap": "The propose gate stops the stale candidate; the reconciliation of the new README into a re-sealed candidate is the present pipeline's inherited-content path and is rehearsed only with the fake model transport (tests/test_workflow_rehearsal_cycle.py).",
+      "seconds": 0.0
+    },
+    {
+      "scenario": "lost-response-reconciled",
+      "acceptance": "a lost response on a write is reconciled (propose and issues transports)",
+      "verdict": "PROVEN_WITH_GAP",
+      "observations": {
+        "put_landed_answer_lost": {
+          "effected": true,
+          "reason": "proposed",
+          "reason_code": null,
+          "commit_written": true,
+          "pr_created": true,
+          "pr_updated": false,
+          "pr_number": 1,
+          "put_requests": 1,
+          "put_applied": 1,
+          "pull_requests": 1
+        },
+        "put_never_arrived": {
+          "effected": true,
+          "reason": "proposed",
+          "reason_code": null,
+          "commit_written": true,
+          "pr_created": true,
+          "pr_updated": false,
+          "pr_number": 1,
+          "put_requests_reaching_github": 1,
+          "put_applied": 1,
+          "branch_has_the_candidate": true
+        },
+        "pr_created_answer_lost": {
+          "cycle_1": {
+            "effected": false,
+            "reason": "could not open the presenter pull request: rehearsal-org/target-product: unreachable (ReadTimeout: injected, the write was applied and the answer was lost)",
+            "reason_code": "github_error",
+            "commit_written": false,
+            "pr_created": false,
+            "pr_updated": false,
+            "pr_number": null
+          },
+          "cycle_2": {
+            "effected": true,
+            "reason": "no change needed",
+            "reason_code": null,
+            "commit_written": false,
+            "pr_created": false,
+            "pr_updated": false,
+            "pr_number": 1
+          },
+          "pull_requests_after_both": 1
+        },
+        "branch_created_answer_lost": {
+          "cycle_1": {
+            "effected": false,
+            "reason": "could not create presenter branch 'repository-presenter/readme-update': rehearsal-org/target-product: unreachable (ReadTimeout: injected, the write was applied and the answer was lost)",
+            "reason_code": "github_error",
+            "commit_written": false,
+            "pr_created": false,
+            "pr_updated": false,
+            "pr_number": null
+          },
+          "cycle_2": {
+            "effected": true,
+            "reason": "proposed",
+            "reason_code": null,
+            "commit_written": true,
+            "pr_created": true,
+            "pr_updated": false,
+            "pr_number": 1
+          },
+          "branch_create_requests": 1,
+          "branch_create_applied": 1,
+          "pull_requests": 1
+        },
+        "rate_limited_pr_create": {
+          "cycle_1": {
+            "effected": false,
+            "reason": "could not open the presenter pull request: rehearsal-org/target-product: POST https://api.github.com/repos/rehearsal-org/target-product/pulls returned HTTP 429",
+            "reason_code": "github_error",
+            "commit_written": false,
+            "pr_created": false,
+            "pr_updated": false,
+            "pr_number": null
+          },
+          "cycle_2": {
+            "effected": true,
+            "reason": "proposed",
+            "reason_code": null,
+            "commit_written": false,
+            "pr_created": true,
+            "pr_updated": false,
+            "pr_number": 1
+          },
+          "pull_requests": 1
+        },
+        "issue_created_answer_lost": {
+          "create_error": "rehearsal-org/target-product: unreachable",
+          "reconciled_by_marker": true,
+          "issues_on_the_target": 1,
+          "issue_posts_applied": 1
+        }
+      },
+      "gap": "Only the contents PUT is reconciled inside one run (reconcile_write). A lost branch, pull-request or issue-create answer fails that run with a GitHub error and is reconciled by the next run's reads, one schedule later; nothing duplicates, but the delay is a cycle.",
+      "seconds": 0.0
+    },
+    {
+      "scenario": "commit-back-create-then-noop",
+      "acceptance": "publish-candidates against a local remote: one PR; a second run creates nothing",
+      "verdict": "PROVEN",
+      "observations": {
+        "first": {
+          "effected": true,
+          "commit_written": true,
+          "pr_created": true,
+          "pr_updated": false,
+          "reason": "published",
+          "pr_number": 1
+        },
+        "second_same_revision": {
+          "effected": true,
+          "commit_written": false,
+          "pr_created": false,
+          "pr_updated": false,
+          "reason": "candidates/ is already current at this revision; nothing to publish",
+          "pr_number": 1
+        },
+        "third_new_revision": {
+          "effected": true,
+          "commit_written": true,
+          "pr_created": false,
+          "pr_updated": true,
+          "reason": "published",
+          "pr_number": 1
+        },
+        "branch_commits_ahead_of_main": 2,
+        "branch_tip_unchanged_by_second_run": true,
+        "branch_tip_moved_by_third_run": true,
+        "default_branch_never_pushed": true,
+        "open_pull_requests": 1,
+        "current_on_the_branch": true
+      },
+      "seconds": 12.1
+    },
+    {
+      "scenario": "rate-limit-read",
+      "acceptance": "a rate-limit response is honoured, bounded and retried next cycle",
+      "verdict": "PROVEN",
+      "observations": {
+        "policy_max_attempts": 3,
+        "recovers_after_two_429": {
+          "sha_read": true,
+          "waits": [
+            7.0,
+            7.0
+          ]
+        },
+        "never_clears": {
+          "requests": 3,
+          "waits": [
+            7.0,
+            7.0
+          ],
+          "outcome": "HTTP 429"
+        }
+      },
+      "seconds": 0.0
+    },
+    {
+      "scenario": "no-credential-in-any-output",
+      "acceptance": "no credential appears in any log or artifact of the rehearsal",
+      "verdict": "PROVEN",
+      "observations": {
+        "files_scanned": 528,
+        "hits": [],
+        "fake_token_was_used_for_every_write": true,
+        "scanned": "request logs, git histories of every remote, child output, scenario results"
+      }
+    }
+  ],
+  "verdicts": {
+    "stale-lease-fenced": "PROVEN",
+    "kill-mid-transaction": "PROVEN",
+    "pause-variable": "PROVEN",
+    "run-cap-and-cooldown": "PROVEN_WITH_GAP",
+    "monitor-to-plan-relevance": "PROVEN_WITH_GAP",
+    "propose-create-then-noop": "PROVEN",
+    "maintainer-edit-not-overwritten": "PROVEN_WITH_GAP",
+    "lost-response-reconciled": "PROVEN_WITH_GAP",
+    "commit-back-create-then-noop": "PROVEN",
+    "rate-limit-read": "PROVEN",
+    "no-credential-in-any-output": "PROVEN"
+  }
+}

@@ -54,6 +54,7 @@ from typing import Any, Literal
 from urllib.parse import unquote
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.evidence.facts.commands import CI_MATRIX_FACT_ID
 from repository_presenter.components.readme.evidence.facts.links import heading_slug
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
@@ -296,22 +297,51 @@ def _adjacent_section_opening(
     return rendered
 
 
-_RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
+# The CI matrix sentence is the renderer's (TC-COV-02), so a prose unit citing it overlaps it. The
+# build and test commands are deliberately absent: a command is deduplicated line by line at
+# render time, and dropping a unit that spells a different invocation would lose it.
+_RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci", CI_MATRIX_FACT_ID)
+
+
+_STOCK_CONSTRUCTOR_SUMMARY = re.compile(
+    r"^Initializes a new instance of the (?P<type>[\w.]+) class\.?$"
+)
+
+
+def has_member_summary(fact: Fact) -> bool:
+    """Whether a member carries its own documentation summary - the only thing a Detailed Member
+    Reference bullet may say about it.
+
+    A bullet restating the member's signature ("`name`: Defined as `string`.") tells a visitor
+    nothing the name did not, and the wave-3 acceptance review found 312 of them in one
+    candidate (Aspose.3D FOSS for TypeScript) and 60 in another: a member with no summary is
+    left out of the reference, not described by filler (README_CONTRACT.md row 14). So is a
+    constructor whose whole summary is the editor's stock sentence naming its own type.
+    """
+    docstring = (fact.attributes or {}).get("docstring") or ""
+    stock = _STOCK_CONSTRUCTOR_SUMMARY.match(docstring)
+    named = stock.group("type").rsplit(".", 1)[-1] if stock is not None else None
+    if named is not None and fact.value.rsplit(".", 1)[-1] == named:
+        return False  # "`Scene`: Initializes a new instance of the Scene class." - the name again
+    return bool(docstring)
 
 
 def api_reference_hub_methods(
     plan: Mapping[str, Any], facts: FactsDocument
 ) -> dict[str, list[Fact]]:
-    """Every verified method ``public_symbol`` grouped by the hub symbol's own display value it
-    belongs to - the exact computation `renderer.py`'s ``_api_reference`` uses to build its
-    Detailed Member Reference bullets, shared here so the renderer and this module's coverage
-    model read one answer to "which methods does this hub own", not two that can drift apart
-    (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08).
+    """Every verified, documented method ``public_symbol`` grouped by the hub symbol's own
+    display value it belongs to - the exact computation `renderer.py`'s ``_api_reference`` uses
+    to build its Detailed Member Reference bullets, shared here so the renderer and this
+    module's coverage model read one answer to "which methods does this hub own", not two that
+    can drift apart (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08). A method with
+    no documentation summary is owned by no bullet (``has_member_summary``).
     """
     methods = [
         fact
         for fact in facts.by_kind("public_symbol")
-        if fact.polarity == "SUPPORTED" and (fact.attributes or {}).get("symbol_kind") == "method"
+        if fact.polarity == "SUPPORTED"
+        and (fact.attributes or {}).get("symbol_kind") == "method"
+        and has_member_summary(fact)
     ]
     by_owner: dict[str, list[Fact]] = {}
     for fact in methods:
@@ -483,6 +513,11 @@ def placements(
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
             else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
+        if not overlap and unit_id in covered and not unit_id.endswith(".code_block"):
+            # The plan handed this very unit to a slot of the destination (a limitation's
+            # ``unit_ids``): the composer states it there, so printing it as written as well
+            # states it twice (Cells .NET 941814fd: the Scope list, LST-01).
+            overlap = (unit_id,)
         outcome: Outcome = "overlap" if overlap else "placed"
         text = unit.value
         # Item 114: resolved only for the text this candidate actually copies verbatim into the

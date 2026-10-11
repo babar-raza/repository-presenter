@@ -1,5 +1,5 @@
 prompt_id: source_reconciliation
-version: "8"
+version: "9"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
@@ -16,7 +16,7 @@ schema_preface: "Output schema. Your entire response is one JSON object that val
 rejection_template: |
   That output was rejected before use for these exact reasons:
   - $errors
-  Return one corrected JSON object matching the output schema. Every unit ID appears exactly once, and every entry of every fact_ids array is the "id" of a record in the Facts list, copied character for character - never a key of this packet, a field name, a disposition value, a section ID, or a path you inferred. Where you cannot find such a record, empty the array and choose DEFER_UNRESOLVED; an OMIT_UNSUPPORTED paragraph or list needs a cited fact ID as its reason, or a placement. Nothing else may change.
+  Return one corrected JSON object matching the output schema, complete: a disposition for every unit of the original request in its original order - the units that were not rejected included, unchanged - and never only the corrected ones. Every unit ID appears exactly once, and every entry of every fact_ids array is the "id" of a record in the Facts list, copied character for character - never a key of this packet, a field name, a disposition value, a section ID, or a path you inferred. Where you cannot find such a record, empty the array and choose DEFER_UNRESOLVED; an OMIT_UNSUPPORTED paragraph or list needs a cited fact ID as its reason, or a placement. Nothing else may change.
 packet:
   fields:
     - name: repository
@@ -136,8 +136,10 @@ system: |
   Judgment. Keep repository-specific detail a visitor needs and a generic README would lack. A unit
   that merely repeats a capability inventory rendered elsewhere is SUPERSEDE_REDUNDANT. Promotional
   or "other platforms" material is OMIT_UNSUPPORTED unless a fact supports a verified product link,
-  in which case it is VERIFIED_MOVE to enterprise_relationship. Never write new prose here; this job
-  decides placement and evidence only.
+  in which case it is VERIFIED_MOVE to enterprise_relationship. A sentence that ends with a colon
+  introduces the code block, list or table right after it, and the two share one fate: keep them
+  together in the same section, or omit, defer or supersede them together. Never preserve the
+  sentence alone. Never write new prose here; this job decides placement and evidence only.
 
   Respond with only one JSON object matching the output schema, no fence and no prose around it.
 user_template: |

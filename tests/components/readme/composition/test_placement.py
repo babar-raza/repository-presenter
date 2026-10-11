@@ -8,6 +8,7 @@ from typing import Any
 from repository_presenter.components.readme.composition.placement import (
     api_reference_covered_fact_ids,
     api_reference_hub_methods,
+    has_member_summary,
     placed_texts,
     placements,
     planned_fact_ids,
@@ -19,6 +20,7 @@ from repository_presenter.components.readme.composition.placement import (
 )
 from repository_presenter.components.readme.composition.planning import plan_checks
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from support import CELLS_NET_SCOPE_LIST
 
 REPOSITORY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
@@ -244,7 +246,14 @@ def test_api_reference_hub_methods_and_covered_fact_ids_agree_with_the_renderer(
         "public_symbol",
         "aspose.threed.Scene.save",
         (Evidence("x"),),
-        attributes={"symbol_kind": "method"},
+        attributes={"symbol_kind": "method", "docstring": "Saves the scene."},
+    )
+    undocumented_hub_method = Fact(
+        "public_symbol:aspose.threed.scene.clear",
+        "public_symbol",
+        "aspose.threed.Scene.clear",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "method", "signature": "void clear()"},
     )
     non_hub_class = Fact(
         "public_symbol:aspose.threed.node",
@@ -261,19 +270,50 @@ def test_api_reference_hub_methods_and_covered_fact_ids_agree_with_the_renderer(
         attributes={"symbol_kind": "method"},
     )
     facts = FactsDocument(
-        REPOSITORY, "a" * 40, (hub_class, hub_method, non_hub_class, non_hub_method)
+        REPOSITORY,
+        "a" * 40,
+        (hub_class, hub_method, undocumented_hub_method, non_hub_class, non_hub_method),
     )
     plan = _plan()
     hub_methods = api_reference_hub_methods(plan, facts)
+    # A member with no documentation summary has no bullet, so no hub owns it.
     assert hub_methods == {"aspose.threed.Scene": [hub_method]}
     covered = api_reference_covered_fact_ids(plan, facts)
-    # Every class/enum, hub or not (the table lists all of them); only the hub's own method.
+    # Every class/enum, hub or not (the table lists all of them); only the hub's own documented
+    # method.
     assert covered == {
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.scene.save",
     }
     assert "public_symbol:aspose.threed.node.detach" not in covered
+    assert "public_symbol:aspose.threed.scene.clear" not in covered
+
+
+def test_a_member_reference_bullet_needs_a_summary_that_says_something_the_name_did_not() -> None:
+    """Wave-3 acceptance review: Aspose.3D FOSS for TypeScript carried 312 "Defined as `X`."
+    bullets and Aspose.3D FOSS for .NET 60, plus the stock constructor sentence for every type."""
+
+    def method(value: str, **attributes: str) -> Fact:
+        return Fact(
+            f"public_symbol:{value.lower()}",
+            "public_symbol",
+            value,
+            (Evidence("x"),),
+            attributes={"symbol_kind": "method", **attributes},
+        )
+
+    assert has_member_summary(method("Aspose.ThreeD.Scene.Open", docstring="Opens the scene."))
+    assert not has_member_summary(method("Aspose.ThreeD.Scene.Clear"))
+    assert not has_member_summary(method("Aspose.ThreeD.Scene.Clear", signature="void Clear()"))
+    stock = "Initializes a new instance of the Scene class."
+    assert not has_member_summary(method("Aspose.ThreeD.Scene.Scene", docstring=stock))
+    # The stock sentence names the member's own type only; naming another type, or a method that
+    # happens to carry the same words, is a real summary.
+    assert has_member_summary(method("Aspose.ThreeD.Scene.Copy", docstring=stock))
+    assert has_member_summary(
+        method("Aspose.ThreeD.Scene.Scene", docstring="Creates a scene from a stream.")
+    )
 
 
 def test_documentation_resources_coverage_includes_the_renderers_own_issues_line() -> None:
@@ -719,3 +759,37 @@ def test_a_preserved_code_blocks_own_anchor_looking_text_is_never_rewritten() ->
     placed = decisions["inherited_unit:098.code_block"]
     assert placed.outcome == "placed"
     assert placed.text == "```text\n[Encryption and Signing](#encryption-and-signing)\n```"
+
+
+def test_a_unit_the_plan_hands_to_a_limitation_slot_is_not_also_printed_verbatim() -> None:
+    """Cells .NET 941814fd (wave-3 acceptance, LST-01): the plan handed inherited_unit:064.list to
+    all six limitation slots (``unit_ids``), the composer stated its seven bullets in them, and
+    placement still printed the list as written because the disposition cited examples, none of
+    which any slot of the plan carries. The section read the same seven limitations twice. A unit
+    whose own ID is among the section's planned content is authored there, never placed."""
+    unit = "inherited_unit:064.list"
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            _fact("install_command:dotnet", "install_command", "dotnet build"),
+            _fact("example:001", "example", "print(1)"),
+            _fact(unit, "inherited_unit", CELLS_NET_SCOPE_LIST),
+        ),
+    )
+    entry = {**_entry(unit, "scope_limitations", "example:001"), "disposition": "VERIFIED_MOVE"}
+    dispositions = {"dispositions": [entry]}
+    handed = _plan(
+        material_limitations=[
+            {"fact_ids": ["install_command:dotnet"], "unit_ids": [unit]} for _ in range(6)
+        ]
+    )
+    [decision] = placements(handed, dispositions, facts, "python")
+    assert decision.outcome == "overlap"
+    assert decision.overlap == (unit,)
+    assert placed_texts([decision]) == {}
+    # Negative control: the same plan without the hand-off prints the list as written, whole.
+    bare = _plan(material_limitations=[{"fact_ids": ["install_command:dotnet"], "unit_ids": []}])
+    [decision] = placements(bare, dispositions, facts, "python")
+    assert decision.outcome == "placed"
+    assert placed_texts([decision]) == {"scope_limitations": [CELLS_NET_SCOPE_LIST]}
