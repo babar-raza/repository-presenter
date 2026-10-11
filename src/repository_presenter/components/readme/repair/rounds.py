@@ -78,6 +78,7 @@ from repository_presenter.components.readme.investigation.dossier import (
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
+    citable_fact_ids,
     coordinate_neighbor_promises,
     merge_dispositions,
     reconcile_checks,
@@ -382,8 +383,17 @@ def run_round(tx: TransactionInputs) -> Round:
                 loaded, batch_units, batch_facts, investigation.output
             ),
             # G7-W12 follow-up (b): a prose omission still uncited after the one re-ask becomes
-            # an explicit deferral (PSD-.NET 018.paragraph), re-validated by reconcile_checks.
-            recover=functools.partial(recover_uncited_prose_omits, facts=batch_facts),
+            # an explicit deferral (PSD-.NET 018.paragraph), re-validated by reconcile_checks. It
+            # may cite only what this batch's decoder enum offers, so it is handed that set.
+            recover=functools.partial(
+                recover_uncited_prose_omits,
+                facts=batch_facts,
+                citable=frozenset(
+                    citable_fact_ids(
+                        batch_facts, loaded.manifest, batch_units, investigation.output
+                    )
+                ),
+            ),
             **{**common, "facts": batch_facts},
         )
     dispositions = merge_dispositions([result.output for result in reconciled.values()])

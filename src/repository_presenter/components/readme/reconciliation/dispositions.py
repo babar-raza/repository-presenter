@@ -29,7 +29,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -1632,6 +1632,14 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
 RECOVERED_OMIT_RATIONALE = (
     "No fact cited for this omission; held as unresolved for the owner. Reason given: "
 )
+RECOVERED_COVERAGE_RATIONALE = "Not provably carried by the section named; held for the owner. "
+
+# An uncited prose omit whose own text spells SUPPORTED facts: the facts exist, so "no fact cited"
+# is not the cause. It opens with RECOVERED_COVERAGE_RATIONALE, the typed prefix deferrals.py reads
+# (ADVISORY NOT_CARRIED_BY_NAMED_SECTION), and states the real cause after it.
+RECOVERED_NAMED_OMIT_RATIONALE = (
+    RECOVERED_COVERAGE_RATIONALE + "Omitted uncited, yet its text spells SUPPORTED facts. "
+)
 _RATIONALE_LIMIT = _RATIONALE_MAX_CHARS
 
 
@@ -1642,9 +1650,6 @@ def _uncited_prose_omit(entry: Mapping[str, Any]) -> bool:
         and not entry.get("fact_ids")
         and str(entry.get("unit_id", "?")).rsplit(".", 1)[-1] in _PROSE_UNIT_KINDS
     )
-
-
-RECOVERED_COVERAGE_RATIONALE = "Not provably carried by the section named; held for the owner. "
 
 
 def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
@@ -1678,7 +1683,7 @@ def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
 
 
 def recover_uncited_prose_omits(
-    output: dict[str, Any], facts: FactsDocument
+    output: dict[str, Any], facts: FactsDocument, citable: Collection[str] | None = None
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``source_reconciliation``'s final rejected attempt only
     (``recover=``, ``core/llm/jobs.py``): a prose omission still uncited after the one re-ask
@@ -1695,11 +1700,23 @@ def recover_uncited_prose_omits(
     contradict, listed for the owner and never rendered. Nothing is published either way; the
     deferral is the version that stays visible.
 
-    Safe only when the deferral hides nothing the facts already cover. A unit whose own text spells
-    a SUPPORTED fact (``uncited_omit_candidates``) is not unresolved: the evidence is in its
-    sentence, so the omission should have cited it, and this declines. Declining is all or
-    nothing - one unsafe omission returns ``None`` rather than a partial fix the checks would
-    reject anyway - and so is a unit the facts do not hold (its text cannot be examined).
+    A unit whose own text spells a SUPPORTED fact (``uncited_omit_candidates``) is not "unresolved"
+    - the evidence is in its sentence - so it is deferred on a different, truthful footing and is
+    never silently dropped (G3-W08 / TC-DSP-01 follow-up; G7-W12 REG-18). It takes the typed
+    ``RECOVERED_COVERAGE_RATIONALE`` prefix the supersession fold already writes (the ADVISORY
+    ``NOT_CARRIED_BY_NAMED_SECTION`` class, never ``NO_EVIDENCE_EITHER_WAY``, which a spelled
+    symbol rightly falsifies) and cites the facts it spells so they stay attached to the owner's
+    list, limited to ``citable`` (the batch's decoder enum) and the per-disposition cap. Declining
+    for it, as this once did, failed the whole transaction with nothing repaired: Words-.NET
+    ``020.paragraph`` spelled only the product's own namespace ``Aspose.Words`` inside a project
+    path, and PDF-TypeScript ``356.paragraph`` named ``Attachment.SetField``, which the batch's
+    enum does not offer, so no citation could be written there at all (replayed 2026-10-11 from
+    the archived rejected replies). A deferral is listed and never rendered, which is the same
+    visibility a cited omission would have given the facts.
+
+    Still declines, all or nothing, when a unit is one the facts do not hold (its text cannot be
+    examined): one unsafe omission returns ``None`` rather than a partial fix the checks would
+    reject anyway.
 
     Never accepted on this function's say-so: ``run_job`` re-validates the returned copy through
     the schema, the unit binding and ``reconcile_checks`` exactly as it does any reply, so a reply
@@ -1711,22 +1728,29 @@ def recover_uncited_prose_omits(
         return None
     uncited = [entry for entry in entries if isinstance(entry, dict) and _uncited_prose_omit(entry)]
     unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
+    spelled: dict[str, list[str]] = {}
     for entry in uncited:
-        text = unit_text.get(str(entry.get("unit_id")))
-        if text is None or uncited_omit_candidates(text, facts):
+        unit = str(entry.get("unit_id"))
+        text = unit_text.get(unit)
+        if text is None:
             return None
+        spelled[unit] = uncited_omit_candidates(text, facts)
     recovered = copy.deepcopy(output)
     for entry in recovered["dispositions"]:
         if not _uncited_prose_omit(entry):
             continue
+        named = spelled[str(entry.get("unit_id"))]
+        lead = RECOVERED_NAMED_OMIT_RATIONALE if named else RECOVERED_OMIT_RATIONALE
         reason = str(entry.get("rationale") or "").strip()
-        room = _RATIONALE_LIMIT - len(RECOVERED_OMIT_RATIONALE)
+        room = _RATIONALE_LIMIT - len(lead)
         if len(reason) > room:
             reason = reason[: room - 3].rstrip() + "..."
         entry["disposition"] = "DEFER_UNRESOLVED"
         entry["destination_section"] = None
-        entry["fact_ids"] = []
-        entry["rationale"] = RECOVERED_OMIT_RATIONALE + reason
+        entry["fact_ids"] = [fact_id for fact_id in named if citable is None or fact_id in citable][
+            :RECONCILIATION_FACT_IDS_PER_DISPOSITION
+        ]
+        entry["rationale"] = lead + reason
     # An entry deferred above is no longer an omission, so the coverage fold sees what is left.
     folded = _recover_uncovered(recovered, facts)
     return recovered if uncited or folded else None
