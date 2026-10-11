@@ -241,15 +241,20 @@ class DeferralContext:
         return False
 
     def neighbor_dropped(self, unit_id: str) -> bool:
-        """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED."""
+        """The next block in document order is withheld: OMIT_UNSUPPORTED or DEFER_UNRESOLVED.
+
+        What a colon introduces is a code block, a list or a table (cut-2 BC-10 triage, cause 4),
+        the same blocks ``coordinate_neighbor_promises`` withholds a lead-in with."""
         match = re.match(r"^inherited_unit:(\d{3})(?:\.\d{3})?\.[a-z_]+$", unit_id)
         if match is None:
             return False
-        neighbor = self.entries.get(f"inherited_unit:{int(match.group(1)) + 1:03d}.code_block")
-        return neighbor is not None and neighbor.get("disposition") in {
-            "OMIT_UNSUPPORTED",
-            "DEFER_UNRESOLVED",
-        }
+        prefix = f"inherited_unit:{int(match.group(1)) + 1:03d}."
+        return any(
+            candidate.startswith(prefix)
+            and _kind(candidate) in {"code_block", "list", "table"}
+            and neighbor.get("disposition") in {"OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"}
+            for candidate, neighbor in self.entries.items()
+        )
 
 
 Matcher = Callable[[str, Mapping[str, Any], DeferralContext], bool]

@@ -294,6 +294,24 @@ def test_a_colon_lead_in_whose_block_was_withheld_is_advisory() -> None:
     assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
 
 
+def test_a_colon_lead_in_whose_list_was_withheld_is_advisory() -> None:
+    """Cut-2 triage cause 4: the payload a colon promises may be a list or a table, not only a
+    code block; the lead-in is withheld with it (coordinate_neighbor_promises)."""
+    for kind, value in (("list", "- one" + chr(10) + "- two"), ("table", "| a | b |")):
+        facts = _facts(
+            _unit(1, "paragraph", "The following are not implemented:"),
+            _unit(2, kind, value),
+        )
+        dispositions = {
+            "dispositions": [
+                _deferred("inherited_unit:001.paragraph", "Preserved."),
+                _kept(f"inherited_unit:002.{kind}"),
+            ]
+        }
+        finding = _only(review_deferrals(dispositions, facts))
+        assert (finding.class_id, finding.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+
+
 def test_an_unmatched_cause_fails_closed() -> None:
     """Negative control: a deferral no registered class recognises blocks until one is added."""
     facts = _facts(_unit(1, "paragraph", "Plain prose with nothing that names a cause."))

@@ -43,6 +43,10 @@ from repository_presenter.components.readme.composition.coherence import (
     recover_coherence_regressions,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.list_coverage import (
+    kept_list_units,
+    list_coverage_errors,
+)
 from repository_presenter.components.readme.composition.output_bounds import (
     bound_authoring_citations,
 )
@@ -444,7 +448,12 @@ def run_round(tx: TransactionInputs) -> Round:
         authored[task.label] = run_job(
             loaded,
             task.packet,
-            checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
+            checks=_reject_unlisted_items(
+                functools.partial(unit_checks, task=task, facts=facts, name=name),
+                task,
+                dispositions,
+                facts,
+            ),
             call_schema=call_schema,
             # G4-W17, docs/DECISION_LOG.md 2026-09-24 14:25 UTC (PROPOSAL, Page-Python's
             # first-ever seal attempt) and 2026-09-27 (docs/DEFECT_INDEX.md
@@ -877,6 +886,29 @@ def _reject_uncarried_units(
     return guarded
 
 
+def _reject_unlisted_items(
+    checks: Callable[[dict[str, Any]], list[str]] | None,
+    task: SectionTask,
+    dispositions: Mapping[str, Any],
+    facts: FactsDocument,
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Layer the list-coverage rule onto a section_authoring check - the initial draft's
+    ``unit_checks`` and an S6 repair's stage_checks alike: a list reconciliation kept as written
+    (VERIFIED_PRESERVE) owes every one of its items to the units that cite it, so a reply that
+    condenses the list and loses one is refused with the missing items named, before the section
+    reaches independent review (cut-2 BC-10 triage, cause 5; composition/list_coverage.py).
+    A section with no such list gets its own checks back unchanged."""
+    if not kept_list_units(dispositions, task, facts):
+        return checks if checks is not None else (lambda revised: [])
+
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        errors = list(checks(revised)) if checks is not None else []
+        errors.extend(list_coverage_errors(revised, task, dispositions, facts))
+        return errors
+
+    return guarded
+
+
 def repair_defect(
     tx: TransactionInputs, current: Round, defect: Defect, repairs: RepairLedger
 ) -> None:
@@ -919,6 +951,9 @@ def repair_defect(
     if section_task is not None:
         stage_checks = _reject_title_verbatim_opening(stage_checks, section_task)
         stage_checks = _reject_uncarried_units(stage_checks, section_task)
+        stage_checks = _reject_unlisted_items(
+            stage_checks, section_task, current.dispositions, tx.facts
+        )
     # G4-W17 (docs/DECISION_LOG.md 2026-09-17 10:24 UTC, 2026-09-27 05:14 UTC): a BC-07
     # visible-line-budget defect always names causal stage S5 (the only Failure `_check_structure`
     # ever raises with `stage="PLANNING"` - validation/registry.py), so this is a structured,

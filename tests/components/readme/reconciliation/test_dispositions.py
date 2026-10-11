@@ -1669,3 +1669,180 @@ def test_a_spelled_symbol_omit_is_recovered_by_the_real_job_and_stays_advisory(
     assert [(f.unit_id, f.class_id, f.decision) for f in findings] == [
         ("inherited_unit:018.paragraph", "NOT_CARRIED_BY_NAMED_SECTION", "ADVISORY")
     ]
+
+
+# ---- BC-10 lead-in without payload (cut 2, cause 4: cells-rust/net, 3d-python, slides-python)
+
+
+def _lead_in_facts(*units: Fact) -> FactsDocument:
+    return FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, *units))
+
+
+def _by_unit(dispositions: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {entry["unit_id"]: entry for entry in dispositions["dispositions"]}
+
+
+CELLS_RUST_LEAD_IN = (
+    "Create a workbook, write typed values and a formula with a cached result, save it as XLSX, "
+    "and load it back:"
+)
+
+
+def test_a_lead_in_before_a_verified_example_is_superseded_with_it() -> None:
+    """Cells-Rust (cut 2): inherited_unit:025.paragraph was VERIFIED_PRESERVE'd into quick_start
+    with no citation, beside the code block behind example:001. The plan renders that example
+    once, under its own authored lead-in, so the preserved sentence landed after the example,
+    directly before `## API Reference`, promising a block that is not there."""
+    facts = _lead_in_facts(
+        _fact("example:009", "example", "print(9)", detail="unit inherited_unit:034.code_block"),
+        _fact("inherited_unit:033.paragraph", "inherited_unit", CELLS_RUST_LEAD_IN),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```rust\nfn main() {}\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "quick_start"),
+            _entry(
+                "inherited_unit:034.code_block", "VERIFIED_PRESERVE", "quick_start", "example:009"
+            ),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    folded = _by_unit(dispositions)
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded["inherited_unit:033.paragraph"]["destination_section"] == "quick_start"
+    assert folded["inherited_unit:034.code_block"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_lead_in_before_a_superseded_verified_example_follows_it_to_its_section() -> None:
+    """Cells-.NET (cut 1): the lead-in was preserved while the verified example it introduces was
+    superseded into the plan's example section; the lead-in now goes with it."""
+    facts = _lead_in_facts(
+        _fact("example:009", "example", "print(9)", detail="unit inherited_unit:034.code_block"),
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Export a worksheet to PDF:"),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```csharp\nsave();\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "development_testing"),
+            _entry(
+                "inherited_unit:034.code_block",
+                "SUPERSEDE_REDUNDANT",
+                "additional_examples",
+                "example:009",
+            ),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    entry = _by_unit(dispositions)["inherited_unit:033.paragraph"]
+    assert (entry["disposition"], entry["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "additional_examples",
+    )
+
+
+def test_a_lead_in_before_an_unverified_command_block_is_left_with_it() -> None:
+    """Negative control: only a block the plan renders under its own lead-in (a SUPPORTED example)
+    makes the inherited sentence redundant; an ordinary preserved block keeps its sentence."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Build it with:"),
+        _fact("inherited_unit:034.code_block", "inherited_unit", "```bash\nmake\n```"),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "development_testing"),
+            _entry("inherited_unit:034.code_block", "VERIFIED_PRESERVE", "development_testing"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert _by_unit(dispositions)["inherited_unit:033.paragraph"]["disposition"] == (
+        "VERIFIED_PRESERVE"
+    )
+
+
+SLIDES_LEAD_IN = (
+    "The following are not implemented, and the API member is absent rather than present and inert:"
+)
+SLIDES_LIST = (
+    "- **Rendering and conversion of any kind** - no PDF, HTML, XPS, or image export.\n"
+    "- Reading is limited to `.pptx` files."
+)
+
+
+def test_a_limitations_lead_in_is_carried_by_its_list_never_authored_alone() -> None:
+    """Slides-Python (cut 1): 114.paragraph and 115.list were both preserved into
+    scope_limitations, where every unit becomes its own authored slot. The lead-in's slot had no
+    list to introduce, so the composer invented a 58-name 'absent API' list from fact values.
+    The lead-in is superseded into the section, so the unit that carries the list states it."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    folded = _by_unit(dispositions)
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded["inherited_unit:033.paragraph"]["destination_section"] == "scope_limitations"
+    assert folded["inherited_unit:034.list"]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_lead_in_before_a_dropped_list_is_withheld_with_it() -> None:
+    """The payload may be a list: unsupported, both go (not only a dropped code block)."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    for dropped in ("OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"):
+        dispositions = {
+            "dispositions": [
+                _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+                _entry("inherited_unit:034.list", dropped, None),
+            ]
+        }
+        coordinate_neighbor_promises(dispositions, facts)
+        folded = _by_unit(dispositions)
+        assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+        assert folded["inherited_unit:033.paragraph"]["destination_section"] is None
+        assert folded["inherited_unit:034.list"]["disposition"] == dropped
+
+
+def test_a_lead_in_and_its_list_in_a_verbatim_section_stay_together() -> None:
+    """Negative control: where a section prints preserved units as written, the pair is already
+    one block in order and nothing is superseded."""
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", "Resources:"),
+        _fact(
+            "inherited_unit:034.list",
+            "inherited_unit",
+            "- [Docs](https://x/y)\n- [FAQ](https://x/z)",
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "documentation_resources"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "documentation_resources"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    assert [e["disposition"] for e in dispositions["dispositions"]] == ["VERIFIED_PRESERVE"] * 2
+
+
+def test_the_lead_in_fold_is_idempotent() -> None:
+    facts = _lead_in_facts(
+        _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
+        _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:033.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+            _entry("inherited_unit:034.list", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    coordinate_neighbor_promises(dispositions, facts)
+    once = json.dumps(dispositions, sort_keys=True)
+    coordinate_neighbor_promises(dispositions, facts)
+    assert json.dumps(dispositions, sort_keys=True) == once
