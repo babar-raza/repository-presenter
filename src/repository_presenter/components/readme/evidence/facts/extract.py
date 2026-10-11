@@ -22,6 +22,7 @@ from repository_presenter.components.readme.evidence.facts.published_version imp
 )
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
+from repository_presenter.components.readme.extractors.surface.doc_text import usable_symbol_docs
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
 from repository_presenter.components.readme.extractors.surface.registry import REGISTRY_TYPES
 from repository_presenter.core.ecosystems import spec_for
@@ -270,7 +271,9 @@ def extract_facts(
                 (f.value for f in manifest_facts if f.id == "package:version"), ""
             )
             facts[:] = [pin_install_version(f, manifest_version, published) for f in facts]
-    facts.extend(plugin.surface_facts(clone_path, tree_paths))
+    # A symbol whose own documentation has a hole ("Base class for  and") is an undocumented
+    # symbol: the table row and the member bullet quote only a summary that reads whole.
+    facts.extend(usable_symbol_docs(list(plugin.surface_facts(clone_path, tree_paths))))
     # G4-W17 arrival item 51: the manifest's own license declaration, through the ManifestReader
     # facade the plugins read identity from, stands in for a license file the repository does
     # not ship (license_facts consults it only then).

@@ -75,6 +75,11 @@ class RegistryObservation:
     # repository the caller asked about (None: no repository given, or the registry lists no URL).
     project_urls: tuple[str, ...] = ()
     repository_matched: bool | None = None
+    # Every version the registry lists for the distribution, pre-releases included, parsed from
+    # the same body (no extra request). Empty when the registry's body could not be read: a
+    # count of zero is never inferred from silence. `published_version.py` records only how many
+    # there are, so a README's "the sole published version" can be held to it (BC-14).
+    versions: tuple[str, ...] = ()
 
     @property
     def owned(self) -> bool:
@@ -266,6 +271,39 @@ def _latest_version(registry: str, live: dict[str, Any], body: bytes | None) -> 
     return None
 
 
+def _all_versions(registry: str, body: bytes | None) -> tuple[str, ...]:
+    """Every version the registry's body lists, pre-releases and all, or none when unreadable.
+
+    The sibling of ``_latest_version`` over the same bodies: PyPI ``releases`` (a release with no
+    uploaded file is not a published version), npm ``versions``, crates.io ``versions[].num``,
+    NuGet and the Go proxy as a list, Maven as the ``<version>`` elements of the metadata.
+    """
+    if body is None:
+        return ()
+    found: list[str] = []
+    if registry == "pypi":
+        releases = _json_object(body).get("releases")
+        if isinstance(releases, dict):
+            found = [str(version) for version, files in releases.items() if files]
+    elif registry == "npm":
+        versions = _json_object(body).get("versions")
+        if isinstance(versions, dict):
+            found = [str(version) for version in versions]
+    elif registry == "cargo":
+        listed = _json_object(body).get("versions")
+        if isinstance(listed, list):
+            found = [str(v["num"]) for v in listed if isinstance(v, dict) and v.get("num")]
+    elif registry == "nuget":
+        listed = _json_object(body).get("versions")
+        if isinstance(listed, list):
+            found = [v for v in listed if isinstance(v, str)]
+    elif registry == "maven":
+        found = _MAVEN_VERSION.findall(body.decode("utf-8", errors="replace"))
+    elif registry == "go_modules":
+        found = body.decode("utf-8", errors="replace").split()
+    return tuple(dict.fromkeys(found))
+
+
 _MAVEN_POM_URL = (
     "https://repo1.maven.org/maven2/{group_path}/{artifact}/{version}/{artifact}-{version}.pom"
 )
@@ -445,6 +483,7 @@ def observe(
     ambiguous = bool(live.get("ambiguous", True))
     latest: str | None = None
     body: bytes | None = None
+    listed: tuple[str, ...] = ()
     if reads is not None and published and not ambiguous:
         # PyPI's version was already parsed by the probe; the other registries' bodies are the
         # ones the probe's own adapter fetched, keyed by the URL it reports as its evidence.
@@ -452,6 +491,7 @@ def observe(
         if body is None and kind == "pypi":
             body = reads.bodies.get(f"https://pypi.org/pypi/{package_name}/json")
         latest = _latest_version(kind, live, body)
+        listed = _all_versions(kind, body)
     urls: tuple[str, ...] = ()
     matched: bool | None = None
     if repository and published and not ambiguous:
@@ -475,4 +515,5 @@ def observe(
         latest_version=latest,
         project_urls=urls,
         repository_matched=matched,
+        versions=listed,
     )

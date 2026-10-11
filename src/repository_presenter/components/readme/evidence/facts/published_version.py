@@ -51,18 +51,26 @@ def published_version_fact(entry: RegistryEntry, package_name: Fact | None) -> F
     # the registry must point back here before its current version is stated as ours (TC-EXT-01).
     if not reading.owned or not reading.latest_version:
         return None
+    detail = (
+        f"current stable release the {reading.registry} registry lists for the package; "
+        "the registry's state, not the repository's"
+    )
+    attributes = {"registry": reading.registry}
+    # How many versions the registry lists, when its body said: the only thing that can back a
+    # README's "the sole published version" (or refute it - Aspose.Cells FOSS for Java was
+    # called that while Maven Central lists 26.5.0 and 26.7.0). Absent when the body could not
+    # be read, so silence is never counted as a single release. The evidence says it too, so an
+    # author reading only the evidence does not take "current" for "only".
+    if reading.versions:
+        count = len(reading.versions)
+        attributes["version_count"] = str(count)
+        detail += f"; the registry lists {count} version{'' if count == 1 else 's'} in all"
     return Fact(
         PUBLISHED_VERSION_FACT_ID,
         "package",
         reading.latest_version,
-        (
-            Evidence(
-                reading.evidence_url or reading.registry,
-                f"current stable release the {reading.registry} registry lists for the package; "
-                "the registry's state, not the repository's",
-            ),
-        ),
-        attributes={"registry": reading.registry},
+        (Evidence(reading.evidence_url or reading.registry, detail),),
+        attributes=attributes,
     )
 
 
