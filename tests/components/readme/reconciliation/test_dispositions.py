@@ -1995,7 +1995,7 @@ def test_units_both_replies_are_silent_on_get_one_narrowed_ask_and_the_job_is_ac
     assert "inherited_unit:006.html_block" in user and "inherited_unit:018.paragraph" in user
     assert "inherited_unit:003.code_block" not in user
     shape = asked["response_format"]["json_schema"]["schema"]["properties"]["dispositions"]  # type: ignore[index]
-    assert shape["items"]["properties"]["unit_id"]["enum"] == [
+    assert shape["items"]["anyOf"][0]["properties"]["unit_id"]["enum"] == [
         "inherited_unit:006.html_block",
         "inherited_unit:018.paragraph",
     ]

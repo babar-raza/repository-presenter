@@ -447,11 +447,16 @@ class Failure:
     a field rather than a prefix parsed back out of ``detail`` because routing a defect to its
     causal stage must not depend on prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8,
     27.5 D5).
+
+    ``unit`` is the inherited unit a reconciliation failure is about, for the same reason: the
+    repair of a disposition re-asks only the units at fault (``reconciliation/patch.py``), and it
+    must read them from a field, never from the sentence that describes them.
     """
 
     stage: CausalStage | None
     detail: str
     section: str | None = None
+    unit: str | None = None
 
 
 @dataclass(frozen=True)
@@ -1195,6 +1200,7 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
                 Failure(
                     "RECONCILING",
                     f"{unit_id} has {counts.get(unit_id, 0)} dispositions; exactly one is required",
+                    unit=unit_id,
                 )
             )
     for unit_id in counts:
@@ -1212,6 +1218,7 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
                 Failure(
                     finding.stage,
                     f"{finding.unit_id} is deferred as {finding.class_id}: {finding.reason}",
+                    unit=finding.unit_id,
                 )
             )
     headed = {section.id for section in SEMANTIC_SHELL if section.heading}
@@ -1223,6 +1230,7 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
                 Failure(
                     "PLANNING",
                     f"{placement.unit_id} was placed in {destination}, which the plan omits",
+                    unit=placement.unit_id,
                 )
             )
             continue
@@ -2290,6 +2298,9 @@ def validate_candidate(
                     "section_id": failure.section,
                     "causal_stage": failure.stage,
                     "detail": failure.detail,
+                    # Only a failure about one inherited unit carries it, so every other record
+                    # (and every sealed bundle's validation.json) is byte-identical.
+                    **({"unit_id": failure.unit} if failure.unit is not None else {}),
                 }
                 for failure in failures
             ]

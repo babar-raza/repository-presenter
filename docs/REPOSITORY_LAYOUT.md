@@ -77,6 +77,8 @@ src/repository_presenter/
       examples/                example verification
     investigation/            repository_investigation job wiring
     reconciliation/           source_reconciliation job wiring, dispositions
+      destinations.py          which sections can hold a kept inherited unit on these facts (the decoder's enum for a placing disposition, the list a refusal quotes, the set the last-resort correction picks from) and the nearest one to a unit by its source heading and kind
+      patch.py                 the repair of a disposition as a per-unit patch: the units at fault from the failure records' `unit_id` field, a reply contract bounded to them, the ledger derived from the difference; wired by repair/rounds.py
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
       coverage.py              what a destination section already states of a kept unit (whole sentences, list items, commands, links): the test placement.py drops a unit by, so only what the destination says in full is dropped and the rest is placed

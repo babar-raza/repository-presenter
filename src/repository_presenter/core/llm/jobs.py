@@ -550,6 +550,34 @@ def _schema_message(error: Any) -> str:
     )
 
 
+def schema_error_lines(error: Any) -> list[str]:
+    """A schema error as the lines the re-ask quotes: ``path: message``.
+
+    An ``anyOf``/``oneOf`` error says only that a value "is not valid under any of the given
+    schemas" and quotes the whole value, which tells a model nothing about what to change. The
+    alternatives' own errors are in ``error.context``; the lines come from the alternative the
+    value came closest to - the one with the fewest errors, a type mismatch counting against it
+    (a value of the right type with a wrong member is nearer than one of the wrong type) - so a
+    disposition object that names a section its disposition may not read as "'installation' is not
+    one of [...]" at its ``destination_section``, not as a union failure."""
+    context = list(getattr(error, "context", None) or [])
+    if error.validator not in {"anyOf", "oneOf"} or not context:
+        return [f"{error.json_path}: {_schema_message(error)}"]
+    branches: dict[Any, list[Any]] = {}
+    for sub in context:
+        head = sub.schema_path[0] if sub.schema_path else 0
+        branches.setdefault(head, []).append(sub)
+    closest = min(
+        branches.values(),
+        key=lambda errors: (any(e.validator == "type" for e in errors), len(errors)),
+    )
+    return [
+        line
+        for sub in sorted(closest, key=lambda e: e.json_path)
+        for line in schema_error_lines(sub)
+    ]
+
+
 def _parse(
     manifest: LoadedManifest,
     content: str,
@@ -565,8 +593,9 @@ def _parse(
         return None, ["output is not a JSON object"]
     validator = Draft202012Validator(schema_for(manifest, call_schema))
     errors = [
-        f"{error.json_path}: {_schema_message(error)}"
+        line
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
+        for line in schema_error_lines(error)
     ]
     # G4-W17 arrival item 100 (PGPY-02): a job's domain checks run once the schema has passed,
     # never gated on binding_errors too - binding_errors is a read-only citation check (it never

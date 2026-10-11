@@ -36,6 +36,7 @@ from repository_presenter.components.readme.composition.renderer import (
 from repository_presenter.core.examples import printed_example
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.binding import binding_errors, merge_partial_units
+from repository_presenter.core.llm.jobs import schema_error_lines
 from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -772,7 +773,9 @@ def _named_inherited_units(defect: Defect, facts: FactsDocument) -> list[dict[st
     ]
 
 
-def repair_schema(manifest: LoadedManifest, output_contract: dict[str, Any]) -> dict[str, Any]:
+def repair_schema(
+    manifest: LoadedManifest, output_contract: dict[str, Any], *, bound_changes: bool = False
+) -> dict[str, Any]:
     """The targeted_repair schema specialised for one call: ``revised_output`` constrained to the
     causal stage's own output contract - the exact schema ``repair_checks`` already validates a
     reply against post-hoc (``Draft202012Validator(output_contract)`` below).
@@ -787,10 +790,25 @@ def repair_schema(manifest: LoadedManifest, output_contract: dict[str, Any]) -> 
     rejected reply wasting the one repair attempt a fingerprint gets. This is stage-agnostic: S3,
     S4, S5, and S6 causal stages each supply their own contract, and section_authoring's own fix
     (``maxLength`` on unit ``text``) carries through automatically when S6 is the causal stage.
+
+    ``bound_changes`` is for a repair whose ledger the code writes itself (a disposition patch,
+    ``reconciliation/patch.py``): the model's own ``changes`` are then one short entry that is
+    replaced by the derived ones, so the schema leaves it no room to spend the budget on them.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     schema["properties"]["revised_output"] = copy.deepcopy(output_contract)
+    if bound_changes:
+        changes = schema["properties"]["changes"]
+        changes["maxItems"] = 1
+        change = changes["items"]["properties"]
+        change["before"]["maxLength"] = change["after"]["maxLength"] = _BOUND_CHANGE_TEXT
+        change["fact_ids"] = {"type": "array", "maxItems": 0}
     return schema
+
+
+# The longest ``before``/``after`` a bounded ``changes`` entry may carry: the model's entry is only
+# there to satisfy the manifest's ``minItems`` and is replaced by the derived ledger.
+_BOUND_CHANGE_TEXT = 160
 
 
 # item 93: a change's own "path" as the repair itself writes it - $.units[0].text,
@@ -903,9 +921,18 @@ def repair_checks(
     stage_checks: Callable[[dict[str, Any]], list[str]] | None = None,
     slots: SlotSetProbe | None = None,
     original: dict[str, Any] | None = None,
+    patch_contract: dict[str, Any] | None = None,
+    derive_changes: Callable[[dict[str, Any], dict[str, Any]], list[dict[str, Any]]] | None = None,
 ) -> list[str]:
     """Why the repair may not be used: it must target the defect, and the revised output must
     satisfy the causal stage's own contract, binding, and checks exactly as a fresh reply would.
+
+    ``patch_contract`` is the narrower contract of a patch (``reconciliation/patch.py``): the
+    reply declares only the units at fault, so it is judged by that contract *before* it is merged
+    into ``original`` and the merged whole by ``output_contract``, binding and checks. With
+    ``derive_changes`` the ledger is what ``derive_changes(original, merged)`` says changed, not
+    what the reply claims: a model asked for its own ``changes`` named the unit's index in its
+    partial list and was refused for a path that does not exist in the stored batch (wave 4).
 
     ``slots``, when a content stage gave one, records the slot set this reply would leave behind
     and rejects a revision that changes it: the plan owns that set, so such a fix is a planning
@@ -934,6 +961,15 @@ def repair_checks(
     revised = output.get("revised_output")
     if not isinstance(revised, dict):
         return [*errors, "revised_output must be the causal stage's output object"]
+    if patch_contract is not None:
+        errors.extend(
+            f"revised_output{line[1:]}"
+            for error in sorted(
+                Draft202012Validator(patch_contract).iter_errors(revised),
+                key=lambda error: error.json_path,
+            )
+            for line in schema_error_lines(error)
+        )
     if binding == "unit_ids" and original is not None:
         revised = merge_partial_units(revised, original)
         output["revised_output"] = revised
@@ -965,8 +1001,10 @@ def repair_checks(
                 f"{', '.join(sorted(outside_facts))}, outside its slot's planned facts; "
                 "choosing which facts a slot may cite is a planning decision, not an authoring one"
             )
-    if original is not None:
+    if original is not None and derive_changes is None:
         errors.extend(_uncorroborated_changes(output.get("changes", []), original, revised))
     if not errors and stage_checks is not None:
         errors.extend(f"revised_output: {error}" for error in stage_checks(revised))
+    if not errors and original is not None and derive_changes is not None:
+        output["changes"] = derive_changes(original, revised)
     return errors

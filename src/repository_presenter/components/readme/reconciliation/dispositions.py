@@ -29,7 +29,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -58,7 +58,14 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.components.readme.evidence.facts.registry_lag import REGISTRY_LAG_FACT_ID
-from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.components.readme.reconciliation.destinations import (
+    disposition_variants,
+    holdable_sections,
+    nearest_holdable,
+    root_heading,
+    source_heading,
+)
+from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
     DECLARED_SYMBOL_KINDS,
@@ -66,8 +73,13 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
 )
-from repository_presenter.core.llm.binding import collect_ids
+from repository_presenter.core.llm.binding import collect_ids, silent_unit_ids
+from repository_presenter.core.llm.jobs import Narrowing
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    PUBLISHED_VERSION_FACT_ID,
+)
 from repository_presenter.core.registry.models import RegistryEntry
 
 DISPOSITIONS_FILENAME = "dispositions.json"
@@ -156,11 +168,12 @@ def _longest(node: Mapping[str, Any]) -> int | None:
     """The longest serialized value a schema node admits, JSON quotes included; ``None`` if open."""
     if "enum" in node:
         return max(len(json.dumps(value, ensure_ascii=False)) for value in node["enum"])
-    if "oneOf" in node:
-        known = [
-            size for size in (_longest(option) for option in node["oneOf"]) if size is not None
-        ]
-        return max(known) if len(known) == len(node["oneOf"]) else None
+    for key in ("oneOf", "anyOf"):
+        if key in node:
+            known = [
+                size for size in (_longest(option) for option in node[key]) if size is not None
+            ]
+            return max(known) if len(known) == len(node[key]) else None
     if node.get("type") == "null":
         return len("null")
     if node.get("type") == "string" and "maxLength" in node:
@@ -197,7 +210,16 @@ def output_chars_bound(schema: Mapping[str, Any]) -> int | None:
     the schema rather than a separate estimate; it is a bound only to the extent the decoder
     enforces that schema, which the live proof checks against a real reply."""
     dispositions = schema["properties"]["dispositions"]
-    props = dispositions["items"]["properties"]
+    items = dispositions["items"]
+    bounds = [
+        _variant_chars(dispositions, variant["properties"])
+        for variant in items.get("anyOf", [items])
+    ]
+    return None if None in bounds else max(bound for bound in bounds if bound is not None)
+
+
+def _variant_chars(dispositions: Mapping[str, Any], props: Mapping[str, Any]) -> int | None:
+    """The longest reply one shape of the disposition object admits (see ``output_chars_bound``)."""
     fact_ids = props["fact_ids"]
     sizes = {
         "unit_chars": _longest(props["unit_id"]),
@@ -251,6 +273,13 @@ def _batch_size(facts: FactsDocument, max_output_tokens: int) -> int:
     return size
 
 
+def units_per_reply(facts: FactsDocument, max_output_tokens: int) -> int:
+    """How many dispositions the longest reply the schema admits can hold within
+    ``max_output_tokens``: the same bound that sizes a batch, for a caller asking about a different
+    budget (the repair of a disposition answers under the repair prompt's, not this job's)."""
+    return _batch_size(facts, max_output_tokens)
+
+
 def reconciliation_batches(
     facts: FactsDocument, max_output_tokens: int
 ) -> list[tuple[str, list[Fact]]]:
@@ -296,34 +325,149 @@ def reconciliation_batch_facts(facts: FactsDocument, batch_units: Sequence[Fact]
     )
 
 
+_QUOTED_TEXT = "; the unit's exact text is "
+
+
+def _refusals(unit_id: str, rejection: Sequence[str]) -> list[str]:
+    """The lines of ``rejection`` about ``unit_id``, without the quotation of the unit's own text
+    (the narrowed packet already carries it)."""
+    lines = []
+    for line in rejection:
+        if line.startswith(f"{unit_id}: "):
+            lines.append(line.split(_QUOTED_TEXT, 1)[0].removeprefix(f"{unit_id}: "))
+    return lines
+
+
+def _entries_by_unit(content: str) -> dict[str, dict[str, Any]]:
+    try:
+        document = json.loads(content)
+    except json.JSONDecodeError:
+        return {}
+    entries = document.get("dispositions") if isinstance(document, dict) else None
+    if not isinstance(entries, list):
+        return {}
+    return {
+        str(entry["unit_id"]): entry
+        for entry in entries
+        if isinstance(entry, dict) and "unit_id" in entry
+    }
+
+
+def _replace_units(merged: str, narrowed: str, units: Sequence[str]) -> str:
+    """``merged`` with the disposition of each of ``units`` taken from the ``narrowed`` reply: an
+    entry the narrowed reply answers replaces the one it refused (in place, so document order
+    holds), a unit that had no entry gets the narrowed one appended, and every unit outside
+    ``units`` keeps the answer the earlier replies gave it whatever the narrowed reply says. A
+    narrowed reply that is not a JSON object leaves ``merged`` as it was, to be refused again."""
+    try:
+        base, extra = json.loads(merged), json.loads(narrowed)
+    except json.JSONDecodeError:
+        return merged
+    if not (isinstance(base, dict) and isinstance(extra, dict)):
+        return merged
+    asked = set(units)
+    answers = {
+        str(entry["unit_id"]): entry
+        for entry in extra.get("dispositions", [])
+        if isinstance(entry, dict) and entry.get("unit_id") in asked
+    }
+    kept: list[Any] = []
+    placed: set[str] = set()
+    for entry in base.get("dispositions", []):
+        unit = str(entry.get("unit_id")) if isinstance(entry, dict) else None
+        if unit in answers:
+            if unit not in placed:
+                kept.append(answers[unit])
+                placed.add(unit)
+            continue  # a repeated entry for an answered unit is dropped, the first stands
+        kept.append(entry)
+    kept.extend(entry for unit, entry in answers.items() if unit not in placed)
+    return json.dumps({**base, "dispositions": kept})
+
+
 def reconciliation_narrowing(
     entry: RegistryEntry,
     batch_facts: FactsDocument,
     investigation: Mapping[str, Any],
     manifest: LoadedManifest,
     batch_units: Sequence[Fact],
-) -> Callable[[Sequence[str]], tuple[dict[str, Any], dict[str, Any]]]:
-    """The ``narrow`` argument of ``run_job`` for one batch: the same job asked about only the
-    units both of its replies left without a disposition.
+) -> Narrowing:
+    """The ``narrow`` argument of ``run_job`` for one batch: after the job's two asks, one more for
+    only the units still wrong - the ones both replies left without a disposition and the ones the
+    second reply's checks still refuse - keeping every other answer exactly as the second reply
+    gave it.
 
     Cut-2 wave, 2026-10-11, BarCode-Python: a 19-unit batch's first reply stopped at unit 052 and
     its re-ask at 056, so units 057-059 had no disposition and the whole repository failed
-    ("output rejected twice ... no disposition for inherited units"). The narrowed ask is the
-    batch's own request rebuilt around just those units - the same prompt, the same packet
-    builder (so the facts, the investigation and the shell's sections travel unchanged) and the
-    same schema builder, whose unit enum and size bound now name only those units. The merged
-    reply is judged by the full batch's checks, so nothing is accepted unjudged.
+    ("output rejected twice ... no disposition for inherited units"). Wave 4, nine repositories:
+    the units the checks refused (a Gradle snippet sent to ``installation``) were re-asked with the
+    whole batch, the reply fixed what it was told and kept the rest, and the last-resort correction
+    deferred what was left. The narrowed ask is a different request, not a third equivalent one:
+    the batch's own prompt, packet builder (so the facts, the investigation and the shell's
+    sections travel unchanged) and schema builder, whose unit enum and size bound name only those
+    units and whose placing destinations are the sections that can hold a unit here. Each unit
+    carries what it answered, why that was refused, its source heading and the nearest section
+    that can hold it. The merged reply is judged by the full batch's checks, so nothing is accepted
+    unjudged.
     """
-    known = frozenset(fact.id for fact in batch_units)
+    by_id = {fact.id: fact for fact in batch_units}
+    holdable = holdable_sections(batch_facts)
+    root = root_heading(batch_units)
 
-    def narrow(unit_ids: Sequence[str]) -> tuple[dict[str, Any], dict[str, Any]]:
+    def pending(content: str, rejection: Sequence[str]) -> list[str]:
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError:
+            return []
+        silent = set(silent_unit_ids(parsed, batch_facts))
+        refused = {
+            unit_id
+            for unit_id in by_id
+            if any(line.startswith(f"{unit_id}: ") for line in rejection)
+        }
+        return [unit_id for unit_id in by_id if unit_id in silent | refused]
+
+    def ask(
+        unit_ids: Sequence[str], content: str, rejection: Sequence[str]
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         wanted = frozenset(unit_ids)
-        units = [fact for fact in batch_units if fact.id in wanted and fact.id in known]
+        units = [fact for fact in batch_units if fact.id in wanted]
         scoped = reconciliation_batch_facts(batch_facts, units)
         packet = reconciliation_packet(entry, scoped, dict(investigation), manifest.manifest, units)
+        earlier = _entries_by_unit(content)
+        for record, unit in zip(packet["inherited_units"], units, strict=True):
+            heading = source_heading(unit)
+            if heading:
+                record["source_heading"] = heading
+            prior = earlier.get(unit.id)
+            if prior is not None:
+                record["earlier_answer"] = {
+                    key: prior.get(key)
+                    for key in ("disposition", "destination_section", "rationale")
+                }
+            refusals = _refusals(unit.id, rejection)
+            if refusals:
+                record["refused_because"] = refusals
+            nearest = nearest_holdable(unit.id, heading, holdable, root)
+            if nearest is not None:
+                record["nearest_section_that_can_hold_it"] = nearest
+        packet["repository"] = (
+            f"{entry.repository}\n\nCorrection: an earlier reply to this request was rejected, or "
+            "left units without an answer. Only the units below are asked for again; each answer "
+            "replaces the earlier one entirely. A unit with refused_because was refused for "
+            "exactly that reason: do not repeat the same disposition and destination. A placing "
+            "disposition (VERIFIED_PRESERVE, VERIFIED_REWRITE, VERIFIED_MOVE, "
+            "CORRECT_WITH_EVIDENCE) can name only a section whose entry in the section list says "
+            "placeable: true."
+        )
         return packet, reconciliation_schema(manifest, units, scoped, investigation)
 
-    return narrow
+    return Narrowing(
+        pending=pending,
+        ask=ask,
+        merge=lambda merged, narrowed, units: _replace_units(merged, narrowed, units),
+        subject="the units still refused or silent",
+    )
 
 
 def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
@@ -423,29 +567,33 @@ def reconciliation_schema(
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     dispositions = schema["properties"]["dispositions"]
+    item = dispositions["items"]
     citable = citable_fact_ids(facts, manifest.manifest, batch_units, investigation)
     # The destination is a shell section or null: an open string here is the one field a runaway
     # could fill to the budget unchecked (the same enum treatment unit_id and fact_ids get below).
-    dispositions["items"]["properties"]["destination_section"] = {
+    item["properties"]["destination_section"] = {
         "oneOf": [{"type": "null"}, {"type": "string", "enum": list(section_ids())}]
     }
+    # A reply is decoded as one of two shapes (``destinations.disposition_variants``): a placing
+    # disposition names a section that can hold a unit, any other keeps the open destination. The
+    # shapes are cut from ``item`` once its citations and unit enum are set, so both carry them.
     if citable:
-        dispositions["items"]["properties"]["fact_ids"]["items"] = {
-            "type": "string",
-            "enum": citable,
-        }
+        item["properties"]["fact_ids"]["items"] = {"type": "string", "enum": citable}
         # item 121 (F27) bounded the array by the citable set, which is 739 IDs on PDF-TypeScript
         # and more elsewhere - a bound that does not bound the reply, since a repeating citation
         # list can run to the whole budget (2026-10-04: 32,000 tokens on one attempt). The cap is
         # per disposition and small: the symbols a placed unit names are added by code (see
         # ``normalize``), so the job cites the facts that carry its decision, and output_chars_bound
         # proves the whole batch's longest reply fits the budget at this cap.
-        dispositions["items"]["properties"]["fact_ids"]["maxItems"] = min(
+        item["properties"]["fact_ids"]["maxItems"] = min(
             len(citable), RECONCILIATION_FACT_IDS_PER_DISPOSITION
         )
     else:
-        dispositions["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
+        item["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     units = [fact.id for fact in batch_units]
+    if units:
+        item["properties"]["unit_id"] = {"type": "string", "enum": units}
+    dispositions["items"] = {"anyOf": disposition_variants(item, holdable_sections(facts))}
     if not units:
         return schema
     # No minItems: a floor equal to the batch size forbids closing the array, and a reply that
@@ -455,7 +603,6 @@ def reconciliation_schema(
     # rejection to repair. A short reply now closes and is refused by the unit binding ("no
     # disposition for inherited units"), which names what is missing. maxItems still bounds it.
     dispositions["maxItems"] = len(units)
-    dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
     return schema
 
 
@@ -487,8 +634,29 @@ def reconciliation_packet(
         "inherited_units": units,
         "facts": _packet_fact_records(facts, manifest),
         "investigation": investigation,
-        "sections": shell_packet(),
+        "sections": _sections_packet(facts),
     }
+
+
+def _sections_packet(facts: FactsDocument) -> list[dict[str, Any]]:
+    """The shell as the job sees it: ``placeable`` is true exactly where a placing disposition may
+    send a unit in this repository (``destinations.holdable_sections``), the same set the schema's
+    destination enum is cut from. A section the shell lets the LLM write but that cannot hold a
+    kept unit here - At a Glance, which is one diagram, or a section whose condition fails on these
+    facts - says why in ``unavailable``, so the packet and the decoder never disagree."""
+    holdable = set(holdable_sections(facts))
+    sections = []
+    for record in shell_packet():
+        shown = dict(record)
+        if record["placeable"] and record["id"] not in holdable:
+            shown["unavailable"] = (
+                "holds one diagram and nothing else"
+                if record["id"] == "at_a_glance"
+                else "its condition does not hold at this revision, so the section is not rendered"
+            )
+        shown["placeable"] = record["id"] in holdable
+        sections.append(shown)
+    return sections
 
 
 def code_units_by_polarity(facts: FactsDocument, polarity: str) -> dict[str, str]:
@@ -766,7 +934,44 @@ def _rendered_commands(facts: FactsDocument) -> frozenset[str]:
     ]
     if imported and spec.verify_command:
         lines.update(_command_lines(spec.verify_command.format(module=max(imported, key=len))))
+    lines.update(_alternative_lines(facts, spec, install, kind))
     return frozenset(lines)
+
+
+def _alternative_lines(
+    facts: FactsDocument, spec: EcosystemSpec, install: Fact | None, kind: str | None
+) -> set[str]:
+    """The lines of the alternative declarations the Installation row prints under a registry
+    install (a Maven POM entry and a Gradle line for Java: ``renderer._installation``), in the form
+    a unit's block is compared in.
+
+    Without them a README's own Maven and Gradle blocks under Installation read as "not printed"
+    and were refused or deferred while the row printed exactly that (3D-Java, wave 4). The row
+    prints them when the install is a SUPPORTED registry install, the package is named, a version
+    is known (the registry's, else the manifest's) and no registry-confirmed distribution stands in
+    for the install - the same conditions, so what is claimed here is what renders."""
+    if install is None or install.polarity != "SUPPORTED" or kind in {"source", "source_checkout"}:
+        return set()
+    packages = {fact.id: fact for fact in facts.by_kind("package")}
+    if any(
+        fact.id.startswith(DISTRIBUTION_FACT_PREFIX) and fact.polarity == "SUPPORTED"
+        for fact in packages.values()
+    ):
+        return set()
+    package = packages.get("package:name")
+    published = packages.get(PUBLISHED_VERSION_FACT_ID)
+    version = (
+        published
+        if published is not None and published.polarity == "SUPPORTED"
+        else packages.get("package:version")
+    )
+    if package is None or version is None:
+        return set()
+    return {
+        line
+        for _lead, _fence, body in spec.install_alternative_blocks(package.value, version.value)
+        for line in _command_lines(body)
+    }
 
 
 def _lead_paragraphs(units: Sequence[Fact]) -> frozenset[str]:
@@ -1649,6 +1854,31 @@ def _payload_of(unit_id: str, units: Mapping[str, Fact]) -> str | None:
     return first[0] if _unit_kind(first[0]) in _PAYLOAD_KINDS else None
 
 
+def lead_in_of(unit_id: str, units: Mapping[str, Fact]) -> str | None:
+    """The sentence that introduces ``unit_id`` in the source README - a paragraph or list ending
+    ``:`` right before a code block, list or table - or ``None``. The inverse of ``_payload_of``:
+    a lead-in and its payload share one fate, so whoever moves one asks about the other."""
+    if _unit_kind(unit_id) not in _PAYLOAD_KINDS:
+        return None
+    ordinal = _unit_ordinal(unit_id)
+    if ordinal is None:
+        return None
+    before = [
+        (other_ordinal, other)
+        for other in units
+        if (other_ordinal := _unit_ordinal(other)) is not None and other_ordinal < ordinal
+    ]
+    if not before:
+        return None
+    nearest = max(ordinal_ for ordinal_, _ in before)
+    for _, candidate in sorted((o, u) for o, u in before if o == nearest):
+        if _unit_kind(candidate) in {"paragraph", "list"} and units[
+            candidate
+        ].value.rstrip().endswith(":"):
+            return candidate
+    return None
+
+
 def _supersede_lead_in(entry: dict[str, Any], destination: str) -> None:
     entry["disposition"] = "SUPERSEDE_REDUNDANT"
     entry["destination_section"] = destination
@@ -1699,10 +1929,14 @@ _QUOTE_LIMIT = 600
 
 
 def _coverage_errors(
-    gaps: Sequence[CoverageGap], unit_text: Mapping[str, str], placeable: frozenset[str]
+    gaps: Sequence[CoverageGap],
+    unit_text: Mapping[str, str],
+    holdable: Sequence[str],
+    nearest: Mapping[str, str | None] | None = None,
 ) -> list[str]:
     """One typed, repairable refusal per disposition that claims more than the stage can prove,
-    quoting the unit's exact text (the one re-ask can only act on what it is shown)."""
+    quoting the unit's exact text (the one re-ask can only act on what it is shown) and naming the
+    sections that can hold it - this repository's, not the shell's - with the nearest one first."""
     errors: list[str] = []
     for gap in gaps:
         kind = _unit_kind(gap.unit_id).replace("_", " ")
@@ -1716,12 +1950,14 @@ def _coverage_errors(
                 f"text is {text}"
             )
             continue
+        home = (nearest or {}).get(gap.unit_id)
+        advice = f" The nearest section that can hold it is {home}." if home is not None else ""
         errors.append(
             f"{gap.unit_id}: {UNCOVERED_SUPERSESSION}: {gap.disposition} treats "
             f"{gap.destination or 'no section'} as carrying this {kind}, but {gap.detail}. A unit "
             "is superseded only when something that renders takes its place: place it "
-            "(VERIFIED_PRESERVE or VERIFIED_MOVE) into a section the shell can hold "
-            f"({', '.join(sorted(placeable))}) or choose DEFER_UNRESOLVED; the unit's exact text "
+            "(VERIFIED_PRESERVE or VERIFIED_MOVE) into a section that can hold it "
+            f"({', '.join(holdable)}) or choose DEFER_UNRESOLVED.{advice} The unit's exact text "
             f"is {text}"
         )
     return errors
@@ -1740,9 +1976,11 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     this never assigns a disposition on its own.
     """
     placeable = placeable_section_ids()
+    holdable = holdable_sections(facts)
     contradicted = contradicted_code_units(facts)
     commands = command_block_units(facts)
-    unit_text = {fact.id: fact.value for fact in facts.by_kind("inherited_unit")}
+    inherited = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    unit_text = {unit_id: fact.value for unit_id, fact in inherited.items()}
     build_facts = sorted(
         fact.id
         for fact in facts.facts
@@ -1790,7 +2028,7 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
             if destination not in placeable:
                 errors.append(
                     f"{unit}: {disposition} needs a destination the shell can hold "
-                    f"({', '.join(sorted(placeable))}); got {destination!r}"
+                    f"({', '.join(holdable)}); got {destination!r}"
                 )
             if unit in contradicted:
                 errors.append(f"{unit}: its example is CONTRADICTED and cannot be placed")
@@ -1816,7 +2054,14 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
         if not (gap.disposition == "SUPERSEDE_REDUNDANT" and gap.destination in placeable)
         and gap.reason != OMIT_UNRESOLVED_EXAMPLE
     ]
-    errors.extend(_coverage_errors(unfolded, unit_text, placeable))
+    root = root_heading(list(inherited.values()))
+    nearest = {
+        gap.unit_id: nearest_holdable(
+            gap.unit_id, source_heading(inherited.get(gap.unit_id)), holdable, root
+        )
+        for gap in unfolded
+    }
+    errors.extend(_coverage_errors(unfolded, unit_text, holdable, nearest))
     return errors
 
 
@@ -1847,25 +2092,83 @@ def _uncited_prose_omit(entry: Mapping[str, Any]) -> bool:
     )
 
 
-def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
+# The gaps whose unit says something its destination cannot print. Keeping such a unit in a section
+# that can hold it is the one outcome that loses nothing; deferring it takes the content out of the
+# README, which BC-05 (v7) now blocks. The other gaps are claims about support or verification (an
+# omission the facts contradict, an example never run, a supersession naming no section), which a
+# placement would publish, so those units are still held for the owner.
+_PLACE_ON_RECOVERY = frozenset(
+    {
+        UNRENDERED_FACTS,
+        UNRENDERED_COMMAND,
+        SECTION_RENDERS_OTHER_KINDS,
+        NOT_NAVIGATION,
+        NOT_A_DIAGRAM,
+        NOT_LEAD_PARAGRAPH,
+        PLAN_DEPENDENT,
+        API_MEMBERS,
+        NOT_AN_API_LISTING,
+    }
+)
+RECOVERED_PLACEMENT_RATIONALE = "Kept in {section}: the section named cannot hold it. "
+
+
+def _recovered_home(
+    entry: Mapping[str, Any], unit: Fact | None, holdable: Collection[str], root: str | None
+) -> str | None:
+    """The section a unit stays in when the section its reply named cannot carry it: that section
+    itself when it can hold a unit (the plan decides at render whether it overlaps what the
+    section prints anyway), else the nearest section that can (``destinations.nearest_holdable``),
+    else ``None``."""
+    destination = entry.get("destination_section")
+    if destination in holdable:
+        return str(destination)
+    return nearest_holdable(str(entry.get("unit_id", "?")), source_heading(unit), holdable, root)
+
+
+def _recover_uncovered(
+    output: dict[str, Any], facts: FactsDocument, holdable: Collection[str] | None = None
+) -> bool:
     """Fold, in place, every disposition still claiming more than the stage can prove into the
-    deferral that says so. Returns whether anything changed.
+    outcome that says so. Returns whether anything changed.
 
     Only reached for a reply that survived the one re-ask with such a claim (``recover=`` runs on
-    the last attempt only). Deferring is the only fold that asserts nothing: the unit is listed
-    for the owner and never rendered, so the claim "something else carries this" is withdrawn
-    rather than repeated. A verified example the reply omitted is the one exception: the plan
-    renders every verified example, so it is superseded into Additional Examples citing it."""
+    the last attempt only). A unit whose content its destination cannot print is kept as written in
+    the nearest section that can hold it (``_PLACE_ON_RECOVERY``; the repair is recorded by
+    ``run_job`` beside the call, and the rationale says the section changed). Every other claim is
+    withdrawn by deferring: the unit is listed for the owner and never rendered, so "something
+    else carries this" is not repeated - and a unit with no section that can hold it is deferred
+    the same way, with the typed ``RECOVERED_COVERAGE_RATIONALE``. A verified example the reply
+    omitted is the one exception: the plan renders every verified example, so it is superseded into
+    Additional Examples citing it."""
     ctx = coverage_context(facts)
+    homes = tuple(holdable_sections(facts) if holdable is None else holdable)
+    root = root_heading(list(ctx.units.values()))
     changed = False
+    kept_in: dict[str, str] = {}
     for entry, gap in _judge(output, ctx):
         if gap is None:
             continue
         unit = str(entry.get("unit_id", "?"))
         cited = set(entry.get("fact_ids") or [])
-        reason = RECOVERED_COVERAGE_RATIONALE + str(entry.get("rationale") or "").strip()
-        entry["rationale"] = reason[:_RATIONALE_LIMIT]
+        said = str(entry.get("rationale") or "").strip()
         example = {ctx.examples[unit][1]} if unit in ctx.examples else set()
+        home = (
+            _recovered_home(entry, ctx.units.get(unit), homes, root)
+            if gap[0] in _PLACE_ON_RECOVERY
+            else None
+        )
+        if home is not None:
+            lead = RECOVERED_PLACEMENT_RATIONALE.format(section=home)
+            entry["rationale"] = (lead + said)[:_RATIONALE_LIMIT]
+            if entry.get("disposition") not in PLACING:
+                entry["disposition"] = "VERIFIED_PRESERVE"
+            entry["destination_section"] = home
+            entry["fact_ids"] = sorted(cited)
+            kept_in[unit] = home
+            changed = True
+            continue
+        entry["rationale"] = (RECOVERED_COVERAGE_RATIONALE + said)[:_RATIONALE_LIMIT]
         if gap[0] == OMIT_VERIFIED_EXAMPLE:
             entry["disposition"] = "SUPERSEDE_REDUNDANT"
             entry["destination_section"] = "additional_examples"
@@ -1874,7 +2177,35 @@ def _recover_uncovered(output: dict[str, Any], facts: FactsDocument) -> bool:
             entry["destination_section"] = None
         entry["fact_ids"] = sorted(cited | example)
         changed = True
+    _follow_payload(output, ctx, kept_in)
     return changed
+
+
+def _follow_payload(output: dict[str, Any], ctx: _Coverage, kept_in: Mapping[str, str]) -> None:
+    """Keep a lead-in in the section its payload was kept in: a sentence ending ``:`` ("Gradle
+    (Kotlin DSL):") introduces the block, list or table right after it, and the two share one fate
+    (the prompt's own rule; ``coordinate_neighbor_promises``). The nearest section is chosen per
+    unit, so a label and its snippet could part; this puts them back together, for a lead-in the
+    last attempt placed or is placing in some other section."""
+    for entry in output.get("dispositions", []):
+        unit = str(entry.get("unit_id", "?"))
+        if _unit_kind(unit) not in {"paragraph", "list"} or not ctx.text(unit).rstrip().endswith(
+            ":"
+        ):
+            continue
+        payload = _payload_of(unit, ctx.units)
+        home = kept_in.get(payload) if payload is not None else None
+        if home is None:
+            continue
+        if entry.get("disposition") == "DEFER_UNRESOLVED":
+            entry["disposition"] = "VERIFIED_PRESERVE"
+        elif entry.get("disposition") not in PLACING or entry.get("destination_section") == home:
+            continue
+        entry["destination_section"] = home
+        entry["rationale"] = (
+            RECOVERED_PLACEMENT_RATIONALE.format(section=home)
+            + str(entry.get("rationale") or "").strip()
+        )[:_RATIONALE_LIMIT]
 
 
 _DOTTED_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
@@ -1904,7 +2235,10 @@ def _code_spans_name_a_symbol(text: str, facts: FactsDocument) -> bool:
 
 
 def recover_uncited_prose_omits(
-    output: dict[str, Any], facts: FactsDocument, citable: Collection[str] | None = None
+    output: dict[str, Any],
+    facts: FactsDocument,
+    citable: Collection[str] | None = None,
+    holdable: Collection[str] | None = None,
 ) -> dict[str, Any] | None:
     """Last-resort correction for ``source_reconciliation``'s final rejected attempt only
     (``recover=``, ``core/llm/jobs.py``): a prose omission still uncited after the one re-ask
@@ -1934,6 +2268,12 @@ def recover_uncited_prose_omits(
     enum does not offer, so no citation could be written there at all (replayed 2026-10-11 from
     the archived rejected replies). A deferral is listed and never rendered, which is the same
     visibility a cited omission would have given the facts.
+
+    A disposition that sends a unit to a section that cannot print it (a Gradle snippet to
+    ``installation``, a pip extra to ``dependencies``: wave 4, nine repositories) is not deferred
+    any more: ``holdable`` (default: the sections that can hold a unit on these facts) names where
+    it can stay, and the unit is kept as written in the nearest of them (``_recover_uncovered``).
+    It is deferred, typed, only when none of them suits it.
 
     Still declines, all or nothing, when a unit is one the facts do not hold (its text cannot be
     examined): one unsafe omission returns ``None`` rather than a partial fix the checks would
@@ -1979,7 +2319,7 @@ def recover_uncited_prose_omits(
         ]
         entry["rationale"] = lead + reason
     # An entry deferred above is no longer an omission, so the coverage fold sees what is left.
-    folded = _recover_uncovered(recovered, facts)
+    folded = _recover_uncovered(recovered, facts, holdable)
     return recovered if uncited or folded else None
 
 

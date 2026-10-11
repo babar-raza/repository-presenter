@@ -93,6 +93,13 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     recover_uncited_prose_omits,
     write_dispositions,
 )
+from repository_presenter.components.readme.reconciliation.patch import (
+    condensed,
+    patch_checks,
+    patch_scope,
+    target_batch,
+    unit_changes,
+)
 from repository_presenter.components.readme.repair.targeted import (
     MAX_ROUNDS,
     REPAIRS_FILENAME,
@@ -813,12 +820,18 @@ def _stage_target(
         # and reports a repair that targeted the wrong batch - it is never silently accepted.
         # dict insertion order, not sorted(keys) - "reconciliation#10" would sort before
         # "reconciliation#2" lexicographically; current.reconciled is built in batch order.
-        first_batch_id = next(iter(current.reconciled))
+        # The batch is the one holding a unit the defect names in its ``unit_id`` field (wave 4:
+        # the first batch was assumed, so a defect about a later batch revised the wrong one); a
+        # defect that names none keeps the first.
         # The budget is read here, where batching happens, from the same manifest run_round splits
         # with. Read eagerly by the caller it would require source_reconciliation for every repair,
         # including stages that never batch.
         reconciliation_budget = prompts["source_reconciliation"].manifest.sampling.max_output_tokens
-        batch_units = dict(reconciliation_batches(facts, reconciliation_budget))[first_batch_id]
+        batches = dict(reconciliation_batches(facts, reconciliation_budget))
+        first_batch_id = target_batch(defect.record, batches, current.reconciled) or next(
+            iter(current.reconciled)
+        )
+        batch_units = batches[first_batch_id]
         batch_facts = reconciliation_batch_facts(facts, batch_units)
         # Real bug, found live against Cells-Rust: repair_checks's own binding_errors call
         # (repair/targeted.py) needs the SAME batch-scoped facts reconciliation_batch_facts()
@@ -916,6 +929,29 @@ def repair_defect(
     )
     contract = causal.manifest.output.schema_
     probe = _slot_set_probe(current, defect, tx.facts)
+    # An S4 defect that names the units at fault (BC-05's failure records carry them in a field) is
+    # repaired as a patch of those units alone, under a contract that bounds the reply and offers
+    # a placing disposition only the sections that can hold a unit (reconciliation/patch.py);
+    # otherwise the whole stored batch is revised as before.
+    patch = None
+    stage_output: dict[str, Any] = target.output
+    reply_contract = contract
+    if defect.stage == "S4":
+        reconciliation = tx.prompts["source_reconciliation"]
+        patch = patch_scope(
+            defect.record,
+            {batch_id: result.output for batch_id, result in current.reconciled.items()},
+            dict(
+                reconciliation_batches(tx.facts, reconciliation.manifest.sampling.max_output_tokens)
+            ),
+            tx.facts,
+            reconciliation,
+            current.investigation.output,
+            tx.prompts["targeted_repair"].manifest.sampling.max_output_tokens,
+        )
+        if patch is not None:
+            stage_output, reply_contract = patch.shown, patch.contract
+            stage_checks = patch_checks(patch, stage_checks)
     # G4-W17, docs/DECISION_LOG.md 2026-09-25 08:04 UTC (BarCode-Python BC-10 F03): an S6 repair
     # gets review's own stricter title-restatement standard layered onto its stage_checks (never
     # onto unit_checks itself) and a matching recover= last resort, so a reply that still opens a
@@ -988,10 +1024,10 @@ def repair_defect(
             repair_packet(
                 tx.entry,
                 defect,
-                target.output,
+                stage_output,
                 tx.facts,
                 current.review.get("preserve", []),
-                contract,
+                condensed(reply_contract) if patch is not None else contract,
                 allowed,
                 slot_facts,
                 visible_line_hint,
@@ -1004,11 +1040,15 @@ def repair_defect(
             ledger=tx.ledger,
             store=tx.store,
             context=tx.context,
-            call_schema=repair_schema(tx.prompts["targeted_repair"], contract),
+            call_schema=repair_schema(
+                tx.prompts["targeted_repair"], reply_contract, bound_changes=patch is not None
+            ),
             checks=functools.partial(
                 repair_checks,
                 defect=defect,
                 output_contract=contract,
+                patch_contract=reply_contract if patch is not None else None,
+                derive_changes=unit_changes if patch is not None else None,
                 binding=causal.manifest.output.binding,
                 # PHASE0/G: the causal stage's OWN binding check (unit_ids for S4) must be judged
                 # against the same fact set that stage's own call was - stage_facts, not tx.facts
