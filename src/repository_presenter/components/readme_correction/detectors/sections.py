@@ -3,8 +3,9 @@
 The template's Installation, Dependencies, Development and Testing and License sections (the four
 of the ten that need no prose; an extra conditional section such as Third-party notices is not one
 of the ten and is never added) are rendered by the existing deterministic renderer from facts
-(``render_readme`` with a plan that includes just that section and no authored units). A section the live README already has
-under any heading that means the same is never touched; a section that needs prose - Key
+(``render_readme`` with a plan that includes just that section and no authored units). A section
+the live README already has under any heading that means the same is never touched; a section
+that needs prose - Key
 Capabilities, Scope and Limitations, At a Glance, Quick Start, API Reference, Documentation and
 Resources - is reported as a finding, never invented (AGENTS.md: the model proposes, code verifies).
 
