@@ -76,6 +76,50 @@ def test_text_a_structure_fix_merely_re_sections_is_revealed_not_introduced(
     delta = validation_delta(ctx, result, readme.encode())
     assert delta["introduced"] == []
     assert delta["revealed"] and delta["revealed"][0]["check"] == "BC-04"
+    assert delta["revealed"][0]["caused_by"] == ["second_h1"]  # the one structure fix there is
+
+
+BOTH_STRUCTURE_FIXES = (
+    "# Aspose.3D FOSS for Java\n\n## Installation\n\nRun it.\n\n"
+    "# A note\n\nPlain words.\n\n"
+    "<details>\n<summary>More</summary>\n\nUse it.\n\n## License\n\nMIT.\n"
+)
+
+
+def test_a_revealed_failure_names_the_structure_fix_that_brings_it_alone(
+    make_context: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Two structure fixes; the judges find a new failure only once the <details> block is closed.
+    # The record must say that fix did it, not leave the pull request to guess between the two.
+    ctx = make_context(BOTH_STRUCTURE_FIXES)
+    result = correct(ctx)
+    fixes = sorted(e.detector for e in result.edits if e.kind == "STRUCTURE_FIX")
+    assert fixes == ["second_h1", "unclosed_details"]
+    opened = BOTH_STRUCTURE_FIXES.count("</details>")
+
+    def judged(_ctx: Any, text: str, _original: bytes, _revision: str) -> dict[str, list[str]]:
+        found = text.count("</details>") > opened
+        return {"BC-04": ["code span 'v26' is not a fact value"]} if found else {}
+
+    monkeypatch.setattr(check, "_failures", judged)
+    delta = validation_delta(ctx, result, BOTH_STRUCTURE_FIXES.encode())
+    assert [i["caused_by"] for i in delta["revealed"]] == [["unclosed_details"]]
+
+
+def test_a_revealed_failure_no_single_fix_brings_names_every_structure_fix(
+    make_context: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ctx = make_context(BOTH_STRUCTURE_FIXES)
+    result = correct(ctx)
+    opened = BOTH_STRUCTURE_FIXES.count("</details>")
+
+    def judged(_ctx: Any, text: str, _original: bytes, _revision: str) -> dict[str, list[str]]:
+        both = text.count("</details>") > opened and "\n## A note\n" in text
+        return {"BC-04": ["code span 'v26' is not a fact value"]} if both else {}
+
+    monkeypatch.setattr(check, "_failures", judged)
+    delta = validation_delta(ctx, result, BOTH_STRUCTURE_FIXES.encode())
+    assert [i["caused_by"] for i in delta["revealed"]] == [["second_h1", "unclosed_details"]]
 
 
 DIAGRAM = """\
