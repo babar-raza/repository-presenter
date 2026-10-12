@@ -20,6 +20,9 @@ _OPEN = re.compile(r"<details\b", re.IGNORECASE)
 _CLOSE = re.compile(r"</details\s*>", re.IGNORECASE)
 _CODE_SPAN = re.compile(r"`[^`]*`")
 _LIST_ITEM = re.compile(r"^\s{0,3}(?:[-*+]|\d+[.)])\s+")
+#: A thematic break (``---``): the rule that closes a section visually. An addition goes in front of
+#: it, so it stays the section's last line and the bullet is inside the section it belongs to.
+_RULE = re.compile(r"^\s{0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
 
 
 @dataclass(frozen=True)
@@ -101,8 +104,19 @@ def _before_trailing_details(section: H2Section, body: list[ReadmeLine]) -> Read
     return earlier[-1] if earlier else None
 
 
+def _is_rule(ctx: Context, line: ReadmeLine) -> bool:
+    """Whether ``line`` is a thematic break and not the underline of a setext heading (which
+    follows its text on the very next line)."""
+    if _RULE.match(line.text) is None:
+        return False
+    before = ctx.lines[line.number - 2] if line.number >= 2 else None
+    return before is None or not before.text.strip()
+
+
 def append_point(ctx: Context, section: H2Section) -> AppendPoint | None:
     body = [line for line in section.lines if line.text.strip()]
+    while body and not body[-1].in_fence and _is_rule(ctx, body[-1]):
+        body.pop()  # a closing rule is not content: the addition goes before it
     markers = sum(1 for line in section.lines if line.in_fence and _FENCE_MARK.match(line.text))
     if markers % 2:
         return None  # a fence opened and never closed inside the section

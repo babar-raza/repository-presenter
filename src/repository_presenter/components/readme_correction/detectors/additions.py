@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from dataclasses import dataclass, replace
 
 from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
@@ -27,16 +28,28 @@ from repository_presenter.components.readme.composition.renderer import (
     render_readme,
 )
 from repository_presenter.components.readme.evidence.facts.commands import (
-    BUILD_COMMAND_FACT_ID,
     CI_MATRIX_FACT_ID,
-    TEST_COMMAND_FACT_ID,
+    PRECONDITION_ATTRIBUTE,
+    RELEASE_WORKFLOW_FACT_ID,
+    matrix_axes,
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.components.readme_correction.augment import (
     CMAKE_FACT_ID,
     augment_dependencies,
 )
+from repository_presenter.components.readme_correction.chain import (
+    CHAIN_ATTRIBUTE,
+    CI_CONTIGUOUS_ATTRIBUTE,
+    COMMAND_FACT_IDS,
+    EXCLUDED_ATTRIBUTE,
+    PROJECT_FILES,
+    RECEIPT_ATTRIBUTE,
+    RECEIPT_FAILURE_ATTRIBUTE,
+    installs,
+)
 from repository_presenter.components.readme_correction.commands import (
+    Signature,
     covered,
     missing_precondition,
     readme_commands,
@@ -49,6 +62,10 @@ from repository_presenter.components.readme_correction.detectors._layout import 
     eol,
     fence_lines,
     find_section,
+)
+from repository_presenter.components.readme_correction.docs import (
+    DOCS_FACT_ID,
+    documentation_paths,
 )
 from repository_presenter.components.readme_correction.model import (
     MISSING_INFO,
@@ -91,78 +108,185 @@ def _render_section(ctx: Context, section_id: str, facts: tuple[Fact, ...]) -> s
 #: add_dev_commands edit - a duplicate of a command the section already shows, commands stitched
 #: from unrelated CI steps (a release Debug build with a package-test ctest, a sanitizer job without
 #: its configure step), a command that fails on a clean clone. A fact being SUPPORTED shows it
-#: exists, not that the sequence runs. So the detector only reports until a command can be shown
-#: to run.
+#: exists, not that the sequence runs. So a command is printed only as part of a chain
+#: (``chain.plan_chain``) that ran on a clean clone (``verify.run_chain``); the sentences about the
+#: CI matrix and the release workflow cite no command and need neither.
 DEV_RE_ENABLE = (
-    "the commands come from ONE CI job's contiguous steps (configure, build and test of the same "
-    "job, the primary non-sanitizer non-release job) and a build receipt verifies the sequence on "
-    "a clean clone: the fact carries attributes ci_job_contiguous=true and a build_receipt"
+    "the commands are ONE chain - ONE CI job's contiguous steps (the job's install and configure "
+    "steps, then its build and test; a job of the primary non-sanitizer non-release kind) or the "
+    "build and test of one project file - and a build receipt shows the chain, run on a clean "
+    "clone with the project's own toolchains, exiting 0 at every step: the command facts carry "
+    "command_chain (and ci_job_contiguous=true for a CI job) and build_receipt"
+)
+_RECEIPT_REASONS = {
+    "NOT_RUN": "NO_BUILD_RECEIPT",
+    "NOT_VERIFIED": "NO_BUILD_RECEIPT",
+    "FAILED": "BUILD_RECEIPT_FAILED",
+    "TIMED_OUT": "BUILD_RECEIPT_FAILED",
+}
+_CI_WORDS = re.compile(
+    r"(?i)\b(?:ci|continuous integration|github actions|workflows?|pipelines?)\b"
 )
 
 
-def _dev_conditions_unmet(ctx: Context, cited: tuple[str, ...]) -> str:
-    """Why the cited build/test facts may not yet be edited in, or '' when they may. Today no
-    extractor records the job chain or a receipt, so the answer is always the reason."""
-    commands = [ctx.fact(i) for i in cited if i in (BUILD_COMMAND_FACT_ID, TEST_COMMAND_FACT_ID)]
-    for fact in commands:
+@dataclass(frozen=True)
+class Unmet:
+    """Why a build or test command may not yet be edited in: a typed reason and the words."""
+
+    code: str
+    text: str
+
+
+def dev_unmet(ctx: Context, cited: tuple[str, ...]) -> Unmet | None:
+    """Why the cited build/test facts may not yet be edited in, or ``None`` when they may.
+
+    Only a cited command needs a chain and a receipt: a sentence about the CI matrix or the
+    release workflow links a workflow file the pinned tree holds and states what its YAML says."""
+    for fact_id in cited:
+        if fact_id not in COMMAND_FACT_IDS:
+            continue
+        fact = ctx.fact(fact_id)
         attributes = (fact.attributes or {}) if fact is not None else {}
-        if attributes.get("ci_job_contiguous") != "true" or not attributes.get("build_receipt"):
-            return "the commands are not one CI job's contiguous steps verified by a build receipt"
-    if not commands:
-        return "no verified build or test command is cited, only CI or suite information"
-    return ""
+        command = fact.value.splitlines()[0] if fact is not None else fact_id
+        if attributes.get(EXCLUDED_ATTRIBUTE):
+            return Unmet(
+                "NOT_IN_VERIFIED_CHAIN",
+                f"`{command}` is left out of the verified chain: {attributes[EXCLUDED_ATTRIBUTE]}",
+            )
+        in_chain = (
+            attributes.get(CI_CONTIGUOUS_ATTRIBUTE) == "true"
+            or attributes.get(CHAIN_ATTRIBUTE) == PROJECT_FILES
+        )
+        if not in_chain:
+            return Unmet(
+                "RE_ENABLE_CONDITION_UNMET",
+                "the commands are not one CI job's contiguous steps verified by a build receipt",
+            )
+        if not attributes.get(RECEIPT_ATTRIBUTE):
+            recorded = attributes.get(RECEIPT_FAILURE_ATTRIBUTE, "NOT_RUN: no build receipt")
+            outcome, _, detail = recorded.partition(": ")
+            return Unmet(_RECEIPT_REASONS.get(outcome, "NO_BUILD_RECEIPT"), detail or recorded)
+    return None
 
 
-@detector("add_dev_commands")
-def add_dev_commands(ctx: Context) -> DetectorResult:
-    section = find_section(ctx, DEV_HEADING)
-    point = None if section is None else append_point(ctx, section)
-    if section is None or point is None:
-        return DetectorResult()
+def _matrix_tokens(fact: Fact) -> set[str]:
+    """The names a README would use for what a CI matrix runs on: ``ubuntu``, ``windows``,
+    ``macos`` and the runtime versions."""
+    tokens: set[str] = set()
+    for axis, values in matrix_axes(fact):
+        for value in values:
+            text = value.lower()
+            name = re.match(r"[a-z]+", text) if axis == "os" else None
+            tokens.add(name.group(0) if name else text)
+    return tokens
+
+
+def matrix_stated(ctx: Context, fact: Fact) -> bool:
+    """Whether the README already says where its CI runs: it links the workflow, or a line that
+    speaks of CI names one of the matrix's systems or versions."""
+    if fact.evidence and fact.evidence[0].path in ctx.readme:
+        return True
+    tokens = _matrix_tokens(fact)
+    patterns = [re.compile(rf"(?<![\w.]){re.escape(token)}(?![\w.])") for token in tokens]
+    return any(
+        _CI_WORDS.search(line.text) and any(p.search(line.text.lower()) for p in patterns)
+        for line in ctx.lines
+        if not line.in_fence
+    )
+
+
+@dataclass(frozen=True)
+class DevPlan:
+    """What a Development and Testing addition would cite: the facts to render (the README's own
+    equivalents and the commands left out of the chain removed), their ids, and what was held."""
+
+    kept: tuple[Fact, ...]
+    cited: tuple[str, ...]
+    findings: tuple[Finding, ...]
+
+
+def _shown_setup(ctx: Context, fact: Fact, readme: str, shown: list[Signature]) -> Fact:
+    """``fact`` without the setup lines the README already shows in some form."""
+    lines = (fact.attributes or {}).get(PRECONDITION_ATTRIBUTE, "").splitlines()
+    wanted = [
+        line for line in lines if _squash(line) not in readme and not covered(ctx, line, shown)
+    ]
+    if wanted == lines:
+        return fact
+    attributes = dict(fact.attributes or {})
+    if wanted:
+        attributes[PRECONDITION_ATTRIBUTE] = "\n".join(wanted)
+    else:
+        attributes.pop(PRECONDITION_ATTRIBUTE, None)
+    return replace(fact, attributes=attributes)
+
+
+def dev_plan(ctx: Context, *, whole_section: bool = False) -> DevPlan:
+    """What a Development and Testing addition would cite. ``whole_section`` is a section the
+    README lacks entirely: the suite size, which an existing section is never given (a wrong one
+    is corrected by ``claim_test_files``), is then part of it."""
     readme = _squash(ctx.readme)
     shown = readme_commands(ctx)
     dropped: set[str] = set()
     findings: list[Finding] = []
+
+    def hold(fact: Fact, reason: str, why: str) -> None:
+        dropped.add(fact.id)
+        findings.append(
+            Finding(
+                "add_dev_commands",
+                0,
+                fact.value.splitlines()[0][:80],
+                why,
+                (fact.id,),
+                report_only_reason=reason,
+                candidate=fact.value,
+            )
+        )
+
     for fact in ctx.facts.facts:
         if fact.polarity != "SUPPORTED":
             continue
-        if fact.id in (BUILD_COMMAND_FACT_ID, TEST_COMMAND_FACT_ID):
+        head = fact.value.splitlines()[0]
+        if fact.id in COMMAND_FACT_IDS:
+            attributes = fact.attributes or {}
             needs = missing_precondition(fact.value)
             if _squash(fact.value) in readme or covered(ctx, fact.value, shown):
-                dropped.add(fact.id)  # the README already shows this command, in some form
-                findings.append(
-                    Finding(
-                        "add_dev_commands",
-                        0,
-                        fact.value.splitlines()[0][:80],
-                        f"the README already shows `{fact.value.splitlines()[0]}` in some form; "
-                        "not added",
-                        (fact.id,),
-                        report_only_reason="ALREADY_SHOWN",
-                        candidate=fact.value,
-                    )
+                hold(
+                    fact,
+                    "ALREADY_SHOWN",
+                    f"the README already shows `{head}` in some form; not added",
                 )
-            elif needs is not None and not states_install(ctx, needs):
-                dropped.add(fact.id)
-                findings.append(
-                    Finding(
-                        "add_dev_commands",
-                        0,
-                        fact.value.splitlines()[0][:80],
-                        f"`{fact.value.splitlines()[0]}` needs `{needs}` installed first "
-                        f"(`pip install {needs}`), which the evidence of {fact.id} does not "
-                        "name; not added",
-                        (fact.id,),
-                        report_only_reason="NEEDS_INSTALL_FIRST",
-                        candidate=fact.value,
-                    )
+            elif attributes.get(EXCLUDED_ATTRIBUTE):
+                hold(
+                    fact,
+                    "NOT_IN_VERIFIED_CHAIN",
+                    f"`{head}` is left out of the verified chain: "
+                    f"{attributes[EXCLUDED_ATTRIBUTE]}; not added",
+                )
+            elif (
+                needs is not None
+                and not attributes.get(RECEIPT_ATTRIBUTE)  # a receipt ran the chain as printed
+                and not states_install(ctx, needs)
+                and not installs(
+                    attributes.get(PRECONDITION_ATTRIBUTE, "").splitlines(), f"pip install {needs}"
+                )
+            ):
+                hold(
+                    fact,
+                    "NEEDS_INSTALL_FIRST",
+                    f"`{head}` needs `{needs}` installed first (`pip install {needs}`), which the "
+                    f"evidence of {fact.id} does not name; not added",
                 )
         elif fact.id == CI_MATRIX_FACT_ID:
-            if fact.evidence and fact.evidence[0].path in readme:
+            if matrix_stated(ctx, fact):
+                dropped.add(fact.id)
+        elif fact.id == RELEASE_WORKFLOW_FACT_ID:
+            if fact.value in ctx.readme:
                 dropped.add(fact.id)
         elif fact.id == "build_test_asset:tests":
-            # A wrong suite size is corrected (claim_test_files); an absent one is not added.
-            dropped.add(fact.id)
+            if not whole_section:  # a wrong suite size is corrected (claim_test_files); an absent
+                dropped.add(fact.id)  # one is not added to a section the maintainers wrote
         elif fact.id == "build_test_asset:ci":
             workflows = [
                 e.path
@@ -171,33 +295,49 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
             ]
             if any(path in readme for path in workflows):
                 dropped.add(fact.id)
+    kept = tuple(
+        _shown_setup(ctx, fact, readme, shown) if fact.id in COMMAND_FACT_IDS else fact
+        for fact in ctx.facts.facts
+        if fact.id not in dropped
+    )
     dev_ids = {
         "build_test_asset:ci",
-        BUILD_COMMAND_FACT_ID,
-        TEST_COMMAND_FACT_ID,
+        "build_test_asset:tests",
+        *COMMAND_FACT_IDS,
         CI_MATRIX_FACT_ID,
+        RELEASE_WORKFLOW_FACT_ID,
     }
-    kept = tuple(f for f in ctx.facts.facts if f.id not in dropped)
-    body = _render_section(ctx, "development_testing", kept)
+    cited = tuple(sorted(f.id for f in kept if f.id in dev_ids and f.polarity == "SUPPORTED"))
+    return DevPlan(kept, cited, tuple(findings))
+
+
+@detector("add_dev_commands")
+def add_dev_commands(ctx: Context) -> DetectorResult:
+    section = find_section(ctx, DEV_HEADING)
+    point = None if section is None else append_point(ctx, section)
+    if section is None or point is None:
+        return DetectorResult()
+    plan = dev_plan(ctx)
+    findings = list(plan.findings)
+    body = _render_section(ctx, "development_testing", plan.kept)
     if not body:
         return DetectorResult(findings=tuple(findings))
-    cited = tuple(sorted(f.id for f in kept if f.id in dev_ids and f.polarity == "SUPPORTED"))
     # Nothing the README lacks is cited: either every piece was already there, or the section
     # rendered only what the maintainers' own words already cover.
-    if not cited:
+    if not plan.cited:
         return DetectorResult(findings=tuple(findings))
     text = addition_text(ctx, point, body.splitlines(), continue_list=False)
-    unmet = _dev_conditions_unmet(ctx, cited)
-    if unmet:  # report-only: the candidate is listed with its evidence, never applied
+    unmet = dev_unmet(ctx, plan.cited)
+    if unmet is not None:  # report-only: the candidate is listed with its evidence, never applied
         findings.append(
             Finding(
                 "add_dev_commands",
                 ctx.readme.count(chr(10), 0, point.offset) + 1,
                 section.title,
                 f"'{section.title}' could take the clone's build and test information; not "
-                f"applied: {unmet}",
-                cited,
-                report_only_reason="RE_ENABLE_CONDITION_UNMET",
+                f"applied: {unmet.text}",
+                plan.cited,
+                report_only_reason=unmet.code,
                 candidate=text,
                 re_enable=DEV_RE_ENABLE,
             )
@@ -212,11 +352,11 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
                 end=point.offset,
                 original="",
                 replacement=text,
-                fact_ids=cited,
+                fact_ids=plan.cited,
                 rationale=(
                     f"'{section.title}' lacks the clone's verified build and test information "
-                    "(commands, CI matrix, suite size, release workflow); the renderer's "
-                    "sentences and command block for the cited facts are appended"
+                    "(commands, CI matrix, release workflow); the renderer's sentences and "
+                    "command block for the cited facts are appended"
                 ),
             ),
         ),
@@ -449,34 +589,21 @@ _DOC_FILES: tuple[tuple[str, str, re.Pattern[str]], ...] = (
 
 #: The same review found add_doc_links treating any docs/ directory as documentation (Slides-.NET
 #: and Slides-Cpp: docs/ holds a banner, a NuGet icon and a NuGet README), and a bullet landing
-#: after the section's closing rule. The detector reports its candidate until the fact below exists.
-DOCS_FACT_ID = "build_test_asset:documentation"
+#: after the section's closing rule. A link to ``docs/`` therefore waits for the fact below
+#: (``docs.documentation_fact``); a link to a community file the tree holds (a changelog, a
+#: contributing guide) rests on the file existing at the sealed revision, which the tree path is.
 DOCS_RE_ENABLE = (
     f"a SUPPORTED fact {DOCS_FACT_ID} records a tracked docs directory holding documentation files "
-    "(at least one .md or .rst with prose, not images or package assets), and the bullet is placed "
-    "inside the section's existing list"
-)
-_ASSET_DIRS = frozenset(
-    {"media", "assets", "images", "img", "nuget", "static", "public", "icons", "banner", "logo"}
+    "(at least one .md or .rst with prose, not images or package assets) for the docs/ link, and "
+    "every link's target is a path of the pinned tree, with the bullet placed inside the "
+    "section's existing list"
 )
 
 
 def docs_hold_documentation(ctx: Context) -> bool:
     """Whether ``docs/`` of the pinned tree holds at least one markdown or reST file outside the
     asset directories (a banner, an icon and a package README are not documentation)."""
-    for path in ctx.tree_paths:
-        parts = path.lower().split("/")
-        is_text = parts[-1].endswith((".md", ".rst"))
-        if parts[0] == "docs" and len(parts) > 1 and is_text and not _ASSET_DIRS & set(parts[1:-1]):
-            return True
-    return False
-
-
-def docs_conditions_unmet(ctx: Context) -> str:
-    """Why documentation links may not yet be edited in, or '' when they may."""
-    if ctx.supported(DOCS_FACT_ID) is None:
-        return "no fact records a tracked docs directory holding documentation files"
-    return ""
+    return bool(documentation_paths(ctx.tree_paths))
 
 
 def doc_link_bullets(ctx: Context) -> list[tuple[str, str]]:
@@ -507,11 +634,23 @@ def doc_link_bullets(ctx: Context) -> list[tuple[str, str]]:
     return found
 
 
+def verified_doc_bullets(
+    ctx: Context,
+) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+    """``(applied, held)``: the bullets that may be edited in, and the ``docs/`` bullet held back
+    because no fact records that the directory holds prose documentation."""
+    bullets = doc_link_bullets(ctx)
+    documented = ctx.supported(DOCS_FACT_ID) is not None
+    applied = [(b, p) for b, p in bullets if p != "docs/" or documented]
+    held = [(b, p) for b, p in bullets if p == "docs/" and not documented]
+    return applied, held
+
+
 @detector("add_doc_links")
 def add_doc_links(ctx: Context) -> DetectorResult:
     section = find_section(ctx, DOCS_HEADING)
     point = None if section is None else append_point(ctx, section)
-    bullets = doc_link_bullets(ctx)
+    applied, held = verified_doc_bullets(ctx)
     findings: list[Finding] = []
     has_docs = any(path.startswith("docs/") for path in ctx.tree_paths)
     if has_docs and "docs/" not in ctx.readme.lower() and not docs_hold_documentation(ctx):
@@ -526,25 +665,24 @@ def add_doc_links(ctx: Context) -> DetectorResult:
                 locators=("tree:docs/",),
             )
         )
-    if section is None or point is None or not bullets:
-        return DetectorResult(findings=tuple(findings))
-    text = addition_text(ctx, point, [b for b, _p in bullets], continue_list=True)
-    unmet = docs_conditions_unmet(ctx)
-    if unmet:  # report-only: the candidate is listed with its evidence, never applied
+    if held:  # markdown under docs/, but no fact says any of it is prose documentation
         findings.append(
             Finding(
                 "add_doc_links",
-                ctx.readme.count(chr(10), 0, point.offset) + 1,
-                section.title,
-                f"'{section.title}' could link {', '.join(p for _b, p in bullets)}; not "
-                f"applied: {unmet}",
+                0 if point is None else ctx.readme.count(chr(10), 0, point.offset) + 1,
+                "docs/",
+                "docs/ holds markdown files but no fact records that any holds prose "
+                "documentation; not linked",
                 report_only_reason="RE_ENABLE_CONDITION_UNMET",
-                candidate=text,
+                candidate=held[0][0],
                 re_enable=DOCS_RE_ENABLE,
-                locators=tuple(f"tree:{path}" for _b, path in bullets),
+                locators=("tree:docs/",),
             )
         )
+    if section is None or point is None or not applied:
         return DetectorResult(findings=tuple(findings))
+    text = addition_text(ctx, point, [b for b, _p in applied], continue_list=True)
+    documented = any(p == "docs/" for _b, p in applied)
     return DetectorResult(
         findings=tuple(findings),
         edits=(
@@ -555,10 +693,10 @@ def add_doc_links(ctx: Context) -> DetectorResult:
                 end=point.offset,
                 original="",
                 replacement=text,
-                fact_ids=(),
-                locators=tuple(f"tree:{path}" for _b, path in bullets),
+                fact_ids=(DOCS_FACT_ID,) if documented else (),
+                locators=tuple(f"tree:{path}" for _b, path in applied),
                 rationale=(
-                    f"'{section.title}' does not name {', '.join(p for _b, p in bullets)}, which "
+                    f"'{section.title}' does not name {', '.join(p for _b, p in applied)}, which "
                     "the pinned tree holds"
                 ),
             ),

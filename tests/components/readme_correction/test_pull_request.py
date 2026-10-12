@@ -555,3 +555,78 @@ def test_the_regenerated_candidates_composer_refuses_a_correction_bundle(
         (tmp_path / "bundle" / files.CORRECTIONS_NAME).read_text(encoding="utf-8")
     )
     assert document["send"]["pr_order"] == 1  # a content correction goes first
+
+
+DEV_AND_DOCS = NL.join(
+    [
+        "# Aspose.3D FOSS for Java",
+        "",
+        "## Installation",
+        "",
+        "```bash",
+        "mvn dependency:get -Dartifact=org.aspose:aspose-3d-foss:26.7.0",
+        "```",
+        *XML_AND_GRADLE,
+        "",
+        "## Documentation & Resources",
+        "",
+        "- **[API](https://example.com)**",
+        "",
+        "## Development and Testing",
+        "",
+        "Run it.",
+        "",
+        "## License",
+        "",
+        "MIT.",
+        "",
+    ]
+)
+VERIFIED_CHAIN = {
+    "command_chain": "ci_job",
+    "ci_job_contiguous": "true",
+    "build_receipt": "r" * 64,
+    "build_receipt_platform": "Linux container node:20",
+}
+
+
+def test_build_and_test_commands_say_where_they_come_from_and_that_they_ran_on_a_clean_clone(
+    tmp_path: Path, make_context: Any, make_fact: Any
+) -> None:
+    facts = [
+        make_fact(
+            "build_test_asset:build-command",
+            "mvn package",
+            evidence=((".github/workflows/ci.yml", "build command; job test runs `mvn package`"),),
+            attributes=VERIFIED_CHAIN,
+        ),
+        make_fact(
+            "build_test_asset:test-command",
+            "mvn test",
+            evidence=((".github/workflows/ci.yml", "test command; job test runs `mvn test`"),),
+            attributes=VERIFIED_CHAIN,
+        ),
+    ]
+    content = compose(tmp_path, make_context, DEV_AND_DOCS, facts=facts)
+    body = content.body
+    assert "add the build and test commands, with the steps they need first" in content.title
+    assert "does not show how to build and test the project" in body
+    assert "the CI job `test` in `.github/workflows/ci.yml` runs them" in body
+    assert "every step exited 0 when run on a clean clone of this revision" in body
+    assert "(Linux container node:20)" in body
+    assert "build command `mvn package`, which ran to success" in body
+    assert "test command `mvn test`" in body
+    assert_plain(content)
+
+
+def test_links_to_files_the_tree_holds_say_so_in_plain_words(
+    tmp_path: Path, make_context: Any
+) -> None:
+    tree = ("README.md", "LICENSE", "pom.xml", "CHANGELOG.md", "SECURITY.md")
+    content = compose(tmp_path, make_context, DEV_AND_DOCS, tree=tree)
+    body = content.body
+    assert "link the project files the README does not mention" in content.title
+    assert "the README does not mention these files, and the repository holds them" in body
+    assert "`CHANGELOG.md` exists in the repository" in body
+    assert "do not" not in content.title.lower()
+    assert_plain(content)
