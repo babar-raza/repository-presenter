@@ -256,6 +256,26 @@ governance tracks, two directories, no overlap.
     `--write-doc` refresh the machine-maintained parts.
   - Tests: `tests/test_readme_standard.py`.
 
+- `idempotence/` — the offline idempotence and retention harness (TC-IDM-01,
+  `plans/reseal-and-refresh/PLAN.md` section 11A): makes "better than the live README" measurable
+  and gates regressions, for the live-first correction lane and the regeneration lane. Read-only:
+  no network, no model, no write outside `data/idempotence/` and the file you name.
+  - `corpus.py` / `data/idempotence/corpus.json` — the 44 registry READMEs frozen with head commit and
+    SHA-256 (the shape of `data/readme_standard/survey.json`); `build-corpus --root <clones>` rebuilds it.
+  - `retention.py`, `editscript.py`, `introduced.py` — the metrics: what a candidate keeps of the
+    live README (verbatim, reworded, lost, with positions), how many hunks and changed lines separate
+    them, and which candidate sentences have no source in the live README or the facts.
+  - `lane.py`, `mutations.py`, `gate.py` — the fixed-point test (`P(P(x)) = P(x)`, no unexplained hunk,
+    100% of non-diagram live lines kept unless a reported edit covers them) over the corpus, and the
+    mutation generator (second H1, unclosed `<details>`, vertical diagram, false version, dead link,
+    dropped section). `python -X utf8 -m tools.idempotence gate [--mutations]` prints the table and
+    exits 1 on any failure; CI runs the same through the tests.
+  - `report.py` — `python -X utf8 -m tools.idempotence report <dir> ... [--since T] [--exclude DIR]`:
+    for sealed bundles, drafts and correction bundles, the table of retention %, introduced % and
+    hunks against the live README at the same revision (recovered from `README.patch`, a draft's
+    `source/README.md`, the corpus, or `git show` in a clone).
+  - Tests: `tests/test_idempotence_metrics.py` and `tests/test_idempotence_gate.py`.
+
 ## Environment variables
 
 Both `reviewer_check.py`, `stop_monitor.py`, and `timestamp_monitor.py` default to this machine's
