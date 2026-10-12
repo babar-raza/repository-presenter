@@ -207,9 +207,10 @@ it lives in its own file, `data/registry_sandbox.json`, read only when a command
 `status` counts and `wave-readiness` are never given the file; the target is a literal in
 `core/registry/sandbox.py` (a second sandbox is a reviewed code change), the entry is
 README-proposal only (`issues_mode: off`), and a repository in both registries is refused. The
-entry ships at `mode: dry_run`: closed. `canary.py assemble` sets it to `full` in the same pull
+entry shipped at `mode: dry_run`: closed. `canary.py assemble` sets it to `full` in the same pull
 request as the authorization record, exactly as the wave flips modes (section 3), so the owner
-reads that one line. The workflow is `propose-sandbox.yml`: dispatch only, the target a literal (no
+reads that line (the `family`, `platform` and `ecosystem` lines beside it in the same diff are the
+seed product's own vocabulary, section 9.2). The workflow is `propose-sandbox.yml`: dispatch only, the target a literal (no
 `repo` input), the same two jobs and App-token scopes as `propose.yml`, and a `sandbox-canary`
 environment on the write job. The repository variable
 `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` stays UNSET (it arms the unattended sealing run);
@@ -217,20 +218,35 @@ the write step sets the in-process switch itself, only on `do_propose`.
 
 ### 9.2 What is proposed, and why it is the sandbox's own copy of a product
 
-A correction needs facts, and facts need a source tree, so a README-and-LICENSE sandbox (what it is
-today: 2 files, head `fb26260d`) would end as `insufficient_evidence`. The owner seeds it once with
-one product's committed tree. The seed is `aspose-email-foss/Aspose.Email-FOSS-for-Python @
-10a906b48c0c` (31 files, 256 KB, no push since 2026-08-15, so its README cannot move under the
-canary; the two files under `.github/` are not copied). Its correction is one `DIAGRAM_FIX` (the At
-a Glance diagram redrawn, same labels and edges), the structural fix the first real pull request
-will also be; the typed gate accepts it. Measured 2026-10-11 on the local pinned clones with real
-facts (18 products with facts at their clone head, alphabetically through
-`Aspose.PDF-FOSS-for-Cpp`): 14 give a gate-accepted correction, 3 have nothing to correct. Not
-`Aspose.Cells-FOSS-for-Go`: its bundle is refused by the correction gate on this base with `a run
-over the corrected README finds further corrections: the result is not final` (the first pass drops
-the Dependencies section for the line budget, the second pass, over the redrawn diagram, adds it:
-`idempotent_on_output` is false in its own manifest). That is a defect in the correction lane's
-settle step, reported to the lead; it would block that product's real pull request the same way.
+A correction needs facts, and facts need a source tree, so a README-and-LICENSE sandbox (what it was:
+2 files, head `fb26260d`) would end as `insufficient_evidence`. The owner seeds it once with one
+product's committed tree. The seed is `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET @
+941814fd138dc28cf47123d48194f329f283498d` (454 files, 9.7 MB; no `.github/`, so nothing runs or is
+offered in the sandbox). Its correction is the first real pull request in miniature: **one
+`DIAGRAM_FIX`** (the At a Glance diagram redrawn left to right, same labels and edges) and **one
+content change** (`MISSING_SECTION` plus its `MISSING_INFO` contents-list item: a `## Dependencies`
+section stating `SkiaSharp 2.88.8` and the target frameworks `netstandard2.0;net8.0`, each cited to
+the `.csproj` that declares it). The diagram was drawn headless on Mermaid 11.17.2, 11.4.1, 11.12.0
+and 12.1.0, natively and in five wider fonts: horizontal, 0 clipped. The typed gate accepts the
+bundle; the correction is byte-identical to the one `correct-readme` makes against the product
+itself at that revision. Since the sandbox is a copy, the registry entry carries the product's own
+vocabulary (family `cells`, platform `net`, ecosystem `net`), and a test pins that. Diagram-only
+(Email-Python, 14 other products) and other content corrections are the same path with another seed.
+Not `Aspose.Cells-FOSS-for-Go`: its bundle is refused by the correction gate on this base with `a
+run over the corrected README finds further corrections: the result is not final` (a defect in the
+correction lane's settle step, reported to the lead).
+
+**One commit, reproducible, so the bundle can be merged before the owner pushes.** The bundle, the
+record and the hosted dry run all name the sandbox's source revision: the commit the seeding creates.
+`tools/canary/seed.py --commit` makes that commit offline and identically on every machine: its tree
+is the product's tree at the pinned revision minus `.github/`, its parent is the sandbox head
+`fb26260d`, and its author, committer, date and message are constants. `ops/sandbox-canary/seed.json`
+records it (`5c41a5028b37fa3e9812dcd0c1320fe7248929f5`); `--commit` refuses unless the commit it
+makes equals the pin, so what the owner pushes is exactly what the reviewed bundle corrects. Until
+the owner pushes it the sandbox head stays `fb26260d`, and every run refuses `source_moved`
+(nothing can write). It reads the product's blobs with git plumbing, so `core.autocrlf`, file-mode,
+signing or identity settings on the owner's machine cannot change the id (the rehearsal proves it
+with a hostile configuration).
 
 ### 9.3 Owner prerequisites (UI, once, latency; do first)
 
@@ -238,7 +254,7 @@ settle step, reported to the lead; it would block that product's real pull reque
 |---|---|---|---|
 | O1 | github.com/settings/installations, the App `repository-presenter` | Install it on account `babar-raza`, "Only select repositories", choose `presenter-sandbox`; or, if already installed, Configure and add that repository. Accept the permission list the App registered (Contents, Pull requests, Issues, Administration read/write; Metadata read): each hosted token is narrowed to contents + pull requests + metadata | the repository listed under the installation |
 | O2 | `babar-raza/repository-presenter` > Settings > Environments > New environment | Name `sandbox-canary`; Required reviewers: yourself; leave "Prevent self-review" OFF | the environment with one reviewer. Skipped, GitHub creates it unprotected on first use and the write job runs without a pause |
-| O3 | Settings > Secrets and variables > Actions | Nothing to add: `GH_APP_ID` and `GH_APP_PRIVATE_KEY` exist. Confirm the variable `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` is NOT listed | no such variable |
+| O3 | Settings > Secrets and variables > Actions | Nothing to add: `GH_APP_ID` and `GH_APP_PRIVATE_KEY` exist. Confirm the variable `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` is NOT listed, and **do not create it**: the write job sets that switch itself, in its one step, only when `do_propose` is ticked; the repository variable would arm `sealing-scheduled.yml`'s unattended propose job instead (`REPOSITORY_PRESENTER_SEALING_PAUSED=1` is what holds that job today) | only `REPOSITORY_PRESENTER_SEALING_PAUSED` among the variables |
 
 `PYTHONPATH=src python tools/canary/canary.py preflight --root .` (read-only, `GH_TOKEN` from `gh auth token`)
 lists every item with its owner action; the App installation is the one line a user token cannot
@@ -246,37 +262,59 @@ read (`CONFIRM`): the dry-run job's token step is its proof.
 
 ### 9.4 The sequence (O = owner acts; A = operator, local, read-only toward GitHub)
 
-1. **O: merge the canary tooling** (this branch). It adds the workflow, `data/registry_sandbox.json`
-   (`dry_run`) and the tools; nothing can write yet (no record, no bundle, entry closed).
-2. **O: seed the sandbox** (your own git login; the only push of this step, to your own repository,
-   a fast-forward):
+The operator has already done the work of steps A1 to A3; they arrive as ONE pull request, merged in
+step 4. Nothing is enabled until the owner has done steps 1 to 4 and dispatched step 6. The record's
+window is **7 days from its issue time** (`issued_at` 2026-10-12T02:35:31Z, `expires_at`
+2026-10-19T02:35:31Z): dispatch inside it, or the operator re-drafts it (`canary.py assemble
+--replace` after re-checking `preflight`; a re-draft changes only the window).
+
+- **A1: the bundle**, made against the not-yet-pushed seed commit: a local bare copy of the pinned
+  seed commit stands in for the sandbox's clone URL (the only seam replaced; facts extraction, the
+  build and the correction are the repository's own code, `GH_TOKEN` set, no model call):
+  `repository-presenter correct-readme --sandbox --repo babar-raza/presenter-sandbox --out DIR`
+  expects `corrected: 3 edit(s) (DIAGRAM_FIX 1, MISSING_INFO 1, MISSING_SECTION 1)`.
+- **A2: seed pin**: `python tools/canary/seed.py --product product --sandbox sandbox --write-pin
+  --product-repository aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` wrote `ops/sandbox-canary/seed.json`.
+- **A3: assemble**: `PYTHONPATH=src python tools/canary/canary.py assemble --root . --bundle DIR
+  --approver babar-raza` wrote `ops/sandbox-canary/bundle/` (the bundle, `PULL_REQUEST.md` = the text the
+  effect will post, `SHA256SUMS`), set the sandbox entry to `full` and drafted
+  `ops/proposal-authorizations/babar-raza__presenter-sandbox__fa4a4f68a6d6.json`. `assemble` refuses a
+  bundle that does not correct the pinned seed commit. Then `bash scripts/ci_check.sh`.
+
+The owner's steps (1 to 3 in any order; 4 before 5, because the seed pin comes with the pull request):
+
+1. **O: install the App on the sandbox** (section 9.3, O1).
+2. **O: create the `sandbox-canary` environment** (O2).
+3. **O: confirm the variable `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` is NOT set** (O3). It must
+   stay unset: the write step sets it in-process, only when `do_propose` is ticked; the repository
+   variable of that name arms the unattended `sealing-scheduled.yml` propose job instead (and two
+   production entries are already `mode: full`).
+4. **O: review and merge the canary pull request.** Files changed shows `ops/sandbox-canary/seed.json`
+   (the commit to be pushed), the bundle (`PULL_REQUEST.md` first, then `README.patch`, the exact edit,
+   and `corrections.json`, its evidence; `facts.json` and `tree.txt` are what the gate re-derives it
+   from), the sandbox entry's `mode` `dry_run` to `full` (and the product vocabulary lines), and the
+   record (repository, candidate hash, source revision = the seed commit, approver `babar-raza`,
+   window). The record authorizes nothing until this merge, and a run triggered before it cannot use
+   it. Merged but not seeded, every dispatch refuses `source_moved`.
+5. **O: seed the sandbox** (your own git login; the only push of this canary to the sandbox, a
+   fast-forward). From a checkout of this repository on `main` after the merge:
    ```
-   git clone https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python.git product
-   git -C product checkout 10a906b48c0c11005c4d93b524e4431901c9717c      # read-only
+   git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.git product
+   git -C product checkout 941814fd138dc28cf47123d48194f329f283498d       # read-only
    git clone https://github.com/babar-raza/presenter-sandbox.git sandbox
-   python tools/canary/seed.py --product product --sandbox sandbox              # plan; writes nothing
-   python tools/canary/seed.py --product product --sandbox sandbox --apply      # edits files only
-   cd sandbox && git status && git -c core.autocrlf=false add -A
-   git commit -m "Seed the sandbox with Aspose.Email-FOSS-for-Python at 10a906b48c0c"
-   git push origin main                                                          # never --force
+   python tools/canary/seed.py --product product --sandbox sandbox            # plan; changes nothing
+   python tools/canary/seed.py --product product --sandbox sandbox --commit   # makes the pinned commit
+   git -C sandbox push origin seed:main                                       # the one write; never --force
    ```
-   You will see 31 files in the sandbox and its README replaced by the product's. Undo: section 9.7.
-3. **A: the bundle at the new head** (`GH_TOKEN` set; `GPT_OSS_ENDPOINT`, `GPT_OSS_API_KEY` and a
-   recorded `runs/preflight/catalog.json` present, as for any facts-only run; no model call is made): `repository-presenter correct-readme --sandbox --repo babar-raza/presenter-sandbox --out runs/canary/bundle`
-   expects `corrected: 1 edit(s) (DIAGRAM_FIX 1)`. `insufficient_evidence` means the seed did not land.
-4. **A: assemble, in a worktree, and open ONE pull request:**
-   `PYTHONPATH=src python tools/canary/canary.py assemble --root . --bundle runs/canary/bundle --approver babar-raza`
-   writes `ops/sandbox-canary/bundle/`, sets the sandbox entry to `full`, and drafts
-   `ops/proposal-authorizations/babar-raza__presenter-sandbox__<12>.json` (window: now to +7 days at
-   most; merge and dispatch inside it). Then `bash scripts/ci_check.sh`.
-5. **O: review and merge that pull request.** Files changed shows the bundle's `README.patch` and
-   `corrections.json` (the exact edit and its evidence), the one-line `dry_run` to `full`, and the
-   record (repository, candidate hash, source revision, approver `babar-raza`, window). The record
-   authorizes nothing until this merge, and a run triggered before it cannot use it.
+   The `--commit` run ends `commit 5c41a5028b37fa3e9812dcd0c1320fe7248929f5 equals the pin ... Nothing is
+   pushed.` Any other id is a refusal: do not push. After the push the sandbox shows 454 files, the
+   product's README, and the head commit `Seed the sandbox with Aspose.Cells-FOSS-for-.NET at
+   941814fd...` by "Repository Presenter canary seed". `PYTHONPATH=src python tools/canary/canary.py
+   preflight --root .` then reads `OK sandbox seeded` and `OK bundle freshness`.
 6. **O: hosted dry run.** Actions > Propose (sandbox canary) > Run workflow, `authorization_record` =
-   the record's path, `do_propose` unchecked. A green `dry-run` job whose log says `the authorization
-   record matches this candidate` and whose token step succeeded (the App is installed). No `write`
-   job.
+   `ops/proposal-authorizations/babar-raza__presenter-sandbox__fa4a4f68a6d6.json`, `do_propose`
+   unchecked. A green `dry-run` job whose log says `the authorization record matches this candidate`
+   and whose token step succeeded (the App is installed). No `write` job.
 7. **O: the write (P1).** The same dispatch with `do_propose` checked. The `write` job waits for your
    approval (O2); approve it. The log ends `effected=True - proposed` and `pr: .../pull/1`.
 8. **A: verify (read-only):** `PYTHONPATH=src python tools/canary/canary.py verify --root . --expect open`.
@@ -285,10 +323,10 @@ read (`CONFIRM`): the dry-run job's token step is its proof.
 
 | # | Do | Observe |
 |---|---|---|
-| P1 | step 7 | one pull request from `repository-presenter/readme-update` to `main`, authored by the App (`verify`: `performed by the App`, id 5092474; `gh api repos/babar-raza/presenter-sandbox/issues/1 --jq .performed_via_github_app.id`), one file `README.md`, branch README equal to the bundle's, `main` untouched, body carrying `candidate_hash` and `source_revision`, one commit `Update README via repository-presenter` naming the approver |
+| P1 | step 7 | one pull request from `repository-presenter/readme-update` to `main`, authored by the App (`verify`: `performed by the App`, id 5092474; `gh api repos/babar-raza/presenter-sandbox/issues/1 --jq .performed_via_github_app.id`), one file `README.md`, branch README equal to the bundle's, `main` untouched, body carrying `candidate_hash` and `source_revision`, one commit `Update README via repository-presenter` naming the approver. The title is the bundle's `PULL_REQUEST.md` title (`docs(readme): add the Dependencies section and its Navigation item and lay out the At a Glance diagram left to right`); Files changed shows exactly the three hunks of `README.patch` (the contents-list item, the `## Dependencies` section, the diagram) |
 | P2 no duplicate | dispatch step 7 again | `effected=True - no change needed`; still one pull request, no new commit (`verify` unchanged) |
 | P3 closed is final | O closes pull request 1 without merging, then dispatch again | the `write` job fails with `pr_already_closed`; no new pull request or commit; `verify --expect closed` |
-| P4 stale source | O commits anything to the sandbox `main` (UI: edit a file), then dispatch again | `source_moved` (the dry-run job already refuses); nothing written; the next canary needs a new bundle and record (steps 3 to 5) |
+| P4 stale source | O commits anything to the sandbox `main` (UI: edit a file), then dispatch again | `source_moved` (the dry-run job already refuses); nothing written; the next canary needs a new seed pin, bundle and record (A1 to A3, then steps 4 to 5) |
 | P5 interrupted run | optional, before P1 on a clean sandbox: O creates the branch `repository-presenter/readme-update` from `main` in the UI, then step 7 | the run finds the branch, writes the one commit, opens the one pull request: the state a run that died between its writes converges. A lost response cannot be injected on GitHub; it is proven in `tests/test_canary_rehearsal.py` (a PUT whose answer is lost is reconciled by reading, never re-sent) |
 
 Not proven by the canary, said plainly: GitHub's required-review and branch-protection behavior on a
@@ -299,7 +337,9 @@ organization-level App permission screen.
 
 `tests/test_canary_rehearsal.py` takes every step above through the same entry points against a local
 bare sandbox, a local bare product, a control repository with a real `origin/main`, and the workflow
-rehearsal's stateful fake REST: seeding, `correct-readme --sandbox`, `assemble`, the dry run and the
+rehearsal's stateful fake REST: seeding (the pinned commit, made on a clone with a hostile git
+configuration, and its refusals), `correct-readme --sandbox`, `assemble` (and its refusal of a bundle
+that is not for the pinned commit), `preflight` before and after the seed, the dry run and the
 write, `verify`, a rerun, a closed pull request, a moved head, an interrupted write, a lost response,
 and the refusals (switch closed, no token, a personal access token, a token reaching more than the
 sandbox, an unmerged or edited record, an edited bundle, the sandbox without `--sandbox`, a product
@@ -312,8 +352,11 @@ with it). `tests/test_propose_sandbox_workflow.py` pins the workflow.
   pull request is never recreated for the same candidate.
 - Revoke the authorization: revert the canary pull request in the control repository (record, bundle
   and the `full` flip go together). With the record absent and the entry `dry_run`, both gates refuse.
-- Undo the seed: `git revert` the seed commit in the sandbox, or delete and recreate the throwaway
-  repository (a new repository id: update `data/registry_sandbox.json`).
+- Undo the seed (no force): `git -C sandbox fetch origin && git -C sandbox checkout main && git -C
+  sandbox pull --ff-only origin main && git -C sandbox revert --no-edit 5c41a5028b37fa3e9812dcd0c1320fe7248929f5
+  && git -C sandbox push origin main` (the sandbox is README and LICENSE again; the canary's record then
+  refuses `source_moved`), or delete and recreate the throwaway repository (a new repository id:
+  update `data/registry_sandbox.json`).
 - Hard stop: Configure the installation and remove `presenter-sandbox`, or Suspend the App.
 
 ### 9.8 Removal after the canary

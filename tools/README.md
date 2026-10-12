@@ -219,11 +219,15 @@ governance tracks, two directories, no overlap.
   `docs/PROPOSAL_WAVE_RUNBOOK.md` section 9): the one pull request allowed while real product
   repositories stay paused, against the owner's own `babar-raza/presenter-sandbox`. No command here
   writes to GitHub.
-  - `seed.py` — local files only: copies one product's committed tree into a clone of the sandbox
-    for the owner to review, commit and push (refuses a symlink, a submodule, `.github/`, a dirty
-    clone, any remote but the sandbox).
+  - `seed.py` — local objects only: makes the one pinned, reproducible seed commit (the product's
+    tree at the pinned revision minus `.github/`, on the sandbox head; fixed author, date and
+    message) in a clone of the sandbox for the owner to push, and refuses unless it equals
+    `ops/sandbox-canary/seed.json` (refuses a symlink, a submodule, a product off its pinned
+    revision or repository, a sandbox off its pinned head, a dirty clone, any remote but the
+    sandbox). Pushes nothing.
   - `canary.py` — `preflight` and `verify` (read-only GETs; the token comes from `GH_TOKEN`) and
-    `assemble` (writes the bundle, the record and the one-line registry flip into a worktree).
+    `assemble` (writes the bundle with its `PULL_REQUEST.md` and `SHA256SUMS`, the record and the
+    registry flip into a worktree; the bundle must correct the pinned seed commit).
   - Tests: `tests/test_canary_rehearsal.py` (every step against the workflow rehearsal's fakes),
     `tests/test_propose_sandbox_workflow.py`, `tests/core/registry/test_sandbox.py`.
 

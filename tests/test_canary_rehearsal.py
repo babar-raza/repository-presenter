@@ -4,8 +4,10 @@ The canary (docs/PROPOSAL_WAVE_RUNBOOK.md section 9) opens one README-correction
 owner's throwaway repository ``babar-raza/presenter-sandbox``. Every step the owner and the
 hosted workflow will take is taken here, through the same entry points, in the same order:
 
-1. the owner seeds the sandbox from a product (``tools/canary/seed.py`` on two local clones; the
-   sandbox is a local bare remote and the owner's push is a push to it);
+1. the owner seeds the sandbox from a product (``tools/canary/seed.py --commit`` on two local
+   clones makes the pinned, reproducible seed commit; the sandbox is a local bare remote and the
+   owner's push is a push to it). The bundle is reviewed and merged BEFORE that push, so the
+   commit it names must be reproducible: ``ops/sandbox-canary/seed.json`` pins it;
 2. ``correct-readme --sandbox`` clones the sandbox head and writes the correction bundle;
 3. ``tools/canary/canary.py assemble`` validates the bundle through the typed gate, commits it
    under ``ops/sandbox-canary/bundle``, sets the sandbox entry to ``full`` and drafts the record;
@@ -43,14 +45,18 @@ from repository_presenter.components.propose.effect import (
     presenter_branch_name,
 )
 from repository_presenter.components.readme_correction import run as correction_run
+from repository_presenter.components.readme_correction.committed import sums_problems
 from repository_presenter.core.authorization.proposal import AUTHORIZATION_DIRNAME, record_filename
 from repository_presenter.core.authorization.refusals import WriteRefusedError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument, write_facts
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.github.read_client import DefaultBranchRead
 from repository_presenter.core.hashing import sha256_text
-from repository_presenter.core.registry.loader import load_registry
-from repository_presenter.core.registry.sandbox import SANDBOX_REGISTRY_RELATIVE_PATH
+from repository_presenter.core.registry.loader import load_registry, require_listed
+from repository_presenter.core.registry.sandbox import (
+    SANDBOX_REGISTRY_RELATIVE_PATH,
+    load_registry_for,
+)
 from support import REPO_ROOT, merge_to_origin_main, write_cursor
 
 TOOLS = REPO_ROOT / "tools"
@@ -136,6 +142,13 @@ def _facts(revision: str) -> FactsDocument:
     )
 
 
+def closed_registry() -> bytes:
+    """The committed sandbox registry as it is before ``assemble`` flips it: the canary's pull
+    request commits it at ``full``, so the rehearsal closes it first."""
+    text = (REPO_ROOT / SANDBOX_REGISTRY_RELATIVE_PATH).read_text(encoding="utf-8")
+    return text.replace('"mode": "full"', '"mode": "dry_run"').encode("utf-8")
+
+
 @dataclass
 class World:
     """One rehearsal: a product, a seeded sandbox (local bare remotes), a control checkout and a
@@ -150,10 +163,15 @@ class World:
     bundle: Path
     seed_plan: seed.SeedPlan
     revision: str
+    sandbox_before: Path
     trigger: str = ""
 
     def head(self) -> str:
         return _git(["rev-parse", "main"], self.sandbox_bare)
+
+    @property
+    def pin_path(self) -> Path:
+        return self.control / canary.SEED_PIN_RELATIVE
 
     @property
     def record(self) -> Path:
@@ -262,25 +280,35 @@ def world(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> World:
         owner="babar-raza",
     )
     sandbox_bare = base / "upstreams" / "babar-raza" / "presenter-sandbox.git"
+    sandbox_before = tmp_path / "sandbox-before.git"  # the sandbox as it is before the seed
+    shutil.copytree(sandbox_bare, sandbox_before)
     sandbox_clone = tmp_path / "sandbox"
     _git(["clone", "-q", str(sandbox_bare), str(sandbox_clone)], tmp_path)
 
-    # --- step 1, the owner's seeding: plan, apply, commit, push (to the local bare remote) ------
+    # --- step 1, the owner's seeding: the pinned commit, then one push (to the local bare remote)
     plan = seed.plan_seed(product, sandbox_clone, check_remote=False)
-    seed.apply_seed(plan, product, sandbox_clone)
-    _git(["add", "-A"], sandbox_clone)
-    _git(
-        ["commit", "-q", "-m", seed.commit_message(plan, "Aspose.Cells-FOSS-for-Go")], sandbox_clone
+    commit = seed.build_seed_commit(
+        plan,
+        product,
+        sandbox_clone,
+        message=seed.seed_message(PRODUCT, plan.product_revision),
     )
-    _git(["push", "-q", "origin", "HEAD:main"], sandbox_clone)
+    _git(["update-ref", f"refs/heads/{seed.SEED_BRANCH}", commit.sha], sandbox_clone)
+    _git(["push", "-q", "origin", f"{seed.SEED_BRANCH}:main"], sandbox_clone)
+    _git(["merge", "-q", "--ff-only", seed.SEED_BRANCH], sandbox_clone)
     revision = _git(["rev-parse", "main"], sandbox_bare)
+    assert revision == commit.sha
 
     # --- the control checkout: the real registries and a git history with origin/main ----------
     control = tmp_path / "control"
     write_cursor(control)
     (control / "data").mkdir(exist_ok=True)
-    for name in ("registry.json", "registry_sandbox.json"):
-        shutil.copyfile(REPO_ROOT / "data" / name, control / "data" / name)
+    shutil.copyfile(REPO_ROOT / "data" / "registry.json", control / "data" / "registry.json")
+    (control / SANDBOX_REGISTRY_RELATIVE_PATH).write_bytes(closed_registry())
+    (control / canary.SEED_PIN_RELATIVE).parent.mkdir(parents=True)
+    seed.write_pin(
+        control / canary.SEED_PIN_RELATIVE, product_repository=PRODUCT, plan=plan, commit=commit
+    )
     merge_to_origin_main(control, "the control repository before the canary")
 
     # --- the local stand-ins for the network ----------------------------------------------------
@@ -324,7 +352,17 @@ def world(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> World:
 
     rest = fake_rest.FakeGitHubRest(app_id=canary.EXPECTED_APP_ID, installation_scope=[SANDBOX])
     built = World(
-        tmp_path, base, sandbox_bare, sandbox_clone, control, rest, bundle, plan, revision, trigger
+        tmp_path,
+        base,
+        sandbox_bare,
+        sandbox_clone,
+        control,
+        rest,
+        bundle,
+        plan,
+        revision,
+        sandbox_before,
+        trigger,
     )
     built.rest = built.fresh_rest()
     bind(monkeypatch, built.rest)
@@ -389,6 +427,139 @@ def test_seeding_refuses_the_wrong_remote_a_dirty_sandbox_and_a_readmeless_produ
         seed.plan_seed(nothing, world.sandbox_clone, check_remote=False)
 
 
+def fresh_clones(world: World, tmp_path: Path, name: str) -> tuple[Path, Path]:
+    """A product clone and a clone of the sandbox as it was BEFORE the seed, as a different owner's
+    machine would hold them; their ``origin`` URLs read as the real repositories (the tool only
+    reads the URL string and never contacts it)."""
+    product = tmp_path / f"{name}-product"
+    sandbox = tmp_path / f"{name}-sandbox"
+    upstream = world.world / "upstreams" / "aspose-cells-foss" / "Aspose.Cells-FOSS-for-Go.git"
+    _git(["clone", "-q", str(upstream), str(product)], tmp_path)
+    _git(["clone", "-q", str(world.sandbox_before), str(sandbox)], tmp_path)
+    _git(["remote", "set-url", "origin", f"https://github.com/{PRODUCT}.git"], product)
+    _git(["remote", "set-url", "origin", f"https://github.com/{SANDBOX}.git"], sandbox)
+    return product, sandbox
+
+
+def seed_args(product: Path, sandbox: Path, pin: Path, *flags: str) -> list[str]:
+    return ["--product", str(product), "--sandbox", str(sandbox), "--pin", str(pin), *flags]
+
+
+def test_the_seed_commit_is_the_same_commit_on_any_machine_and_nothing_is_pushed(
+    world: World, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    pin = seed.load_pin(world.pin_path)
+    assert pin.commit == world.revision  # the bundle, the record and the pin name one commit
+    product, sandbox = fresh_clones(world, tmp_path, "other")
+    for key, value in (  # another identity, signing on with a program that cannot sign, CRLF policy
+        ("user.name", "Someone Else"),
+        ("user.email", "someone@example.invalid"),
+        ("commit.gpgsign", "true"),
+        ("gpg.program", "false"),
+        ("core.autocrlf", "true"),
+        ("core.filemode", "false"),
+    ):
+        _git(["config", key, value], sandbox)
+    assert _git(["rev-parse", "HEAD"], sandbox) == pin.sandbox_parent
+    assert seed.main(seed_args(product, sandbox, world.pin_path)) == 0  # plan only
+    assert "plan only" in capsys.readouterr().out
+    assert _git(["branch", "--list", seed.SEED_BRANCH], sandbox) == ""
+    assert seed.main(seed_args(product, sandbox, world.pin_path, "--commit")) == 0
+    said = capsys.readouterr().out
+    assert _git(["rev-parse", seed.SEED_BRANCH], sandbox) == pin.commit  # byte for byte
+    assert f"push origin {seed.SEED_BRANCH}:main" in said and "Nothing is pushed" in said
+    assert _git(["rev-parse", "HEAD"], sandbox) == pin.sandbox_parent  # the clone's own branch
+    assert _git(["status", "--porcelain"], sandbox) == ""  # and its working tree are untouched
+    assert _git(["rev-parse", f"{seed.SEED_BRANCH}^"], sandbox) == pin.sandbox_parent
+    # one commit on top of the sandbox's history: the product's history does not travel
+    assert _git(["rev-list", "--count", seed.SEED_BRANCH], sandbox) == "2"
+    shown = _git(
+        ["log", "-1", "--format=%an <%ae>|%cn <%ce>|%at|%ct|%G?", seed.SEED_BRANCH], sandbox
+    )
+    who = f"{seed.SEED_NAME} <{seed.SEED_EMAIL}>"
+    assert shown == f"{who}|{who}|1791763200|1791763200|N"  # never signed
+    # the tree is the product's committed tree minus .github/, whatever the clone's filters say
+    seeded = _git(["ls-tree", "-r", "--name-only", seed.SEED_BRANCH], sandbox).splitlines()
+    assert sorted(seeded) == sorted(b.path for b in world.seed_plan.copy)
+    assert ".github/workflows/ci.yml" not in seeded
+    assert _git(["rev-parse", f"{seed.SEED_BRANCH}^{{tree}}"], sandbox) == pin.tree
+
+
+def test_the_seed_commit_refuses_anything_but_the_pinned_inputs(
+    world: World, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def refused(product: Path, sandbox: Path, pin: Path, fragment: str) -> None:
+        assert seed.main(seed_args(product, sandbox, pin, "--commit")) == 2
+        assert fragment in capsys.readouterr().err
+        assert _git(["branch", "--list", seed.SEED_BRANCH], sandbox) == ""  # nothing made
+
+    # the product moved on: HEAD is not the pinned revision
+    product, sandbox = fresh_clones(world, tmp_path, "moved-product")
+    (product / "extra.go").write_text("package x\n", encoding="utf-8")
+    _git(["add", "-A"], product)
+    _git(["commit", "-q", "-m", "a later product commit"], product)
+    refused(product, sandbox, world.pin_path, "the pin seeds")
+    # the sandbox moved on since the pin: the pinned commit would not be a fast-forward
+    product, sandbox = fresh_clones(world, tmp_path, "moved-sandbox")
+    (sandbox / "NOTES.md").write_text("an owner commit\n", encoding="utf-8")
+    _git(["add", "-A"], sandbox)
+    _git(["commit", "-q", "-m", "an unrelated owner commit"], sandbox)
+    refused(product, sandbox, world.pin_path, "moved since the pin")
+    # another product's clone
+    product, sandbox = fresh_clones(world, tmp_path, "wrong-product")
+    other = "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Go.git"
+    _git(["remote", "set-url", "origin", other], product)
+    refused(product, sandbox, world.pin_path, "the pin seeds that product only")
+    # a clone of another repository standing in for the sandbox
+    product, sandbox = fresh_clones(world, tmp_path, "wrong-sandbox")
+    control = "https://github.com/babar-raza/repository-presenter.git"
+    _git(["remote", "set-url", "origin", control], sandbox)
+    refused(product, sandbox, world.pin_path, "seeding refuses any other repository")
+    # a pin that names a commit this tool does not make (an edited tree), or an unpinned message
+    product, sandbox = fresh_clones(world, tmp_path, "tampered-pin")
+    document = json.loads(world.pin_path.read_text("utf-8"))
+    document["seed"]["commit"] = "a" * 40
+    tampered = tmp_path / "tampered-seed.json"
+    tampered.write_text(json.dumps(document), encoding="utf-8")
+    refused(product, sandbox, tampered, "not the pinned")
+    document["seed"]["message"] = "Seed the sandbox with something else"
+    tampered.write_text(json.dumps(document), encoding="utf-8")
+    refused(product, sandbox, tampered, "message")
+    # an unreadable pin
+    product, sandbox = fresh_clones(world, tmp_path, "no-pin")
+    refused(product, sandbox, tmp_path / "absent.json", "cannot be read")
+
+
+def test_the_committed_canary_assets_agree_with_each_other() -> None:
+    """The reviewed pull request's files, as committed: one source revision everywhere. (They are
+    not re-derived through the correction gate here: that proof is the operator's `preflight` and
+    the hosted dry run, so a later change to the engine cannot turn this suite red.)"""
+    pin = seed.load_pin(REPO_ROOT / canary.SEED_PIN_RELATIVE)
+    bundle = REPO_ROOT / canary.BUNDLE_RELATIVE
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["repository"] == SANDBOX and manifest["revision"] == pin.commit
+    assert sums_problems(bundle) == []  # sha256sum --check agrees with the committed bytes
+    entry = load_registry_for(REPO_ROOT, sandbox=True).entries[0]
+    product = require_listed(
+        load_registry(REPO_ROOT / "data" / "registry.json"), pin.product_repository
+    )
+    # the sandbox is a copy of this product, so it is read with this product's vocabulary
+    assert (entry.family, entry.platform, entry.ecosystem) == (
+        product.family,
+        product.platform,
+        product.ecosystem,
+    )
+    corrected = (bundle / "README.md").read_text(encoding="utf-8")
+    prefix = SANDBOX.replace("/", "__")
+    (record,) = sorted((REPO_ROOT / AUTHORIZATION_DIRNAME).glob(f"{prefix}__*"))
+    assert record.name == record_filename(SANDBOX, sha256_text(corrected))
+    document = json.loads(record.read_text(encoding="utf-8"))
+    assert document["source_revision"] == pin.commit and document["repository"] == SANDBOX
+    assert document["candidate_hash"] == sha256_text(corrected)
+    assert document["approver"] == "babar-raza" and document["branch"] == BRANCH
+    assert entry.mode == "full"  # open exactly because the record above is committed with it
+
+
 # --- the bundle and the assembled pull request ---------------------------------------------------
 
 
@@ -413,9 +584,11 @@ def test_the_bundle_is_a_correction_of_the_sandbox_head_and_assembly_flips_only_
 def test_assembly_changes_exactly_one_line_of_the_registry_and_refuses_carriage_returns(
     world: World, tmp_path: Path
 ) -> None:
-    before = (REPO_ROOT / SANDBOX_REGISTRY_RELATIVE_PATH).read_text(encoding="utf-8")
+    before = closed_registry().decode("utf-8")
+    assert '"mode": "dry_run"' in before
     after = (world.control / SANDBOX_REGISTRY_RELATIVE_PATH).read_text(encoding="utf-8")
     assert after == before.replace('"mode": "dry_run"', '"mode": "full"')  # the one line to review
+    assert after == (REPO_ROOT / SANDBOX_REGISTRY_RELATIVE_PATH).read_text(encoding="utf-8")
     assert canary.carriage_return_files(world.bundle) == []
     crlf = tmp_path / "crlf"
     crlf.mkdir()
@@ -429,10 +602,9 @@ def unassembled_control(world: World, tmp_path: Path) -> Path:
     and no ``ops/``."""
     other = tmp_path / "other-control"
     shutil.copytree(world.control, other, ignore=shutil.ignore_patterns(".git"))
-    shutil.rmtree(other / "ops")
-    (other / "data" / "registry_sandbox.json").write_bytes(
-        (REPO_ROOT / "data" / "registry_sandbox.json").read_bytes()
-    )
+    shutil.rmtree(other / canary.BUNDLE_RELATIVE)  # the seed pin, committed earlier, stays
+    shutil.rmtree(other / AUTHORIZATION_DIRNAME)
+    (other / "data" / "registry_sandbox.json").write_bytes(closed_registry())
     return other
 
 
@@ -450,7 +622,8 @@ def test_assembly_refuses_a_tampered_bundle_and_writes_nothing(
     (tampered / "README.md").write_text("# not the correction\n", encoding="utf-8")
     with pytest.raises(WriteRefusedError):
         canary.assemble(other, tampered, approver="babar-raza")
-    assert not (other / "ops").exists()
+    assert not (other / canary.BUNDLE_RELATIVE).exists()
+    assert not (other / AUTHORIZATION_DIRNAME).exists()
     assert sandbox_mode(other) == "dry_run"
 
 
@@ -463,7 +636,7 @@ def test_a_failed_assembly_leaves_the_worktree_as_it_was(
         "fetch_default_branch_sha",
         lambda repo, *, token=None: DefaultBranchRead(repo, sha="f" * 40, branch="main"),
     )
-    with pytest.raises(RuntimeError, match="draft-proposal-authorization ended"):
+    with pytest.raises(RuntimeError, match="source_moved"):
         canary.assemble(other, world.bundle, approver="babar-raza")
     assert sandbox_mode(other) == "dry_run"  # not left at full
     assert not (other / canary.BUNDLE_RELATIVE).exists()
@@ -767,6 +940,49 @@ def test_preflight_notices_an_unseeded_sandbox_a_stale_bundle_and_a_renamed_repo
     )
     assert lines["sandbox seeded"] == canary.MISSING
     assert lines["sandbox identity"] == canary.MISSING
+
+
+def test_preflight_before_the_seed_names_the_owner_step_and_calls_the_bundle_pending_not_stale(
+    world: World,
+) -> None:
+    pin = seed.load_pin(world.pin_path)
+    before = world.fresh_rest()
+    before.set_branch(SANDBOX, "main", pin.sandbox_parent)  # the owner has not pushed yet
+    lines = canary.preflight(world.control, token=cycle.FAKE_TOKEN, fetch=_with_control(before))
+    by_check = {line.check: line for line in lines}
+    seeded = by_check["sandbox seeded"]
+    assert seeded.status == canary.MISSING
+    assert "seed.py" in seeded.action and "--commit" in seeded.action
+    assert by_check["bundle freshness"].status == canary.INFO  # waiting for the seed, not stale
+    assert by_check["correction bundle"].status == canary.OK  # intact (SHA256SUMS) and proven
+    assert by_check["record on origin/main"].status == canary.OK
+    assert by_check["authorization record"].status == canary.OK
+
+
+def test_assembly_refuses_a_bundle_that_is_not_for_the_pinned_seed_commit(
+    world: World, tmp_path: Path
+) -> None:
+    other = unassembled_control(world, tmp_path)
+    document = json.loads(world.pin_path.read_text("utf-8"))
+    document["seed"]["commit"] = "b" * 40
+    (other / canary.SEED_PIN_RELATIVE).write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="pinned seed commit"):
+        canary.assemble(other, world.bundle, approver="babar-raza")
+    assert not (other / canary.BUNDLE_RELATIVE).exists()
+    assert sandbox_mode(other) == "dry_run"
+
+
+def test_the_assembled_bundle_is_the_committed_shape_with_the_text_the_effect_posts(
+    world: World,
+) -> None:
+    bundle = world.control / canary.BUNDLE_RELATIVE
+    assert sums_problems(bundle) == []
+    names = sorted(p.name for p in bundle.iterdir())
+    assert "SHA256SUMS" in names and "PULL_REQUEST.md" in names
+    text = (bundle / "PULL_REQUEST.md").read_text(encoding="utf-8")
+    assert text.startswith("Title: docs(readme): ") and "### How to decline" in text
+    (bundle / "README.original.md").write_bytes(b"edited\n")  # a reviewer's tamper check
+    assert any("README.original.md does not match" in p for p in sums_problems(bundle))
 
 
 def test_verify_notices_a_pull_request_that_is_not_ours_or_not_the_bundles(

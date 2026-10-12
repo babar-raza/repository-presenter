@@ -3,10 +3,10 @@
   "entries": [
     {
       "repository": "babar-raza/presenter-sandbox",
-      "family": "email",
-      "platform": "python",
-      "ecosystem": "python",
-      "mode": "dry_run",
+      "family": "cells",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "full",
       "issues_mode": "off",
       "policy_profile": "sandbox-canary",
       "active": true,

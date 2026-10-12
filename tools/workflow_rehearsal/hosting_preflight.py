@@ -69,6 +69,8 @@ WRITE_JOB_STAGE = {
     "propose-sandbox.yml": "H3",
 }
 RECORD_DIRS = {"H2": "ops/issue_approvals", "H3": "ops/proposal-authorizations"}
+#: The file-name prefix of the sandbox canary's authorization record (`record_filename`).
+SANDBOX_RECORD_PREFIX = "babar-raza__presenter-sandbox__"
 
 OK, MISSING, UNKNOWN, CONFIRM, INFO = "OK", "MISSING", "UNKNOWN", "CONFIRM", "INFO"
 
@@ -513,7 +515,15 @@ def _record_checks(gh: Gh) -> list[Check]:
     for stage, directory in RECORD_DIRS.items():
         listing = gh.api(f"repos/{{repo}}/contents/{directory}?ref={branch}")
         records = (
-            [i for i in listing if isinstance(i, dict) and i.get("name") != "README.md"]
+            [
+                i
+                for i in listing
+                if isinstance(i, dict)
+                and i.get("name") != "README.md"
+                # The sandbox canary's own record (docs/PROPOSAL_WAVE_RUNBOOK.md section 9) is not
+                # an owner approval of any product proposal: it must not turn this check green.
+                and not (stage == "H3" and str(i.get("name", "")).startswith(SANDBOX_RECORD_PREFIX))
+            ]
             if isinstance(listing, list)
             else None
         )
