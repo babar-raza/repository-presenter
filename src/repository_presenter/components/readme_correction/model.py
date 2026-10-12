@@ -44,6 +44,11 @@ REPORT_ONLY_REASONS: dict[str, str] = {
     "RE_ENABLE_CONDITION_UNMET": "the detector is report-only until its re-enable condition holds",
     "ALREADY_SHOWN": "the README already shows an equivalent of the candidate",
     "NEEDS_INSTALL_FIRST": "the candidate command needs an install the evidence does not name",
+    "NOT_IN_VERIFIED_CHAIN": (
+        "the command is not a step of the one CI job (or project file) whose steps were verified"
+    ),
+    "NO_BUILD_RECEIPT": "the commands could not be run on a clean clone with the tools at hand",
+    "BUILD_RECEIPT_FAILED": "the commands failed, or did not finish, on a clean clone",
     "DOCS_HOLDS_NO_DOCUMENTATION": "the docs directory holds no documentation files",
     "WOULD_FAIL_VALIDATION": "applying it would make a validation check fail that the live passes",
     "INTERNAL_NARRATION": "the text to insert carries internal-assurance narration",

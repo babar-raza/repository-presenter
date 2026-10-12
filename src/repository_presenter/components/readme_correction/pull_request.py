@@ -111,6 +111,10 @@ def _category(edit: dict[str, Any]) -> str:
         return "link"
     if kind == "MISSING_SECTION" or (kind == "MISSING_INFO" and detector == "missing_sections"):
         return "sections"
+    if detector == "add_dev_commands":
+        return "dev"
+    if detector == "add_doc_links":
+        return "docs"
     return "info"
 
 
@@ -122,6 +126,22 @@ def _headings(edits: list[dict[str, Any]]) -> list[str]:
         for line in e["replacement"].splitlines()
         if line.startswith("## ")
     ]
+
+
+def _dev_content(edits: list[dict[str, Any]]) -> tuple[bool, bool, bool]:
+    """``(commands, CI sentence, release sentence)`` the Development and Testing edits add."""
+    text = "\n".join(e["replacement"] for e in edits)
+    return (
+        "```" in text,
+        re.search(r"\bworkflow\]\([^)]+\) runs\b", text) is not None,
+        "Releases run through" in text,
+    )
+
+
+def _dev_sentence_words(ci: bool, release: bool) -> str:
+    if ci and release:
+        return "where the project's CI runs and how its releases are made"
+    return "where the project's CI runs" if ci else "how the project's releases are made"
 
 
 def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
@@ -153,6 +173,16 @@ def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
         return ["repair a broken README link"]
     if category == "diagram":
         return ["lay out the At a Glance diagram left to right"]
+    if category == "dev":
+        commands, ci, release = _dev_content(edits)
+        parts = []
+        if commands:
+            parts.append("add the build and test commands, with the steps they need first")
+        if ci or release:
+            parts.append(f"say {_dev_sentence_words(ci, release)}")
+        return [" and ".join(parts)]
+    if category == "docs":
+        return ["link the project files the README does not mention"]
     additions = {
         "add_version_badge": "add the published-version badge",
         "add_dependency_groups": "add the dependency groups the README lacks",
@@ -168,7 +198,7 @@ def _groups(edits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for edit in edits:
         grouped.setdefault(_category(edit), []).append(edit)
-    order = ["version", "claims", "structure", "link", "sections", "info", "diagram"]
+    order = ["version", "claims", "structure", "link", "sections", "info", "dev", "docs", "diagram"]
     return {name: grouped[name] for name in order if name in grouped}
 
 
@@ -213,6 +243,22 @@ def _fact_text(fact: Fact) -> str:
         what = f"target frameworks `{value}`"
     elif fid.startswith("install_command:"):
         what = f"install command `{value}`"
+    elif fid in {"build_test_asset:build-command", "build_test_asset:test-command"}:
+        role = "build" if fid.endswith("build-command") else "test"
+        what = f"{role} command `{value}`"
+        platform = (fact.attributes or {}).get("build_receipt_platform")
+        if (fact.attributes or {}).get("build_receipt") and platform:
+            what += (
+                f", which ran to success with every step exiting 0 on a clean clone ({platform})"
+            )
+    elif fid == "build_test_asset:ci":
+        what = "the repository's workflow files"
+    elif fid == "build_test_asset:ci-matrix":
+        what = "the systems and runtimes the CI workflow runs on"
+    elif fid == "build_test_asset:release-workflow":
+        what = "the workflow whose steps publish a release"
+    elif fid == "build_test_asset:documentation":
+        what = "prose documentation under `docs/`"
     else:
         what = f"{fact.kind.replace('_', ' ')} `{value}`"
     where = _where(fact)
@@ -281,9 +327,53 @@ def _tested_range(render: dict[str, Any] | None) -> str:
     return f" in the Mermaid versions tested ({low[0]}.{low[1]} to {high[0]}.{high[1]})"
 
 
-def _why(edit: dict[str, Any]) -> str:
+def _commands_source(edit: dict[str, Any], facts: dict[str, Fact]) -> str:
+    """Where the commands of a Development and Testing addition come from, in plain words."""
+    for item in edit["evidence"]:
+        fact = facts.get(item["fact_id"] or "")
+        if fact is None or not fact.id.endswith("-command"):
+            continue
+        chain = (fact.attributes or {}).get("command_chain")
+        path = fact.evidence[0].path if fact.evidence else ""
+        job = re.search(
+            r"\bjob (\S+) runs\b", (fact.evidence[0].detail or "") if fact.evidence else ""
+        )
+        if chain == "ci_job" and job:
+            return f"the CI job `{job.group(1)}` in `{path}` runs them"
+        if chain == "ci_job":
+            return f"the CI workflow `{path}` runs them"
+        return f"the project's own files (`{path}`) name them"
+    return "the repository's own files name them"
+
+
+def _where_it_ran(edit: dict[str, Any], facts: dict[str, Fact]) -> str:
+    for item in edit["evidence"]:
+        fact = facts.get(item["fact_id"] or "")
+        attributes = (fact.attributes or {}) if fact is not None else {}
+        if attributes.get("build_receipt") and attributes.get("build_receipt_platform"):
+            return attributes["build_receipt_platform"]
+    return ""
+
+
+def _why(edit: dict[str, Any], facts: dict[str, Fact] | None = None) -> str:
     kind, detector = edit["kind"], edit["detector"]
     lines = _locator_lines(edit)
+    if detector == "add_dev_commands":
+        known = facts or {}
+        if "```" in edit["replacement"]:
+            ran = _where_it_ran(edit, known)
+            return (
+                "the README does not show how to build and test the project; "
+                f"{_commands_source(edit, known)}, and every step exited 0 when run on a clean "
+                f"clone of this revision{f' ({ran})' if ran else ''}"
+            )
+        _commands, ci, release = _dev_content([edit])
+        return (
+            f"the README does not say {_dev_sentence_words(ci, release)}; the workflow files "
+            "in the repository state it"
+        )
+    if detector == "add_doc_links":
+        return "the README does not mention these files, and the repository holds them"
     if detector == "claim_version":
         return str(edit["rationale"])
     if kind == "FALSE_CLAIM_FIX":
@@ -335,7 +425,7 @@ def _bullet(
             "order, and one `%%{init}%%` line (SVG text, which a wider font cannot clip).",
             f"  - evidence: README.md line {line} (the diagram as it is today)",
         ]
-    why = f"  - why: {_why(edit)}"
+    why = f"  - why: {_why(edit, facts)}"
     evidence = f"  - evidence: {_evidence(edit, facts)}"
     if kind == "MISSING_SECTION":
         heading = next(x for x in edit["replacement"].splitlines() if x.startswith("## "))
@@ -398,6 +488,27 @@ def _lead(
                 f"The README has no {what} section. We added one that states what the "
                 "repository's own files declare (cited below), with an item for it in the "
                 "contents list."
+            )
+        elif name == "dev":
+            commands, ci, release = _dev_content(edits)
+            said = []
+            if commands:
+                said.append(
+                    "The README's development section does not show how to build and test the "
+                    "project. We add the commands below, run in this order on a clean clone of "
+                    f"revision `{revision[:12]}` and each exiting 0, with the install steps they "
+                    "need first."
+                )
+            if ci or release:
+                said.append(
+                    f"The README does not say {_dev_sentence_words(ci, release)}. We add a "
+                    "sentence that links the workflow file stating it."
+                )
+            paragraphs.append(" ".join(said))
+        elif name == "docs":
+            paragraphs.append(
+                "The README does not link some files the repository holds (listed below). We "
+                "added a link to each, in the section that lists the project's documents."
             )
         elif name == "info" and any(e["detector"] == "add_version_badge" for e in edits):
             package = facts.get("package:name")

@@ -82,7 +82,23 @@ def fact(fact_id: str, value: str, evidence: Any, attributes: dict[str, str] | N
     )
 
 
-def facts_for(revision: str) -> FactsDocument:
+COMMAND_FACTS = (
+    fact(
+        "build_test_asset:build-command",
+        "make build",
+        (("Makefile", "build command; target build is defined"),),
+        {"role": "build command", "source": "Makefile"},
+    ),
+    fact(
+        "build_test_asset:test-command",
+        "make test",
+        (("Makefile", "test command; target test is defined"),),
+        {"role": "test command", "source": "Makefile"},
+    ),
+)
+
+
+def facts_for(revision: str, commands: bool = False) -> FactsDocument:
     return FactsDocument(
         REPOSITORY,
         revision,
@@ -100,6 +116,7 @@ def facts_for(revision: str) -> FactsDocument:
             fact("license:spdx", "MIT", (("LICENSE", "license text states this license"),)),
             fact("license:file", "LICENSE", (("LICENSE", None),)),
             fact("dependency:none", "none", (("pyproject.toml", "declares none"),)),
+            *(COMMAND_FACTS if commands else ()),
         ),
     )
 
@@ -107,7 +124,13 @@ def facts_for(revision: str) -> FactsDocument:
 class Rehearsal:
     """One synthetic upstream on a local bare remote, its correction bundle, and a fake GitHub."""
 
-    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch, readme: str = README) -> None:
+    def __init__(
+        self,
+        tmp: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        readme: str = README,
+        commands: bool = False,
+    ) -> None:
         self.readme = readme
         self.world = tmp / "world"
         self.world.mkdir()
@@ -122,7 +145,7 @@ class Rehearsal:
             lambda url, destination, **kwargs: pinned_read_only_clone(str(self.bare), destination),
         )
         facts = tmp / "facts.json"
-        write_facts(facts_for(self.revision), facts)
+        write_facts(facts_for(self.revision, commands), facts)
         self.bundle = tmp / "bundle"
         self.outcome = correction_run.produce_correction(
             self.entry,
@@ -188,7 +211,7 @@ def rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reenabled: None) 
 
 @pytest.fixture
 def default_rehearsal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Rehearsal:
-    return Rehearsal(tmp_path, monkeypatch)
+    return Rehearsal(tmp_path, monkeypatch, commands=True)
 
 
 def test_the_correction_is_produced_from_the_bare_remote_and_loads_through_its_own_gate(
@@ -316,7 +339,7 @@ def test_a_diagram_redraw_is_proposed_as_one_pull_request_whose_commit_is_the_pa
     patch = (rehearsal.bundle / PATCH_NAME).read_text(encoding="utf-8")
     assert render_patch(README_WITH_DIAGRAM, branch_readme) == patch
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
-    assert pull["title"] == "docs(readme): 4 verified corrections"
+    assert pull["title"] == "docs(readme): 5 verified corrections"
     assert "drawn left to right so the labels fit their boxes" in pull["body"]
     flat = branch_readme.replace("<br/>", " ")  # the drawing wraps long labels; the words stay
     for label in ("Starting Points", "Core Capabilities", "Outputs", "Polygon triangulation"):
@@ -346,19 +369,18 @@ def test_report_only_candidates_stay_in_the_bundle_and_out_of_the_pull_request(
     assert rehearsal.outcome.summary == {
         "FALSE_CLAIM_FIX": 1,
         "MISSING_INFO": 1,
-        "MISSING_SECTION": 1,
+        "MISSING_SECTION": 2,
     }
     document = json.loads((rehearsal.bundle / "corrections.json").read_text(encoding="utf-8"))
     held = {(e["detector"], e["report_only_reason"]) for e in document["report_only"]}
-    assert ("missing_sections", "RE_ENABLE_CONDITION_UNMET") in held
-    assert any("CHANGELOG.md" in e["candidate"] for e in document["report_only"])
+    # the Makefile's commands were never run on a clean clone: no receipt, so no Development section
+    assert ("missing_sections", "NO_BUILD_RECEIPT") in held
+    assert any("make build" in e["candidate"] for e in document["report_only"])
     result = rehearsal.propose()
     assert result.effected and result.pr_created
     (pull,) = rehearsal.rest.pulls(REPOSITORY)
-    assert "CHANGELOG.md" not in pull["body"]
-    assert pull["title"] == (
-        "docs(readme): show the current release (2.0.0) in the install snippets, "
-        "add the Dependencies section and add the published-version badge"
-    )
+    assert "make build" not in pull["body"]
+    assert pull["title"] == "docs(readme): 4 verified corrections"  # too many parts for a sentence
     branch_readme = rehearsal.rest.file(REPOSITORY, presenter_branch_name(), "README.md")
-    assert branch_readme is not None and "CHANGELOG.md" not in branch_readme
+    assert branch_readme is not None and "make build" not in branch_readme
+    assert "[Changelog](CHANGELOG.md)" in branch_readme  # a path of the pinned tree: linked
