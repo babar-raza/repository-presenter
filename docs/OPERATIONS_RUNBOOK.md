@@ -86,10 +86,10 @@ GitHub notification email for failed scheduled runs of the repository owner.
 | `liveness.yml` | - | - | - |
 | `mirror-gitlab.yml` | - | `GITLAB_TOKEN` | - |
 | `monitor.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | - |
-| `present.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GITHUB_TOKEN`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | `REPOSITORY_PRESENTER_STATE_TOKEN` |
+| `present.yml` | `REPOSITORY_PRESENTER_SEAL_RUNNER` | `GH_APP_ID`, `GH_APP_PRIVATE_KEY`, `GITHUB_TOKEN`, `GPT_OSS_API_KEY`, `GPT_OSS_ENDPOINT` | `REPOSITORY_PRESENTER_SEAL_RUNNER`, `REPOSITORY_PRESENTER_STATE_TOKEN` |
 | `propose-sandbox.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` |
 | `propose.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED` |
-| `sealing-scheduled.yml` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED` | - + `secrets: inherit` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED` |
+| `sealing-scheduled.yml` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED` | - + `secrets: inherit` | `REPOSITORY_PRESENTER_CANDIDATES_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED`, `REPOSITORY_PRESENTER_SEALING_PAUSED`, `REPOSITORY_PRESENTER_SEAL_RUNNER` |
 | `verify-app-installation.yml` | - | `GH_APP_ID`, `GH_APP_PRIVATE_KEY` | - |
 
 #### `audit-app-installations.yml` job graph
@@ -153,7 +153,8 @@ Artifacts: `down:drift-*`, `up:drift-${{ matrix.owner }}`
 
 | Job | Needs | Runs on | Effective permissions | App token scope | Environment | Concurrency | Matrix | Condition |
 |---|---|---|---|---|---|---|---|---|
-| `present` | - | ubuntu-latest | contents: write (workflow) | permission-contents=read+permission-metadata=read | - | - | - | - |
+| `select-runner` | - | ubuntu-latest | none | - | - | - | - | - |
+| `present` | `select-runner` | `${{ fromJSON(needs.select-runner.outputs.runs_on) }}` | contents: write (workflow) | permission-contents=read+permission-metadata=read | - | - | - | - |
 
 Artifacts: `up:seal-transaction-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}-${{ github.run_attempt }}`, `up:sealed-${{ steps.target.outputs.owner }}__${{ steps.target.outputs.name }}`
 
@@ -205,6 +206,12 @@ Notes the generated tables cannot say:
   Unset means the default: sealing runs, every write stays off. `REPOSITORY_PRESENTER_METADATA_WRITE_AUTHORIZED`
   exists in code (`components/metadata/apply.py`) but no workflow reads it: repository metadata is
   never written by a hosted run.
+- **The seal runner (owner decision D5; not a gate):** `REPOSITORY_PRESENTER_SEAL_RUNNER` chooses where
+  `present.yml` runs. Unset, empty or `ubuntu-latest` is the hosted run described here; exactly
+  `self-hosted-windows` runs the same job on the registered machine; any other value fails the run in the
+  hosted `select-runner` job. The self-hosted choice is refused for any trigger but a schedule, a dispatch or
+  a repository dispatch on the default branch. Nothing but `present.yml` can name the self-hosted labels.
+  Setup, isolation, residual risk and rollback: `docs/SELF_HOSTED_RUNNER.md`.
 - **State credential:** `REPOSITORY_PRESENTER_STATE_TOKEN` is not an owner switch; `present.yml`
   sets it to the job's own `GITHUB_TOKEN` (hence `contents: write` on that workflow) in the steps that
   write durable-state refs to this repository, and `core/state/present_transaction.py` reads it. It
@@ -217,7 +224,9 @@ Notes the generated tables cannot say:
   cancel a `write` job by hand; a write interrupted between branch, contents and pull request is
   reconciled by the next run.
 - **Pinned toolchain per job:** python 3.11 everywhere (section 8), plus the toolchains `present.yml`
-  installs itself (uv, dotnet, java 21, node 24, go 1.26, rust stable, g++ cmake ninja).
+  installs itself (uv, dotnet, java 21, node 24, go 1.26, rust stable, g++ cmake ninja). On the
+  self-hosted runner `present.yml` installs none of them: it builds a venv from the lock with the pinned
+  Python 3.13.2 and checks the machine's own toolchains read-only (`tools/runner/check_runner.py --job`).
 
 ## 4. Kill switch
 
@@ -334,6 +343,15 @@ the hosted Actions API download (`python tools/workflow_rehearsal/harness.py rep
 decode error: `act` cannot unmarshal a `strategy.matrix` value that is a `${{ fromJSON(...) }}` expression.
 GitHub accepts it and `actionlint` is clean; this is a typed `act` limitation, not a workflow defect.
 
+**`present.yml`'s runner selection under `act` (2026-10-12, `act` 0.2.89, image `catthehacker/ubuntu:act-24.04`,
+`act workflow_dispatch -j select-runner -W .github/workflows/present.yml --defaultbranch main`, variable
+given with `--var`):** unset: succeeded, outputs `"ubuntu-latest"`, `bash -e {0}`, `360`.
+`REPOSITORY_PRESENTER_SEAL_RUNNER=self-hosted-windows` from a feature branch: failed with "runs the default
+branch only". `=Self-Hosted`: failed with "must be unset, ubuntu-latest or self-hosted-windows".
+`=self-hosted-windows` with `GITHUB_REF=refs/heads/main`: succeeded, outputs the four labels, `bash`, `120`.
+The same script is executed under bash against every trigger, ref and hostile value by
+`tests/test_present_runner_selection.py`.
+
 **Per workflow: what runs locally, what is a documented gap** (the same table is `harness.py table`).
 
 | Workflow | Local status | Gap, stated plainly |
@@ -341,7 +359,7 @@ GitHub accepts it and `actionlint` is clean; this is a typed `act` limitation, n
 | `monitor.yml` | **ran end to end** (above) | App-token mint ran against the fake; the real mint's server-side permission narrowing is hosted-only; the gateway preflight runs on dispatch only and was not exercised |
 | `ci.yml` | ran fully under `act` on 2026-10-04 (`docs/DECISION_LOG.md`); planned here | three full pytest legs not re-run in this slice; the act image lacks cmake and ninja, the workflow installs them with apt |
 | `sealing-scheduled.yml` | `plan` hand-off replayed (above); `act` cannot plan it | `gh run list/download` (Actions API and artifact store) is hosted-only; `seal`/`publish-candidates`/`propose` are the three workflows below |
-| `present.yml` | planned by `act -n`; **not run** | needs the live LLM gateway, the toolchains, a read-only App token for the target and the state-ref token; a 2026-10-04 `act` run reached the mint step and failed closed |
+| `present.yml` | `select-runner` job **ran under `act`** (below); the `present` job is not planned by `act -n`; **not run** | needs the live LLM gateway, the toolchains, a read-only App token for the target and the state-ref token; a 2026-10-04 `act` run reached the mint step and failed closed. Since D5 the `present` job's `runs-on` is `fromJSON(needs.select-runner.outputs.runs_on)`, known only after that job ran, so `act -n` prints `Error while evaluating runs-on` for it (exit 0): a typed `act` limitation like the `strategy.matrix` one, not a workflow defect. The self-hosted Windows steps are hosted-and-machine-only |
 | `candidates-publish.yml` | planned | its `write` job's pull request on this repository can be recorded by the fake REST; GitHub's checks, required reviews and branch protection are hosted-only; **not run** |
 | `propose.yml` | planned | `dry-run` job is replayable; `write` needs an authorization record merged before the trigger commit and the target's live revision; **not run** |
 | `issues-scheduled.yml` | `act` cannot plan it | analysis reads upstream through REST (fakeable); filing needs an approved record and the kill-switch variable; **not run** |
@@ -402,12 +420,14 @@ replaces the default itself (`__kwdefaults__`).
 | g++, cmake, ninja | g++ present; cmake and ninja not guaranteed | `apt-get install g++ cmake ninja-build` (in both workflows) | the machine's clang 19.1.7 (`C:/tools/rp-toolchains`) is not what runs hosted: a C++ example that depends on the compiler differs between a native seal and a hosted one |
 | Windows-only examples | no Windows runner requested | none | a repository whose examples need Windows cannot be verified hosted; seal it where Windows exists |
 
-**Decision for the owner (`TC-REF-10-03`, not made here):** where each ecosystem is sealed in production:
-a hosted runner (consistent with the monitor; bundles must then be re-sealed once under hosted 3.11 Linux
-because the environment fingerprint differs from the 3.13 Windows seals), or a self-hosted runner on this
-machine (the existing runner is registered to a product repository, not this control repository: a new
-registration for the control repository is an owner action). Until chosen, treat every hosted seal of a
-natively sealed candidate as a re-seal.
+**Decision for the owner (`TC-REF-10-03`), made 2026-10-11 as D5:** production sealing runs on a
+self-hosted runner on the owner's machine (Windows, Python 3.13.2, every toolchain); hosted runners are for
+the monitor and the publish steps only. Prepared, enabling nothing: `docs/SELF_HOSTED_RUNNER.md` (the setup
+on this machine, the isolation and its residual risk, the owner's action list) and the
+`REPOSITORY_PRESENTER_SEAL_RUNNER` variable that selects it; the hosted run remains the default until the
+owner sets the variable, and the preflight (9.1) is NO-GO until the runner exists. Until then treat every
+hosted seal of a natively sealed candidate as a re-seal. The existing runners on the machine are registered
+to product and unrelated repositories and are not used: the new one is registered to this repository alone.
 
 ### Hosted versus local: differences that matter
 
@@ -415,7 +435,7 @@ natively sealed candidate as a re-seal.
 |---|---|---|
 | Python | `actions/setup-python` installs **3.11** (`python-version: "3.11"` in monitor, present, sealing; CI runs 3.11, 3.12, 3.13) | bundles were **sealed on 3.13** natively on Windows |
 | Bundle currency | `core` records the environment fingerprint (`python_version`, `os`, resolved site manifest, `inherited_units_version`) in each bundle (`components/readme/bundle/seal.py`). A hosted run on 3.11 / Linux therefore differs from a 3.13 / Windows seal: `evaluate()` reopens `EXTRACTING`, downstream stages make live provider calls, and the zero-call no-op claim does not hold across the two environments (`docs/DECISION_LOG.md` 2026-10-04 act verification; `docs/investigations/13-bump-cost-and-recheck-design.md`). | monitor is unaffected (it compares revisions, not fingerprints); sealing and no-op proof are |
-| Fix / limitation | Decision for the owner (`TC-REF-10-03`): seal in the environment of record (hosted 3.11 Linux, so seals and the monitor agree), or run sealing on a self-hosted runner on this machine; until chosen a hosted seal of a natively sealed candidate is a re-seal, not a no-op | |
+| Fix / limitation | Decided (D5, 2026-10-11): seal on a self-hosted runner on this machine, selected by `REPOSITORY_PRESENTER_SEAL_RUNNER` (`docs/SELF_HOSTED_RUNNER.md`); until the owner sets it a hosted seal of a natively sealed candidate is a re-seal, not a no-op | the self-hosted seal can be a no-op |
 | Toolchains | image provides what GitHub documents (git, node, python, java, dotnet, go, rust, g++ preinstalled, **cmake and ninja not guaranteed**); `ci.yml` and `present.yml` install `g++ cmake ninja-build` with apt, `setup-dotnet`/`java`/`node`/`go`, `dtolnay/rust-toolchain`, `setup-uv` explicitly | machine-local registry `C:/tools/rp-toolchains` (llvm 19.1.7, cmake, ninja, cargo, dotnet, go, java via `RP_TOOLCHAIN_REGISTRY`), absent on a hosted runner |
 | act image | n/a | `catthehacker/ubuntu:act-24.04` has no cmake, ninja or Python 3.11 in its toolcache (`setup-python` downloads it); same Ubuntu 24.04 userland, not the full GitHub image |
 | Windows-only examples | not available on `ubuntu-latest` | a Windows example needs a Windows runner or this machine; none of the workflows requests one |
@@ -471,6 +491,9 @@ produced (and `--stage`, if given, is GO), 1 means `--stage` is NO-GO, 2 means n
 | App credentials mint a token; App installed on the organizations in scope | H0 | a successful `verify-app-installation.yml` and `audit-app-installations.yml` run | install the App, dispatch the workflow once (read-only) |
 | each write job is guarded by an environment with required reviewers | the job's stage: `candidates-publish` H1, `issues-scheduled` H2, `propose` H3 | the YAML, then `gh api .../environments/<name>` | today **no workflow declares an environment**: a `TC-REF-12` workflow change declares one, then the owner adds reviewers |
 | owner records exist: `ops/issue_approvals/` (H2), `ops/proposal-authorizations/` (H3) | H2, H3 | `gh api .../contents/<dir>` on the default branch | approve the exact list, merge the records pull request |
+| the seal pipeline is set to the self-hosted runner (`variable:REPOSITORY_PRESENTER_SEAL_RUNNER`, exactly `self-hosted-windows`) and a runner carrying `self-hosted`, `windows`, `x64`, `repository-presenter-seal` is registered and online (`runner:registered`); derived from the YAML: a workflow tree in which nothing reads the variable has no such item | H0 (the first seal is the H0 pilot) | `gh variable list`; `gh api .../actions/runners` (repository admin) | `docs/SELF_HOSTED_RUNNER.md` sections 3 and 6: until both exist H0 is NO-GO and `present.yml` keeps running hosted |
+| a fork's workflow run needs the owner's approval before it can use a runner (`runner:fork-approval`): *all external contributors* on a public repository | H0 | `gh api .../actions/permissions/fork-pr-contributor-approval` | Settings > Actions > General > Fork pull request workflows, before the runner is registered (`docs/SELF_HOSTED_RUNNER.md` section 2) |
+| `tools/runner/check_runner.py` passes on the runner machine as the service account (`runner:host-check`); the account is the dedicated low-privilege user with the deny and LAN-egress rules (`runner:isolation`) | H0 | **manual**: only the machine can say | `docs/SELF_HOSTED_RUNNER.md` sections 3.8 and 4, then `--confirm runner:host-check` and `--confirm runner:isolation` |
 | App grants exactly the write scope each write job requests (`app-scope:<file>:<job>`) | the job's stage | **manual**: a user token cannot read an App's permissions | check the App settings per organization in scope, then pass `--confirm app-scope:<file>:<job>` |
 | registry entries in mode `full` are exactly the owner-named pilot list | H3 | **manual** (the `data/registry.json` count is shown) | confirm the list, then pass `--confirm registry:pilot` |
 
@@ -485,13 +508,16 @@ closed; until it exists the script is run from the owner's shell.
 - Enter: preflight `--stage H0` GO; every gate closed; if a workflow must not fire on its schedule
   before its first dispatch passes, `gh workflow disable <file>` it until then.
 - Do, once each, with `gh workflow run <file> -R <repo>`: `monitor.yml`; `present.yml` for one Python
-  pilot repository (hosted toolchains exist for it); `candidates-publish.yml` with that seal's artifact
+  pilot repository (on the self-hosted runner once the owner has set `REPOSITORY_PRESENTER_SEAL_RUNNER`,
+  per D5 and `docs/SELF_HOSTED_RUNNER.md` section 6; hosted toolchains exist for it otherwise);
+  `candidates-publish.yml` with that seal's artifact
   and `do_publish` false; `sealing-scheduled.yml` (its `publish-candidates` and `propose` legs are
   skipped by their `if:` while the gates are closed); `propose.yml` with `do_propose` false (the
   `dry-run` job only). Then leave the schedules enabled.
-- Exit evidence: the five run ids, each green on the hosted runner; the hosted-only differences from
-  section 8 recorded (Python 3.11 against the 3.13 bundle environment, toolchains, Actions-API
-  steps); zero writes proved (no new branch, pull request or issue in this repository or any registry
+- Exit evidence: the five run ids, each green (the monitor and the publish steps on the hosted runner, the
+  seal on the runner it was set to); the differences from section 8 recorded (for a hosted seal: Python 3.11
+  against the 3.13 bundle environment, toolchains, Actions-API steps; for a self-hosted seal: the
+  `check_runner.py` output of the job and whether the no-op proof held); zero writes proved (no new branch, pull request or issue in this repository or any registry
   repository; `git ls-remote origin` shows no new `candidates/` or proposal branch); preflight output
   saved (names only).
 - Stop: the pause variable, or `gh workflow disable`.

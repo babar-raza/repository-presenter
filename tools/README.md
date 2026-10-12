@@ -200,7 +200,11 @@ governance tracks, two directories, no overlap.
     version constant; the diff-level proof behind the plan's `no_bump: true` cards (TC-REF-10/11/12).
   - `hosting_preflight.py` — read-only go/no-go table for the staged go-live H0 to H4
     (`docs/OPERATIONS_RUNBOOK.md` section 9): requirements generated from the workflow YAML,
-    compared with read-only `gh` calls; prints names and verdicts, never values.
+    compared with read-only `gh` calls; prints names and verdicts, never values. When a workflow reads
+    `REPOSITORY_PRESENTER_SEAL_RUNNER` it also requires, from H0, the self-hosted seal runner (owner
+    decision D5): the variable set, a runner with the workflow's labels registered and online, the fork-run
+    approval policy on a public repository, and two operator confirmations (`runner:host-check`,
+    `runner:isolation`).
   - Tests: `tests/test_workflow_rehearsal.py`, `tests/test_no_bump_check.py` and
     `tests/test_hosting_preflight.py` (no network, Docker, act or real `gh`).
   - `fake_rest.py` — an in-process, stateful model of the GitHub REST write paths (refs, contents with
@@ -214,6 +218,17 @@ governance tracks, two directories, no overlap.
   - Tests: `tests/test_workflow_rehearsal.py` (no network, Docker or act) and
     `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
     of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
+
+- `runner/` — the self-hosted seal runner's machine check (owner decision D5;
+  `docs/SELF_HOSTED_RUNNER.md`). Nothing here registers, installs or writes anything.
+  - `check_runner.py` — read-only: the interpreter is the pinned patch version on Windows, Git for Windows'
+    `bash` (not WSL's launcher), the toolchain registry and every tool a verifier invokes, the toolchain
+    fingerprint against the sealed bundles, free disk and a writable work folder off OneDrive, the runner's
+    `.env` and `.path`, the account, credential-shaped variables, and (without `--job`) that the gateway
+    answers - no key is sent, and no secret, path or host detail is printed. `present.yml` runs it with
+    `--job` on the self-hosted runner before the first provider call.
+  - Tests: `tests/test_check_runner.py` (injected resolvers and probes; no network, toolchain or real
+    registry), `tests/test_present_runner_selection.py` (the workflow's runner selection).
 
 - `canary/` — the sandbox canary's operator tooling (owner decision D6, 2026-10-11;
   `docs/PROPOSAL_WAVE_RUNBOOK.md` section 9): the one pull request allowed while real product

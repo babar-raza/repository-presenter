@@ -30,6 +30,29 @@
 #
 # A successful run whose bundle is READY_FOR_PROPOSAL exports that bundle as a workflow artifact
 # (`sealed-<owner>__<name>`) for the gated propose job; a runner's candidates/ never outlives the job.
+#
+# Where this runs (owner decision D5, 2026-10-11; docs/SELF_HOSTED_RUNNER.md): the repository
+# variable REPOSITORY_PRESENTER_SEAL_RUNNER selects the runner for this one pipeline and nothing
+# else. Unset, empty or `ubuntu-latest` is the hosted behaviour described above, byte for byte: the
+# default, and what runs until the owner sets the variable. `self-hosted-windows` runs the same
+# steps on the owner's registered machine (labels below), where the toolchains, Python 3.13.2 and
+# the machine's toolchain registry are the environment the sealed bundles were produced in. Any
+# other value fails the run closed. Only this workflow ever targets the self-hosted labels; the
+# monitor, the candidates publication, the proposals and the issues stay hosted.
+#
+# The decision is made once, by the `select-runner` job, on a GitHub-hosted runner, before the
+# self-hosted machine is asked for anything. Selecting the self-hosted runner is refused unless the
+# trigger is trusted: a schedule, a dispatch or a repository dispatch on the default branch (a
+# workflow_call carries its caller's event, so a pull_request caller is refused too). The gateway
+# key and the App secrets reach the self-hosted machine only inside this job, in the steps that
+# name them, never at job level and never on disk. This guard cannot stop a pull request from a
+# fork that rewrites a workflow to ask for the labels itself; that is closed by the repository
+# setting the preflight checks (docs/SELF_HOSTED_RUNNER.md section 2), not by YAML.
+#
+# On the self-hosted machine the job starts from an empty workspace, builds its own virtual
+# environment from the lock with the pinned interpreter, provisions no toolchain (the machine has
+# them; the first step after the install verifies them, read-only, with tools/runner/check_runner.py),
+# and ends by emptying the workspace and the folders it made, whatever the outcome.
 name: Present
 
 on:
@@ -64,10 +87,100 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  select-runner:
+    name: Select the seal runner
+    # Always hosted: this job decides, and an untrusted trigger must never reach the self-hosted
+    # machine to be refused there. It holds no secret and no token (permissions: {}); the
+    # variable is a name, not a credential.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      runs_on: ${{ steps.select.outputs.runs_on }}
+      shell: ${{ steps.select.outputs.shell }}
+      timeout_minutes: ${{ steps.select.outputs.timeout_minutes }}
+    steps:
+      - name: Select the runner; refuse an untrusted trigger for the self-hosted one
+        id: select
+        env:
+          # Reach the script as quoted shell variables only, never as interpolated script text.
+          SELECTED: ${{ vars.REPOSITORY_PRESENTER_SEAL_RUNNER }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -eu
+          case "$SELECTED" in
+            "" | ubuntu-latest)
+              # The hosted behaviour, unchanged: ubuntu-latest, the shell GitHub picks by default
+              # on Linux (`bash -e {0}`), and GitHub's own default job timeout (360 minutes).
+              runs_on='"ubuntu-latest"'
+              shell='bash -e {0}'
+              timeout_minutes=360
+              echo "seal runner: ubuntu-latest (hosted)"
+              ;;
+            self-hosted-windows)
+              # Trusted triggers only: a schedule, a dispatch or a repository dispatch, on the
+              # default branch. A workflow_call reports its caller's event and ref, so a caller
+              # triggered by a pull request, a push or a comment is refused here too.
+              case "$EVENT_NAME" in
+                schedule | workflow_dispatch | repository_dispatch) ;;
+                *)
+                  echo "::error::the self-hosted seal runner is for schedule, dispatch and repository_dispatch triggers only"
+                  exit 1
+                  ;;
+              esac
+              if [ "$REF" != "refs/heads/${DEFAULT_BRANCH:-main}" ]; then
+                echo "::error::the self-hosted seal runner runs the default branch only; dispatch this workflow from the default branch"
+                exit 1
+              fi
+              runs_on='["self-hosted","windows","x64","repository-presenter-seal"]'
+              shell='bash'
+              timeout_minutes=120
+              echo "seal runner: self-hosted-windows (trusted trigger: $EVENT_NAME)"
+              ;;
+            *)
+              echo "::error::REPOSITORY_PRESENTER_SEAL_RUNNER must be unset, ubuntu-latest or self-hosted-windows"
+              exit 1
+              ;;
+          esac
+          {
+            echo "runs_on=$runs_on"
+            echo "shell=$shell"
+            echo "timeout_minutes=$timeout_minutes"
+          } >> "$GITHUB_OUTPUT"
+
   present:
     name: Present one repository (durable-state-backed)
-    runs-on: ubuntu-latest
+    needs: select-runner
+    runs-on: ${{ fromJSON(needs.select-runner.outputs.runs_on) }}
+    # Hosted: GitHub's default (360). Self-hosted: a seal stuck on a dead toolchain must not hold
+    # the machine; the health check's own wall-clock budget is one hour.
+    timeout-minutes: ${{ fromJSON(needs.select-runner.outputs.timeout_minutes) }}
+    defaults:
+      run:
+        # Hosted: `bash -e {0}`, exactly the shell an unset `shell:` gives on Linux. Self-hosted
+        # Windows: Git for Windows' bash (the runner's PATH puts it ahead of WSL's launcher;
+        # tools/runner/check_runner.py checks that), because every script below is bash.
+        shell: ${{ needs.select-runner.outputs.shell }}
     steps:
+      # Self-hosted only: nothing from an earlier job is in the workspace. A hosted runner is a
+      # fresh machine, so this step does not exist there. The folders it empties are the job's
+      # own workspace and, below, named subfolders of its temp folder (never the temp folder
+      # itself: the runner keeps this very step's script and its output files there).
+      - name: Start from an empty workspace (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: |
+          set -eu
+          work="$(dirname "$(cygpath -u "$RUNNER_TEMP")")"
+          workspace="$(cygpath -u "$GITHUB_WORKSPACE")"
+          case "$work" in /?*/?*) ;; *) echo "::error::refusing to empty a workspace: the runner work folder is not recognisable"; exit 1 ;; esac
+          case "$workspace" in "$work"/?*/?*) ;; *) echo "::error::refusing to empty a workspace that is not inside the runner work folder"; exit 1 ;; esac
+          find "$workspace" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          for leftover in rp-venv noop-proof sealed-export transaction-artifact; do
+            rm -rf "$RUNNER_TEMP/$leftover"
+          done
+
       # persist-credentials: false - actions/checkout's own default persists a
       # github.com-scoped `http.https://github.com/.extraheader` credential in .git/config for
       # every later step to inherit. This job never needs that credential (its own git operations
@@ -143,11 +256,39 @@ jobs:
           permission-contents: read
           permission-metadata: read
 
-      - uses: actions/setup-python@v6
+      - name: Python 3.11 for the presenter (hosted)
+        if: ${{ runner.environment == 'github-hosted' }}
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: 'pip'
           cache-dependency-path: requirements-lock.txt
+
+      # Self-hosted only: the presenter runs on the interpreter the sealed bundles record
+      # (environment.python_version 3.13.2, os Windows), in a virtual environment of its own under
+      # the job's temp folder, so no package from an earlier job can be present and the installed
+      # set is exactly the lock's (the site manifest in a bundle's environment fingerprint hashes
+      # that set). The interpreter's path comes from the runner's own .env (RP_SEAL_PYTHON), never
+      # from this repository; a different patch version fails here, before any provider call,
+      # because it would reopen EXTRACTING for every candidate.
+      - name: Pinned interpreter and virtual environment (self-hosted)
+        if: ${{ runner.environment == 'self-hosted' }}
+        env:
+          EXPECTED_PYTHON: "3.13.2"
+        run: |
+          set -eu
+          if [ -z "${RP_SEAL_PYTHON:-}" ]; then
+            echo "::error::RP_SEAL_PYTHON is not set in the runner's .env file (docs/SELF_HOSTED_RUNNER.md section 3)"
+            exit 1
+          fi
+          actual="$("$RP_SEAL_PYTHON" -c 'import platform; print(platform.python_version())')"
+          if [ "$actual" != "$EXPECTED_PYTHON" ]; then
+            echo "::error::the pinned interpreter is Python $actual; the sealed bundles record $EXPECTED_PYTHON"
+            exit 1
+          fi
+          "$RP_SEAL_PYTHON" -m venv "$RUNNER_TEMP/rp-venv"
+          cygpath -w "$RUNNER_TEMP/rp-venv/Scripts" >> "$GITHUB_PATH"
+          echo "PYTHONUTF8=1" >> "$GITHUB_ENV"
 
       - name: Install from the lock
         run: |
@@ -160,12 +301,17 @@ jobs:
       # every executable a verifier invokes is provisioned by a step below. Java runs javac only; no
       # verifier invokes Maven, so none is installed. Python 3.11 is the presenter's own interpreter
       # (set up above); 3.12 and 3.13 are pinned uv venvs for requires-python declarations it does not admit.
+      # Every provisioning step below is hosted-only (`runner.environment`): the self-hosted machine
+      # has its toolchains already and provisions nothing, so a self-hosted seal cannot install or
+      # download a compiler; it verifies the ones it has in the step after them.
       - name: Install uv (provisions the pinned Python venvs for the Python verifier)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.21"
 
       - name: Provision the 3.12 and 3.13 venvs under RUNNER_TEMP
+        if: ${{ runner.environment == 'github-hosted' }}
         run: |
           set -eu
           for minor in 12 13; do
@@ -174,6 +320,7 @@ jobs:
           done
 
       - name: .NET SDKs for the .NET verifier (dotnet)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
@@ -181,12 +328,14 @@ jobs:
             10.0.x
 
       - name: JDK 21 for the Java verifier (javac)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Node 24 for the TypeScript verifier (node, npm)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: actions/setup-node@v7
         with:
           node-version: "24"
@@ -194,6 +343,7 @@ jobs:
       # tsc 5.9.3 is the version typescript_examples.py's own registry records as probe-compatible;
       # the newest tsc on a hosted image can refuse a repository's declared moduleResolution.
       - name: tsc 5.9.3 for the TypeScript verifier, on PATH
+        if: ${{ runner.environment == 'github-hosted' }}
         run: |
           set -eu
           prefix="$RUNNER_TEMP/tsc"
@@ -201,20 +351,32 @@ jobs:
           echo "$prefix/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Go for the Go verifier (go)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: actions/setup-go@v7
         with:
           go-version: "1.26"
 
       - name: Rust toolchain for the Rust verifier (cargo)
+        if: ${{ runner.environment == 'github-hosted' }}
         uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d  # branch: stable
         with:
           toolchain: stable
 
       - name: GCC, CMake and Ninja for the C++ verifier (g++, cmake, ninja)
+        if: ${{ runner.environment == 'github-hosted' }}
         run: |
           set -eu
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends g++ cmake ninja-build
+
+      # Self-hosted only, read-only, no network and no secret: the machine is the environment of
+      # record, so the things that make it one are checked before a provider call is made - the
+      # pinned interpreter, Git for Windows' bash ahead of WSL's, the toolchain registry and every
+      # tool a verifier invokes, free disk space, and no credential-shaped name in the runner's
+      # .env. A failure names the check; the fix is on the machine (docs/SELF_HOSTED_RUNNER.md).
+      - name: Verify the machine environment (self-hosted, read-only)
+        if: ${{ runner.environment == 'self-hosted' }}
+        run: python tools/runner/check_runner.py --job
 
       - name: LLM gateway reachable; record the model catalog present needs
         env:
@@ -240,7 +402,9 @@ jobs:
           REPOSITORY_PRESENTER_STATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Where the Python verifier finds the pinned py3NN venvs provisioned above
           # (python_examples.py's RP_PYTHON_TOOLCHAINS; without it a requires-python >=3.12 target is NOT_VERIFIED).
-          RP_PYTHON_TOOLCHAINS: ${{ runner.temp }}/rp-python
+          # Hosted only: the self-hosted machine finds its interpreters itself (core/toolchains.py),
+          # and an empty value is read as unset.
+          RP_PYTHON_TOOLCHAINS: ${{ runner.environment == 'github-hosted' && format('{0}/rp-python', runner.temp) || '' }}
           GPT_OSS_ENDPOINT: ${{ secrets.GPT_OSS_ENDPOINT }}
           GPT_OSS_API_KEY: ${{ secrets.GPT_OSS_API_KEY }}
           # The target repository and trigger type reach the script as quoted shell variables, never
@@ -386,3 +550,21 @@ jobs:
           path: ${{ runner.temp }}/transaction-artifact
           if-no-files-found: ignore
           retention-days: 14
+
+      # Self-hosted only, last, whatever happened: nothing of this seal stays on the machine. The
+      # uploads above have run; the workspace (the clone of this repository, runs/ with its call
+      # store, candidates/) and the folders this job made in its temp folder are emptied. A file
+      # Windows still holds open is a warning, not a failure: the next job's first step empties
+      # the workspace again and the runner clears its temp folder at the start of every job.
+      - name: Leave nothing behind (self-hosted)
+        if: ${{ always() && runner.environment == 'self-hosted' }}
+        run: |
+          set -u
+          work="$(dirname "$(cygpath -u "$RUNNER_TEMP")")"
+          workspace="$(cygpath -u "$GITHUB_WORKSPACE")"
+          case "$work" in /?*/?*) ;; *) echo "::warning::not emptying the workspace: the runner work folder is not recognisable"; exit 0 ;; esac
+          case "$workspace" in "$work"/?*/?*) ;; *) echo "::warning::not emptying a workspace outside the runner work folder"; exit 0 ;; esac
+          find "$workspace" -mindepth 1 -maxdepth 1 -exec rm -rf {} + || echo "::warning::part of the workspace could not be removed"
+          for leftover in rp-venv noop-proof sealed-export transaction-artifact; do
+            rm -rf "$RUNNER_TEMP/$leftover" || echo "::warning::$leftover could not be removed"
+          done
