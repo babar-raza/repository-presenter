@@ -71,6 +71,12 @@
 # assembly fails closed on no evidence, partial evidence for an enabled owner or repository, or evidence
 # older than 12 hours; an owner recorded NOT_INSTALLED is a notice, never zero drift.
 #
+# Where `seal` runs (owner decision D5, docs/SELF_HOSTED_RUNNER.md): present.yml chooses its own runner
+# from the repository variable REPOSITORY_PRESENTER_SEAL_RUNNER - hosted when unset (the default), the
+# owner's registered machine when it is `self-hosted-windows` - in its hosted `select-runner` job, and
+# refuses the self-hosted choice for any trigger but a schedule or dispatch on the default branch. This
+# file passes nothing about it and every other job here stays hosted.
+#
 # Least privilege, per job: plan and propose hold contents: read at the job level; seal holds
 # contents: write only because present.yml's own durable-state refs live in this control repository
 # (its analysis token is minted there, read-only); publish-candidates holds contents: read only, because
