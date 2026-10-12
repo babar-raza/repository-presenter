@@ -630,3 +630,44 @@ def test_links_to_files_the_tree_holds_say_so_in_plain_words(
     assert "`CHANGELOG.md` exists in the repository" in body
     assert "do not" not in content.title.lower()
     assert_plain(content)
+
+
+def test_ci_sentences_are_described_as_exactly_what_they_say(
+    tmp_path: Path, make_context: Any, make_fact: Any
+) -> None:
+    only_ci = [
+        make_fact(
+            "build_test_asset:ci-matrix",
+            "os=ubuntu-latest,windows-latest",
+            evidence=((".github/workflows/ci.yml", "job test strategy.matrix axes os"),),
+        ),
+    ]
+    workflows = (
+        "README.md",
+        "LICENSE",
+        "pom.xml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/release.yml",
+    )
+    content = compose(tmp_path, make_context, DEV_AND_DOCS, facts=only_ci, tree=workflows)
+    body = content.body
+    assert "say where the project's CI runs" in content.title
+    assert "releases" not in content.title
+    assert "The README does not say where the project's CI runs." in body
+    assert "does not show how to build and test" not in body
+    assert "the systems and runtimes the CI workflow runs on" in body
+    assert_plain(content)
+    both = [
+        *only_ci,
+        make_fact(
+            "build_test_asset:release-workflow",
+            ".github/workflows/release.yml",
+            evidence=((".github/workflows/release.yml", "release step; job publish"),),
+        ),
+    ]
+    other = tmp_path / "second"
+    other.mkdir()
+    content = compose(other, make_context, DEV_AND_DOCS, facts=both, tree=workflows)
+    assert "say where the project's CI runs and how its releases are made" in content.title
+    assert "the workflow whose steps publish a release" in content.body
+    assert_plain(content)

@@ -18,6 +18,11 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from repository_presenter.components.readme.evidence.facts.commands import (
+    CommandForm,
+    command_form,
+    commands_in_text,
+)
 from repository_presenter.components.readme_correction.detectors._layout import fence_lines
 from repository_presenter.components.readme_correction.model import Context
 
@@ -119,13 +124,48 @@ def readme_commands(ctx: Context) -> list[Signature]:
     return found
 
 
+_MAVEN_PHASES = ("validate", "compile", "test", "package", "verify", "install", "deploy")
+
+
+def _implied(tool: str, verbs: frozenset[str]) -> frozenset[str]:
+    """The goals a command also runs: a Maven phase runs every phase before it, so ``mvn verify``
+    already does what ``mvn package`` and ``mvn test`` ask. ``package`` is the exception for
+    ``test``: it is so often run with ``-DskipTests`` (flags are not part of a signature) that it
+    is not taken to have run the tests."""
+    if tool != "mvn":
+        return verbs
+    top = max((_MAVEN_PHASES.index(v) for v in verbs if v in _MAVEN_PHASES), default=-1)
+    implied = set(_MAVEN_PHASES[: top + 1])
+    if top == _MAVEN_PHASES.index("package"):
+        implied.discard("test")
+    return verbs | frozenset(implied)
+
+
 def equivalent(wanted: Signature, shown: Signature) -> bool:
     """``shown`` already does what ``wanted`` asks."""
     if wanted.tool != shown.tool:
         return False
     if wanted.tool in _GOALS:
-        return wanted.verbs <= shown.verbs
+        return wanted.verbs <= _implied(shown.tool, shown.verbs)
     return wanted.verbs == shown.verbs
+
+
+def shown_forms(ctx: Context) -> list[CommandForm]:
+    """Every command the README shows, in the renderer's own terms (program, subcommand words,
+    targets), wherever it sits: a code fence, an indented block or an inline code span."""
+    return commands_in_text(ctx.readme)
+
+
+def form_covered(forms: list[CommandForm], value: str) -> bool:
+    """Whether commands the README shows already do what every command of ``value`` asks, by the
+    renderer's notion of the same command: ``python -m pytest -q`` for ``pytest``, ``pip install
+    -e '.[test]'`` for ``pip install -e .[test]``, whatever the wrapper, quotes or flags."""
+    wanted = [
+        form
+        for command in commands_of(value)
+        if (form := command_form(command.replace("'", "").replace('"', ""))) is not None
+    ]
+    return bool(wanted) and all(any(have.covers(form) for have in forms) for form in wanted)
 
 
 def covered(ctx: Context, value: str, shown: list[Signature] | None = None) -> bool:

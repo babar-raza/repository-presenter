@@ -128,6 +128,22 @@ def _headings(edits: list[dict[str, Any]]) -> list[str]:
     ]
 
 
+def _dev_content(edits: list[dict[str, Any]]) -> tuple[bool, bool, bool]:
+    """``(commands, CI sentence, release sentence)`` the Development and Testing edits add."""
+    text = "\n".join(e["replacement"] for e in edits)
+    return (
+        "```" in text,
+        re.search(r"\bworkflow\]\([^)]+\) runs\b", text) is not None,
+        "Releases run through" in text,
+    )
+
+
+def _dev_sentence_words(ci: bool, release: bool) -> str:
+    if ci and release:
+        return "where the project's CI runs and how its releases are made"
+    return "where the project's CI runs" if ci else "how the project's releases are made"
+
+
 def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
     """The change(s) of one category, each a phrase that completes "this pull request will ..."."""
     if category == "version":
@@ -158,12 +174,13 @@ def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
     if category == "diagram":
         return ["lay out the At a Glance diagram left to right"]
     if category == "dev":
-        has_commands = any("```" in e["replacement"] for e in edits)
-        return [
-            "add the build and test commands, with the steps they need first"
-            if has_commands
-            else "say where the project's CI runs and how releases are made"
-        ]
+        commands, ci, release = _dev_content(edits)
+        parts = []
+        if commands:
+            parts.append("add the build and test commands, with the steps they need first")
+        if ci or release:
+            parts.append(f"say {_dev_sentence_words(ci, release)}")
+        return [" and ".join(parts)]
     if category == "docs":
         return ["link the project files the README does not mention"]
     additions = {
@@ -234,6 +251,8 @@ def _fact_text(fact: Fact) -> str:
             what += (
                 f", which ran to success with every step exiting 0 on a clean clone ({platform})"
             )
+    elif fid == "build_test_asset:ci":
+        what = "the repository's workflow files"
     elif fid == "build_test_asset:ci-matrix":
         what = "the systems and runtimes the CI workflow runs on"
     elif fid == "build_test_asset:release-workflow":
@@ -348,9 +367,10 @@ def _why(edit: dict[str, Any], facts: dict[str, Fact] | None = None) -> str:
                 f"{_commands_source(edit, known)}, and every step exited 0 when run on a clean "
                 f"clone of this revision{f' ({ran})' if ran else ''}"
             )
+        _commands, ci, release = _dev_content([edit])
         return (
-            "the README does not say where the project's CI runs; the workflow files in the "
-            "repository state it"
+            f"the README does not say {_dev_sentence_words(ci, release)}; the workflow files "
+            "in the repository state it"
         )
     if detector == "add_doc_links":
         return "the README does not mention these files, and the repository holds them"
@@ -470,16 +490,21 @@ def _lead(
                 "contents list."
             )
         elif name == "dev":
-            paragraphs.append(
-                "The README's development section does not show how to build and test the "
-                "project. What we add is what the repository states: "
-                + (
-                    "the commands below, run in this order on a clean clone of revision "
-                    f"`{revision[:12]}` and each exiting 0, with the install steps they need first."
-                    if any("```" in e["replacement"] for e in edits)
-                    else "where its CI runs and how its releases are made."
+            commands, ci, release = _dev_content(edits)
+            said = []
+            if commands:
+                said.append(
+                    "The README's development section does not show how to build and test the "
+                    "project. We add the commands below, run in this order on a clean clone of "
+                    f"revision `{revision[:12]}` and each exiting 0, with the install steps they "
+                    "need first."
                 )
-            )
+            if ci or release:
+                said.append(
+                    f"The README does not say {_dev_sentence_words(ci, release)}. We add a "
+                    "sentence that links the workflow file stating it."
+                )
+            paragraphs.append(" ".join(said))
         elif name == "docs":
             paragraphs.append(
                 "The README does not link some files the repository holds (listed below). We "

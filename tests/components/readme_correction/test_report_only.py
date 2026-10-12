@@ -375,3 +375,44 @@ def test_a_receipt_that_ran_the_command_as_printed_settles_the_install_question(
     )
     (held,) = add_dev_commands(make_context(DEV, make_facts(unverified))).findings
     assert held.report_only_reason == "NEEDS_INSTALL_FIRST"
+
+
+def test_an_addition_before_a_never_closed_details_block_survives_the_structure_fix(
+    make_context: Any, make_facts: Any, make_fact: Any
+) -> None:
+    """A section whose ``<details>`` is never closed cannot take an addition at its end (it would
+    be collapsed). The addition goes in front of the opener instead, so closing the block (the
+    structure fix) and adding to the section agree: a second run finds nothing more to do."""
+    readme = NL.join(
+        [
+            "# P",
+            "",
+            "## Development and Testing",
+            "",
+            "Run it the usual way.",
+            "",
+            "<details>",
+            "<summary>More</summary>",
+            "",
+            "Extra notes.",
+            "",
+            "## License",
+            "",
+            "MIT.",
+            "",
+        ]
+    )
+    fact = make_fact(
+        "build_test_asset:test-command",
+        "mvn test",
+        evidence=(("pom.xml", "x"),),
+        attributes=VERIFIED,
+    )
+    ctx = make_context(readme, make_facts(fact))
+    result, _delta = correct_settled(ctx, readme.encode())
+    assert {"add_dev_commands", "unclosed_details"} <= {e.detector for e in result.edits}
+    corrected = result.corrected
+    assert corrected.index("mvn test") < corrected.index("<details>")  # visible, before the block
+    assert corrected.index("</details>") < corrected.index("## License")
+    again, _ = correct_settled(make_context(corrected, make_facts(fact)), corrected.encode())
+    assert again.edits == []

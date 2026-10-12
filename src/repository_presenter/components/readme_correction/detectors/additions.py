@@ -31,6 +31,7 @@ from repository_presenter.components.readme.evidence.facts.commands import (
     CI_MATRIX_FACT_ID,
     PRECONDITION_ATTRIBUTE,
     RELEASE_WORKFLOW_FACT_ID,
+    CommandForm,
     matrix_axes,
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
@@ -51,8 +52,10 @@ from repository_presenter.components.readme_correction.chain import (
 from repository_presenter.components.readme_correction.commands import (
     Signature,
     covered,
+    form_covered,
     missing_precondition,
     readme_commands,
+    shown_forms,
     states_install,
 )
 from repository_presenter.components.readme_correction.detectors import detector
@@ -205,11 +208,17 @@ class DevPlan:
     findings: tuple[Finding, ...]
 
 
-def _shown_setup(ctx: Context, fact: Fact, readme: str, shown: list[Signature]) -> Fact:
+def _shown_setup(
+    ctx: Context, fact: Fact, readme: str, shown: list[Signature], forms: list[CommandForm]
+) -> Fact:
     """``fact`` without the setup lines the README already shows in some form."""
     lines = (fact.attributes or {}).get(PRECONDITION_ATTRIBUTE, "").splitlines()
     wanted = [
-        line for line in lines if _squash(line) not in readme and not covered(ctx, line, shown)
+        line
+        for line in lines
+        if _squash(line) not in readme
+        and not covered(ctx, line, shown)
+        and not form_covered(forms, line)
     ]
     if wanted == lines:
         return fact
@@ -227,6 +236,7 @@ def dev_plan(ctx: Context, *, whole_section: bool = False) -> DevPlan:
     is corrected by ``claim_test_files``), is then part of it."""
     readme = _squash(ctx.readme)
     shown = readme_commands(ctx)
+    forms = shown_forms(ctx)
     dropped: set[str] = set()
     findings: list[Finding] = []
 
@@ -251,7 +261,11 @@ def dev_plan(ctx: Context, *, whole_section: bool = False) -> DevPlan:
         if fact.id in COMMAND_FACT_IDS:
             attributes = fact.attributes or {}
             needs = missing_precondition(fact.value)
-            if _squash(fact.value) in readme or covered(ctx, fact.value, shown):
+            if (
+                _squash(fact.value) in readme
+                or covered(ctx, fact.value, shown)
+                or form_covered(forms, fact.value)
+            ):
                 hold(
                     fact,
                     "ALREADY_SHOWN",
@@ -296,7 +310,7 @@ def dev_plan(ctx: Context, *, whole_section: bool = False) -> DevPlan:
             if any(path in readme for path in workflows):
                 dropped.add(fact.id)
     kept = tuple(
-        _shown_setup(ctx, fact, readme, shown) if fact.id in COMMAND_FACT_IDS else fact
+        _shown_setup(ctx, fact, readme, shown, forms) if fact.id in COMMAND_FACT_IDS else fact
         for fact in ctx.facts.facts
         if fact.id not in dropped
     )
