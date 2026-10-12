@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import http.client
 import json
+import ssl
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,7 @@ from repository_presenter.components.readme.extractors.surface.registry import (
     observe,
     registry_type,
 )
+from repository_presenter.core.package_registry import registry_reading
 from repository_presenter.core.retry import RETRY_POLICIES
 
 _POLICY = RETRY_POLICIES["package_registry"]
@@ -520,3 +523,145 @@ def test_a_nuget_repository_element_is_preferred_over_the_project_url() -> None:
     )
     assert fallback.project_urls == ("https://docs.aspose.example/3d",)
     assert fallback.repository_matched is False
+
+
+# --- wave 6 (BC-02): an unpublished package is the registry's answer; a dead read is not -------
+# The recorded answers of the registries for the Aspose.JMAP libraries (reseal cut 8fbf2166).
+
+_JMAP_GO = "github.com/aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+_JMAP_GO_LIST = (
+    "https://proxy.golang.org/github.com/aspose-email-foss/"
+    "!aspose.!j!m!a!p-!f!o!s!s-for-!go/@v/list"
+)
+
+
+class _Raw:
+    """A registry answer with its real body bytes: the vendored adapters read ``.body``."""
+
+    def __init__(self, status: int, body: bytes) -> None:
+        self.status_code = status
+        self.body = body
+
+
+def test_the_go_proxys_empty_version_list_reads_as_not_published() -> None:
+    """Aspose.JMAP-FOSS-for-Go: `@v/list` answers 200 with an empty body (no version tagged). The
+    vendored adapter calls that ambiguous "conservatively", so the facts said "go_modules could
+    not be read" and BC-02 treated the answered question as a failed read."""
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> _Raw:
+        calls.append(url)
+        return _Raw(200, b"")
+
+    sleeps: list[float] = []
+    reading = observe("go", _JMAP_GO, fetch=fetch, sleep=sleeps.append)
+
+    assert calls == [_JMAP_GO_LIST], "one request: an answer is never asked again"
+    assert sleeps == []
+    assert reading.conclusive and reading.published is False and not reading.ambiguous
+    assert reading.summary == "package registry: distribution not found on go_modules"
+    assert reading.install_verdict()[0] == "CONTRADICTED"
+
+
+def test_a_whitespace_only_go_version_list_is_empty_too_and_a_listed_version_is_published() -> None:
+    blank = observe("go", _JMAP_GO, fetch=lambda url, **_: _Raw(200, b" \n"), sleep=_no_sleep)
+    assert blank.published is False and blank.conclusive
+    listed = observe(
+        "go", _JMAP_GO, fetch=lambda url, **_: _Raw(200, b"v26.7.0\nv26.7.1\n"), sleep=_no_sleep
+    )
+    assert listed.published is True and listed.conclusive
+    assert listed.latest_version == "v26.7.1"
+
+
+def test_the_empty_list_rule_is_the_go_proxys_alone() -> None:
+    """Negative control: an empty 200 from any other registry stays the adapter's ambiguous
+    reading - only a Go version list is empty by meaning "no tag"."""
+    for ecosystem, name in (("rust", "aspose-jmap-foss"), ("typescript", "aspose-jmap-foss-ts")):
+        reading = observe(ecosystem, name, fetch=lambda url, **_: _Raw(200, b""), sleep=_no_sleep)
+        assert reading.published is None and reading.ambiguous, (ecosystem, reading)
+
+
+@pytest.mark.parametrize(
+    ("ecosystem", "name", "body"),
+    [
+        ("java", "com.aspose:aspose-jmap-foss", b"<html><body>404 Not Found</body></html>"),
+        ("rust", "aspose-jmap-foss", b'{"errors":[{"detail":"Not Found"}]}'),
+        ("python", "aspose-jmap-foss", b'{"message":"Not Found"}'),
+    ],
+    ids=["maven-central", "crates-io", "pypi"],
+)
+def test_a_registry_404_with_its_recorded_body_is_the_registrys_answer_not_published(
+    ecosystem: str, name: str, body: bytes
+) -> None:
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> _Raw:
+        calls.append(url)
+        return _Raw(404, body)
+
+    reading = observe(ecosystem, name, fetch=fetch, sleep=_no_sleep)
+    assert len(calls) == 1
+    assert reading.conclusive and reading.published is False
+    assert reading.install_verdict()[0] == "CONTRADICTED"
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        ssl.SSLError("[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed"),
+        ssl.SSLCertVerificationError("hostname mismatch"),
+        ConnectionResetError("connection reset by peer"),
+        http.client.IncompleteRead(b"partial"),
+        http.client.RemoteDisconnected("Remote end closed connection without response"),
+    ],
+    ids=["tls", "tls-certificate", "reset", "incomplete-read", "remote-disconnected"],
+)
+def test_a_transport_failure_is_retried_and_ends_unread_never_as_a_missing_package(
+    failure: Exception,
+) -> None:
+    """The vendored fetch turns a refused or timed-out connection into None, but a TLS failure or
+    a connection cut mid-response can still escape it as an exception (IncompleteRead is not an
+    OSError). Either is an answer we did not get: replayed under the registry policy, then
+    UNRESOLVED - a different class from the registry saying the package is absent, and never a
+    crash that takes the facts stage with it."""
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> Any:
+        calls.append(url)
+        raise failure
+
+    sleeps: list[float] = []
+    reading = observe("go", _JMAP_GO, fetch=fetch, sleep=sleeps.append)
+
+    assert len(calls) == _POLICY.max_attempts and len(sleeps) == _POLICY.max_attempts - 1
+    assert reading.published is None and reading.ambiguous and not reading.conclusive
+    assert reading.summary == "package registry: go_modules could not be read"
+    polarity, _confidence, detail = reading.install_verdict()
+    assert polarity == "UNRESOLVED"
+    assert registry_reading(detail) == "unreadable"
+
+
+def test_a_transport_failure_that_recovers_costs_one_replay() -> None:
+    attempts = iter([ssl.SSLError("handshake failure")])
+
+    def fetch(url: str, **kwargs: Any) -> Any:
+        failure = next(attempts, None)
+        if failure is not None:
+            raise failure
+        return _Raw(200, b"v1.0.0\n")
+
+    sleeps: list[float] = []
+    reading = observe("go", _JMAP_GO, fetch=fetch, sleep=sleeps.append)
+    assert reading.published is True and reading.conclusive and len(sleeps) == 1
+
+
+def test_the_two_answers_are_different_classes_for_a_consumer() -> None:
+    """The class BC-02 and the repair loop read: absent is the registry's answer, unreadable is
+    the absence of one. They must never be collapsed (a retry cannot fix a 404, and a repair of
+    the README cannot fix a dead network)."""
+    absent = observe("go", _JMAP_GO, fetch=lambda url, **_: _Raw(200, b""), sleep=_no_sleep)
+    dead = observe("go", _JMAP_GO, fetch=lambda url, **_: None, sleep=_no_sleep)
+    assert registry_reading(absent.install_verdict()[2]) == "not_published"
+    assert registry_reading(dead.install_verdict()[2]) == "unreadable"
+    assert absent.install_verdict()[0] == "CONTRADICTED"
+    assert dead.install_verdict()[0] == "UNRESOLVED"

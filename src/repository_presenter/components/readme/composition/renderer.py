@@ -74,7 +74,12 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 )
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import printed_example
-from repository_presenter.core.facts import Fact, FactsDocument
+from repository_presenter.core.facts import (
+    DOCUMENTED_SOURCE_BASIS,
+    SOURCE_BASIS_ATTRIBUTE,
+    Fact,
+    FactsDocument,
+)
 from repository_presenter.core.package_registry import (
     DISTRIBUTION_FACT_PREFIX,
     PUBLISHED_VERSION_FACT_ID,
@@ -134,7 +139,11 @@ RENDERER_VERSION = "31"
 # releases (the release-workflow fact), the CI matrix is prose ("Python 3.10 and 3.12", "Ubuntu
 # and Windows"), a command is skipped when the README already shows an equivalent one anywhere,
 # and a build command that needs a tool or a configure step prints it first.
-RENDERER_VERSION = "33"
+# 34: wave 6 (G3-W08, cut 6): Installation states an unpublished package plainly with the build the
+# repository documents, and no sentence claims a check against "this revision"; a kept unit about
+# installing or licensing is dropped when Installation, Dependencies or License state it; the
+# product name keeps the dot of Aspose.<Family>. A bundle sealed under 33 re-renders.
+RENDERER_VERSION = "34"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -164,13 +173,13 @@ _GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
 # qualifier in place of a link to a file that does not exist. Aspose.3D for TypeScript.
 _MIT_DECLARED_PROSE = (
     "This project is licensed under the MIT License, as declared in `{manifest}`; no license file "
-    "is present at this revision. The MIT License permits use, copying, modification, "
+    "is present in the repository. The MIT License permits use, copying, modification, "
     "distribution, sublicensing, and commercial use, provided its copyright and permission notice "
     "are retained. The software is provided without warranty."
 )
 _GENERIC_DECLARED_PROSE = (
     "This project is licensed under the {spdx}, as declared in `{manifest}`; no license file is "
-    "present at this revision."
+    "present in the repository."
 )
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
@@ -1109,13 +1118,31 @@ def _installation(context: RenderContext) -> list[str]:
     distributions = _published_distributions(context) if not _registry_install(install) else []
     if distributions and install is not None and install.polarity == "SUPPORTED" and source_kind:
         lines.append(_published_sentence(distributions))
-        lines.extend(
-            ["", "To build it from a source checkout instead, verified against this revision:"]
-        )
+        lines.extend(["", "To build it from a source checkout instead:"])
         lines.append("")
         lines.extend(_code_block("bash", install.value))
     elif distributions:
         lines.append(_published_sentence(distributions))
+    elif (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and checkout_kind
+        and (install.attributes or {}).get(SOURCE_BASIS_ATTRIBUTE) == DOCUMENTED_SOURCE_BASIS
+        and package is not None
+    ):
+        # An unpublished package whose build this revision did not measure (BC-02, wave 6): the
+        # registry reads "not found" and the maintainers' README says the same, so the page says
+        # so plainly and gives the repository's own documented build. Nothing here claims the
+        # command was run - it is what the repository's CI or toolchain names - and no registry
+        # command is printed, because the registry says there is nothing to install.
+        lines.append(
+            f"`{package.value}` is not published on {context.spec.registry} yet; to use it, build "
+            "it from a source checkout:"
+            if context.spec.manifest_names_distribution
+            else f"Build `{package.value}` from a source checkout:"
+        )
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
     elif (
         install is not None
         and install.polarity == "SUPPORTED"
@@ -1125,8 +1152,7 @@ def _installation(context: RenderContext) -> list[str]:
         registry = context.spec.registry
         lines.append(
             f"`{package.value}` is not yet published on {registry}, and no build or install "
-            "command succeeds for this revision; work from the source checkout instead, "
-            "verified against this revision:"
+            "command succeeds; work from the source checkout instead:"
         )
         lines.append("")
         lines.extend(_code_block("bash", install.value))
@@ -1141,9 +1167,9 @@ def _installation(context: RenderContext) -> list[str]:
         # no distribution (a CMake project) has none, so the row says only how to build it.
         lead = (
             f"`{package.value}` is not yet published on {registry}; build it from a source "
-            "checkout instead, verified against this revision:"
+            "checkout instead:"
             if context.spec.manifest_names_distribution
-            else f"Build `{package.value}` from a source checkout, verified against this revision:"
+            else f"Build `{package.value}` from a source checkout:"
         )
         lines.append(lead)
         lines.append("")
@@ -1166,7 +1192,7 @@ def _installation(context: RenderContext) -> list[str]:
         state = (
             f"is not yet published on {registry}"
             if install.polarity == "CONTRADICTED"
-            else f"could not be confirmed on {registry} at this revision"
+            else f"could not be confirmed on {registry}"
         )
         lines.append(f"The package `{package.value}` {state} ({detail}).")
     executed = context.supported("example")

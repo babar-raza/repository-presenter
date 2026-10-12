@@ -801,7 +801,7 @@ def test_a_renderer_owned_contradicted_link_is_excluded_from_the_fold() -> None:
     ) == {BANNER_FACT_ID}
 
 
-def test_a_colon_ending_units_promise_is_deferred_when_its_neighbor_code_block_is_dropped() -> None:
+def test_a_colon_ending_units_promise_is_omitted_when_its_neighbor_code_block_is_omitted() -> None:
     """BC-10 coherence-gap, aspose-slides-foss/Aspose.Slides-FOSS-for-.NET (docs/DECISION_LOG.md
     2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC): inherited_unit:033.paragraph
     ("Three namespaces cover every sample on this page, and each sample below assumes all
@@ -809,7 +809,9 @@ def test_a_colon_ending_units_promise_is_deferred_when_its_neighbor_code_block_i
     promises) fell to OMIT_UNSUPPORTED - each independently correct on its own narrow grounds,
     but the preserved sentence then survived alone, promising content the candidate never
     delivers. Reproduced here with the exact unit shape (a colon-ending paragraph immediately
-    followed, in document order, by the code block it introduces)."""
+    followed, in document order, by the code block it introduces). The sentence leaves with the
+    block it introduced: omitted, not deferred, because BC-05 v7 blocks a deferred lead-in beside
+    an omitted block (wave 6: ``test_s4_coordination.py``)."""
     facts = FactsDocument(
         ENTRY.repository,
         "a" * 40,
@@ -833,8 +835,9 @@ def test_a_colon_ending_units_promise_is_deferred_when_its_neighbor_code_block_i
     result = coordinate_neighbor_promises(dispositions, facts)
     assert result is dispositions
     folded = {entry["unit_id"]: entry for entry in dispositions["dispositions"]}
-    assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "OMIT_UNSUPPORTED"
     assert folded["inherited_unit:033.paragraph"]["destination_section"] is None
+    assert folded["inherited_unit:033.paragraph"]["fact_ids"] == ["inherited_unit:034.code_block"]
     # The dropped neighbor itself is untouched - this fold only ever revisits the *promising*
     # unit, never the one already correctly disposed on its own narrow grounds.
     assert folded["inherited_unit:034.code_block"]["disposition"] == "OMIT_UNSUPPORTED"
@@ -883,7 +886,7 @@ def test_the_defect_survives_per_batch_checks_until_the_merged_document_is_coord
     merged = merge_dispositions([batch_1, batch_2])
     coordinate_neighbor_promises(merged, facts)
     folded = {entry["unit_id"]: entry for entry in merged["dispositions"]}
-    assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+    assert folded["inherited_unit:033.paragraph"]["disposition"] == "OMIT_UNSUPPORTED"
     assert folded["inherited_unit:034.code_block"]["disposition"] == "OMIT_UNSUPPORTED"
 
 
@@ -1816,7 +1819,8 @@ def test_a_limitations_lead_in_is_carried_by_its_list_never_authored_alone() -> 
 
 
 def test_a_lead_in_before_a_dropped_list_is_withheld_with_it() -> None:
-    """The payload may be a list: unsupported, both go (not only a dropped code block)."""
+    """The payload may be a list: both go (not only a dropped code block), by the payload's own
+    word: an omitted list takes its lead-in with it, a deferred one is held with it."""
     facts = _lead_in_facts(
         _fact("inherited_unit:033.paragraph", "inherited_unit", SLIDES_LEAD_IN),
         _fact("inherited_unit:034.list", "inherited_unit", SLIDES_LIST),
@@ -1830,7 +1834,7 @@ def test_a_lead_in_before_a_dropped_list_is_withheld_with_it() -> None:
         }
         coordinate_neighbor_promises(dispositions, facts)
         folded = _by_unit(dispositions)
-        assert folded["inherited_unit:033.paragraph"]["disposition"] == "DEFER_UNRESOLVED"
+        assert folded["inherited_unit:033.paragraph"]["disposition"] == dropped
         assert folded["inherited_unit:033.paragraph"]["destination_section"] is None
         assert folded["inherited_unit:034.list"]["disposition"] == dropped
 

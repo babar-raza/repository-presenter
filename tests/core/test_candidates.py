@@ -569,6 +569,65 @@ def test_a_rejection_converted_with_a_recorded_deterministic_refutation_is_propo
     assert candidate.revision == REVISION
 
 
+DEMOTED = {"rule": "RENDERER_OWNED_SECTION", "section": "installation", "stage": "S6"}
+
+
+def _demoted_review(**overrides: Any) -> dict[str, Any]:
+    """A reviewer REJECT whose every finding named a composition stage for text the renderer owns:
+    demoted, not refuted, so the honesty record says so (``rejection_findings_demoted``)."""
+    return {
+        **HONEST_REVIEW,
+        "verdict_as_returned": "REJECT",
+        "verdict_basis": "rejection_findings_demoted",
+        "advisory": [{"section_id": "installation", "demoted": DEMOTED}],
+        **overrides,
+    }
+
+
+def test_a_rejection_whose_findings_were_all_demoted_is_proposable(tmp_path: Path) -> None:
+    review = _demoted_review()
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=review)
+    candidate = load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
+    assert candidate.revision == REVISION
+
+
+def test_a_rejection_resting_on_refuted_and_demoted_findings_is_proposable(tmp_path: Path) -> None:
+    review = _converted_review(
+        advisory=[
+            {"section_id": "usage", "refuted_by": REFUTED},
+            {"section_id": "installation", "demoted": DEMOTED},
+        ]
+    )
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=review)
+    assert load_proposable_candidate(tmp_path, PROPOSABLE, acceptance=accepting_acceptance)
+
+
+@pytest.mark.parametrize(
+    "review",
+    [
+        # a demotion basis with a finding that records neither a refutation nor a demotion
+        _demoted_review(
+            advisory=[
+                {"section_id": "installation", "demoted": DEMOTED},
+                {"section_id": "usage", "unrepairable": "names no section"},
+            ]
+        ),
+        # an empty demotion record is no record
+        _demoted_review(advisory=[{"section_id": "installation", "demoted": {}}]),
+        # a demotion basis resting on no finding at all
+        _demoted_review(advisory=[]),
+        # a demotion recorded under a basis that does not name it
+        _demoted_review(verdict_basis="rejection_stands"),
+    ],
+    ids=["partly-unrecorded", "empty-record", "no-findings", "wrong-basis"],
+)
+def test_a_demoted_rejection_without_a_recorded_demotion_is_refused(
+    tmp_path: Path, review: dict[str, Any]
+) -> None:
+    write_proposable_bundle(tmp_path, PROPOSABLE, REVISION, "# Cells\n", review=review)
+    assert _refusal_code(tmp_path) is Refusal.REVIEW_REJECTION_OVERRIDDEN
+
+
 def test_a_review_that_predates_the_honesty_record_is_refused_under_its_own_code(
     tmp_path: Path,
 ) -> None:

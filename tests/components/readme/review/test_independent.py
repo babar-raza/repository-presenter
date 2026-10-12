@@ -2395,10 +2395,11 @@ def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_review
     )
     # TC-REV-01: the renderer owns the WORDING of a deterministic section, which refutes a
     # presentation finding against it but not a factuality one - a wrong version rendered from a
-    # wrong fact is still wrong. The rejection stands, the match is recorded, and the reason text
-    # is unchanged.
+    # wrong fact is still wrong. A finding that names the stage that owns a wrong fact (S2) still
+    # stands, the match is recorded, and the reason text is unchanged.
+    wrong_fact = {**rendered_fact, "causal_stage": "S2"}
     document = review_document(
-        {"verdict": "REJECT_FACTUAL", "findings": [rendered_fact], "preserve": []},
+        {"verdict": "REJECT_FACTUAL", "findings": [wrong_fact], "preserve": []},
         REVIEWER,
         AUTHORING,
         "d" * 64,
@@ -2409,6 +2410,23 @@ def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_review
     (standing,) = document["findings"]
     assert standing["unrefuted_scope_rules"][0]["rule"] == "RENDERER_SECTION_FACTUAL"
     assert standing["unrefuted_scope_rules"][0]["reason"] == dependencies
+    # The same finding blaming S6 for a block no content unit writes names no stage the repair
+    # loop can act on (AGENTS.md "Make reviewer findings repairable"): it is demoted, with the
+    # judgment match kept beside the demotion, and is not called refuted.
+    blamed = review_document(
+        {"verdict": "REJECT_FACTUAL", "findings": [rendered_fact], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=candidate,
+        facts=facts,
+    )
+    assert blamed["findings"] == [] and blamed["verdict_as_returned"] == "REJECT_FACTUAL"
+    (demoted,) = blamed["advisory"]
+    assert demoted["demoted"]["rule"] == "RENDERER_OWNED_SECTION"
+    assert (demoted["demoted"]["section"], demoted["demoted"]["stage"]) == ("dependencies", "S6")
+    assert "refuted_by" not in demoted and "reviewer_scope_defect" not in demoted
+    assert demoted["unrefuted_scope_rules"][0]["rule"] == "RENDERER_SECTION_FACTUAL"
     presentation = {**rendered_fact, "criterion": "presentation"}
     refuted = review_document(
         {"verdict": "REJECT_PRESENTATION", "findings": [presentation], "preserve": []},
@@ -3573,7 +3591,12 @@ def test_a_quote_carrying_only_a_cited_name_is_still_a_judgment_that_stands() ->
     facts = _words_facts()
     quote = "Install the published package from NuGet (`Aspose.Words.FOSS`):"
     candidate = f"# Aspose.Words FOSS for .NET\n\n## Installation\n\n{quote}\n"
-    finding = _words_f01(["package:name", "package:published_version"], quote)
+    # Staged S2, the stage that owns a wrong fact: a mis-staged S6 on this renderer-owned block is
+    # demoted instead (tests/components/readme/review/test_unrepairable_demotion.py).
+    finding = {
+        **_words_f01(["package:name", "package:published_version"], quote),
+        "causal_stage": "S2",
+    }
     standing = _reject(finding, facts, candidate)
     assert standing["verdict"] == "REJECT_FACTUAL"
     assert standing["verdict_basis"] == "rejection_stands"

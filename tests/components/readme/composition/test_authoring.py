@@ -47,6 +47,7 @@ from repository_presenter.components.readme.composition.authoring import (
     recover_title_verbatim_opening,
     repair_title_verbatim_opening_errors,
     restates_own_title,
+    restore_case_variants,
     section_selections,
     section_spellings,
     slash_alternatives,
@@ -4681,3 +4682,200 @@ def test_a_title_is_restated_by_its_words_not_by_its_letters() -> None:
     assert not restates_own_title("It supports email submissions through the API.", title, FACTS)
     assert restates_own_title("It supports email submission.", title, FACTS)
     assert restates_own_title("Email submission works.", title, FACTS)
+
+
+# ---- wave 6: the stray-identifier gate's residual cases, from the archived rejections -----------
+
+_WAVE6 = Path(__file__).parent / "fixtures"
+
+
+def _archived(name: str) -> tuple[FactsDocument, dict[str, Any]]:
+    from repository_presenter.core.facts import read_facts
+
+    facts = read_facts(_WAVE6 / f"{name}.facts.json")
+    unit = json.loads((_WAVE6 / f"{name}.unit.json").read_text(encoding="utf-8"))["unit"]
+    return facts, unit
+
+
+def _identifier_errors(errors: list[str]) -> list[str]:
+    return [error for error in errors if "not accepted fact values" in error]
+
+
+SLIDES_NET = "Aspose.Slides FOSS for .NET"
+
+
+def _slides_net_task(facts: FactsDocument) -> SectionTask:
+    ids, slots = section_selections("development_testing", {}, {}, {}, facts)
+    return SectionTask("development_testing", {}, frozenset(ids), slots)
+
+
+def test_a_word_of_a_recorded_command_is_spellable() -> None:
+    """Slides-.NET (wave 6, three attempts): `build_test_asset:test-command` is `dotnet test
+    Aspose.Slides.Foss.sln`, the solution file is a word of an accepted fact value, and the
+    summary that named it was refused as "not an accepted fact value"."""
+    facts, unit = _archived("wave6_slides_net")
+    errors = unit_checks(
+        {"units": [unit], "omitted": []}, _slides_net_task(facts), facts, SLIDES_NET
+    )
+    assert _identifier_errors(errors) == []
+    assert "Aspose.Slides.Foss.sln" in allowed_identifiers(facts, SLIDES_NET)
+
+
+def test_only_the_words_of_a_command_fact_are_spellable_and_never_the_product() -> None:
+    """Negative controls: a solution file no command names, a directory the facts record but no
+    command runs, a flag, a URL and the clone line's directory (a spelling of the product) stay
+    refused."""
+    facts, unit = _archived("wave6_slides_net")
+    allowed = allowed_identifiers(facts, SLIDES_NET)
+    assert "Aspose.Slides.Foss.Other.sln" not in allowed
+    assert not {"--no-build", "https://github.com"} & allowed
+    clone = Fact(
+        "install_command:pip",
+        "install_command",
+        "git clone https://github.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python.git\n"
+        "cd Aspose.TeX-FOSS-for-Python\npip install .",
+        (Evidence("x"),),
+        attributes={"install_kind": "source"},
+    )
+    names = allowed_identifiers(
+        FactsDocument("o/r", "a" * 40, (clone,)), "Aspose.TeX FOSS for Python"
+    )
+    assert "Aspose.TeX-FOSS-for-Python" not in names
+    refused = dict(unit, text="It builds with dotnet test Aspose.Slides.Foss.Other.sln.")
+    errors = unit_checks(
+        {"units": [refused], "omitted": []}, _slides_net_task(facts), facts, SLIDES_NET
+    )
+    assert any("Aspose.Slides.Foss.Other.sln" in error for error in _identifier_errors(errors))
+
+
+def test_a_case_variant_of_an_accepted_spelling_is_restored_not_refused() -> None:
+    """PSD-Python (wave 5): the model copied the lower-cased fact ID slug, `layerblendingrangesdata
+    .length` and `psdimagewriter.save`, for the accepted `LayerBlendingRangesData.length` and
+    `PsdImageWriter.save`. The same name; the code writes the accepted spelling."""
+    facts, unit = _archived("wave5_psd_python")
+    assert "layerblendingrangesdata.length" in unit["text"]
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset(unit["fact_ids"]),
+        ("limitation:2",),
+        slot_facts={"limitation:2": frozenset(unit["fact_ids"])},
+    )
+    output = {"units": [dict(unit)], "omitted": []}
+    errors = unit_checks(output, task, facts, "Aspose.PSD FOSS for Python")
+    assert _identifier_errors(errors) == []
+    restored = output["units"][0]["text"]
+    assert "LayerBlendingRangesData.length" in restored
+    assert "layerblendingrangesdata.length" not in restored
+    # nothing else of the sentence changed
+    assert (
+        restored.replace("LayerBlendingRangesData.length", "layerblendingrangesdata.length")
+        == (unit["text"])
+    )
+
+
+def test_a_stray_that_differs_by_more_than_case_or_is_ambiguous_is_still_refused() -> None:
+    text = "Use layerblendingrangesdata.lenght and Foo.bar here."
+    pool = {"LayerBlendingRangesData.length", "Foo.bar", "FOO.bar"}
+    assert restore_case_variants(text, ["layerblendingrangesdata.lenght"], pool) == text
+    assert restore_case_variants("See foo.bar.", ["foo.bar"], pool) == "See foo.bar."  # two match
+    assert restore_case_variants("See foo.baz().", ["foo.baz()"], {"Foo.baz"}) == "See Foo.baz()."
+
+
+def test_a_file_name_differing_in_case_is_never_restored() -> None:
+    """A file named in another case is another file (G7-W23): only identifiers are restored."""
+    pool = {"CONTRIBUTING.md", "LayerBlendingRangesData.length"}
+    text = "Read contributing.md and layerblendingrangesdata.length."
+    restored = restore_case_variants(
+        text, ["contributing.md", "layerblendingrangesdata.length"], pool
+    )
+    assert restored == "Read contributing.md and LayerBlendingRangesData.length."
+
+
+# ---- a unit a kept unit already carries is not owed again (wave-6 cause 4) --------------------
+#
+# Slides-Python, wave 6: reconciliation superseded the API Reference's enum bullet "`SaveFormat`:
+# Pptx, Pptm, ... plus additional values declared but not currently exportable" into
+# scope_limitations, and kept the README's own limitation list (which spells exactly those six
+# formats and the refusal) as written in the same section. The must-carry gate then made the
+# authored scope units restate the bullet, and the section printed the save-format limitation twice.
+
+_SAVE_FORMAT_BULLET = (
+    "- `SaveFormat`: `Pptx`, `Pptm`, `Ppsx`, `Ppsm`, `Potx`, `Potm`, plus additional values "
+    "declared "
+    "but\n  not currently exportable (see [Scope and Limitations](#scope-and-limitations))"
+)
+_KEPT_LIMITATIONS = (
+    "- Reading is limited to `.pptx`; `SaveFormat` declares additional values (`Ppt`, `Pdf`, "
+    "`Xps`,\n  `Tiff`, `Odp`, `Html`, `Swf`, `Otp`, and more), and only two save paths actually "
+    "write output:\n  the OOXML presentation family - `Pptx`, `Pptm`, `Ppsx`, `Ppsm`, `Potx`, "
+    "`Potm` "
+    "- through a\n  registered exporter, and `SaveFormat.MD` through a separate Markdown export "
+    "path; every other\n  `SaveFormat` value raises `ValueError` at save time, naming the formats "
+    "that do work.\n- VBA macros and digital signatures are not yet implemented."
+)
+
+
+def _kept_disposition(unit_id: str, section: str) -> dict[str, Any]:
+    return {
+        "unit_id": unit_id,
+        "disposition": "VERIFIED_PRESERVE",
+        "destination_section": section,
+        "fact_ids": [],
+        "rationale": "r",
+    }
+
+
+def test_a_superseded_unit_a_kept_unit_in_the_same_section_already_states_is_not_owed() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:109.001.list", "inherited_unit", _SAVE_FORMAT_BULLET),
+            _fact("inherited_unit:115.list", "inherited_unit", _KEPT_LIMITATIONS),
+            _fact(
+                "inherited_unit:116.list", "inherited_unit", "- A limitation nobody else states."
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:115.list", "scope_limitations"),
+            _scope_disposition("inherited_unit:116.list"),
+        ]
+    }
+    # the kept list prints verbatim and carries the save formats; only the unit nothing else states
+    # is still owed to the authored units
+    assert carried_units(dispositions, "scope_limitations", facts) == ["inherited_unit:116.list"]
+
+
+def test_a_kept_unit_in_another_section_does_not_discharge_the_obligation() -> None:
+    """Negative control: the kept list prints in Documentation and Resources, not in the section
+    the unit was superseded into, so scope_limitations still owes the unit; and a kept unit that
+    says something else does not discharge it either."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:109.001.list", "inherited_unit", _SAVE_FORMAT_BULLET),
+            _fact("inherited_unit:115.list", "inherited_unit", _KEPT_LIMITATIONS),
+            _fact("inherited_unit:117.list", "inherited_unit", "- Comment threads are classic."),
+        ),
+    )
+    elsewhere = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:115.list", "documentation_resources"),
+        ]
+    }
+    assert carried_units(elsewhere, "scope_limitations", facts) == ["inherited_unit:109.001.list"]
+    unrelated = {
+        "dispositions": [
+            _scope_disposition("inherited_unit:109.001.list"),
+            _kept_disposition("inherited_unit:117.list", "scope_limitations"),
+        ]
+    }
+    assert carried_units(unrelated, "scope_limitations", facts) == ["inherited_unit:109.001.list"]

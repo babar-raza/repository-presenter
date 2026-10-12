@@ -221,7 +221,7 @@ def test_a_not_published_sentence_about_something_else_is_left_alone() -> None:
 # --- the check as the validator runs it -------------------------------------------------------
 def test_bc14_is_a_registered_blocking_check_judged_at_s9() -> None:
     check = next(c for c in BLOCKING_CHECKS if c.id == "BC-14")
-    assert (check.version, check.judged_at) == ("3", "S9")
+    assert (check.version, check.judged_at) == ("4", "S9")
 
 
 def test_the_registry_judge_routes_each_finding_to_its_section_and_stage() -> None:
@@ -427,3 +427,143 @@ def test_the_license_rule_is_silent_without_a_supported_license_fact_or_inside_a
 def test_a_sentence_about_a_dependencys_or_fonts_license_is_not_the_projects_statement() -> None:
     readme = "The optional PDF dependency is distributed under the BSD 3-Clause license.\n"
     assert claim_findings(readme, _facts(*LICENSE_FACTS)) == []
+
+
+# --- wave 6 (cut 5): three gate false positives, each with its true-positive control ------------
+# BC-14 v3 read three correct sentences of kept inherited text as defects. Each fixture below is
+# the live README's own text (G:\rp-w6 transaction archives); each control is the original defect
+# shape the rule exists for and must still fail.
+NET_3D = (
+    _fact("package:name", "package", "Aspose.3D.FOSS"),
+    _fact("package:version", "package", "26.1.0"),
+    _fact("package:published_version", "package", "26.1.0", "current stable release"),
+)
+CONVERTER_PARAGRAPH = (
+    "## Development and Testing\n\n"
+    "The repository also contains a separate console conversion tool\n"
+    "(`src/converter/Converter.csproj`, package id `Aspose.3D.Converter`) that references the "
+    "library\nas a project; it is not published to NuGet.\n"
+)
+
+
+def test_a_wrapped_not_published_sentence_about_another_named_package_is_not_the_librarys() -> None:
+    """3D-.NET: the subject of "it is not published to NuGet" is the converter tool two lines
+    up, a package id the registry reading does not cover - no fact contradicts the sentence."""
+    assert claim_findings(CONVERTER_PARAGRAPH, _facts(*NET_3D)) == []
+
+
+@pytest.mark.parametrize(
+    "readme",
+    [
+        "The `Aspose.3D.FOSS` package is not published to NuGet.\n",
+        "The Aspose.3D.FOSS package\nis not yet published on NuGet.\n",
+        "The package is not published to NuGet.\n",
+        # The converter is named, but so is the library: the sentence still denies the library.
+        "The converter `Aspose.3D.Converter` and the library `Aspose.3D.FOSS` are not published "
+        "to NuGet.\n",
+        # A new bullet is a new sentence: the earlier bullet's code span does not excuse it.
+        "- the tool `Aspose.3D.Converter` ships here\n- the library is not published to NuGet\n",
+    ],
+)
+def test_the_librarys_own_publication_denial_still_fails_across_wrapping(readme: str) -> None:
+    [finding] = claim_findings(readme, _facts(*NET_3D))
+    assert "not published" in finding.detail and finding.stage == "COMPOSING"
+
+
+def test_a_wrapped_denial_is_reported_on_the_line_that_says_it() -> None:
+    readme = "Intro line.\n\nThe Aspose.3D.FOSS package\nis not yet published on NuGet.\n"
+    [finding] = claim_findings(readme, _facts(*NET_3D))
+    assert finding.line == 3
+
+
+GO_MODULE = "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+CELLS_GO = (
+    _fact("package:name", "package", GO_MODULE),
+    _fact("package:published_version", "package", "v26.7.1", "current stable release"),
+    _fact(
+        "import_path:cells-foss",
+        "import_path",
+        f"{GO_MODULE}/aspose/cells_foss",
+    ),
+)
+
+
+def _go_get(target: str) -> str:
+    return f"## Quick Start\n\n```bash\ngo get {target}\n```\n"
+
+
+def test_go_get_of_a_package_inside_the_module_is_the_modules_own_path() -> None:
+    """Cells-Go: the README's own import line names `.../v26/aspose/cells_foss`, a package of the
+    module `.../v26`; `go get` of it is correct and is not a near-miss of the module path."""
+    assert claim_findings(_go_get(f"{GO_MODULE}/aspose/cells_foss"), _facts(*CELLS_GO)) == []
+    assert claim_findings(_go_get(GO_MODULE), _facts(*CELLS_GO)) == []
+    # A subpackage path of the module needs no import_path fact: the module owns the prefix.
+    assert claim_findings(_go_get(f"{GO_MODULE}/aspose/other"), _facts(CELLS_GO[0])) == []
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go",  # the module minus its /v26
+        f"{GO_MODULE}-fork",
+        f"{GO_MODULE}x/aspose/cells_foss",
+        "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26fork/aspose/cells_foss",
+    ],
+)
+def test_a_go_target_that_is_not_below_the_module_path_is_still_a_near_miss(target: str) -> None:
+    [finding] = claim_findings(_go_get(target), _facts(*CELLS_GO))
+    assert target in finding.detail and GO_MODULE in finding.detail
+
+
+CMAKE_FACTS = (
+    _fact("package:name", "package", "AsposeSlidesFoss"),
+    _fact("package:version", "package", "26.9.0"),
+)
+CMAKE_REQUEST = (
+    "Version compatibility is `SameMinorVersion`. The version is CalVer.\n"
+    "`find_package(AsposeSlidesFoss 26.9 CONFIG REQUIRED)` accepts any `26.9.x` and rejects "
+    "`26.10`,\nwhich is the only promise a monthly release train can keep.\n\n"
+    "```cmake\nfind_package(AsposeSlidesFoss 26.9 CONFIG REQUIRED)\n"
+    "find_package(AsposeSlidesFoss 26.5 CONFIG)\nfind_package(AsposeSlidesFoss 26.9.0 EXACT)\n"
+    "find_package(AsposeSlidesFoss 26.9 EXACT CONFIG REQUIRED)\n```\n"
+)
+
+
+def test_a_cmake_version_request_the_release_satisfies_is_not_a_shown_release() -> None:
+    """Slides-Cpp: `find_package(Name 26.9 ...)` asks for a compatible version; the release
+    26.9.0 satisfies it (a request is a floor or a prefix), so it states no wrong release."""
+    assert claim_findings(CMAKE_REQUEST, _facts(*CMAKE_FACTS)) == []
+
+
+@pytest.mark.parametrize(
+    ("call", "reason"),
+    [
+        ("find_package(AsposeSlidesFoss 25.1 CONFIG REQUIRED)", "25.1"),  # an older year
+        ("find_package(AsposeSlidesFoss 26.10 CONFIG REQUIRED)", "26.10"),  # newer than the release
+        ("find_package(AsposeSlidesFoss 26.9.1 CONFIG REQUIRED)", "26.9.1"),
+        ("find_package(AsposeSlidesFoss 26.8 EXACT CONFIG REQUIRED)", "26.8"),
+        ("find_package(AsposeSlidesFoss 26.9.1 EXACT)", "26.9.1"),
+    ],
+)
+def test_a_cmake_request_no_release_can_satisfy_is_still_a_stale_version(
+    call: str, reason: str
+) -> None:
+    [finding] = claim_findings(f"```cmake\n{call}\n```\n", _facts(*CMAKE_FACTS))
+    assert reason in finding.detail and "26.9.0" in finding.detail
+
+
+def test_a_stale_version_in_prose_beside_a_cmake_request_is_still_flagged() -> None:
+    readme = CMAKE_REQUEST + "\nInstall AsposeSlidesFoss 25.1 from the registry.\n"
+    [finding] = claim_findings(readme, _facts(*CMAKE_FACTS))
+    assert "25.1" in finding.detail
+
+
+def test_an_import_path_fact_excuses_only_a_go_module_never_a_python_import_name() -> None:
+    """Negative control: `pip install aspose.pdf` names the import package, not the distribution
+    `aspose-pdf-foss`; an `import_path` fact for it must not turn that near-miss into a pass."""
+    facts = _facts(
+        _fact("package:name", "package", "aspose-pdf-foss"),
+        _fact("import_path:aspose.pdf", "import_path", "aspose.pdf"),
+    )
+    [finding] = claim_findings("```bash\npip install aspose.pdf\n```\n", facts)
+    assert "aspose.pdf" in finding.detail and "aspose-pdf-foss" in finding.detail

@@ -81,6 +81,11 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.components.readme.evidence.facts.unpublished import (
+    DOCUMENTED_BUILD_PHRASE,
+    README_STATEMENT_PHRASE,
+    documented_steps,
+)
 from repository_presenter.components.readme.validation.claims import claim_findings, claim_notes
 from repository_presenter.components.readme.validation.deferrals import review_deferrals
 from repository_presenter.components.readme.validation.links.rules import (
@@ -91,9 +96,20 @@ from repository_presenter.components.readme.validation.links.rules import (
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import collapse_blank_runs, printed_example
 from repository_presenter.core.facts import (
+    DOCUMENTED_COMMAND_ATTRIBUTE,
+    DOCUMENTED_SOURCE_BASIS,
+    NOT_PUBLISHED,
+    REGISTRY_COMMAND_ATTRIBUTE,
+    REGISTRY_STATE_ATTRIBUTE,
+    SOURCE_BASIS_ATTRIBUTE,
     SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE,
     Fact,
     FactsDocument,
+)
+from repository_presenter.core.package_registry import (
+    DISTRIBUTION_FACT_PREFIX,
+    RETRYABLE_READINGS,
+    fact_registry_reading,
 )
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -177,7 +193,13 @@ VALIDATION_FILENAME = "validation.json"
 # heads a longer dotted or scoped identifier as an identifier, BC-14 counts a registry-confirmed
 # distribution as a positive reading (each Check version moves by one). A bundle sealed under 21
 # re-checks under 22 and shows as pending.
-VALIDATOR_VERSION = "22"
+# 23: wave 6 (G3-W08, cut 6): BC-02 states an unpublished package as a documented source checkout
+# and refuses its registry install, BC-04 spells the words of a recorded command, BC-05 takes a
+# deferred badge row as the shell's and reads a dropped list against the sections that state it,
+# BC-07 counts "this revision" as narration, BC-10 does not count a demoted finding as owed repair
+# work, BC-12 keeps the dot of Aspose.<Family>, BC-14 judges kept text by the facts' own rules
+# (each of these Check versions moves by one). A bundle sealed under 22 re-checks under 23.
+VALIDATOR_VERSION = "23"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
@@ -247,7 +269,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # 4 (Imaging-FOSS for .NET and GIS, 2026-10-04): a SUPPORTED registry-kind install whose
         # own registry reading found no distribution is refused - the unverified dotnet command a
         # 404 contradicts can never ship, whatever its wording.
-        "5",
+        # 6 (wave 6): a documented source checkout of an unpublished package is held to the three
+        # records that admit it, the refusal names its class (RETRY_REGISTRY_READ, PACKAGE_ABSENT,
+        # NO_REGISTRY), and a README printing the registry install of such a package is refused.
+        "6",
         "Install command verified against the manifest and the package-registry observation, "
         "against the source-build receipt naming exactly the steps it proved, or - when no "
         "build/install command ever succeeds - against a source-checkout receipt",
@@ -268,7 +293,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # fact's own literal value, example identifier, or command-fence token.
         # 3 (G7-W15): a must-carry unit the section's authoring recorded as omitted with a reason
         # is dispositioned (units document `omitted`), exactly as the authoring call judged it.
-        "5",
+        # 6 (wave 6): the words of a recorded install/build/test command are spellable, and a
+        # stray identifier differing from one accepted spelling only in case is restored to it.
+        "6",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -289,7 +316,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # section cannot carry it (dispositions.RECOVERED_COVERAGE_RATIONALE) is an ADVISORY class.
         # "5" (CUT-2, G3-W08/G7-W12): "unsupported"/"uncertain" attestations and a unit from the
         # examples section the plan excludes are classified ADVISORY; see VALIDATOR_VERSION 20.
-        "7",
+        # "8" (wave 6): a deferred badge or banner row is the shell's (ADVISORY), and a dropped
+        # list is read against the sections that state it for the destination (Placement.read_with).
+        "8",
         "Every material inherited unit has exactly one disposition; placed units appear in their "
         "destination",
         ("all",),
@@ -374,7 +403,8 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # badge-specific link_target fact in its evidence at all needs no badge row, since no
         # badge slot could ever render from it. Any badge-worthy fact present and still no
         # rendered row is unchanged: that is a real composition defect.
-        "11",
+        # "12" (wave 6): "at/for/against/on this revision" is internal narration.
+        "12",
         "Exactly one factual H1; one badge row in the stable order, each badge supported by a "
         "verified fact; title-case headings of every level; canonical abbreviations in prose and "
         "headings; At a Glance topology, column rules and label geometry; fence languages and "
@@ -402,7 +432,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # pre-sprint seals judged under "3" show as stale on this delta by design.
         # "5" (OWNER-15): an ACCEPT whose typed second-reader trigger did not fire needs no second
         # read, and is recorded as such; a triggered ACCEPT with no completed second read fails.
-        "5",
+        # "6" (wave 6): a finding demoted for blaming a stage for renderer-owned text is no
+        # deferred repair work (review.py unrepairable_demotion), so it does not block a row.
+        "6",
         "Independent review returns ACCEPT corroborated by a second independent read when the "
         "typed second-reader trigger fires (an untriggered clean ACCEPT needs none), under a "
         "reviewer identity separate from authoring, with no unrefuted advisory left on a "
@@ -421,7 +453,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-12",
-        "2",
+        # 3 (wave 6): the canonical name keeps the dot of Aspose.<Family> when the registry spells
+        # the family after a hyphen (Aspose-PDF-FOSS-for-Python), so "Aspose PDF FOSS" now fails.
+        "3",
         "Every product-name position in the prose spells the registry's canonical product name "
         "exactly; no separator, case, or suffix variant of it (plans/idea.md L84-85)",
         ("all",),
@@ -429,7 +463,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-14",
-        "3",
+        # 4 (wave 6): a "not published" sentence is read whole and judged only when it is about
+        # this package, a Go install target below the module path is its own, and find_package
+        # (Name V [EXACT]) is judged as the request CMake accepts, not as a shown release.
+        "4",
         "A package version, install command, or publication statement in the README equals what "
         "the facts say: the registry's current release (or the manifest's version without that "
         "reading), the package identity fact, and the install command's registry observation",
@@ -572,6 +609,10 @@ _NARRATION = (
     "registry receipt",
     "evidence collector",
     "validation status",
+    # Wave 6, U-NARRATION: "verified against this revision" in the renderer's own Installation
+    # sentence, "no license file is present at this revision" in its License one. The snapshot the
+    # pipeline checked is its vocabulary, never a visitor's (plans/idea.md: source revisions).
+    "this revision",
 )
 # How plans/idea.md spells the evidence vocabulary it lists: a plural, a hyphen for a space
 # ("isolated-build conditions"), and "policies". A bare word-bounded phrase read none of "provider
@@ -587,6 +628,7 @@ _NARRATION_FORMS = {
     "registry receipt": r"registry[ -]receipts?",
     "evidence collector": r"evidence[ -]collectors?",
     "validation status": r"validation[ -]status",
+    "this revision": r"(?:at|for|against|on)\s+this\s+revision",
 }
 # "real, verified" (external review, 2026-09-07): measured twice, verbatim, in a sealed
 # candidate's Additional Examples lead-in ("More real, verified snippets are collected below") -
@@ -864,8 +906,10 @@ def _check_install(candidate: Candidate) -> list[Failure]:
         # attribute directly rather than by a phrase it must never claim.
         checkout_kind = (fact.attributes or {}).get("install_kind") == "source_checkout"
         if fact.polarity != "SUPPORTED":
-            last = fact.evidence[-1].detail or "" if fact.evidence else ""
-            failures.append(Failure("EXTRACTING", f"{fact.id} is {fact.polarity}: {last}"))
+            if not _stated_by_distribution(candidate, fact):
+                failures.append(Failure("EXTRACTING", _unestablished_install(fact)))
+        elif problems := _documented_source_failures(candidate, fact):
+            failures.extend(problems)
         elif (fact.attributes or {}).get("install_kind") not in _SOURCE_KINDS and (
             "distribution not found" in details
         ):
@@ -913,7 +957,188 @@ def _check_install(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("COMPOSING", f"the Installation section does not render {fact.value!r}")
             )
+    failures.extend(_registry_command_failures(candidate))
     failures.extend(_check_source_checkout(candidate))
+    return failures
+
+
+def _stated_by_distribution(candidate: Candidate, fact: Fact) -> bool:
+    """Whether a registry-less install nothing proved is simply not what the README claims.
+
+    A C++ library has no registry, so its CMake source build stays UNRESOLVED unless a build
+    exited 0 (wave 6, Aspose.PDF for C++: the upstream CMake configure fails on this runner). When
+    a registry confirmed the NuGet package the repository's own README names
+    (``package:distribution.*``) the Installation row states that distribution, prints no command,
+    and the UNRESOLVED fact is not a claim anyone reads. It is a claim the moment the README
+    prints its command, and that is refused as before.
+    """
+    distributions = [
+        f.value
+        for f in candidate.facts.facts
+        if f.id.startswith(DISTRIBUTION_FACT_PREFIX) and f.polarity == "SUPPORTED"
+    ]
+    return (
+        fact.polarity == "UNRESOLVED"
+        and fact_registry_reading(fact) == "no_registry"
+        and any(f"`{value}`" in candidate.readme for value in distributions)
+        and f"```bash\n{fact.value}\n```" not in candidate.readme
+    )
+
+
+def _unestablished_install(fact: Fact) -> str:
+    """Why a non-SUPPORTED install fact refuses the candidate, naming the class of the registry
+    reading behind it (wave 6, BC-02: eleven rows, three different causes under one sentence).
+
+    The classes call for different responses, so the sentence says which this is.
+    ``RETRY_REGISTRY_READ``: the registry gave no answer (a network or TLS failure, a 5xx past the
+    retry policy), which says nothing about the package - extract again, and never repair a README
+    for it. ``PACKAGE_ABSENT``: the registry's own answer is that nothing is published, which is a
+    true statement about the package and becomes a source install only when the maintainers'
+    README says so and the repository documents a build (``evidence/facts/unpublished.py``).
+    """
+    last = fact.evidence[-1].detail or "" if fact.evidence else ""
+    base = f"{fact.id} is {fact.polarity}: {last}"
+    reading = fact_registry_reading(fact)
+    if reading in RETRYABLE_READINGS:
+        return (
+            f"{base}; RETRY_REGISTRY_READ: the registry gave no answer, which says nothing about "
+            "the package - extract again, the candidate is not at fault"
+        )
+    if reading == "not_published":
+        return (
+            f"{base}; PACKAGE_ABSENT: the registry lists no such package, and it becomes a "
+            "source install only when the maintainers' README says it is unpublished and the "
+            "repository documents a build"
+        )
+    if reading == "no_registry":
+        return (
+            f"{base}; NO_REGISTRY: the ecosystem has no registry to ask, so the install is a "
+            "source build, stated only from a build that exited 0 or - when the maintainers' "
+            "README says it is unpublished - the build the repository documents"
+        )
+    return base
+
+
+def _documented_source_failures(candidate: Candidate, fact: Fact) -> list[Failure]:
+    """A documented source-checkout install (``source_basis: documented``) is held to what admits
+    it, so a fact that merely claims the shape cannot slip through (BC-02, wave 6).
+
+    It stands on three independent records, each on the fact itself: the registry reading is the
+    registry's own "nothing is published" (or the ecosystem has no registry), the maintainers'
+    README states the same, and the steps after the clone are the repository's own build, which
+    BC-02 re-derives from the build-command fact rather than trust the attribute. A fact with any
+    one missing is refused at EXTRACTING: the admission is the earliest cause.
+    """
+    attributes = fact.attributes or {}
+    if attributes.get(SOURCE_BASIS_ATTRIBUTE) != DOCUMENTED_SOURCE_BASIS:
+        return []
+    details = [evidence.detail or "" for evidence in fact.evidence]
+    reading = fact_registry_reading(fact)
+    problems: list[str] = []
+    if attributes.get("install_kind") != "source_checkout":
+        problems.append("a documented source install is a source_checkout kind")
+    if attributes.get(REGISTRY_STATE_ATTRIBUTE) != NOT_PUBLISHED or reading not in (
+        "not_published",
+        "no_registry",
+    ):
+        problems.append(
+            f"its registry reading ({reading or 'none'}) does not show the package unpublished"
+        )
+    if not any(README_STATEMENT_PHRASE in detail for detail in details):
+        problems.append("the maintainers' README is not recorded as saying it is unpublished")
+    steps = attributes.get(DOCUMENTED_COMMAND_ATTRIBUTE, "")
+    expected = documented_steps(
+        spec_for(candidate.entry.ecosystem), candidate.facts.facts, candidate.tree_paths
+    )
+    if not any(DOCUMENTED_BUILD_PHRASE in detail for detail in details) or expected is None:
+        problems.append("the repository documents no build to state")
+    elif steps != expected[0]:
+        problems.append(
+            f"it names the steps {steps!r}, but the repository documents {expected[0]!r}"
+        )
+    elif not fact.value.endswith("\n" + steps):
+        problems.append(f"its command does not end with the documented steps {steps!r}")
+    return [
+        Failure("EXTRACTING", f"{fact.id} is a documented source install but {problem}")
+        for problem in problems
+    ]
+
+
+# A line that installs a package from a registry: a package tool, an install/add/get verb or a
+# Maven artifact coordinate, and the package's own name.
+_REGISTRY_INSTALL_VERB = re.compile(r"(?i)\b(?:install|add|get|i)\b|dependency:get|-Dartifact=")
+
+
+def _registry_install_lines(
+    readme: str, implied: set[str], package_name: str
+) -> list[tuple[int, str]]:
+    """``(line index, stripped line)`` for each README line that is the registry install.
+
+    Either the exact command the manifest implied (anywhere, as a line or as an inline code span),
+    or - inside a fence only, where a reader copies and runs it - a package tool installing the
+    package by its own name (a pinned or re-spelled variant of the same command).
+    """
+    found: list[tuple[int, str]] = []
+    inside = False
+    for index, line in enumerate(readme.splitlines()):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            inside = not inside
+            continue
+        plain = stripped.removeprefix("$ ").strip()
+        exact = plain in implied or any(f"`{item}`" in line for item in implied)
+        variant = (
+            inside
+            and package_name != ""
+            and package_name in plain.lower()
+            and _COMMAND.match(plain) is not None
+            and _REGISTRY_INSTALL_VERB.search(plain) is not None
+            and "git clone" not in plain
+        )
+        if exact or variant:
+            found.append((index, stripped))
+    return found
+
+
+def _registry_command_failures(candidate: Candidate) -> list[Failure]:
+    """BC-02: a README never prints the registry install of a package its registry says is not
+    published (wave 6). The unpublished state is only true if the page says so plainly; a kept
+    ``cargo add aspose-jmap-foss`` beside "not published" tells the reader to run a command that
+    cannot succeed.
+
+    Judged for a fact that records the registry command it replaced (``registry_command``): the
+    exact line, or a fenced line that is a package tool installing the package by name. A line from
+    a placed inherited unit routes to that unit's disposition (RECONCILING, ``unit``): the earliest
+    cause is the keep, and the section's author cannot change a verbatim inherited line.
+    """
+    failures: list[Failure] = []
+    package = next((f for f in candidate.facts.facts if f.id == "package:name"), None)
+    package_name = package.value.lower() if package is not None else ""
+    for fact in candidate.facts.by_kind("install_command"):
+        command = (fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE)
+        if not command or fact.polarity != "SUPPORTED":
+            continue
+        implied = {line.strip() for line in command.splitlines() if line.strip()}
+        printed = _registry_install_lines(candidate.readme, implied, package_name)
+        if not printed:
+            continue
+        carriers = {
+            line.strip(): placement.unit_id
+            for placement in _placements(candidate)
+            if placement.outcome == "placed"
+            for line in placement.text.splitlines()
+        }
+        sections = _section_lines(candidate.readme)
+        for index, line in printed:
+            detail = (
+                f"{fact.id}: the README prints {line!r}, the registry install of a package its "
+                "registry reading says is not published"
+            )
+            unit = carriers.get(line)
+            if unit is not None:
+                failures.append(Failure("RECONCILING", detail, unit=unit))
+            else:
+                failures.append(Failure("COMPOSING", detail, sections[index]))
     return failures
 
 
@@ -1162,6 +1387,11 @@ def _dropped_list_failures(
     # What the commercial edition adds is not a limitation of this one: the closing Enterprise
     # paragraph never states a kept list's items.
     section_text = texts.get(destination, "").split(ENTERPRISE_SENTENCE_LEAD, 1)[0]
+    # A list about installing is also stated by the renderer's Installation and Dependencies
+    # sections, whichever section it was sent to (``placement.Placement.read_with``): placement
+    # counted that text as the destination's own, so the independent check reads the same.
+    for other in placement.read_with:
+        section_text += "\n" + texts.get(other, "")
     missing = missing_items(
         placement.text,
         section_text,
@@ -2325,14 +2555,19 @@ def validate_candidate(
 
 
 def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Advisory findings against a section the contract marks Required, minus the refuted ones.
+    """Advisory findings against a section the contract marks Required, minus the refuted ones
+    and the demoted ones.
 
     An advisory is deferred repair work, not accepted work (project/loop-prompt.md section 6
     rule 5), so a required row carries none before READY_FOR_PROPOSAL (docs/README_CONTRACT.md
     section 6, docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5). A finding a deterministic check
     refuted is not deferred work: there is nothing to defer and no revision could act on it, so
-    it is recorded with its reason and counted, never blocking. What blocks is a finding left
-    standing - one nothing contradicted - because that is work this candidate still owes.
+    it is recorded with its reason and counted, never blocking. A finding demoted because it
+    blames a composition stage for text the renderer owns (``demoted``, review.py
+    ``unrepairable_demotion``) is the same: the section it names is outside repair's scope
+    (README_CONTRACT section 6), so there is no repair work to owe; it stays on the record and
+    in the acceptance score. What blocks is a finding left standing - one nothing contradicted
+    and a revision could act on - because that is work this candidate still owes.
 
     A ``single_reader_advisory`` is not owed work either: a second independent read of the same
     candidate under a different seed raised nothing equivalent, so the defect is one reader's
@@ -2346,6 +2581,7 @@ def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]
         if str(finding.get("section_id", "")) in REQUIRED_SECTIONS
         and not finding.get("reviewer_scope_defect")
         and not finding.get("single_reader_advisory")
+        and not finding.get("demoted")
     ]
 
 

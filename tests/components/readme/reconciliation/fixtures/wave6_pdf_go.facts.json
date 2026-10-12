@@ -1,0 +1,853 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; job test runs `go build ./...`",
+     "path": ".github/workflows/test.yml"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "go build ./..."
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": ".github/workflows/lint.yml"
+    },
+    {
+     "detail": null,
+     "path": ".github/workflows/test.yml"
+    },
+    {
+     "detail": "2 files; GitHub Actions workflows",
+     "path": ".github/workflows/"
+    }
+   ],
+   "id": "build_test_asset:ci",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": ".github/workflows/"
+  },
+  {
+   "attributes": {
+    "role": "ci matrix",
+    "workflow": ".github/workflows/test.yml"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "job test strategy.matrix axes os",
+     "path": ".github/workflows/test.yml"
+    }
+   ],
+   "id": "build_test_asset:ci-matrix",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "os=ubuntu-latest,windows-latest,macos-latest"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "docs/feature_showcase-preview.png"
+    },
+    {
+     "detail": null,
+     "path": "docs/feature_showcase.pdf"
+    },
+    {
+     "detail": null,
+     "path": "docs/superpowers/plans/2026-04-02-metadata-crud.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/superpowers/plans/2026-04-03-in-memory-model.md"
+    },
+    {
+     "detail": null,
+     "path": "docs/superpowers/plans/2026-04-06-text-extraction.md"
+    },
+    {
+     "detail": "93 files; documentation directory",
+     "path": "docs/"
+    }
+   ],
+   "id": "build_test_asset:docs",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "docs/"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "ci workflow"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; job test runs `go test ./...`",
+     "path": ".github/workflows/test.yml"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "go test ./..."
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `require` directive a consumer would install is declared",
+     "path": "go.mod"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 324-336; go fence; unit inherited_unit:029.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; COMPILED and vetted against aspose-pdf-foss__Aspose-PDF-FOSS-for-Go; Go 1.26.4",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "doc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)\nflow := doc.NewFlow(pdf.FlowOptions{})\nflow.AddHeading(1, \"Quarterly Report\", pdf.TextStyle{})\nflow.AddParagraph(\"Revenue grew in every region this quarter.\", pdf.TextStyle{Size: 11})\nflow.AddList([]string{\"North: +12%\", \"South: +8%\"}, false, pdf.TextStyle{Size: 11})\n\npages, err := flow.Render()\nif err != nil {\n\tlog.Fatal(err)\n}\nfmt.Println(\"pages:\", pages)\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "pdf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "cdf43df10c8c565ecaa978428b1fe66ad6685f8d"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "import path of the module's importable package",
+     "path": "go.mod"
+    }
+   ],
+   "id": "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go",
+   "kind": "import_path",
+   "polarity": "SUPPORTED",
+   "value": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 3-3; badge_row; under Aspose.PDF FOSS for Go",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:002.badge_row",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "[![test](https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml/badge.svg)](https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml) [![lint](https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml/badge.svg)](https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.svg)](https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8?logo=go)](https://go.dev/dl/)"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 5-5; badge_row; under Aspose.PDF FOSS for Go",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:003.badge_row",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "[![Aspose.PDF FOSS for Go](https://products.aspose.org/media/pdf/go/banner-readme.png)](https://products.aspose.org/pdf/go/)"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 7-14; paragraph; under Aspose.PDF FOSS for Go",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:004.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "A pure Go PDF library — no CGo, no native libraries, no third-party package dependencies\n(standard library only), MIT-licensed. It creates, edits, renders, signs, encrypts, converts, and\nvalidates PDF documents: split/merge/extract pages, extract and search text, fill and build\nAcroForms, draw text/vector graphics/tables, embed and subset fonts, apply digital signatures\n(PKCS#7, PAdES, timestamps), validate and convert PDF/A, author accessible Tagged PDF, and\nrender pages to images with a built-in rasterizer that has no third-party package dependencies of\nits own, convert to and from Markdown, HTML, and SVG, and query documents through a set of AI\ncopilots over any OpenAI-compatible endpoint."
+  },
+  {
+   "attributes": {
+    "repository_files": "docs/feature_showcase-preview.png,docs/feature_showcase.pdf,feature_showcase-preview.png,feature_showcase.pdf",
+    "section": "Aspose.PDF FOSS for Go > Feature Showcase"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 300-300; badge_row; under Aspose.PDF FOSS for Go > Feature Showcase",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:024.badge_row",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "[![Feature showcase preview](docs/feature_showcase-preview.png)](docs/feature_showcase.pdf)"
+  },
+  {
+   "attributes": {
+    "repository_files": "_examples/feature_showcase/main.go,docs/feature_showcase.pdf,feature_showcase.pdf,main.go",
+    "section": "Aspose.PDF FOSS for Go > Feature Showcase"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 302-314; paragraph; under Aspose.PDF FOSS for Go > Feature Showcase",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:025.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "[**docs/feature_showcase.pdf**](docs/feature_showcase.pdf) is a single 20-page PDF generated by\n[`_examples/feature_showcase`](_examples/feature_showcase/main.go) that walks nearly every\ncapability above in one document — a clickable table of contents (built with `Page.AddTOC`),\nstyled AcroForm fields, Code128 / QR / PDF417 barcode fields, transparency flattening shown as\nreal before/after renders, all four stamp types, a word-level document comparison, the full\nannotation gallery, redactions, multi-page tables, vector graphics, and a meta \"Rendering & Imposition\"\npage whose thumbnails are renders of the document itself, produced by this library's own renderer.\nCross-cutting metadata — bookmarks, named destinations, page labels, and Info + XMP\nmetadata — is set once and carried through the whole document. The showcase itself is\ndeliberately left unencrypted so it previews inline on GitHub and opens in every viewer;\nencryption (RC4 / AES-128 / AES-256) is covered in\n[Encryption and Signing](#encryption-and-signing) below. Regenerate it locally with\n`go run ./_examples/feature_showcase`."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 316-316; heading; under Aspose.PDF FOSS for Go",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:026.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## Additional Examples"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 318-320; paragraph; under Aspose.PDF FOSS for Go > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:027.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The most representative example beyond Quick Start is building a document from scratch with the\nFlow layout engine — an additive layer over the Rectangle-based drawing API that computes the\nrectangles for you — rather than editing an existing one."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go > Additional Examples"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 322-322; heading; under Aspose.PDF FOSS for Go > Additional Examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:028.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "### Content Authoring With the Flow Layout Engine"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PDF FOSS for Go > Additional Examples > Content Authoring With the Flow Layout Engine"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 324-336; code_block; under Aspose.PDF FOSS for Go > Additional Examples > Content Authoring With the Flow Layout Engine",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:029.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```go\ndoc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)\nflow := doc.NewFlow(pdf.FlowOptions{})\nflow.AddHeading(1, \"Quarterly Report\", pdf.TextStyle{})\nflow.AddParagraph(\"Revenue grew in every region this quarter.\", pdf.TextStyle{Size: 11})\nflow.AddList([]string{\"North: +12%\", \"South: +8%\"}, false, pdf.TextStyle{Size: 11})\n\npages, err := flow.Render()\nif err != nil {\n\tlog.Fatal(err)\n}\nfmt.Println(\"pages:\", pages)\n```"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the module path declared by the manifest, major-version suffix included",
+     "path": "go.mod"
+    },
+    {
+     "detail": "package registry: found on go_modules",
+     "path": "https://proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list"
+    }
+   ],
+   "id": "install_command:go",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "go get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:file",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "LICENSE"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "license text states this license",
+     "path": "LICENSE"
+    }
+   ],
+   "id": "license:spdx",
+   "kind": "license",
+   "polarity": "SUPPORTED",
+   "value": "MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'test'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml/badge.svg"
+    }
+   ],
+   "id": "link_target:001",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml/badge.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'test'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml"
+    }
+   ],
+   "id": "link_target:002",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/test.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'lint'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml/badge.svg"
+    }
+   ],
+   "id": "link_target:003",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml/badge.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'lint'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml"
+    }
+   ],
+   "id": "link_target:004",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/actions/workflows/lint.yml"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'Go Reference'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://pkg.go.dev/badge/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.svg"
+    }
+   ],
+   "id": "link_target:005",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://pkg.go.dev/badge/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'Go Reference'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+    }
+   ],
+   "id": "link_target:006",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'License: MIT'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://img.shields.io/badge/License-MIT-yellow.svg"
+    }
+   ],
+   "id": "link_target:007",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://img.shields.io/badge/License-MIT-yellow.svg"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'License: MIT'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://opensource.org/licenses/MIT"
+    }
+   ],
+   "id": "link_target:008",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://opensource.org/licenses/MIT"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'Go Version'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://img.shields.io/badge/go-1.24+-00ADD8?logo=go"
+    }
+   ],
+   "id": "link_target:009",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://img.shields.io/badge/go-1.24+-00ADD8?logo=go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 3; external; text 'Go Version'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://go.dev/dl/"
+    }
+   ],
+   "id": "link_target:010",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://go.dev/dl/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 5; external; text 'Aspose.PDF FOSS for Go'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.org/media/pdf/go/banner-readme.png"
+    }
+   ],
+   "id": "link_target:011",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/pdf/go/banner-readme.png"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 5; external; text 'Aspose.PDF FOSS for Go'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED",
+     "path": "https://products.aspose.org/pdf/go/"
+    }
+   ],
+   "id": "link_target:012",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/pdf/go/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 294; relative; text '_examples/'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains _examples",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:026",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "_examples/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 300; relative; text 'Feature showcase preview'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains docs/feature_showcase-preview.png",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:027",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "docs/feature_showcase-preview.png"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 300; relative; text 'Feature showcase preview'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains docs/feature_showcase.pdf",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:028",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "docs/feature_showcase.pdf"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 302; relative; text '_examples/feature_showcase'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: tree contains _examples/feature_showcase/main.go",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:029",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "_examples/feature_showcase/main.go"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 302; anchor; text 'Encryption and Signing'",
+     "path": "README.md"
+    },
+    {
+     "detail": "RESOLVED: heading #encryption-and-signing exists",
+     "path": "README.md"
+    }
+   ],
+   "id": "link_target:030",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "#encryption-and-signing"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/pdf/go/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/pdf/go/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "go",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug go-cpp",
+     "path": "https://products.aspose.com/pdf/go-cpp/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/pdf/go-cpp/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/pdf/go/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/pdf/go/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "Go language version the module file declares",
+     "path": "go.mod"
+    }
+   ],
+   "id": "package:go_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "1.24"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "module path declared by the module file",
+     "path": "go.mod"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+  },
+  {
+   "attributes": {
+    "registry": "go_modules",
+    "version_count": "10"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the go_modules registry lists for the package; the registry's state, not the repository's; the registry lists 10 versions in all",
+     "path": "https://proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "v0.9.0"
+  },
+  {
+   "attributes": {
+    "basis": "changelog_unreleased"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`## [Unreleased]` lists 28 entries; the registry's current release is v0.9.0",
+     "path": "CHANGELOG.md"
+    }
+   ],
+   "id": "package:registry_lag",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "v0.9.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "third-party notices file for bundled material",
+     "path": "third_party/PDF417-TABLE-NOTICE.txt"
+    }
+   ],
+   "id": "third_party_notices:file",
+   "kind": "third_party_notices",
+   "polarity": "SUPPORTED",
+   "value": "third_party/PDF417-TABLE-NOTICE.txt"
+  }
+ ],
+ "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+ "schema_version": 1,
+ "source_revision": "cdf43df10c8c565ecaa978428b1fe66ad6685f8d"
+}

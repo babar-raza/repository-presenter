@@ -291,14 +291,18 @@ def _review_status(
     sections: Sequence[str], review: Mapping[str, Any]
 ) -> tuple[str, tuple[str, ...]]:
     """A finding the reviewer raised on one of the criterion's sections counts against it,
-    blocking or advisory. A finding the reviewer itself flagged as its own defect does not."""
+    blocking or advisory. A finding the reviewer itself flagged as its own defect does not, and
+    neither does one demoted because it blames a composition stage for text the renderer owns
+    (``demoted``, review.py ``unrepairable_demotion``): an advisory counts as deferred repair work,
+    and no revision could act on that one. It stays in review.json; the deterministic text
+    evaluators, not a reviewer's single read, judge the renderer's own wording."""
     raised: list[str] = []
     for kind, records in (
         ("blocking", review.get("findings", [])),
         ("advisory", review.get("advisory", [])),
     ):
         for record in records:
-            if record.get("reviewer_scope_defect"):
+            if record.get("reviewer_scope_defect") or record.get("demoted"):
                 continue
             if record.get("section_id") in sections:
                 raised.append(

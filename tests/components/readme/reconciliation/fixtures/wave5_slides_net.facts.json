@@ -1,0 +1,270 @@
+{
+ "facts": [
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `PackageReference` a consumer would install is declared",
+     "path": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "slides"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 8-10; paragraph; under Aspose.Slides FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:003.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "An MIT-licensed .NET library that creates, reads and edits PowerPoint `.pptx` presentations by\nbuilding the Office Open XML package itself — no PowerPoint installation, no COM interop, no native\ndependency and no NuGet dependencies at all."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 12-15; paragraph; under Aspose.Slides FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:004.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "It is for developers who need to generate or modify decks on a server or in a build, and who are\nworking *inside* the PowerPoint file format. It is not a renderer or a converter: it does not\nproduce PDF, HTML or images, and the things it cannot do are listed in full under\n[What it cannot do](#what-it-cannot-do)."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 19-19; heading; under Aspose.Slides FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:005.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## At a glance"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET > At a glance"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 21-50; code_block; under Aspose.Slides FOSS for .NET > At a glance",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:006.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```mermaid\nflowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing PPTX presentation\"]\n  end\n  PRODUCT[\"Aspose.Slides FOSS for .NET\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Presentation, slide, and section creation and editing\"]\n      c2[\"Shape creation (AutoShape, Table, Connector, PictureFrame)\"]\n      c3[\"Text formatting (TextFrame, Paragraph, Portion)\"]\n      c4[\"Fill, line, and 3D shape styling\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Visual effects (shadow, glow, blur, reflection)\"]\n      c6[\"Document properties (core, app, custom)\"]\n      c7[\"Speaker notes and classic comments\"]\n      c8[\"Image embedding\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"PPTX, PPSX or POTX package\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n```"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET > At a glance"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 52-54; paragraph; under Aspose.Slides FOSS for .NET > At a glance",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:007.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The diagram is an overview, not a contract. Each box is expanded, with the XML it produces, under\n[What it can do](#what-it-can-do); the boundaries are under\n[What it cannot do](#what-it-cannot-do)."
+  },
+  {
+   "attributes": {
+    "section": "Aspose.Slides FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 373-373; heading; under Aspose.Slides FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:061.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## What it cannot do"
+  },
+  {
+   "attributes": {
+    "source_checkout_command": "git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET.git\ncd Aspose.Slides-FOSS-for-.NET\ndotnet build src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the package id declared by the manifest",
+     "path": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    {
+     "detail": "package registry: found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.slides.foss/index.json"
+    }
+   ],
+   "id": "install_command:dotnet",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "dotnet add package Aspose.Slides.FOSS"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package id declared by the project file",
+     "path": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.Slides.FOSS"
+  },
+  {
+   "attributes": {
+    "registry": "nuget",
+    "version_count": "1"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "current stable release the nuget registry lists for the package; the registry's state, not the repository's; the registry lists 1 version in all",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.slides.foss/index.json"
+    }
+   ],
+   "id": "package:published_version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.9.0"
+  },
+  {
+   "attributes": {
+    "basis": "changelog_unreleased"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "`## [Unreleased]` lists 11 entries; the registry's current release is 26.9.0",
+     "path": "CHANGELOG.md"
+    }
+   ],
+   "id": "package:registry_lag",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "26.9.0"
+  },
+  {
+   "attributes": {
+    "floor_declaration": "TargetFrameworks"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "target frameworks the project declares",
+     "path": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+   ],
+   "id": "package:target_framework",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "net8.0;net10.0"
+  }
+ ],
+ "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+ "schema_version": 1,
+ "source_revision": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b"
+}

@@ -1,0 +1,428 @@
+{
+ "facts": [
+  {
+   "attributes": {
+    "role": "build command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "build command; standard `dotnet build Aspose.PSD-FOSS-for-.NET.sln` for the project declared in Aspose.PSD-FOSS-for-.NET.sln; no workflow step or script names it",
+     "path": "Aspose.PSD-FOSS-for-.NET.sln"
+    }
+   ],
+   "id": "build_test_asset:build-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet build Aspose.PSD-FOSS-for-.NET.sln"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "samples/Aspose.PSD.FOSS.Samples.Basic/Aspose.PSD.FOSS.Samples.Basic.csproj"
+    },
+    {
+     "detail": null,
+     "path": "samples/Aspose.PSD.FOSS.Samples.Basic/Program.cs"
+    },
+    {
+     "detail": null,
+     "path": "samples/Aspose.PSD.FOSS.Samples.Layers/Aspose.PSD.FOSS.Samples.Layers.csproj"
+    },
+    {
+     "detail": null,
+     "path": "samples/Aspose.PSD.FOSS.Samples.Layers/Program.cs"
+    },
+    {
+     "detail": null,
+     "path": "samples/Aspose.PSD.FOSS.Samples.Streams/Aspose.PSD.FOSS.Samples.Streams.csproj"
+    },
+    {
+     "detail": "18 files; example directory",
+     "path": "samples/"
+    }
+   ],
+   "id": "build_test_asset:examples",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "samples/"
+  },
+  {
+   "attributes": {
+    "role": "test command",
+    "source": "toolchain convention"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "test command; standard `dotnet test Aspose.PSD-FOSS-for-.NET.sln` for the project declared in Aspose.PSD-FOSS-for-.NET.sln, which has tests in the tree; no workflow step or script names it",
+     "path": "Aspose.PSD-FOSS-for-.NET.sln"
+    }
+   ],
+   "id": "build_test_asset:test-command",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "dotnet test Aspose.PSD-FOSS-for-.NET.sln"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": null,
+     "path": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs"
+    },
+    {
+     "detail": null,
+     "path": "src/Aspose.PSD.FOSS.Test/ImageResourcesSectionTests.cs"
+    },
+    {
+     "detail": "11 files; test suite (11 test sources among the 25 files here)",
+     "path": "src/Aspose.PSD.FOSS.Test/"
+    }
+   ],
+   "id": "build_test_asset:tests",
+   "kind": "build_test_asset",
+   "polarity": "SUPPORTED",
+   "value": "src/Aspose.PSD.FOSS.Test/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "no `PackageReference` a consumer would install is declared",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    }
+   ],
+   "id": "dependency:none",
+   "kind": "dependency",
+   "polarity": "SUPPORTED",
+   "value": "none"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 120-156; csharp fence; unit inherited_unit:025.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 1: EXECUTED; compiled against Aspose.PSD.FOSS.csproj; SDK 10.0.401",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:001",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "using Aspose.PSD;\nusing Aspose.PSD.FileFormats.Core.Blending;\nusing Aspose.PSD.FileFormats.Psd;\nusing Aspose.PSD.FileFormats.Psd.Layers;\n\nusing var image = (PsdImage)Image.Load(\"input.psd\");\n\nConsole.WriteLine(image.Width);\nConsole.WriteLine(image.Height);\nConsole.WriteLine(image.ChannelsCount);\nConsole.WriteLine(image.BitsPerChannel);\nConsole.WriteLine(image.ColorMode);\nConsole.WriteLine(image.Version);\nConsole.WriteLine(image.Compression);\nConsole.WriteLine(image.Layers.Length);\nConsole.WriteLine(image.ImageResources.Length);\n\nforeach (Layer layer in image.Layers)\n{\n    Console.WriteLine(layer.Name);\n    Console.WriteLine(layer.Bounds);\n    Console.WriteLine(layer.BlendModeKey);\n    Console.WriteLine(layer.IsVisible);\n    Console.WriteLine(layer.Opacity);\n}\n\nimage.Layers[0].Name = \"Updated layer\";\nimage.Layers[0].IsVisible = false;\nimage.Layers[0].Left = 10;\nimage.Layers[0].Top = 20;\nimage.Layers[0].Right = 110;\nimage.Layers[0].Bottom = 120;\nimage.Layers[0].Opacity = 128;\nimage.Layers[0].BlendModeKey = BlendMode.Multiply;\nimage.Save(\"output.psd\");\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 169-185; csharp fence; unit inherited_unit:030.code_block",
+     "path": "README.md"
+    },
+    {
+     "detail": "example 2: EXECUTED; compiled against Aspose.PSD.FOSS.csproj; SDK 10.0.401",
+     "path": "examples.json"
+    }
+   ],
+   "id": "example:002",
+   "kind": "example",
+   "polarity": "SUPPORTED",
+   "value": "using Aspose.PSD;\nusing Aspose.PSD.FileFormats.Core.Blending;\nusing Aspose.PSD.FileFormats.Psd;\nusing Aspose.PSD.FileFormats.Psd.Layers;\n\nusing var image = (PsdImage)Image.Load(\"input.psd\");\nimage.Layers[0].Name = \"Updated layer\";\nimage.Layers[0].IsVisible = false;\nimage.Layers[0].Opacity = 128;\nimage.Layers[0].BlendModeKey = BlendMode.Multiply;\nimage.Layers[0].Clipping = 1;\nimage.Layers[0].Left += 1;\nimage.Layers[0].Top += 1;\nimage.Layers[0].Bottom += 1;\nimage.Save(\"output.psd\");\n"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:ecosystem",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:family",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "psd"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:platform",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "net"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "admitted registry entry",
+     "path": "data/registry.json"
+    }
+   ],
+   "id": "identity:repository",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "pinned default-branch revision",
+     "path": "source/snapshot.json"
+    }
+   ],
+   "id": "identity:revision",
+   "kind": "identity",
+   "polarity": "SUPPORTED",
+   "value": "85ed7eec7c801d8b5c97aa099f018d3b98df2981"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PSD.FOSS for .NET"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 79-79; heading; under Aspose.PSD.FOSS for .NET",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:011.heading",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "## Installation"
+  },
+  {
+   "attributes": {
+    "section": "Aspose.PSD.FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 81-81; paragraph; under Aspose.PSD.FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:012.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "Build the package from a clone of the repository:"
+  },
+  {
+   "attributes": {
+    "repository_files": "Aspose.PSD.FOSS.csproj,src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+    "section": "Aspose.PSD.FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 83-87; code_block; under Aspose.PSD.FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:013.code_block",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "```bash\ngit clone https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET.git\ncd Aspose.PSD-FOSS-for-.NET\ndotnet pack src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj -c Release\n```"
+  },
+  {
+   "attributes": {
+    "repository_files": "Aspose.PSD.FOSS.csproj,src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+    "section": "Aspose.PSD.FOSS for .NET > Installation"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lines 89-92; paragraph; under Aspose.PSD.FOSS for .NET > Installation",
+     "path": "README.md"
+    }
+   ],
+   "id": "inherited_unit:014.paragraph",
+   "kind": "inherited_unit",
+   "polarity": "SUPPORTED",
+   "value": "The generated `.nupkg` file is placed under `src/Aspose.PSD.FOSS/bin/Release/`. Reference it\nfrom a consuming project with a plain `<ProjectReference>` to\n`src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj`, or install it through a local NuGet source\nregistered against that `bin/Release` folder instead."
+  },
+  {
+   "attributes": {
+    "build_command": "dotnet build src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj",
+    "install_kind": "source"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "install command for the package id declared by the manifest",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    },
+    {
+     "detail": "package registry: distribution not found on nuget",
+     "path": "https://api.nuget.org/v3-flatcontainer/aspose.psd.foss/index.json"
+    },
+    {
+     "detail": "verified source build: the package's own build ran `dotnet build src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj` against this revision and exited 0; the advertised command is exactly the one it ran",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    }
+   ],
+   "id": "install_command:dotnet",
+   "kind": "install_command",
+   "polarity": "SUPPORTED",
+   "value": "git clone https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET.git\ncd Aspose.PSD-FOSS-for-.NET\ndotnet build src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+  },
+  {
+   "attributes": {
+    "role": "banner illustration"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; banner illustration",
+     "path": "https://products.aspose.org/media/psd/net/banner-readme.png"
+    }
+   ],
+   "id": "link_target:product.banner",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/media/psd/net/banner-readme.png"
+  },
+  {
+   "attributes": {
+    "level": "platform",
+    "platform": "net",
+    "role": "enterprise"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; enterprise target; platform level; slug net",
+     "path": "https://products.aspose.com/psd/net/"
+    }
+   ],
+   "id": "link_target:product.enterprise",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.com/psd/net/"
+  },
+  {
+   "attributes": {
+    "role": "product homepage"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "RESOLVED; product homepage",
+     "path": "https://products.aspose.org/psd/net/"
+    }
+   ],
+   "id": "link_target:product.homepage",
+   "kind": "link_target",
+   "polarity": "SUPPORTED",
+   "value": "https://products.aspose.org/psd/net/"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "package id declared by the project file",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    }
+   ],
+   "id": "package:name",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "Aspose.PSD.FOSS"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "lowest target framework the project declares",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    }
+   ],
+   "id": "package:target_framework",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "net10.0"
+  },
+  {
+   "attributes": null,
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "version declared by the project file",
+     "path": "src/Aspose.PSD.FOSS/Aspose.PSD.FOSS.csproj"
+    }
+   ],
+   "id": "package:version",
+   "kind": "package",
+   "polarity": "SUPPORTED",
+   "value": "1.0.0"
+  },
+  {
+   "attributes": {
+    "symbol_kind": "module"
+   },
+   "confidence": 1.0,
+   "evidence": [
+    {
+     "detail": "line 8; module; public by declaration",
+     "path": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs"
+    }
+   ],
+   "id": "public_symbol:aspose",
+   "kind": "public_symbol",
+   "polarity": "SUPPORTED",
+   "value": "Aspose"
+  }
+ ],
+ "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+ "schema_version": 1,
+ "source_revision": "85ed7eec7c801d8b5c97aa099f018d3b98df2981"
+}

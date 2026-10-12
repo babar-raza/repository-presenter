@@ -8,6 +8,8 @@ composer reads.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -28,7 +30,7 @@ from repository_presenter.components.readme.validation.deferrals import (
     DeferralContext,
     review_deferrals,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument, read_facts
 
 REPO = "org/Aspose.Widget-FOSS-for-Python"
 REVISION = "a" * 40
@@ -96,11 +98,12 @@ def _only(findings: list[Any]) -> Any:
     return findings[0]
 
 
-def test_the_registry_holds_exactly_the_twenty_real_causes() -> None:
+def test_the_registry_holds_exactly_the_twenty_one_real_causes() -> None:
     """A new class is an explicit change here, so it is reviewed rather than slipped in."""
     assert [cls.id for cls in DEFERRAL_CLASSES] == [
         "NO_VERIFIED_QUICK_START",
         "INTERNAL_DETAIL",
+        "BADGE_ROW_RENDERED_BY_SHELL",
         "BUILD_TEST_PATH_UNRECORDED",
         "NOTICES_WITHOUT_RECORD",
         "OWN_LICENSE_COVERED_BY_LICENSE_SECTION",
@@ -1461,3 +1464,45 @@ def test_a_lead_in_blocks_when_its_withheld_code_block_is_stated_nowhere() -> No
         facts, entries = _leadin_facts(polarity)
         withheld = _verdict(facts, entries, "# Widget\n")
         assert (withheld.class_id, withheld.decision) == ("LEADIN_OF_WITHHELD_CONTENT", "ADVISORY")
+
+
+# ---- wave 6 (cut 8fbf2166): the shell-owned badge row, from the archived PDF-Go slice ----------
+
+_WAVE6 = Path(__file__).parents[1] / "reconciliation" / "fixtures"
+
+
+def _pdf_go() -> tuple[FactsDocument, dict[str, Any]]:
+    cases = json.loads((_WAVE6 / "wave6_s4_coordination.json").read_text(encoding="utf-8"))
+    return (
+        read_facts(_WAVE6 / "wave6_pdf_go.facts.json"),
+        {"dispositions": cases["pdf_go"]["dispositions"]},
+    )
+
+
+def test_a_deferred_banner_row_is_advisory_because_the_shell_owns_every_badge_row() -> None:
+    """PDF-Go 003: the linked product banner was deferred with the reason that it "moved to
+    enterprise_relationship" (a section that holds prose), matched no class and so blocked the
+    candidate as UNCLASSIFIED. The shell renders the banner from verified facts and owns every
+    badge row: the inherited row is withheld, nothing it holds is lost."""
+    facts, document = _pdf_go()
+    entry = next(e for e in document["dispositions"] if e["unit_id"].endswith("003.badge_row"))
+    assert entry["disposition"] == "DEFER_UNRESOLVED"
+    findings = {f.unit_id: f for f in review_deferrals(document, facts)}
+    banner = findings["inherited_unit:003.badge_row"]
+    assert (banner.class_id, banner.decision) == ("BADGE_ROW_RENDERED_BY_SHELL", "ADVISORY")
+    assert not [f for f in findings.values() if f.decision == "BLOCK"]
+
+
+def test_the_banner_class_is_chosen_by_the_unit_kind_not_by_the_reason_given() -> None:
+    """Negative control: the same reason on a paragraph is still a cause nobody registered."""
+    facts, document = _pdf_go()
+    entry = next(e for e in document["dispositions"] if e["unit_id"].endswith("003.badge_row"))
+    paragraph = {
+        **entry,
+        "unit_id": "inherited_unit:004.paragraph",
+        "fact_ids": [],
+        "rationale": "Moved to enterprise_relationship per the rule for promotional material.",
+    }
+    only = {"dispositions": [paragraph]}
+    (finding,) = review_deferrals(only, facts)
+    assert (finding.class_id, finding.decision) == ("UNCLASSIFIED", "BLOCK")

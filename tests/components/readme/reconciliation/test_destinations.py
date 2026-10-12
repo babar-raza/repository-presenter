@@ -37,6 +37,7 @@ from repository_presenter.components.readme.reconciliation.destinations import (
     holdable_sections,
     nearest_for_units,
     nearest_holdable,
+    rehomed,
     root_heading,
     source_heading,
 )
@@ -242,16 +243,18 @@ def test_the_refusal_names_this_repositorys_sections_and_the_nearest_one() -> No
             "Aspose.Note FOSS for Python > Installation",
             "development_testing",
         ),
-        # ... or, when it is prose, with the requirements a reader must meet
+        # ... and so is prose about installing: README_CONTRACT.md row 16 makes Scope and
+        # Limitations a list of limitations, and the wave-6 bundles carried 29 install and
+        # dependency units there (BarCode-Python, Slides-Python): the last home, not the first
         (
             "inherited_unit:015.paragraph",
             "Aspose.Note FOSS for Python > Installation",
-            "scope_limitations",
+            "development_testing",
         ),
         (
             "inherited_unit:020.list",
             "Product > Dependencies > Optional Dependencies",
-            "scope_limitations",
+            "development_testing",
         ),
         ("inherited_unit:040.code_block", "Product > Examples", "additional_examples"),
         ("inherited_unit:050.paragraph", "Product > Known Limitations", "scope_limitations"),
@@ -338,7 +341,9 @@ def test_recover_keeps_the_pip_extra_with_its_label_and_not_in_dependencies() ->
     assert where == {
         "inherited_unit:013.paragraph": ("VERIFIED_MOVE", "development_testing"),
         "inherited_unit:014.code_block": ("VERIFIED_MOVE", "development_testing"),
-        "inherited_unit:015.paragraph": ("VERIFIED_MOVE", "scope_limitations"),
+        # the Python floor sentence is about installing, so it goes with the commands (it was kept
+        # in Scope and Limitations, which holds limitations, before wave 6)
+        "inherited_unit:015.paragraph": ("VERIFIED_MOVE", "development_testing"),
     }
     assert d.reconcile_checks(copy.deepcopy(recovered), facts) == []
 
@@ -693,7 +698,7 @@ def test_the_title_is_read_from_the_units_heading_paths_not_taken_for_a_topic() 
         is None
     )
     assert nearest_holdable("inherited_unit:003.paragraph", "Installation", holdable) == (
-        "scope_limitations"
+        "development_testing"
     )
 
 
@@ -724,3 +729,230 @@ def test_what_the_shell_prints_itself_has_no_home_elsewhere(heading: str) -> Non
     holdable = ("scope_limitations", "development_testing", "key_capabilities")
     assert nearest_holdable("inherited_unit:040.paragraph", heading, holdable, "product") is None
     assert nearest_holdable("inherited_unit:041.code_block", heading, holdable, "product") is None
+
+
+# ---- a kept unit the reply filed where its topic has no place (wave-6 cause 4) ---------------
+#
+# The 44 wave-6 bundles carried 124 install and dependency units in Quick Start, Scope and
+# Limitations and Documentation and Resources, whose contract rows hold one example, a list of
+# limitations and a list of links. The model files a unit under whatever section it reads next;
+# no stage after reconciliation can move a kept unit, so reconciliation does, to the topic's home.
+
+EVERYTHING = ("scope_limitations", "documentation_resources", "development_testing", "quick_start")
+
+
+@pytest.mark.parametrize(
+    ("unit", "heading", "filed", "home"),
+    [
+        # BarCode-Python 014: the Installation paragraph (distribution, import package, Python and
+        # Pillow floor) sent to Scope and Limitations; and 021, the development dependencies
+        (
+            "inherited_unit:014.paragraph",
+            "Aspose.BarCode FOSS for Python > Installation",
+            "scope_limitations",
+            "development_testing",
+        ),
+        (
+            "inherited_unit:021.list",
+            "Aspose.BarCode FOSS for Python > Dependencies > Development Dependencies",
+            "scope_limitations",
+            "development_testing",
+        ),
+        # Slides-Python 023: the Python floor and the CI matrix, in Scope
+        (
+            "inherited_unit:023.list",
+            "Aspose.Slides FOSS for Python > Dependencies > Native and System Requirements",
+            "scope_limitations",
+            "development_testing",
+        ),
+        # PDF-Python 019/023: the dependency lists, in the API Reference
+        (
+            "inherited_unit:019.list",
+            "Aspose.PDF FOSS for Python > Dependencies > Required Package Dependencies",
+            "api_reference",
+            "development_testing",
+        ),
+        # 3D-TypeScript 017: the dependency bullets, in Documentation and Resources
+        (
+            "inherited_unit:017.list",
+            "Aspose.3D FOSS for TypeScript > Dependencies",
+            "documentation_resources",
+            "development_testing",
+        ),
+        # PDF-Python 101: a pointer into the API listing, in Key Capabilities
+        (
+            "inherited_unit:101.001.list",
+            "Aspose.PDF FOSS for Python > API Reference > Low-Code Plugins",
+            "key_capabilities",
+            "api_reference",
+        ),
+    ],
+)
+def test_a_kept_unit_filed_where_its_topic_has_no_place_goes_to_the_topics_home(
+    unit: str, heading: str, filed: str, home: str
+) -> None:
+    holdable = (*EVERYTHING, "api_reference", "key_capabilities", "additional_examples")
+    root = heading.split(" > ")[0].lower().replace(".", " ")
+    assert rehomed(unit, heading, filed, holdable, root) == home
+
+
+@pytest.mark.parametrize(
+    ("unit", "heading", "filed"),
+    [
+        # Quick Start follows Installation: an install warning there is read where it is needed
+        (
+            "inherited_unit:016.paragraph",
+            "Aspose.Slides FOSS for Python > Installation",
+            "quick_start",
+        ),
+        # already home
+        (
+            "inherited_unit:013.code_block",
+            "Aspose.Slides FOSS for Python > Installation",
+            "development_testing",
+        ),
+        # a limitation is where limitations go, whatever else the heading says
+        (
+            "inherited_unit:050.paragraph",
+            "Aspose.Slides FOSS for Python > Known Limitations",
+            "scope_limitations",
+        ),
+        # the first example's explanation under "Getting Started" is not install material
+        (
+            "inherited_unit:024.paragraph",
+            "Aspose.Cells FOSS for Go > Getting Started",
+            "scope_limitations",
+        ),
+        # the shell's own furniture has no home to move to
+        ("inherited_unit:083.paragraph", "Aspose.3D FOSS for Java > License", "scope_limitations"),
+        # a heading is the shell's, never moved
+        (
+            "inherited_unit:011.heading",
+            "Aspose.Slides FOSS for Python > Installation",
+            "scope_limitations",
+        ),
+        # a supersession has no destination to correct
+        ("inherited_unit:012.paragraph", "Aspose.Slides FOSS for Python > Installation", None),
+    ],
+)
+def test_a_unit_filed_somewhere_it_may_stay_is_left_where_the_reply_put_it(
+    unit: str, heading: str, filed: str | None
+) -> None:
+    holdable = (*EVERYTHING, "api_reference", "key_capabilities", "additional_examples")
+    root = heading.split(" > ")[0].lower().replace(".", " ")
+    assert rehomed(unit, heading, filed, holdable, root) is None
+
+
+def test_without_a_build_asset_the_unit_goes_to_the_next_home_not_to_scope() -> None:
+    """No Development and Testing section here: the install unit follows Installation into Quick
+    Start rather than into the list of limitations."""
+    holdable = ("scope_limitations", "documentation_resources", "quick_start")
+    assert (
+        rehomed(
+            "inherited_unit:014.paragraph",
+            "Aspose.BarCode FOSS for Python > Installation",
+            "scope_limitations",
+            holdable,
+            "aspose barcode foss for python",
+        )
+        == "quick_start"
+    )
+    # a lead-in and its block are never sent to different sections
+    for kind in ("paragraph", "code_block"):
+        assert (
+            nearest_holdable(f"inherited_unit:012.{kind}", "P > Installation", holdable)
+            == "quick_start"
+        )
+
+
+def _java_installation(version: str) -> FactsDocument:
+    """The wave-4 3D-Java facts, with the source README's Maven and Gradle blocks at ``version``
+    (the registry's release stays 26.5.0)."""
+    facts, _, _ = _java()
+    return FactsDocument(
+        facts.repository,
+        facts.source_revision,
+        tuple(
+            Fact(
+                f.id,
+                f.kind,
+                f.value.replace("26.5.0", version)
+                if f.id.endswith(("014.code_block", "018.code_block"))
+                else f.value,
+                f.evidence,
+                f.polarity,
+                f.confidence,
+                f.attributes,
+            )
+            for f in facts.facts
+        ),
+    )
+
+
+def test_a_kept_install_block_that_differs_from_the_installation_row_only_in_its_release() -> None:
+    """PDF-Java, wave 6: the source's Gradle block at 26.6.0 and the Installation row's own Gradle
+    line at 26.9.0 differ in one token, so the block counted as "not printed", was moved to
+    Development and Testing, and printed the stale release beside the current one (BC-14). With
+    release numbers compared as one token the Installation row covers it."""
+    stale = _java_installation("26.1.0")
+    moved = _reply(
+        [
+            {
+                "unit_id": unit,
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "development_testing",
+                "fact_ids": ["install_command:maven"],
+                "rationale": "the block is not used by the verified install command",
+            }
+            for unit in ("inherited_unit:014.code_block", "inherited_unit:018.code_block")
+        ]
+        # the Kotlin DSL line is not printed by the row: that one is content nothing else renders
+        + [
+            {
+                "unit_id": "inherited_unit:016.code_block",
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "development_testing",
+                "fact_ids": ["install_command:maven"],
+                "rationale": "kept",
+            }
+        ]
+    )
+    d.normalize(moved, stale)
+    entries = _by_unit(moved)
+    for unit in ("inherited_unit:014.code_block", "inherited_unit:018.code_block"):
+        assert (entries[unit]["disposition"], entries[unit]["destination_section"]) == (
+            "SUPERSEDE_REDUNDANT",
+            "installation",
+        ), unit
+    kotlin = entries["inherited_unit:016.code_block"]
+    assert (kotlin["disposition"], kotlin["destination_section"]) == (
+        "VERIFIED_MOVE",
+        "development_testing",
+    )
+
+
+def test_normalize_moves_a_misfiled_install_unit_and_says_why() -> None:
+    _, _, facts = _note()
+    reply = _reply(
+        [
+            {
+                "unit_id": "inherited_unit:015.paragraph",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["package:python_requires"],
+                "rationale": "The Python floor is a requirement and placed in scope.",
+            }
+        ]
+    )
+    d.normalize(reply, facts)
+    (entry,) = reply["dispositions"]
+    assert entry["destination_section"] == "development_testing"
+    assert entry["disposition"] == "VERIFIED_PRESERVE"
+    assert entry["rationale"].startswith(
+        "Kept in development_testing: scope_limitations holds no install material."
+    )
+    assert len(entry["rationale"]) <= 160
+    # idempotent: a second pass over the folded reply changes nothing
+    again = copy.deepcopy(reply)
+    d.normalize(again, facts)
+    assert again == reply

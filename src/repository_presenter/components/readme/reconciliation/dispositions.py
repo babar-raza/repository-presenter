@@ -20,6 +20,19 @@ or the diagram for a diagram. Anywhere else the unit stays a placement and place
 the plan, decides. OMIT_UNSUPPORTED - "no fact supports this" - stands only after a failed support
 lookup. What cannot be folded to a truthful disposition is refused by ``placement_errors`` (typed,
 quoting the unit) and, on the last attempt, deferred by ``recover_uncited_prose_omits``.
+
+Three disposition choices pass every check above and fail the finished README, in a kept unit no
+repair can reach ("revised_output matches the causal stage's own output unchanged"); wave 6 (cut
+8fbf2166) lost 11 rows to them. They are settled here, at the stage that chose them:
+
+* a lead-in and its block share one fate and one section (``coordinate_neighbor_promises``): BC-05
+  v7 blocks a deferred lead-in beside an omitted block, BC-07 a lead-in parted from its commands;
+* a kept unit prints as written, so what BC-06 (an edition label) and BC-03 (an example fence)
+  find in it is certain, and both fold to ``VERIFIED_REWRITE`` in ``normalize``; a sentence that
+  points at what does not follow it (BC-07) is read the way BC-07 reads it, refused
+  (``dangling_pointers``) and, on the last attempt, restated;
+* a code block is printed as written or not at all, so a correction or rewrite of one that no
+  verified section prints is refused (BC-08, ``unprinted_commands``).
 """
 
 from __future__ import annotations
@@ -34,22 +47,37 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from markdown_it import MarkdownIt
+
 from repository_presenter.components.readme.composition.authoring import (
     _CARRY_SECTIONS,
+    edition_substitutes,
     inherited_unit_named_symbols,
 )
 from repository_presenter.components.readme.composition.components.shell import (
+    SEMANTIC_SHELL,
+    SUBSECTION_HEADINGS,
     placeable_section_ids,
     section_ids,
     shell_packet,
 )
-from repository_presenter.components.readme.composition.placement import renderer_fact_ids
+from repository_presenter.components.readme.composition.coverage import unversioned
+from repository_presenter.components.readme.composition.placement import (
+    renderer_fact_ids,
+    resolve_intra_document_anchors,
+)
 from repository_presenter.components.readme.composition.planning import section_conditions
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
-from repository_presenter.components.readme.evidence.facts.links import extract_links
+from repository_presenter.components.readme.composition.references import dangling_references
+from repository_presenter.components.readme.composition.source_topics import (
+    path_topic,
+    root_heading,
+    source_heading,
+)
+from repository_presenter.components.readme.evidence.facts.links import extract_links, heading_slug
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     BANNER_FACT_ID,
     ENTERPRISE_FACT_ID,
@@ -62,13 +90,13 @@ from repository_presenter.components.readme.reconciliation.destinations import (
     disposition_variants,
     holdable_sections,
     nearest_holdable,
-    root_heading,
-    source_heading,
+    rehomed,
 )
 from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.facts import (
     DECLARED_SYMBOL_KINDS,
+    REGISTRY_COMMAND_ATTRIBUTE,
     Fact,
     FactsDocument,
     bounded_records,
@@ -114,6 +142,39 @@ def command_block_units(facts: FactsDocument) -> set[str]:
         first = fact.value.splitlines()[0].strip().lower() if fact.value.strip() else ""
         if fact.id.endswith(".code_block") and first[3:].strip() in _COMMAND_FENCES:
             found.add(fact.id)
+    return found
+
+
+def unpublished_registry_blocks(facts: FactsDocument) -> dict[str, str]:
+    """Inherited command blocks that print the registry install of an unpublished package, by
+    unit ID, with the install fact that records the package as unpublished (BC-02, wave 6).
+
+    The install fact of a package its registry reads as absent and its maintainers call unpublished
+    is the source checkout, and keeps the command the manifest would have implied
+    (``registry_command``). A README block carrying that command tells a reader to run something
+    that cannot succeed, so it is neither kept nor superseded by the Installation row (which prints
+    the checkout): it is the one command block that is rightly omitted, whatever build or install
+    facts exist. A block that also carries another command (a build step beside the install) is
+    not wholly the registry install and is left to BC-02, which names it for a rewrite.
+    """
+    implied = {
+        fact.id: set(_command_lines(str((fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE))))
+        for fact in facts.by_kind("install_command")
+        if fact.polarity == "SUPPORTED" and (fact.attributes or {}).get(REGISTRY_COMMAND_ATTRIBUTE)
+    }
+    if not implied:
+        return {}
+    blocks = command_block_units(facts)
+    found: dict[str, str] = {}
+    for unit in facts.by_kind("inherited_unit"):
+        if unit.id not in blocks:
+            continue
+        lines = set(_command_lines(unit.value))
+        install_id = next(
+            (fid for fid, commands in sorted(implied.items()) if lines and lines <= commands), ""
+        )
+        if install_id:
+            found[unit.id] = install_id
     return found
 
 
@@ -811,6 +872,7 @@ OMIT_UNRESOLVED_EXAMPLE = "omit_unresolved_example"
 OMIT_VERIFIED_EXAMPLE = "omit_verified_example"
 OMIT_NAMES_SUPPORTED = "omit_names_supported"
 UNCOVERED_SUPERSESSION = "uncovered_supersession"
+DANGLING_POINTER = "dangling_pointer"
 SUPPORTED_OMISSION = "supported_omission"
 OMIT_VERSION_SKEW = "omit_version_skew"
 
@@ -863,13 +925,16 @@ def _is_mermaid(text: str) -> bool:
 
 def _command_lines(text: str) -> list[str]:
     """The comparable command lines of a fenced block: prompts, comments, fences and version pins
-    removed, whitespace collapsed, lower case - the form a rendered install command is held in."""
+    removed, release numbers replaced, whitespace collapsed, lower case - the form a rendered
+    install command is held in. A Gradle line kept from the source at ``:26.6.0`` is the line the
+    Installation row prints at ``:26.9.0`` (PDF-Java, wave 6: the unit was moved to Development and
+    Testing as "not printed" and tripped BC-14 on the stale number)."""
     lines: list[str] = []
     for raw in text.splitlines():
         line = _PROMPT.sub("", raw).strip()
         if not line or line.startswith(("```", "#", "//")):
             continue
-        lines.append(" ".join(_VERSION_PIN.sub("", line).split()).lower())
+        lines.append(" ".join(unversioned(_VERSION_PIN.sub("", line)).split()).lower())
     return lines
 
 
@@ -1431,6 +1496,57 @@ def _fold_uncovered(output: dict[str, Any], facts: FactsDocument, ctx: _Coverage
             )
 
 
+def _printed_by_installation(unit_id: str, cited: set[str], ctx: _Coverage) -> bool:
+    """Whether ``unit_id`` is a code block every line of which the Installation row prints and
+    whose supersession by it the stage can prove (``_supersession_gap``)."""
+    if _unit_kind(unit_id) != "code_block" or unit_id in ctx.examples:
+        return False
+    lines = _command_lines(ctx.text(unit_id))
+    if not lines or any(line not in ctx.commands for line in lines):
+        return False
+    return _supersession_gap(unit_id, "installation", cited, ctx) is None
+
+
+# What a re-homed unit says about itself. The disposition record has no other field for the cause
+# (DispositionsV1 is closed), so it opens the rationale, ahead of the reply's own words.
+REHOMED_RATIONALE = "Kept in {section}: {old} holds no {topic} material. "
+
+
+def _rehome_misfiled_units(
+    output: dict[str, Any], facts: FactsDocument, units: Mapping[str, Fact]
+) -> None:
+    """Move every kept unit filed in a section that has no place for its topic to the section that
+    does, in place.
+
+    Source READMEs put the alternative install blocks, the runtime floor and the dependency lists
+    under their own Installation heading; the shell prints Installation and Dependencies itself
+    and has no section for what they leave out, so the reconciler filed 124 such units across the
+    44 wave-6 bundles in Quick Start (55), Scope and Limitations (29), Documentation and Resources
+    (21) and elsewhere - sections whose contract rows (README_CONTRACT.md 10, 15, 16) hold one
+    example, a list of links and a list of limitations. Development and Testing is where
+    "install or build and run the suite" belongs (row 17), and ``destinations.rehomed`` names it
+    (or the next home when the repository has no build or test asset). Nothing is dropped here:
+    placement drops what Installation and Dependencies already state, from text, at render."""
+    holdable = holdable_sections(facts)
+    root = root_heading(list(units.values()))
+    for entry in output.get("dispositions", []):
+        if entry.get("disposition") not in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}:
+            continue
+        unit_id = str(entry.get("unit_id", "?"))
+        old = entry.get("destination_section")
+        heading = source_heading(units.get(unit_id))
+        home = rehomed(unit_id, heading, old, holdable, root)
+        if home is None:
+            continue
+        lead = REHOMED_RATIONALE.format(section=home, old=old, topic=path_topic(heading, root))
+        reason = str(entry.get("rationale") or "").strip()
+        room = _RATIONALE_LIMIT - len(lead)
+        if len(reason) > room:
+            reason = reason[: max(room - 3, 0)].rstrip() + "..."
+        entry["destination_section"] = home
+        entry["rationale"] = (lead + reason).strip()
+
+
 def normalize(
     output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> list[str]:
@@ -1449,7 +1565,9 @@ def normalize(
     contradicted = code_units_by_polarity(facts, "CONTRADICTED")
     contradicted_links = contradicted_link_hrefs(facts)
     commands = command_block_units(facts)
+    unpublished = unpublished_registry_blocks(facts)
     units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    fence_languages = _example_languages(facts)
     install_ids = sorted(
         f.id for f in facts.by_kind("install_command") if f.polarity == "SUPPORTED"
     )
@@ -1466,6 +1584,20 @@ def normalize(
         destination = entry.get("destination_section")
         disposition = entry.get("disposition")
         cited = set(entry.get("fact_ids") or [])
+        if unit in unpublished:
+            # The registry says nothing is published, so this command cannot be run, and the
+            # Installation row prints the source checkout in its place. Omitted, never kept in
+            # Development and Testing (BC-02, wave 6: JMAP-Rust and JMAP-Python kept it there).
+            if disposition != "OMIT_UNSUPPORTED":
+                entry["rationale"] = (
+                    "The registry lists no such package, so this install command cannot be run; "
+                    "the Installation section states that the package is unpublished and gives "
+                    "the source checkout."
+                )
+            entry["disposition"] = "OMIT_UNSUPPORTED"
+            entry["destination_section"] = None
+            entry["fact_ids"] = sorted(cited | {unpublished[unit]})
+            continue
         if disposition in PLACING and unit in unresolved:
             entry["disposition"] = "DEFER_UNRESOLVED"
             entry["destination_section"] = None
@@ -1515,6 +1647,19 @@ def normalize(
                 entry["destination_section"] = "development_testing"
                 entry["fact_ids"] = sorted(cited | set(build_ids or install_ids))
             continue
+        if (
+            disposition in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+            and install_ids
+            and _printed_by_installation(unit, cited, coverage)
+        ):
+            # A kept install block whose every line the Installation row prints already (the Maven
+            # and Gradle declarations, the clone-and-build lines, the verify line) is redundant:
+            # placing it prints the command twice, and at the source's release number it prints a
+            # stale one beside the current one (PDF-Java 015, wave 6).
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            entry["destination_section"] = "installation"
+            entry["fact_ids"] = sorted(cited | set(install_ids))
+            continue
         if disposition in PLACING and unit in contradicted:
             # The example failed at this revision: the block is never placed (README_CONTRACT.md
             # section 3), so the placement folds into an omission citing the contradiction.
@@ -1548,6 +1693,25 @@ def normalize(
                 entry["disposition"] = "VERIFIED_REWRITE"
                 entry["fact_ids"] = sorted(cited - bad_links)
                 continue
+            # The same fold for what BC-06 and BC-03 would find in the unit as printed: an
+            # edition label the contract forbids ("a commercial-edition feature", 3D-Java 072)
+            # or a fenced example no receipt verified (an indented ```cpp inside a limitations
+            # list, Slides-C++ 102). Both are certain, and both fail the finished README at a
+            # stage whose repair cannot touch a kept unit ("revised_output matches the causal
+            # stage's own output unchanged"); the substance stays, the wording is re-authored.
+            if unit_fact is not None and unit.rsplit(".", 1)[-1] in _PROSE_PRINTED_KINDS:
+                if edition_labels(unit_fact.value):
+                    entry["disposition"] = "VERIFIED_REWRITE"
+                    entry["rationale"] = (
+                        RECOVERED_LABEL_RATIONALE + str(entry.get("rationale") or "")
+                    )[:_RATIONALE_LIMIT]
+                    continue
+                if example_fences(unit_fact.value, fence_languages):
+                    entry["disposition"] = "VERIFIED_REWRITE"
+                    entry["rationale"] = (
+                        RECOVERED_FENCE_RATIONALE + str(entry.get("rationale") or "")
+                    )[:_RATIONALE_LIMIT]
+                    continue
         if disposition in PLACING and (
             destination == "banner" or (unit.endswith(".badge_row") and BANNER_FACT_ID in cited)
         ):
@@ -1695,6 +1859,7 @@ def normalize(
     # such as the OMIT_UNSUPPORTED-command branch's VERIFIED_PRESERVE into development_testing
     # above), in document order, so the first PLACING claim on a (section, fact) pair always
     # wins and is never itself downgraded.
+    _rehome_misfiled_units(output, facts, units_by_id)
     claims: Claims = {}
     for entry in output.get("dispositions", []):
         destination = entry.get("destination_section")
@@ -1742,17 +1907,32 @@ def _unit_ordinal(unit_id: str) -> int | None:
 def coordinate_neighbor_promises(
     dispositions: dict[str, Any], facts: FactsDocument
 ) -> dict[str, Any]:
-    """Defer a placed unit whose own text promises the block immediately following it in the
-    original document when that neighbor's own disposition does not survive to render anywhere,
-    and keep a lead-in and its payload one thing otherwise.
+    """Keep a lead-in and the block it introduces one thing: the same fate and the same section.
 
-    A lead-in (a paragraph or list ending ``:``) is never carried alone. Its payload is the next
-    code block, list or table: withheld (OMIT/DEFER) -> the lead-in is deferred with it; a
-    verified example the plan renders under its own lead-in -> the lead-in is superseded into the
-    example's section; a list placed in the same carry section -> the lead-in is superseded into
-    it, so the unit that carries the list states it. Cut-2 BC-10 triage cause 4 (Cells-Rust,
-    Cells-.NET, 3D-Python, Slides-Python): the composer otherwise authored a slot from the
-    sentence alone and invented the payload.
+    A lead-in (a paragraph or list ending ``:``) is never carried alone and never leaves its
+    block behind. Its payload is the next code block, list or table, and the pair is settled from
+    both sides, whichever of the two the reconciler got wrong:
+
+    * the block is omitted (``OMIT_UNSUPPORTED``): the lead-in is omitted with it, whether it was
+      placed or the model itself deferred it. BC-05 v7 blocks a *deferred* lead-in beside an
+      omitted block (``LEADIN_OF_WITHHELD_CONTENT``: "keep the block, or the lead-in has nothing to
+      lead"), and an omitted block cannot be kept (its package is not published), so the omission
+      is the only outcome that leaves nothing for the gate to hold against the pair (wave 6:
+      JMAP-.NET 014/015, Imaging-.NET 017/018, Font-Python 055/056);
+    * the block is deferred: a placed lead-in is deferred with it, held for the owner;
+    * the block is a verified example the plan renders under its own lead-in: the lead-in is
+      superseded into the example's section, also when the model had deferred it (PSD-Python);
+    * the block is a list placed in the same carry section: the lead-in is superseded into it, so
+      the unit that carries the list states it;
+    * both are placed, in different sections: the lead-in follows its block (PSD-.NET 012/013: the
+      sentence went to quick_start, the commands to development_testing, so the sentence ended in a
+      colon and nothing followed);
+    * the model deferred a bare lead-in ("Run a single test file:") while its block is kept: the
+      lead-in is kept with it. A lead-in that makes a claim of its own (a registry, a version, a
+      code span) stays deferred: its block being kept does not resolve what the model could not.
+
+    Cut-2 BC-10 triage cause 4 (Cells-Rust, Cells-.NET, 3D-Python, Slides-Python): the composer
+    otherwise authored a slot from the sentence alone and invented the payload.
 
     BC-10 coherence-gap, ``aspose-slides-foss/Aspose.Slides-FOSS-for-.NET``
     (``docs/DECISION_LOG.md`` 2026-09-17 14:14 UTC, corroborated 2026-09-24 10:14 UTC):
@@ -1771,25 +1951,27 @@ def coordinate_neighbor_promises(
     see whether a *different* unit - possibly reconciled in a different batch call - that its own
     text depends on survived. This function runs once, after ``merge_dispositions()`` folds every
     batch into one flat document, the one point a neighbor's own final disposition is visible
-    regardless of which batch produced it.
+    regardless of which batch produced it. It visits every colon-ending paragraph or list, not
+    only the placed ones: a lead-in the model withheld is as much a half of the pair.
 
     Detection is syntactic, not semantic (rule 13/14: a free-text semantic-similarity check is
     unreachable for a deterministic one): a ``paragraph``/``list`` unit whose own text ends with a
     colon is a forward reference to whatever block comes immediately next in
     ``evidence/facts/inherited.py``'s own ordinal numbering - the same class of literal, syntactic
     cue ``_INSTALL_COMMAND`` and the ``"> Installation"`` heading match already use elsewhere in
-    this file. Only an immediately-following *code block* is checked (the concrete, measured
-    shape); a promise that names a non-adjacent unit (docs/DECISION_LOG.md's own 2026-09-24
-    10:14 UTC entry names a second, harder, non-adjacent case on this same repository) needs its
-    own mechanism and is out of this fix's narrow scope. A neighbor that folds to
-    ``SUPERSEDE_REDUNDANT`` keeps its promise (the content it named still renders, just from a
-    deterministic section or an earlier placement) and is left alone; only ``OMIT_UNSUPPORTED``
-    and ``DEFER_UNRESOLVED`` - genuinely nothing rendered - break it.
+    this file. Only an immediately-following *code block, list or table* is the payload (the
+    concrete, measured shape); a promise that names a non-adjacent unit (docs/DECISION_LOG.md's
+    own 2026-09-24 10:14 UTC entry names a second, harder, non-adjacent case on this same
+    repository) needs its own mechanism and is out of this fix's narrow scope. A neighbor that
+    folds to ``SUPERSEDE_REDUNDANT`` keeps its promise (the content it named still renders, just
+    from a deterministic section or an earlier placement) and is left alone; only
+    ``OMIT_UNSUPPORTED`` and ``DEFER_UNRESOLVED`` - genuinely nothing rendered - break it.
 
     No existing check is weakened: this only narrows what a colon-ending unit's own
     ``VERIFIED_PRESERVE``/``VERIFIED_MOVE``/``VERIFIED_REWRITE``/``CORRECT_WITH_EVIDENCE`` may
-    still claim once its own promise is known to be broken, mirroring every other coordination
-    fold this file already applies (deferred for the owner, never silently dropped).
+    still claim once its own promise is known to be broken, and never publishes a claim S4 chose
+    to withhold, mirroring every other coordination fold this file already applies (deferred for
+    the owner, never silently dropped).
     """
     units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     entries_by_id = {
@@ -1797,8 +1979,6 @@ def coordinate_neighbor_promises(
     }
     examples = _example_status(facts)
     for entry in dispositions.get("dispositions", []):
-        if entry.get("disposition") not in PLACING:
-            continue
         unit = str(entry.get("unit_id", "?"))
         if unit.rsplit(".", 1)[-1] not in {"paragraph", "list"}:
             continue
@@ -1809,43 +1989,127 @@ def coordinate_neighbor_promises(
         neighbor = entries_by_id.get(payload) if payload is not None else None
         if payload is None or neighbor is None:
             continue
-        kind = _unit_kind(payload)
-        if neighbor.get("disposition") in {"OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"}:
+        _settle_lead_in(entry, unit_fact, neighbor, payload, examples)
+    return dispositions
+
+
+def _settle_lead_in(
+    entry: dict[str, Any],
+    lead: Fact,
+    neighbor: dict[str, Any],
+    payload: str,
+    examples: Mapping[str, tuple[str, str]],
+) -> None:
+    """One lead-in settled against its payload's disposition (``coordinate_neighbor_promises``)."""
+    state = entry.get("disposition")
+    block = neighbor.get("disposition")
+    if block == "OMIT_UNSUPPORTED":
+        if state in PLACING or state == "DEFER_UNRESOLVED":
+            _omit_lead_in(entry, neighbor, payload)
+        return
+    if block == "DEFER_UNRESOLVED":
+        if state in PLACING:
             entry["disposition"] = "DEFER_UNRESOLVED"
             entry["destination_section"] = None
-            continue
-        destination = entry.get("destination_section")
-        if kind == "code_block" and examples.get(payload, ("", ""))[0] == "SUPPORTED":
-            # Lead-in without payload (BC-10, Cells-Rust 025 / Cells-.NET / 3D-Python): the plan
-            # renders every verified example once, under its own authored lead-in (README_CONTRACT
-            # rows 10 and 12), and never places the inherited block behind it. The sentence that
-            # introduced that block is therefore redundant wherever the reconciler sent it, and
-            # preserved it lands detached, after the example, promising a block that is not there.
-            target = next(
-                (
-                    section
-                    for section in (destination, neighbor.get("destination_section"))
-                    if section in _EXAMPLE_SECTIONS
-                ),
-                None,
-            )
-            if target is not None and neighbor.get("disposition") in PLACING | {
-                "SUPERSEDE_REDUNDANT"
-            }:
-                _supersede_lead_in(entry, target)
+        return
+    kind = _unit_kind(payload)
+    target = neighbor.get("destination_section")
+    verified_example = kind == "code_block" and examples.get(payload, ("", ""))[0] == "SUPPORTED"
+    if state == "DEFER_UNRESOLVED":
+        # The model withheld the sentence; the block it introduces is kept or covered. The plan's
+        # own lead-in already introduces a verified example, so the sentence is covered with it.
+        # Otherwise only a bare introduction rejoins a kept block: it asserts nothing the model
+        # had left unresolved.
+        if verified_example and target in _EXAMPLE_SECTIONS and block in _KEPT_OR_COVERED:
+            _supersede_lead_in(entry, str(target))
         elif (
-            kind == "list"
-            and unit.rsplit(".", 1)[-1] == "paragraph"
-            and destination in _CARRY_SECTIONS
-            and neighbor.get("disposition") in PLACING
-            and neighbor.get("destination_section") == destination
+            kind == "code_block"
+            and block in PLACING
+            and target in placeable_section_ids()
+            and _bare_lead_in(lead.value)
         ):
-            # Lead-in without payload (BC-10, Slides-Python 114/115): a carry section authors one
-            # slot per unit, so a preserved lead-in became a slot of its own with no list under
-            # it, and the composer invented one (58 names, none from the README). Superseded into
-            # the section, the unit that carries the list must state it (authoring.carried_units).
-            _supersede_lead_in(entry, str(destination))
-    return dispositions
+            entry["disposition"] = "VERIFIED_PRESERVE"
+            entry["destination_section"] = target
+            entry["rationale"] = _LEAD_IN_KEPT_RATIONALE
+        state = entry.get("disposition")
+    if state not in PLACING:
+        return
+    destination = entry.get("destination_section")
+    if verified_example:
+        # Lead-in without payload (BC-10, Cells-Rust 025 / Cells-.NET / 3D-Python): the plan
+        # renders every verified example once, under its own authored lead-in (README_CONTRACT
+        # rows 10 and 12), and never places the inherited block behind it. The sentence that
+        # introduced that block is therefore redundant wherever the reconciler sent it, and
+        # preserved it lands detached, after the example, promising a block that is not there.
+        section = next(
+            (s for s in (destination, target) if s in _EXAMPLE_SECTIONS),
+            None,
+        )
+        if section is not None and block in _KEPT_OR_COVERED:
+            _supersede_lead_in(entry, section)
+            return
+    if (
+        kind == "list"
+        and _unit_kind(str(entry.get("unit_id"))) == "paragraph"
+        and destination in _CARRY_SECTIONS
+        and block in PLACING
+        and target == destination
+    ):
+        # Lead-in without payload (BC-10, Slides-Python 114/115): a carry section authors one
+        # slot per unit, so a preserved lead-in became a slot of its own with no list under
+        # it, and the composer invented one (58 names, none from the README). Superseded into
+        # the section, the unit that carries the list states it (authoring.carried_units).
+        _supersede_lead_in(entry, str(destination))
+        return
+    if block in PLACING and target in placeable_section_ids() and target != destination:
+        # PSD-.NET 012/013: the sentence was sent to quick_start and the commands it introduces
+        # to development_testing (each unit takes the nearest section that suits it), so it ended
+        # in a colon with nothing after it. The block is the content; the sentence follows it.
+        entry["destination_section"] = target
+        entry["rationale"] = _LEAD_IN_FOLLOWED_RATIONALE
+
+
+def _omit_lead_in(entry: dict[str, Any], neighbor: Mapping[str, Any], payload: str) -> None:
+    """Omit a lead-in with the block it introduces. An omission names what shows the claim
+    unsupported (``placement_errors``' own rule for prose), which for a lead-in is its block: the
+    block's own citations, or the block itself when it cited none."""
+    entry["disposition"] = "OMIT_UNSUPPORTED"
+    entry["destination_section"] = None
+    entry["fact_ids"] = sorted(set(neighbor.get("fact_ids") or [])) or [payload]
+    entry["rationale"] = _LEAD_IN_OMITTED_RATIONALE.format(block=payload)
+
+
+# What a lead-in's block may be doing for the lead-in to follow it: kept, or covered by a section
+# or the plan's own rendering of the example.
+_KEPT_OR_COVERED = PLACING | {"SUPERSEDE_REDUNDANT"}
+_LEAD_IN_OMITTED_RATIONALE = (
+    "Lead-in of the omitted block that follows ({block}): withheld with it, never alone."
+)
+_LEAD_IN_KEPT_RATIONALE = "Lead-in of the kept block that follows: placed with it, never alone."
+_LEAD_IN_FOLLOWED_RATIONALE = "Lead-in of the block that follows: kept in its section, with it."
+# A bare introduction asserts nothing of its own: one short sentence with no code span, link,
+# number, or word that speaks for a registry, a release or an install. Anything else is a claim
+# the model chose to leave unresolved, and a kept block does not resolve it.
+_BARE_LEAD_IN_WORDS = 14
+_CLAIM_WORDS = re.compile(
+    r"\b(?:install\w*|publish\w*|releas\w*|version\w*|registry|pypi|npm|nuget|maven|crates?|"
+    r"cargo|pip|supports?|requires?|compatible|works?)\b",
+    re.IGNORECASE,
+)
+_SENTENCE_BREAK = re.compile(r"[.!?]\s+\S")
+
+
+def _bare_lead_in(text: str) -> bool:
+    """Whether a colon-ending sentence only introduces what follows (``_CLAIM_WORDS``)."""
+    body = " ".join(text.split()).rstrip(":").strip()
+    return (
+        bool(body)
+        and len(body.split()) <= _BARE_LEAD_IN_WORDS
+        and not any(mark in body for mark in ("`", "](", "://"))
+        and not any(character.isdigit() for character in body)
+        and _SENTENCE_BREAK.search(body) is None
+        and _CLAIM_WORDS.search(body) is None
+    )
 
 
 _PAYLOAD_KINDS = frozenset({"code_block", "list", "table"})
@@ -1982,6 +2246,173 @@ def _coverage_errors(
     return errors
 
 
+# What BC-06, BC-03 and BC-08 will find in a unit printed as written. Each is certain, not a
+# heuristic: the finished README holds the unit's text verbatim, so the check that fails it later
+# fails it now, at the stage whose disposition caused it (wave 6: 3D-Java 072.list, Slides-C++
+# 102.list, JMAP-TypeScript 013.code_block). ``VERIFIED_PRESERVE`` and ``VERIFIED_MOVE`` print a
+# unit; ``VERIFIED_REWRITE`` re-authors it, so the label and the fence are gone from it.
+_PRINTED_AS_WRITTEN = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
+_PROSE_PRINTED_KINDS = frozenset({"paragraph", "list", "table", "blockquote"})
+# validation/registry._EDITION (BC-06): any capitalised "Xxx Edition" but Enterprise. Restated
+# here because that module imports this one.
+_OTHER_EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
+_INLINE_CODE = re.compile(r"`[^`\n]*`")
+# validation/registry._COMMAND (BC-08): a line that starts one of the maintainers' commands.
+_COMMAND_LINE = re.compile(
+    r"^\s*(?:[$>]\s*)?(?:pip3?|python3?(?:\s+-m)?|npm|npx|yarn|pnpm|dotnet|mvn|gradle|go|"
+    r"cargo|cmake|make|git)\b(?!-)",
+    re.IGNORECASE,
+)
+UNPRINTED_COMMAND = "unprinted_command"
+RECOVERED_LABEL_RATIONALE = "Restated: it names an edition BC-06 forbids. "
+RECOVERED_FENCE_RATIONALE = "Restated: it embeds an unverified code example BC-03 forbids. "
+
+
+def edition_labels(text: str) -> list[str]:
+    """The edition names BC-06 forbids in prose: a substitute for Enterprise Edition ("commercial
+    edition", "paid version") or any other capitalised "Xxx Edition". Code spans are not prose."""
+    prose = _INLINE_CODE.sub(" ", text)
+    return [
+        *edition_substitutes(prose),
+        *(m.group(0) for m in _OTHER_EDITION.finditer(prose) if m.group(1) != "Enterprise"),
+    ]
+
+
+def example_fences(text: str, languages: Collection[str]) -> list[str]:
+    """The fence languages of ``text`` BC-03 holds to a planned, verified example: every fenced
+    block, wherever it sits (a list item's indented fence included), read as CommonMark reads it."""
+    found: list[str] = []
+    for token in MarkdownIt("commonmark").parse(text):
+        if token.type == "fence":
+            info = token.info.strip()
+            language = info.split()[0] if info else ""
+            if language.lower() in languages:
+                found.append(language)
+    return found
+
+
+def _example_languages(facts: FactsDocument) -> frozenset[str]:
+    ecosystem = next(
+        (f.value for f in facts.by_kind("identity") if f.id == "identity:ecosystem"), ""
+    )
+    try:
+        return spec_for(ecosystem).example_fences
+    except ConfigError:
+        return frozenset()
+
+
+def unprinted_commands(text: str, facts: FactsDocument) -> list[str]:
+    """The command lines of a code block that no verified section prints: not the Installation
+    row's lines (``_rendered_commands``) and not a build or test command the repository records.
+    BC-08 holds every command of a kept block to the finished README, so a block that is
+    corrected or rewritten (and so never printed as written) must have none."""
+    printed = set(_rendered_commands(facts))
+    for fact in facts.by_kind("build_test_asset"):
+        if fact.polarity == "SUPPORTED":
+            printed.update(_command_lines(fact.value))
+    return [
+        raw.strip()
+        for raw in text.splitlines()
+        if _COMMAND_LINE.match(raw) and (_command_lines(raw) or [""])[0] not in printed
+    ]
+
+
+# A kept unit is printed after its section's own content, so a sentence of it that points at what
+# "follows" can only be answered by a unit kept right after it in the same section. These are the
+# kinds a kept unit may be: prose and tables print as written, a shell command block too (an
+# example block is the plan's, rendered ahead of the kept units). The last few units of a batch are
+# not judged: the unit that answers them may be the first of the next batch.
+_POINTER_REFERENTS = frozenset({"paragraph", "list", "table", "blockquote"})
+_POINTER_BATCH_TAIL = 3
+_POINTS_UP = re.compile(r"precedes it|ends with a colon|' section this README does not have")
+_NAMED_SECTION = re.compile(r"refers to a '([^']+)' section this README does not have")
+_TOP_HEADING = re.compile(r"^#{1,2}\s+(.*?)\s*#*\s*$")
+
+
+def _unanswerable_section(reason: str, former: Collection[str]) -> bool:
+    """Whether a "refers to a 'N' section this README does not have" reason names a section no
+    heading can answer: one pointed at as "below" (kept units print after their section's
+    content, and a heading is the shell's), or one the old README had at the top level and the
+    shell does not print (``former``)."""
+    match = _NAMED_SECTION.search(reason)
+    if match is None:
+        return False
+    name = match.group(1)
+    return name.lower().endswith((" below", " above")) or heading_slug(name) in former
+
+
+def dangling_pointers(
+    output: Mapping[str, Any], facts: FactsDocument
+) -> list[tuple[str, str, str]]:
+    """``(unit_id, sentence, reason)`` for each kept-as-written paragraph or list that points
+    forward ("the table below", "the following example", "see Encryption and Signing below") at
+    something no unit kept after it in the same section provides (BC-07 v11, composition/
+    references.py: Words-.NET 046, Slides-Java 037, PDF-Go 025 - each failed after S5 to S8 with a
+    pointer reconciliation alone could have undone).
+
+    The section is the reference check's own scope: its kept units, in order, under their section
+    heading, so the verdict is the one BC-07 gives the finished README for these units. A pointer
+    upward, a colon left open (``coordinate_neighbor_promises`` settles those) and a named section
+    this stage cannot see the headings of are not judged here, except the two a heading can never
+    answer: a section named with "below", and a top-level section of the old README the shell does
+    not print under that name (Slides-.NET: "listed in full under What it cannot do")."""
+    inherited = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    tail = set(list(inherited)[-_POINTER_BATCH_TAIL:])
+    commands = command_block_units(facts)
+    placeable = placeable_section_ids()
+    shell_slugs = frozenset(
+        heading_slug(section.heading) for section in SEMANTIC_SHELL if section.heading
+    )
+    printed = shell_slugs | {heading_slug(title) for title in SUBSECTION_HEADINGS}
+    former = {
+        heading_slug(match.group(1))
+        for fact in inherited.values()
+        if fact.id.endswith(".heading") and (match := _TOP_HEADING.match(fact.value.strip()))
+    } - printed
+    kept: dict[str, list[tuple[str, str]]] = {}
+    for entry in output.get("dispositions", []):
+        unit = str(entry.get("unit_id", "?"))
+        destination = entry.get("destination_section")
+        fact = inherited.get(unit)
+        if (
+            fact is None
+            or entry.get("disposition") not in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+            or destination not in placeable
+        ):
+            continue
+        if _unit_kind(unit) in _POINTER_REFERENTS or unit in commands:
+            # Placement drops an intra-document link to a heading the candidate does not render
+            # to its plain text (``resolve_intra_document_anchors``), and the sentence BC-07 reads
+            # is that one: only the shell's own headings survive.
+            text = resolve_intra_document_anchors(fact.value, shell_slugs)
+            kept.setdefault(str(destination), []).append((unit, text))
+    found: list[tuple[str, str, str]] = []
+    for destination, units in kept.items():
+        document = "\n\n".join([f"## {destination}", *(text.strip("\n") for _, text in units)])
+        for reference in dangling_references(document):
+            reasons = [
+                reason
+                for reason in reference.reason.split("; ")
+                if not _POINTS_UP.search(reason) or _unanswerable_section(reason, former)
+            ]
+            if not reasons:
+                continue
+            sentence = " ".join(reference.sentence.split())
+            owner = next(
+                (
+                    unit_id
+                    for unit_id, text in units
+                    if unit_id not in tail
+                    and _unit_kind(unit_id) in {"paragraph", "list"}
+                    and sentence in " ".join(text.split())
+                ),
+                None,
+            )
+            if owner is not None:
+                found.append((owner, sentence, "; ".join(reasons)))
+    return found
+
+
 def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     """Why the dispositions may not be used, beyond schema and binding; empty when they hold.
 
@@ -1998,6 +2429,7 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     holdable = holdable_sections(facts)
     contradicted = contradicted_code_units(facts)
     commands = command_block_units(facts)
+    unpublished = unpublished_registry_blocks(facts)
     inherited = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     unit_text = {unit_id: fact.value for unit_id, fact in inherited.items()}
     build_facts = sorted(
@@ -2034,7 +2466,12 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
                 f"the shell can hold; the unit's exact text is {text}.{candidate_clause} Cite the "
                 "supporting fact IDs or place the unit; do not omit it without a cited reason"
             )
-        if disposition == "OMIT_UNSUPPORTED" and unit in commands and build_facts:
+        if (
+            disposition == "OMIT_UNSUPPORTED"
+            and unit in commands
+            and build_facts
+            and unit not in unpublished
+        ):
             # A command block is the maintainers' own build, test, or install command, not a
             # claim a fact could refute; with build or install facts recorded it is kept.
             errors.append(
@@ -2064,6 +2501,49 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
             errors.append(f"{unit}: {disposition} takes no destination; got {destination!r}")
         if disposition == "CORRECT_WITH_EVIDENCE" and not cited:
             errors.append(f"{unit}: CORRECT_WITH_EVIDENCE needs at least one fact ID as evidence")
+    pointers: dict[str, list[str]] = {}
+    for unit, sentence, reason in dangling_pointers(output, facts):
+        pointers.setdefault(unit, []).append(f"{json.dumps(sentence, ensure_ascii=False)} {reason}")
+    for unit, said in pointers.items():
+        kept = next(e for e in output.get("dispositions", []) if e.get("unit_id") == unit)
+        errors.append(
+            f"{unit}: {DANGLING_POINTER}: {kept.get('disposition')} keeps it as written in "
+            f"{kept.get('destination_section')}, but its sentence "
+            f"{'; and '.join(said)[:_QUOTE_LIMIT]}. Kept units print after the section's own "
+            "content, so a pointer to what follows is answered only by a unit kept right after it "
+            "in the same section: keep that unit there too, or choose VERIFIED_REWRITE (the "
+            "wording is re-authored from facts, without the pointer), or OMIT_UNSUPPORTED citing "
+            "the fact that shows the claim unsupported"
+        )
+    # BC-08 mirror (JMAP-TypeScript 013): a code block is printed as written or not at all. A
+    # correction or a rewrite of it prints nothing of it, and BC-08 reads the block's own commands
+    # ("npm install aspose-jmap-foss-ts", for a package no registry lists) against the finished
+    # README, where no verified section prints them: the disposition only looked like a way out.
+    verified_blocks = _example_status(facts)
+    for entry in output.get("dispositions", []):
+        unit = str(entry.get("unit_id", "?"))
+        if (
+            entry.get("disposition") not in {"CORRECT_WITH_EVIDENCE", "VERIFIED_REWRITE"}
+            or not unit.endswith(".code_block")
+            or unit in verified_blocks
+            or unit not in inherited
+        ):
+            continue
+        unprinted = unprinted_commands(unit_text[unit], facts)
+        if unprinted:
+            keep = (
+                "keep it as written (VERIFIED_PRESERVE or VERIFIED_MOVE into a section that can "
+                "hold it), or SUPERSEDE_REDUNDANT by installation if the Installation row prints it"
+                if unit in commands and build_facts
+                else "keep it as written (VERIFIED_PRESERVE or VERIFIED_MOVE), or withhold it "
+                "(OMIT_UNSUPPORTED citing the fact that shows it unsupported, or DEFER_UNRESOLVED)"
+            )
+            errors.append(
+                f"{unit}: {UNPRINTED_COMMAND}: {entry.get('disposition')} edits a code block the "
+                "README prints only as written, and BC-08 holds every command in it to the "
+                f"finished README, where no verified section prints {', '.join(unprinted[:3])!r}. "
+                f"Choose: {keep}"
+            )
     # What normalize folds on its own is not refused: a supersession into a section the shell can
     # hold becomes a placement, and an omitted unresolved example a deferral. What is left is a
     # claim only a different reply, or the last attempt's deferral, can correct.
@@ -2253,6 +2733,23 @@ def _code_spans_name_a_symbol(text: str, facts: FactsDocument) -> bool:
     )
 
 
+RECOVERED_POINTER_RATIONALE = "Its pointer has no referent where it is kept; restated. "
+
+
+def _recover_dangling_pointers(output: dict[str, Any], facts: FactsDocument) -> bool:
+    """Fold, in place, every kept-as-written unit whose forward pointer nothing answers
+    (``dangling_pointers``) into ``VERIFIED_REWRITE``: its substance stays, and the wording is
+    re-authored from facts, without a sentence that points at what is not there. Only reached for
+    a reply that survived the one re-ask with such a unit. Returns whether anything changed."""
+    pointed = {unit for unit, _, _ in dangling_pointers(output, facts)}
+    for entry in output.get("dispositions", []):
+        if entry.get("unit_id") in pointed:
+            said = str(entry.get("rationale") or "").strip()
+            entry["disposition"] = "VERIFIED_REWRITE"
+            entry["rationale"] = (RECOVERED_POINTER_RATIONALE + said)[:_RATIONALE_LIMIT]
+    return bool(pointed)
+
+
 def recover_uncited_prose_omits(
     output: dict[str, Any],
     facts: FactsDocument,
@@ -2339,7 +2836,8 @@ def recover_uncited_prose_omits(
         entry["rationale"] = lead + reason
     # An entry deferred above is no longer an omission, so the coverage fold sees what is left.
     folded = _recover_uncovered(recovered, facts, holdable)
-    return recovered if uncited or folded else None
+    pointed = _recover_dangling_pointers(recovered, facts)
+    return recovered if uncited or folded or pointed else None
 
 
 def reconcile_checks(

@@ -413,6 +413,22 @@ def test_a_finding_the_reviewer_flags_as_its_own_defect_does_not_count() -> None
     assert _row(record, "C10")["status"] == MET
 
 
+def test_a_finding_demoted_as_outside_repair_scope_does_not_count() -> None:
+    """Blaming S6 for a block the renderer prints names no stage that can act: it is deferred
+    repair work no revision could do (README_CONTRACT section 6), so it does not mark the review
+    criterion NOT_MET - and a finding about the section's composer-owned prose still does."""
+    demoted = {
+        "id": "F5",
+        "section_id": "key_capabilities",
+        "criterion": "presentation",
+        "causal_stage": "S6",
+        "demoted": {"rule": "RENDERER_OWNED_SECTION", "section": "key_capabilities", "stage": "S6"},
+    }
+    assert _row(_score(review=_review(advisory=[demoted])), "C10")["status"] == MET
+    standing = {k: v for k, v in demoted.items() if k != "demoted"}
+    assert _row(_score(review=_review(advisory=[standing])), "C10")["status"] == NOT_MET
+
+
 def test_a_rejection_on_other_sections_leaves_an_unrelated_review_criterion_unevaluated() -> None:
     finding = {
         "id": "F4",

@@ -41,7 +41,8 @@ def format_facts(
         outcome: ExampleOutcome = receipt.outcome if receipt else "NOT_VERIFIED"
         detail = receipt.detail if receipt else "no verification receipt"
         claimed_directions: dict[str, set[str]] = {}
-        for claim in claims_for(candidate.code):
+        claims = list(claims_for(candidate.code))
+        for claim in claims:
             key: tuple[str, str] = (claim.direction, claim.extension)
             line = candidate.start_line + claim.line
             evidence.setdefault(key, []).extend(
@@ -69,8 +70,19 @@ def format_facts(
                 # fixture-staging literal match is a pure text scan with no read/write
                 # distinction (G4-W17 item 109/E23) and would otherwise assert the
                 # contradictory input direction for the identical example. The syntax-tree
-                # claim is more precise and wins; the fixture-staging claim is suppressed.
-                continue
+                # claim is more precise and wins; the fixture-staging claim is suppressed -
+                # for that file. When the plugin records the literals its claims were read from,
+                # a staged literal the example does not save to stays an input: Slides-Python's
+                # ``Presentation("input.pptx")`` opens the deck ``prs.save("output.pptx")`` writes,
+                # and judging by extension alone made the product's own format never an input.
+                saved = {
+                    literal
+                    for claim in claims
+                    if claim.direction == "output" and claim.extension == extension
+                    for literal in claim.literals
+                }
+                if not saved or binding.literal in saved:
+                    continue
             key = ("input", extension)
             evidence.setdefault(key, []).append(
                 Evidence(

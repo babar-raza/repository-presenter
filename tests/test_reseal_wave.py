@@ -290,6 +290,9 @@ elif cmd == "present":
     n = 2 if os.path.exists("runs/ledger-1.jsonl") else 1
     if mode == "hang" and n == 1:
         time.sleep(600)
+    if mode == "slow" and n == 1:
+        print("facts: runs/x/facts.json (1500 records: example 3, inherited_unit 1000)", flush=True)
+        time.sleep(4)
     calls = 3 if n == 1 else 0
     with open(f"runs/ledger-{n}.jsonl", "w") as ledger:
         for _ in range(calls):
@@ -363,6 +366,41 @@ def test_run_job_times_out_and_kills_the_run(tmp_path, monkeypatch) -> None:
     row = rw.run_job(runner, job)
     assert row["status"] == "TIMEOUT" and row["failure_class"] == "timeout"
     assert runner.live == set()  # nothing left running
+
+
+PDF_TS_FACTS = (
+    "facts: runs/transactions/aspose-pdf-foss__X/c672b39/facts.json (3714 records: "
+    "build_test_asset 5, dependency 5, example 117, identity 5, import_path 1, "
+    "inherited_unit 541, install_command 1, license 2, link_target 38, package 3, "
+    "public_symbol 2995, third_party_notices 1; digest 76000d79)"
+)
+
+
+def test_the_budget_grows_with_the_inherited_units_the_run_reconciles() -> None:
+    """Wave 6, PDF-TypeScript: 541 inherited units are 52 sequential source_reconciliation calls
+    (37 of the 60 minutes) and the row timed out in present-1 for a reason that is a size, not a
+    defect. The `facts:` line `present` prints before any provider call says how big the run is."""
+    assert rw.budget_extension(PDF_TS_FACTS) == (541 - rw.UNIT_BASELINE) * rw.SECONDS_PER_EXTRA_UNIT
+    assert rw.budget_extension(PDF_TS_FACTS, per_unit=0) == 0
+    assert rw.budget_extension("facts: runs/x (30 records: inherited_unit 30)") == 0
+    assert rw.budget_extension("snapshot: x at abc" + chr(10) + "examples: 117 candidates") == 0
+    assert rw.budget_extension("") == 0
+
+
+def test_a_large_run_is_given_the_time_its_size_needs_and_a_small_one_is_not(
+    tmp_path, monkeypatch
+) -> None:
+    runner, job = _fake_runner(tmp_path, monkeypatch, "slow", timeout=2)
+    runner.poll_seconds, runner.seconds_per_unit = 0.2, 0.05  # 900 extra units: 45 s more
+    row = rw.run_job(runner, job)
+    assert row["status"] == "SEALED", row
+    # Negative control: the same run with scaling off still times out at its base budget.
+    (tmp_path / "again").mkdir()
+    runner, job = _fake_runner(tmp_path / "again", monkeypatch, "slow", timeout=2)
+    runner.poll_seconds, runner.seconds_per_unit = 0.2, 0.0
+    row = rw.run_job(runner, job)
+    assert row["status"] == "TIMEOUT" and row["failure_class"] == "timeout"
+    assert runner.live == set()
 
 
 def test_default_parallelism_is_three_and_the_ceiling_stays_eight() -> None:

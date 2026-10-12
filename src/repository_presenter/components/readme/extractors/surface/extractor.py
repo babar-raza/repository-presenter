@@ -51,7 +51,10 @@ lang.LANGUAGES.setdefault("javascript", lang.typescript)
 # 4: CUT-4 (G3-W08): TypeScript nested type-literal fields are not members, license and notices
 # files
 # under License/ directories, the registry-lag fact, the JavaScript adapter.
-EXTRACTOR_VERSION = "4"
+# 5: wave 6 (G3-W08, cut 6): an unpublished package with a documented build is a source_checkout
+# install fact, registry readings are classed, example receipts hold no wall-clock text, and the
+# Python format facts tell a saved fixture from an opened one.
+EXTRACTOR_VERSION = "5"
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 

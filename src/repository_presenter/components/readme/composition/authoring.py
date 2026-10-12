@@ -45,6 +45,7 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.components.readme.composition.components.terminology import (
     canonical_forms,
 )
+from repository_presenter.components.readme.composition.coverage import states_all
 from repository_presenter.components.readme.composition.list_coverage import (
     OWED_SECTIONS,
     kept_lists,
@@ -386,7 +387,10 @@ _TYPE_OBJECTIVE = (
 # list's unstated item is no longer a refusal (placement prints it), the stray-identifier check
 # judges a slash-joined pair name by name, and the title-restatement test sees lowerCamel and
 # I-prefixed members and matches whole words.
-NORMALISATION_VERSION = "35"
+# 36: wave 6 (G3-W08, cut 6): the words of a recorded install/build/test command are spellable, a
+# stray identifier that differs from one accepted spelling only in case is restored to it, and a
+# kept unit in the same section discharges a superseded unit it already states (carried_units).
+NORMALISATION_VERSION = "36"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # plans/idea.md L51-53: "Enterprise Edition" is the only edition name; "commercial edition,"
 # "On-Premise edition," "paid version," "full version," "or another substitute" are forbidden.
@@ -681,14 +685,26 @@ def carried_units(dispositions: dict[str, Any], section: str, facts: FactsDocume
     """
     if section not in _CARRY_SECTIONS:
         return []
-    known = {fact.id for fact in facts.facts if fact.kind == "inherited_unit"}
+    texts = {fact.id: fact.value for fact in facts.facts if fact.kind == "inherited_unit"}
+    # What a kept unit placed in this section prints as written: a superseded unit it already
+    # states (Slides-Python wave 6: the `SaveFormat` enum bullet and the README's own list of
+    # save-format limitations, both in Scope) is not owed to the authored units a second time.
+    kept = "\n\n".join(
+        texts[entry["unit_id"]]
+        for entry in dispositions.get("dispositions", [])
+        if entry.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+        and entry.get("destination_section") == section
+        and entry.get("unit_id") in texts
+        and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
+    )
     return [
         entry["unit_id"]
         for entry in dispositions.get("dispositions", [])
         if entry.get("disposition") == "SUPERSEDE_REDUNDANT"
         and entry.get("destination_section") == section
-        and entry.get("unit_id") in known
+        and entry.get("unit_id") in texts
         and str(entry.get("unit_id")).endswith(_CARRIABLE_SUFFIXES)
+        and not (kept and states_all(kept, texts[entry["unit_id"]]))
     ]
 
 
@@ -1514,6 +1530,35 @@ def slash_alternatives(token: str) -> list[tuple[str, str]] | None:
     return names
 
 
+def restore_case_variants(text: str, strays: Iterable[str], pool: Iterable[str]) -> str:
+    """``text`` with each stray identifier that differs from exactly one accepted spelling only in
+    letter case written as that spelling.
+
+    ``identifier_allowed`` stays exact: a package coordinate is not matched case-insensitively
+    (README_CONTRACT.md section 2: exact package names keep their source spelling verbatim). What
+    a model copied from a lower-cased fact ID (``layerblendingrangesdata.length`` for the accepted
+    ``LayerBlendingRangesData.length``, wave 5, PSD-Python) is the same name, and the one fix that
+    changes no claim is the accepted spelling itself - the code's to write, like a code span, not
+    the model's to be re-asked for. An ambiguous match (two accepted spellings differ only in case)
+    is left to the refusal, and so is everything that differs by more than case. So is a file name:
+    ``contributing.md`` beside the recorded ``CONTRIBUTING.md`` names another file on a
+    case-sensitive system, and the refusal is deliberate (G7-W23)."""
+    by_lower: dict[str, set[str]] = {}
+    for spelling in pool:
+        if _SPELLABLE.fullmatch(spelling):
+            bare = spelling[:-2] if spelling.endswith("()") else spelling
+            by_lower.setdefault(bare.lower(), set()).add(bare)
+    for token in strays:
+        bare = token[:-2] if token.endswith("()") else token
+        if bare.rsplit(".", 1)[-1].lower() in _FILE_SUFFIXES:
+            continue
+        matches = by_lower.get(bare.lower(), set()) - {bare}
+        if len(matches) == 1:
+            (accepted,) = matches
+            text = re.sub(rf"(?<![\w.]){re.escape(bare)}(?![\w])", accepted, text)
+    return text
+
+
 def stray_identifiers(tokens: Iterable[str], unaccepted: Callable[[str], bool]) -> list[str]:
     """The identifiers among ``tokens`` that ``unaccepted`` refuses, sorted, each once.
 
@@ -1579,6 +1624,32 @@ def command_block_tokens(text: str) -> set[str]:
     for match in _FENCED_BLOCK.finditer(text):
         if match.group(1).strip().lower() in _COMMAND_FENCES:
             found.update(identifier_tokens(match.group(2)))
+    return found
+
+
+def command_fact_tokens(fact: Fact) -> set[str]:
+    """Identifiers spelled by the command a fact records: a file or target its words name.
+
+    ``build_test_asset:build-command`` is ``dotnet build Aspose.Slides.Foss.sln`` and
+    ``test-command`` ``dotnet test Aspose.Slides.Foss.sln``: the solution file is a word of an
+    accepted fact value, yet only the whole command line was allowed, so a summary naming the
+    solution file was refused three times (wave 6, Slides-.NET). The maintainers' command states
+    a path, a target or an output file and no product claim, exactly as a shell fence does
+    (``command_block_tokens``), so its words are as spellable as that fence's identifiers. Only a
+    fact that records a command counts (an install command, a build or test command): a recorded
+    directory or workflow file is not a command, and a flag or a URL is no identifier.
+    """
+    attributes = fact.attributes or {}
+    if fact.kind != "install_command" and not (
+        fact.kind == "build_test_asset" and str(attributes.get("role", "")).endswith("command")
+    ):
+        return set()
+    found: set[str] = set()
+    for line in fact.value.splitlines():
+        for word in line.split():
+            word = word.strip("\"'(),;")
+            if word and not word.startswith("-") and "://" not in word:
+                found.update(identifier_tokens(word))
     return found
 
 
@@ -1826,6 +1897,11 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
         # of Maven, npm or cargo commands - spells paths, tools and output files, never a product
         # claim, so its identifiers are spellable too (G4-W17 arrival item 44).
         allowed.update(command_block_tokens(fact.value))
+        # The words of a recorded command (a solution file, a script, a target), never a spelling
+        # of the product itself (the clone line's directory is one).
+        allowed.update(
+            token for token in command_fact_tokens(fact) if not spells_the_product(token, name)
+        )
         # A file name the upstream README spells and the pinned tree contains (G7-W23): the
         # extractor checked it against the tree, so it is as spellable as a fact value.
         # A project or directory name that is itself a spelling of the product ("Aspose.Pdf.Foss"
@@ -2306,10 +2382,16 @@ def unit_checks(
         strays = stray_identifiers(
             identifier_tokens(mask_allowed_values(text, allowed)), unaccepted
         )
+        pool = allowed | members | frozenset(name for found in methods.values() for name in found)
         if strays:
-            pool = (
-                allowed | members | frozenset(name for found in methods.values() for name in found)
-            )
+            restored = restore_case_variants(text, strays, pool)
+            if restored != text:
+                text = restored
+                unit["text"] = text
+                strays = stray_identifiers(
+                    identifier_tokens(mask_allowed_values(text, allowed)), unaccepted
+                )
+        if strays:
             shown = []
             for token in strays:
                 near = nearest_accepted_identifiers(token, pool)

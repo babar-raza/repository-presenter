@@ -110,7 +110,7 @@ content: `D` deterministic renderer from facts, `L` LLM content units bound to f
 | 5 | `navigation` | Navigation | Required | visible | D | An explicit `## Navigation` heading, then a compact list of in-page links to the visible headed sections actually present, in document order. |
 | 6 | `at_a_glance` | At a Glance | Conditional: at least three verified core capabilities | visible | M | Exactly one Mermaid fence and nothing else (§2.1). Starting Points appear only when a verified input format exists; a product that creates from scratch still gets the diagram, without them. |
 | 7 | `key_capabilities` | Key Capabilities | Required | visible | L | Three to eight items. Each title is an action-led natural phrase grounded in facts; each description is one sentence naming the real classes or members it rests on. A capability with a known limitation says so inline with a link to Scope and Limitations rather than overstating. At most one search-intent keyword per title, with an output-lineage record; no keyword repeats across titles. |
-| 8 | `installation` | Installation | Required | visible | D | Verified install for the ecosystem's package manager from manifest plus package-registry observation, in every idiomatic form the ecosystem uses, each in its own fenced block (Maven and Gradle for Java; pip for Python; `go get`; `cargo add`; `dotnet add package`; npm); then the verified source install as a fallback (clone, then build or editable install); then a one-line verify command when the ecosystem has an idiomatic one (an import or version print); then one sentence on supported runtimes from manifest facts. Never an unverified command. State plainly when the package-registry observation shows the package is not yet published, rather than presenting an unqualified install command the registry itself contradicts. |
+| 8 | `installation` | Installation | Required | visible | D | Verified install for the ecosystem's package manager from manifest plus package-registry observation, in every idiomatic form the ecosystem uses, each in its own fenced block (Maven and Gradle for Java; pip for Python; `go get`; `cargo add`; `dotnet add package`; npm); then the verified source install as a fallback (clone, then build or editable install); then a one-line verify command when the ecosystem has an idiomatic one (an import or version print); then one sentence on supported runtimes from manifest facts. Never an unverified command. State plainly when the package-registry observation shows the package is not yet published, rather than presenting an unqualified install command the registry itself contradicts. When the registry's own answer is that nothing is published (a 404, an empty Go version list, crates.io or Maven Central "not found") or the ecosystem has no registry, and the maintainers' own README says the package is unpublished, the install is the source checkout: the clone, then a measured build when one exited 0 at this revision, else the build the repository's own workflow, script or toolchain names, stated as not run here (`install_kind: source_checkout`, `source_basis: documented`); no registry install command is printed for it. A registry that could not be read admits none of this (it is retried, not reported as an absent package). |
 | 9 | `dependencies` | Dependencies | Required | visible | D | From the dependency snapshot, in four subsections in this order — Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. Optional, Native and System, and Development omit silently when their own bucket is genuinely empty; Required omits only its bullet list, rendering the fixed sentence "No required third-party package dependencies." plus the manifest evidence in one clause, instead of vanishing, so a reader can never mistake verified-zero for generation forgetting the section. Never a flat, unstructured list; never merged into Installation. |
 | 10 | `quick_start` | Quick Start | Conditional: at least one example executed or compiled in isolation at this revision | visible | M | One or two minimal examples, each executed or compiled in isolation and each introduced by one lead-in sentence: when the product reads files, the first opens an existing input; when it creates them, one builds from scratch. Correct fence language, normalized spacing. |
 | 11 | `feature_showcase` | Feature Showcase | Conditional: the existing README carries a verified, repository-owned visual proof of capability the plan preserves | visible | D | A linked preview image (`[![alt](preview)](full asset)`) with alt text naming what it shows, repository-relative, resolving against the snapshot tree; one sentence of context may follow. Never a stock or generated graphic. |
@@ -255,6 +255,21 @@ destination the plan includes, or the transaction fails closed naming the unit �
 as a unit with no safe destination (one `VERIFIED_PRESERVE` unit was routed to `at_a_glance` while
 the plan excluded that section, and vanished).
 
+A kept unit belongs to the section its topic belongs in, and the renderer's own sections are not
+printed twice (wave-6 acceptance reviews, cause 4: 124 install and dependency units, 15 licence
+paragraphs and 17 API listings filed in sections whose rows (§2, 7, 10, 15, 16) hold capabilities,
+one example, links or limitations). The topic is read from the unit's source heading
+(`composition/source_topics.py`). S4 moves a unit about installing, building or the API out of a
+section that has no place for it to the topic's home (`destinations.rehomed`: Development and
+Testing for install and build material), and placement then reads a unit about installing against
+the Installation and Dependencies text, and one under the licence heading against the License
+text, as a second place that may state it: a sentence, a list item or a block those sections already
+state is not printed again (`coverage.uncovered`, `coverage.uncovered_block`), a release number
+never makes two declarations different, a shell command or a link is still demanded as the unit
+spells it (BC-08, BC-06), and a lead-in follows its block's fate. A unit no fact ties to its
+destination is judged against those renderer sections only. The must-carry gate does not owe an
+authored unit what a kept unit in the same section already states (`authoring.carried_units`).
+
 ## 4. Agentic decisions
 
 Judgment belongs to the LLM where a fixed rule cannot decide. Every decision is bounded by a typed
@@ -281,7 +296,7 @@ Exactly these block acceptance at G1. Everything else is advisory until contract
 | # | Check | Sections |
 |---|---|---|
 | 1 | Source revision pinned; original README bytes exact; every fact carries evidence | all |
-| 2 | Install command verified against manifest and package-registry observation | `installation` |
+| 2 | Install command verified against manifest and package-registry observation; or the source build a receipt proved; or, for a package the registry answers is unpublished that the maintainers' README also calls unpublished, the documented source checkout (`evidence/facts/unpublished.py`). A registry that could not be read (`RETRY_REGISTRY_READ`) and a package it lists as absent without that corroboration (`PACKAGE_ABSENT`) refuse as different causes; a README never prints the registry install of an unpublished package; a registry-less install is not refused for being unresolved when the Installation states a registry-confirmed distribution and prints no command | `installation` |
 | 3 | Every rendered example was executed or compiled in isolation at this revision | `quick_start`, `additional_examples` |
 | 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span; an `opening` sentence that names an audience, use case, suitability, or spared cost is refused unless an accepted fact of that section states the same claim (`composition/audience.py`) | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
@@ -322,11 +337,17 @@ the fact or example IDs and exact phrases it says are missing; code, never the r
 every named ID or phrase present in that section's rendered text refutes it, an ID no SUPPORTED fact
 carries or a phrase in no original text is nothing to restore and refutes it too, any one truly
 absent upholds it and routes the repair to the named section, and a claim naming nothing checkable
-is advisory with its reason. A required row of §2 admits zero advisories left standing before
-`READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding nothing
-contradicted, against a section every candidate must have, blocks and is reported. A refuted
-finding is not deferred work — no revision could act on it — so it never blocks; `review.json`
-keeps it with the reason that refuted it. An optional row may carry one; the bundle records the
+is advisory with its reason. A finding that blames a composition stage (S6, S7, S8) for text the
+composer does not write — a section the shell marks deterministic or At a Glance, or a rendered
+API Reference row no content unit carries — names no stage repair can act on: it is demoted, kept
+in `advisory` under `demoted: {rule, section, stage, owner, reason, evidence}`, never called
+refuted, and still counted by the acceptance score. A finding that names S2 for a wrong fact, one
+that says something is missing that code cannot settle, and one about text a unit or a kept
+inherited unit carries are not demoted. A required row of §2 admits zero advisories left standing
+before `READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding
+nothing contradicted, against a section every candidate must have, blocks and is reported. A
+refuted or demoted finding is not deferred work — no revision could act on it — so it never
+blocks; `review.json` keeps it with the reason that refuted or demoted it. An optional row may carry one; the bundle records the
 advisory count either way.
 
 ## 7. Bundle layout

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal
 
@@ -13,6 +13,61 @@ from repository_presenter.core.facts import Fact
 ExampleOutcome = Literal["EXECUTED", "FAILED", "TIMED_OUT", "NEEDS_INPUT", "NOT_VERIFIED"]
 FormatDirection = Literal["input", "output"]
 RECEIPTS_FILENAME = "examples.json"
+
+# What a program prints that is a property of the moment or the process it ran in, not of the
+# program: a log line's wall-clock, a measured duration, a pid, an object's address, a temporary
+# directory's random name. A receipt is sealed in the bundle, so it must be the same bytes in
+# every process (docs/README_CONTRACT.md section 7); otherwise a fresh process can never
+# reproduce examples.json and the zero-provider-call no-op proof is withdrawn. Measured three
+# waves running on Aspose.PDF for Python, whose library logs ``2026-10-12 00:43:01,981 [INFO]
+# aspose_pdf: Document resources released.`` and whose 14 of 20 receipts held such a line.
+# Only the spellings that vary are replaced, each by a fixed token, so the rest of the output - the
+# part that says what the program did - is kept verbatim. Cargo's ``Finished ... in 0.55s`` and
+# MSBuild's ``Time Elapsed`` lines are cut by their own extractors; this is the shared floor.
+_MONTHS = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec"
+_DURATION = r"(?:\d+\.\d+\s?(?:s|secs?|seconds?)|\d+(?:\.\d+)?\s?(?:ms|milliseconds?|µs|us|ns))"
+_VOLATILE: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(
+            r"\b\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:[.,]\d{1,9})?"
+            r"(?:\s?(?:Z|UTC|[+-]\d{2}:?\d{2}))?"
+        ),
+        "<timestamp>",
+    ),
+    (
+        re.compile(
+            rf"\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:{_MONTHS}) [ \d]\d \d{{2}}:\d{{2}}:\d{{2}}"
+            r"(?: \d{4})?"
+        ),
+        "<timestamp>",
+    ),
+    (re.compile(r"(?<![\d:.])\d{1,2}:\d{2}:\d{2}[.,]\d{1,9}(?!\d)"), "<time>"),
+    (
+        re.compile(rf"(?i)\b(in|took|after|elapsed|duration)(?P<sep>[:=\s]+){_DURATION}\b"),
+        r"\1\g<sep><duration>",
+    ),
+    (re.compile(r"\((?:\d+\.\d+s|\d+(?:\.\d+)?ms)\)"), "(<duration>)"),
+    (re.compile(r"(?i)\b(pid|process id)(?P<sep>[ =:#]*)\d+\b"), r"\1\g<sep><pid>"),
+    (
+        re.compile(
+            r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b",
+        ),
+        "<uuid>",
+    ),
+    (re.compile(r"\b(at )0x[0-9a-fA-F]{6,}\b"), r"\g<1>0x<address>"),
+    (re.compile(r"\b0x[0-9a-fA-F]{12,}\b"), "0x<address>"),
+    (re.compile(r"\btmp[a-z0-9_]{8}\b"), "tmp<random>"),
+)
+
+
+def stable_output(text: str) -> str:
+    """``text`` with every moment- or process-dependent spelling replaced by a fixed token.
+
+    Idempotent, and a no-op on output that does not carry one: a program's own deterministic
+    output (a date it prints, a count, a version) is returned unchanged."""
+    for pattern, replacement in _VOLATILE:
+        text = pattern.sub(replacement, text)
+    return text
 
 
 def collapse_blank_runs(text: str) -> str:
@@ -72,11 +127,17 @@ def printed_example(fact: Fact) -> str:
 
 @dataclass(frozen=True)
 class FormatClaim:
-    """A file extension one example statement loads (input) or saves (output), by code line."""
+    """A file extension one example statement loads (input) or saves (output), by code line.
+
+    ``literals`` are the file-name literals the claim was read from, in code order, when the
+    platform plugin records them (the Python plugin does): the fact builder then tells a fixture the
+    example saves to from one it opens, which an extension alone cannot. They are evidence about
+    the claim, not part of it, so two claims that differ only in them compare equal."""
 
     extension: str
     direction: FormatDirection
     line: int
+    literals: tuple[str, ...] = field(default=(), compare=False)
 
 
 FormatDeclarationKind = Literal["declaration", "registration"]
@@ -190,6 +251,13 @@ class ExampleReceipt:
     build_command: str = ""
     source_roots: tuple[str, ...] = ()
     prelude: str = ""
+
+    def __post_init__(self) -> None:
+        # The one place every ecosystem's receipt passes through: whatever a toolchain or an
+        # example printed about the moment it ran is replaced here, so examples.json is the same
+        # bytes in every process (see ``stable_output``).
+        object.__setattr__(self, "stdout", stable_output(self.stdout))
+        object.__setattr__(self, "stderr", stable_output(self.stderr))
 
 
 def write_receipts(receipts: list[ExampleReceipt], path: Path) -> None:

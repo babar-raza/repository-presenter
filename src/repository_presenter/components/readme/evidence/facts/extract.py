@@ -34,6 +34,9 @@ from repository_presenter.components.readme.evidence.facts.published_version imp
     published_version_fact,
 )
 from repository_presenter.components.readme.evidence.facts.registry_lag import registry_lag_fact
+from repository_presenter.components.readme.evidence.facts.unpublished import (
+    documented_source_install,
+)
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.components.readme.extractors.surface.doc_text import usable_symbol_docs
@@ -426,6 +429,24 @@ def extract_facts(
     facts.extend(product_page_facts(entry, probes))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
+        # A package the registry reads as absent AND the maintainers' README says is unpublished is
+        # a source checkout, not a failed install (BC-02, wave 6: the JMAP libraries). The measured
+        # and receipt-proven source tiers above already won where a build proved; this is the one
+        # beneath them, and it reads the clone's own build commands, so it comes after them.
+        readme_text = readme_bytes.decode("utf-8", errors="replace")
+        registry_less = entry.ecosystem not in REGISTRY_TYPES
+        facts[:] = [
+            documented_source_install(
+                fact,
+                entry,
+                facts=facts,
+                tree_paths=tree_paths,
+                readme_path=snapshot.readme_path,
+                readme_text=readme_text,
+                registry_less=registry_less,
+            )
+            for fact in facts
+        ]
         public_symbol_facts = tuple(f for f in facts if f.kind == "public_symbol")
         facts.extend(
             inherited_unit_facts(

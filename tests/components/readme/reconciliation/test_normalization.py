@@ -1026,3 +1026,166 @@ def test_an_install_command_is_recognised_by_its_text_when_its_heading_does_not_
         "SUPERSEDE_REDUNDANT",
         "installation",
     )
+
+
+# --- wave 6, BC-02: the registry install of an unpublished package is omitted, not kept ----------
+# JMAP-Rust and JMAP-Python (cut 8fbf2166): the maintainers' README prints the command the package
+# will have once published, beside "no package has been published". The model omitted the block
+# ("the command is CONTRADICTED"), `placement_errors` refused the omission ("a command block is
+# never OMIT_UNSUPPORTED while build or install facts exist") and `normalize` kept it in
+# Development and Testing, where the Installation's honest "not published" sentence sat far away.
+
+
+def _unpublished_install(command: str, steps: str, *, fact_id: str, tool: str) -> Fact:
+    return Fact(
+        fact_id,
+        "install_command",
+        "git clone https://github.com/org/Aspose.Widget-FOSS-for-Python.git\n"
+        f"cd Aspose.Widget-FOSS-for-Python\n{steps}",
+        (
+            Evidence("manifest", "install command for the name the manifest declares"),
+            Evidence("registry", f"package registry: distribution not found on {tool}"),
+            Evidence("README.md", "the maintainers' README states the package is not published"),
+            Evidence("ci.yml", "documented source build, not run for this revision"),
+        ),
+        attributes={
+            "install_kind": "source_checkout",
+            "registry_state": "not_published",
+            "registry_command": command,
+            "source_basis": "documented",
+            "documented_command": steps,
+        },
+    )
+
+
+def _unpublished_facts(
+    command: str, steps: str = "cargo build", *, block: str | None = None
+) -> FactsDocument:
+    install = _unpublished_install(command, steps, fact_id="install_command:cargo", tool="cargo")
+    registry_block = Fact(
+        "inherited_unit:013.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + (block or command) + chr(10) + "```",
+        (Evidence("README.md", "lines 20-22; code_block; under Widget > Installation"),),
+    )
+    build = Fact(
+        "inherited_unit:020.code_block",
+        "inherited_unit",
+        "```bash"
+        + chr(10)
+        + "git clone https://github.com/org/x.git"
+        + chr(10)
+        + "cargo build"
+        + chr(10)
+        + "```",
+        (Evidence("README.md", "lines 40-43; code_block; under Widget > Development and Testing"),),
+    )
+    third = Fact(
+        "inherited_unit:021.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "cargo add serde" + chr(10) + "```",
+        (Evidence("README.md", "lines 44-46; code_block"),),
+    )
+    commands = _fact("build_test_asset:build-command", "build_test_asset", "cargo build")
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*FACTS.facts, install, registry_block, build, third, commands),
+    )
+
+
+def test_the_registry_install_of_an_unpublished_package_is_omitted_whatever_the_model_chose() -> (
+    None
+):
+    facts = _unpublished_facts("cargo add aspose-jmap-foss")
+    for disposition, destination in (
+        ("OMIT_UNSUPPORTED", None),
+        ("VERIFIED_PRESERVE", "development_testing"),
+        ("VERIFIED_MOVE", "installation"),
+        ("SUPERSEDE_REDUNDANT", "installation"),
+        ("DEFER_UNRESOLVED", None),
+    ):
+        output = {
+            "dispositions": [_entry("inherited_unit:013.code_block", disposition, destination)]
+        }
+        assert normalize(output, facts) == [], disposition
+        entry = output["dispositions"][0]
+        assert entry["disposition"] == "OMIT_UNSUPPORTED", disposition
+        assert entry["destination_section"] is None
+        assert entry["fact_ids"] == ["install_command:cargo"]
+        assert placement_errors(output, facts) == [], "the omission is not the refused kind"
+
+
+def test_a_pinned_or_prompted_spelling_of_the_registry_install_is_the_same_command() -> None:
+    facts = _unpublished_facts("cargo add aspose-jmap-foss", block="$ cargo add aspose-jmap-foss")
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:013.code_block", "VERIFIED_PRESERVE", "scope_limitations")
+        ]
+    }
+    normalize(output, facts)
+    assert output["dispositions"][0]["disposition"] == "OMIT_UNSUPPORTED"
+    pinned = _unpublished_facts(
+        "pip install aspose-jmap-foss", block="pip install aspose-jmap-foss==0.1.0"
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:013.code_block", "VERIFIED_PRESERVE", "scope_limitations")
+        ]
+    }
+    normalize(output, pinned)
+    assert output["dispositions"][0]["disposition"] == "OMIT_UNSUPPORTED"
+
+
+def test_the_maintainers_own_build_and_other_installs_are_still_kept() -> None:
+    """Negative controls: the fold is the registry install of THIS package and nothing else - the
+    clone-and-build block and an unrelated dependency's install keep the existing rules."""
+    facts = _unpublished_facts("cargo add aspose-jmap-foss")
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:020.code_block", "VERIFIED_PRESERVE", "development_testing"),
+            _entry("inherited_unit:021.code_block", "VERIFIED_PRESERVE", "development_testing"),
+        ]
+    }
+    assert normalize(output, facts) == []
+    assert [e["disposition"] for e in output["dispositions"]] == [
+        "VERIFIED_PRESERVE",
+        "VERIFIED_PRESERVE",
+    ]
+    mixed = _unpublished_facts(
+        "cargo add aspose-jmap-foss", block="cargo add aspose-jmap-foss" + chr(10) + "cargo build"
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:013.code_block", "VERIFIED_PRESERVE", "development_testing")
+        ]
+    }
+    normalize(output, mixed)
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE", "BC-02 names it"
+    omitted = {"dispositions": [_entry("inherited_unit:020.code_block", "OMIT_UNSUPPORTED", None)]}
+    assert [e.split(": ", 1)[1][:30] for e in placement_errors(omitted, facts)] == [
+        "a command block is never OMIT_"
+    ]
+
+
+def test_a_published_packages_install_block_keeps_the_existing_rules() -> None:
+    """Without the recorded unpublished state (a registry-kind SUPPORTED install) an omitted
+    command block is still refused while build or install facts exist."""
+    published = Fact(
+        "install_command:cargo",
+        "install_command",
+        "cargo add aspose-jmap-foss",
+        (Evidence("manifest", "m"), Evidence("registry", "package registry: found on cargo")),
+    )
+    block = Fact(
+        "inherited_unit:013.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "cargo add aspose-jmap-foss" + chr(10) + "```",
+        (Evidence("README.md", "lines 20-22; code_block; under Widget > Installation"),),
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, published, block))
+    omitted = {"dispositions": [_entry("inherited_unit:013.code_block", "OMIT_UNSUPPORTED", None)]}
+    assert len(placement_errors(omitted, facts)) == 1
+    output = {"dispositions": [_entry("inherited_unit:013.code_block", "OMIT_UNSUPPORTED", None)]}
+    normalize(output, facts)
+    assert output["dispositions"][0]["disposition"] == "SUPERSEDE_REDUNDANT"

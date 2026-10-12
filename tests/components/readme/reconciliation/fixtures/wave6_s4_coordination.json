@@ -1,0 +1,735 @@
+{
+ "3d_java": {
+  "dispositions": [
+   {
+    "destination_section": "scope_limitations",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The heading '## Scope and Limitations' matches the section ID scope_limitations and is placeable.",
+    "unit_id": "inherited_unit:071.heading"
+   },
+   {
+    "destination_section": "scope_limitations",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "install_command:maven",
+     "package:published_version",
+     "example:005",
+     "public_symbol:com.aspose.threed",
+     "build_test_asset:tests"
+    ],
+    "rationale": "All list items are supported by facts: STL-only functionality in 26.5.0, NURBS sampling unimplemented, PbrSpecularMaterial accessors unimplemented, rendering, L",
+    "unit_id": "inherited_unit:072.list"
+   },
+   {
+    "destination_section": "enterprise_relationship",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "link_target:product.enterprise"
+    ],
+    "rationale": "The paragraph describes the enterprise edition relationship, which is covered by the enterprise_relationship section and supported by link_target:product.",
+    "unit_id": "inherited_unit:073.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/3d-java wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:071.heading",
+   "inherited_unit:072.list",
+   "inherited_unit:073.paragraph"
+  ]
+ },
+ "3d_python": {
+  "dispositions": [
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [
+     "package:name",
+     "package:version"
+    ],
+    "rationale": "The paragraph is redundant with the installation command rendered from package facts.",
+    "unit_id": "inherited_unit:012.paragraph"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "package:name"
+    ],
+    "rationale": "The install command is verified and placed in quick start as the minimal example.",
+    "unit_id": "inherited_unit:013.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The sentence 'Run a single test file:' is a lead-in to a code block, not a standalone claim; no fact supports or contradicts it as a standalone statement.",
+    "unit_id": "inherited_unit:072.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:tests"
+    ],
+    "rationale": "The single test execution command is superseded by the Development and Testing section, which documents the test assets and CI workflows.",
+    "unit_id": "inherited_unit:073.code_block"
+   }
+  ],
+  "source": "G:/rp-w6/3d-python wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:012.paragraph",
+   "inherited_unit:013.code_block",
+   "inherited_unit:072.paragraph",
+   "inherited_unit:073.code_block"
+  ]
+ },
+ "font_python": {
+  "dispositions": [
+   {
+    "destination_section": null,
+    "disposition": "OMIT_UNSUPPORTED",
+    "fact_ids": [],
+    "rationale": "The heading 'CSS Hints' is unsupported; facts do not confirm CSS best practices.",
+    "unit_id": "inherited_unit:054.heading"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The paragraph introduces a withheld code block and cannot stand alone; moving it to additional_examples preserves the lead-in relationship while allowing the后续例",
+    "unit_id": "inherited_unit:055.paragraph"
+   },
+   {
+    "destination_section": null,
+    "disposition": "OMIT_UNSUPPORTED",
+    "fact_ids": [],
+    "rationale": "The CSS code block is unsupported; facts do not confirm specific CSS examples.",
+    "unit_id": "inherited_unit:056.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The list of CSS best practices is unsupported.",
+    "unit_id": "inherited_unit:057.list"
+   }
+  ],
+  "source": "G:/rp-w6/font-python wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:054.heading",
+   "inherited_unit:055.paragraph",
+   "inherited_unit:056.code_block",
+   "inherited_unit:057.list"
+  ]
+ },
+ "imaging_net": {
+  "dispositions": [
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "install_command:dotnet"
+    ],
+    "rationale": "The paragraph introduces the installation command, but the command itself is placeable in quick_start as a minimal example.",
+    "unit_id": "inherited_unit:015.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:build-command",
+     "build_test_asset:ci",
+     "build_test_asset:ci-matrix",
+     "build_test_asset:release-workflow",
+     "build_test_asset:test-command",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The installation code block is redundant with the installation section and not placeable in quick_start.",
+    "unit_id": "inherited_unit:016.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [
+     "inherited_unit:017.paragraph",
+     "inherited_unit:017.paragraph"
+    ],
+    "rationale": "The paragraph introduces referencing the built assembly and is placeable in quick_start as supporting context for the minimal example.",
+    "unit_id": "inherited_unit:017.paragraph"
+   },
+   {
+    "destination_section": null,
+    "disposition": "OMIT_UNSUPPORTED",
+    "fact_ids": [],
+    "rationale": "The XML ProjectReference snippet is redundant with the installation section.",
+    "unit_id": "inherited_unit:018.code_block"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "package:target_framework"
+    ],
+    "rationale": "The paragraph about target frameworks is placeable in quick_start as supporting context for the minimal example.",
+    "unit_id": "inherited_unit:019.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/imaging-net wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:015.paragraph",
+   "inherited_unit:016.code_block",
+   "inherited_unit:017.paragraph",
+   "inherited_unit:018.code_block",
+   "inherited_unit:019.paragraph"
+  ]
+ },
+ "jmap_net": {
+  "dispositions": [
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:ci",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The NuGet install command is unsupported; the facts show building from source is required.",
+    "unit_id": "inherited_unit:013.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The paragraph introduces a code block that is withheld but is contextually part of the quick_start installation instructions.",
+    "unit_id": "inherited_unit:014.paragraph"
+   },
+   {
+    "destination_section": null,
+    "disposition": "OMIT_UNSUPPORTED",
+    "fact_ids": [],
+    "rationale": "The PackageReference example is unsupported; no package is published.",
+    "unit_id": "inherited_unit:015.code_block"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_MOVE",
+    "fact_ids": [
+     "package:target_framework"
+    ],
+    "rationale": "The paragraph about .NET 8.0 target is supported by the package target framework fact and belongs in quick_start.",
+    "unit_id": "inherited_unit:016.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/jmap-net wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:013.code_block",
+   "inherited_unit:014.paragraph",
+   "inherited_unit:015.code_block",
+   "inherited_unit:016.paragraph"
+  ]
+ },
+ "jmap_typescript": {
+  "dispositions": [
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "install_command:npm",
+     "build_test_asset:build-command"
+    ],
+    "rationale": "The paragraph states no npm package is published yet; facts support this.",
+    "unit_id": "inherited_unit:012.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "CORRECT_WITH_EVIDENCE",
+    "fact_ids": [
+     "build_test_asset:build-command",
+     "build_test_asset:ci",
+     "build_test_asset:test-command",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The code block is corrected to remove the unsupported npm install command and retain only verified build/test commands.",
+    "unit_id": "inherited_unit:013.code_block"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "package:node_engine",
+     "package:name"
+    ],
+    "rationale": "The paragraph states type definitions and Node.js 18+ requirement; facts support this.",
+    "unit_id": "inherited_unit:014.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/jmap-typescript wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:012.paragraph",
+   "inherited_unit:013.code_block",
+   "inherited_unit:014.paragraph"
+  ]
+ },
+ "page_python": {
+  "dispositions": [
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The installation paragraph is rendered deterministically by the installation section.",
+    "unit_id": "inherited_unit:012.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:build-command",
+     "build_test_asset:test-command",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The pip install command is rendered deterministically by the installation section.",
+    "unit_id": "inherited_unit:013.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [],
+    "rationale": "The paragraph 'Run only the MCP-focused checks:' has no supporting fact and cannot be placed; deferred for owner review.",
+    "unit_id": "inherited_unit:094.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:build-command",
+     "build_test_asset:test-command",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The code block with unittest command has no supporting fact and cannot be placed; deferred for owner review.",
+    "unit_id": "inherited_unit:095.code_block"
+   }
+  ],
+  "source": "G:/rp-w6/page-python wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:012.paragraph",
+   "inherited_unit:013.code_block",
+   "inherited_unit:094.paragraph",
+   "inherited_unit:095.code_block"
+  ]
+ },
+ "pdf_go": {
+  "dispositions": [
+   {
+    "destination_section": "opening",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "link_target:001",
+     "link_target:003",
+     "link_target:005",
+     "link_target:007",
+     "link_target:009"
+    ],
+    "rationale": "All badge URLs are verified by link_target facts; badges are placed in opening as they are not part of the deterministic badges section.",
+    "unit_id": "inherited_unit:002.badge_row"
+   },
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [
+     "link_target:012",
+     "link_target:011"
+    ],
+    "rationale": "The banner image links to the product homepage and is promotional; it is moved to enterprise_relationship per the rule for promotional material with verified产品.",
+    "unit_id": "inherited_unit:003.badge_row"
+   },
+   {
+    "destination_section": "opening",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "identity:platform",
+     "identity:ecosystem",
+     "package:go_version",
+     "dependency:none",
+     "public_symbol:ai"
+    ],
+    "rationale": "The paragraph describes the library's pure Go nature, capabilities, and AI features, all supported by platform, ecosystem, go_version, dependency, and ai symbol",
+    "unit_id": "inherited_unit:004.paragraph"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_MOVE",
+    "fact_ids": [
+     "link_target:027",
+     "link_target:028"
+    ],
+    "rationale": "The feature showcase preview image is moved to additional_examples as part of the feature showcase example.",
+    "unit_id": "inherited_unit:024.badge_row"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "public_symbol:page.addtoc"
+    ],
+    "rationale": "The paragraph describes the feature showcase document and its TOC, supported by public_symbol:page.addtoc; the reference to 'Encryption and Signing' is a naviga",
+    "unit_id": "inherited_unit:025.paragraph"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The Additional Examples heading is required by the section definition and is placed in additional_examples.",
+    "unit_id": "inherited_unit:026.heading"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:002"
+    ],
+    "rationale": "The paragraph introduces the Flow layout example; placed in additional_examples as a lead-in.",
+    "unit_id": "inherited_unit:027.paragraph"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The Content Authoring With the Flow Layout Engine heading is required by the section definition and is placed in additional_examples.",
+    "unit_id": "inherited_unit:028.heading"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:002"
+    ],
+    "rationale": "The Flow layout example is verified and placed in additional_examples.",
+    "unit_id": "inherited_unit:029.code_block"
+   }
+  ],
+  "source": "G:/rp-w6/pdf-go wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:002.badge_row",
+   "inherited_unit:003.badge_row",
+   "inherited_unit:004.paragraph",
+   "inherited_unit:024.badge_row",
+   "inherited_unit:025.paragraph",
+   "inherited_unit:026.heading",
+   "inherited_unit:027.paragraph",
+   "inherited_unit:028.heading",
+   "inherited_unit:029.code_block"
+  ]
+ },
+ "psd_net": {
+  "dispositions": [
+   {
+    "destination_section": "installation",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "install_command:dotnet"
+    ],
+    "rationale": "The 'Installation' heading is rendered deterministically by the installation section.",
+    "unit_id": "inherited_unit:011.heading"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "VERIFIED_MOVE",
+    "fact_ids": [
+     "install_command:dotnet"
+    ],
+    "rationale": "The paragraph introduces the installation command, which is supported by install_command:dotnet and fits the quick_start section.",
+    "unit_id": "inherited_unit:012.paragraph"
+   },
+   {
+    "destination_section": "development_testing",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "build_test_asset:build-command",
+     "build_test_asset:examples",
+     "build_test_asset:test-command",
+     "build_test_asset:tests"
+    ],
+    "rationale": "The installation code block duplicates the install command already rendered in the installation section; it is redundant and unsupported in quick_start.",
+    "unit_id": "inherited_unit:013.code_block"
+   },
+   {
+    "destination_section": "installation",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "install_command:dotnet"
+    ],
+    "rationale": "The paragraph about .nupkg placement and referencing is superseded by the installation section, which renders the verified install command.",
+    "unit_id": "inherited_unit:014.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/psd-net wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:011.heading",
+   "inherited_unit:012.paragraph",
+   "inherited_unit:013.code_block",
+   "inherited_unit:014.paragraph"
+  ]
+ },
+ "psd_python": {
+  "dispositions": [
+   {
+    "destination_section": null,
+    "disposition": "DEFER_UNRESOLVED",
+    "fact_ids": [
+     "example:001"
+    ],
+    "rationale": "The smoke test prose is superseded by the installation section, which renders the verified install command example:001.",
+    "unit_id": "inherited_unit:014.paragraph"
+   },
+   {
+    "destination_section": "quick_start",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "example:001"
+    ],
+    "rationale": "The sys.path insertion example is verified by example:001 and placed in quick_start, where the plan renders verified examples.",
+    "unit_id": "inherited_unit:015.code_block"
+   }
+  ],
+  "source": "G:/rp-w6/psd-python wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:014.paragraph",
+   "inherited_unit:015.code_block"
+  ]
+ },
+ "slides_cpp": {
+  "dispositions": [
+   {
+    "destination_section": "scope_limitations",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The paragraph introduces the limitations list and is supported by the inherited unit's content.",
+    "unit_id": "inherited_unit:101.paragraph"
+   },
+   {
+    "destination_section": "scope_limitations",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The limitations list is supported by the inherited unit's content and placed in the Scope and Limitations section.",
+    "unit_id": "inherited_unit:102.list"
+   },
+   {
+    "destination_section": "enterprise_relationship",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "link_target:product.enterprise"
+    ],
+    "rationale": "The paragraph about Enterprise Edition is supported by the product.enterprise link_target and moved to the Enterprise Relationship section.",
+    "unit_id": "inherited_unit:103.paragraph"
+   }
+  ],
+  "source": "G:/rp-w6/slides-cpp wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:101.paragraph",
+   "inherited_unit:102.list",
+   "inherited_unit:103.paragraph"
+  ]
+ },
+ "slides_java": {
+  "dispositions": [
+   {
+    "destination_section": "additional_examples",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [],
+    "rationale": "The 'Additional Examples' heading is superseded by the deterministic 'Additional Examples' section.",
+    "unit_id": "inherited_unit:036.heading"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The paragraph introducing examples is superseded by the deterministic 'Additional Examples' section.",
+    "unit_id": "inherited_unit:037.paragraph"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [],
+    "rationale": "Lead-in of the block that follows: carried together with it, never alone.",
+    "unit_id": "inherited_unit:038.paragraph"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:002"
+    ],
+    "rationale": "The connector example is verified by example:002 and fits the Additional Examples section.",
+    "unit_id": "inherited_unit:039.code_block"
+   },
+   {
+    "destination_section": null,
+    "disposition": "NON_CONTENT",
+    "fact_ids": [],
+    "rationale": "The HTML details summary is a UI marker, not content.",
+    "unit_id": "inherited_unit:040.html_block"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:003"
+    ],
+    "rationale": "The threaded comment heading is supported by example:003 and belongs in Additional Examples.",
+    "unit_id": "inherited_unit:041.heading"
+   },
+   {
+    "destination_section": "additional_examples",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:003"
+    ],
+    "rationale": "The threaded comment example is verified by example:003 and belongs in Additional Examples.",
+    "unit_id": "inherited_unit:042.code_block"
+   }
+  ],
+  "source": "G:/rp-w6/slides-java wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:036.heading",
+   "inherited_unit:037.paragraph",
+   "inherited_unit:038.paragraph",
+   "inherited_unit:039.code_block",
+   "inherited_unit:040.html_block",
+   "inherited_unit:041.heading",
+   "inherited_unit:042.code_block"
+  ]
+ },
+ "slides_net_w5": {
+  "dispositions": [
+   {
+    "destination_section": "opening",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [
+     "identity:repository",
+     "identity:family",
+     "identity:platform",
+     "identity:ecosystem",
+     "package:name",
+     "license:spdx",
+     "dependency:none"
+    ],
+    "rationale": "The opening paragraph is supported by facts about the product, license, and zero dependencies.",
+    "unit_id": "inherited_unit:003.paragraph"
+   },
+   {
+    "destination_section": "opening",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "identity:platform",
+     "identity:ecosystem",
+     "package:name",
+     "dependency:none"
+    ],
+    "rationale": "The audience description aligns with facts about platform, ecosystem, and zero dependencies.",
+    "unit_id": "inherited_unit:004.paragraph"
+   },
+   {
+    "destination_section": "at_a_glance",
+    "disposition": "SUPERSEDE_REDUNDANT",
+    "fact_ids": [],
+    "rationale": "The heading 'At a glance' is superseded by the at_a_glance section, which renders the Mermaid diagram.",
+    "unit_id": "inherited_unit:005.heading"
+   },
+   {
+    "destination_section": "key_capabilities",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:001",
+     "example:003",
+     "example:004",
+     "example:005",
+     "example:006",
+     "example:007",
+     "example:008",
+     "example:009"
+    ],
+    "rationale": "The Mermaid diagram is preserved as the at_a_glance content, but its placement under key_capabilities is supported by verified examples.",
+    "unit_id": "inherited_unit:006.code_block"
+   },
+   {
+    "destination_section": "key_capabilities",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [
+     "example:001",
+     "example:003",
+     "example:004",
+     "example:005",
+     "example:006",
+     "example:007",
+     "example:008",
+     "example:009"
+    ],
+    "rationale": "The paragraph explaining the diagram is supported by the same examples and clarifies capabilities.",
+    "unit_id": "inherited_unit:007.paragraph"
+   },
+   {
+    "destination_section": "scope_limitations",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The heading 'What it cannot do' is retained as a scope limitations section heading.",
+    "unit_id": "inherited_unit:061.heading"
+   }
+  ],
+  "source": "G:/rp-w5/slides-net wave 5 (cut e407503a), dispositions.json; entries verbatim, restricted to the units of the slice (the facts file is wave5_slides_net.facts.json)",
+  "units": [
+   "inherited_unit:003.paragraph",
+   "inherited_unit:004.paragraph",
+   "inherited_unit:005.heading",
+   "inherited_unit:006.code_block",
+   "inherited_unit:007.paragraph",
+   "inherited_unit:061.heading"
+  ]
+ },
+ "words_net": {
+  "dispositions": [
+   {
+    "destination_section": "api_reference",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The heading matches the API Reference section and is supported by the inherited table and public symbols.",
+    "unit_id": "inherited_unit:045.heading"
+   },
+   {
+    "destination_section": "api_reference",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The paragraph introduces the API Reference section and is supported by the inherited table and public symbols.",
+    "unit_id": "inherited_unit:046.paragraph"
+   },
+   {
+    "destination_section": null,
+    "disposition": "OMIT_UNSUPPORTED",
+    "fact_ids": [],
+    "rationale": "The HTML block opens a details section for the API Reference table, which is rendered directly.",
+    "unit_id": "inherited_unit:047.html_block"
+   },
+   {
+    "destination_section": "api_reference",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The heading matches the Core API subsection of the API Reference section.",
+    "unit_id": "inherited_unit:048.heading"
+   },
+   {
+    "destination_section": "api_reference",
+    "disposition": "VERIFIED_PRESERVE",
+    "fact_ids": [],
+    "rationale": "The heading matches the Interfaces subsection of the API Reference section.",
+    "unit_id": "inherited_unit:050.heading"
+   }
+  ],
+  "source": "G:/rp-w6/words-net wave 6 (cut 8fbf2166), runs/transactions/*/transact: dispositions.json after coordinate_neighbor_promises; entries verbatim, restricted to the units of the slice",
+  "units": [
+   "inherited_unit:045.heading",
+   "inherited_unit:046.paragraph",
+   "inherited_unit:047.html_block",
+   "inherited_unit:048.heading",
+   "inherited_unit:050.heading"
+  ]
+ }
+}

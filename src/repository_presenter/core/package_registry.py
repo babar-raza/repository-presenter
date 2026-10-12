@@ -13,9 +13,10 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from typing import Literal
 
 from repository_presenter.core.errors import ConfigError
-from repository_presenter.core.facts import Polarity
+from repository_presenter.core.facts import Fact, Polarity
 from repository_presenter.core.probes import ProbeRecord
 
 # The fact that carries the registry's current stable release (evidence/facts/published_version.py
@@ -86,6 +87,57 @@ def ownership_clause(repository_matched: bool | None) -> str:
     return (
         "ownership not confirmed: the registry lists no source repository to compare with this one"
     )
+
+
+# What one registry reading means for an install claim. The classes are not interchangeable and a
+# consumer must not collapse them: ``not_published`` is the registry's own answer ("we looked and
+# it is not there") and may be stated plainly; ``unreadable`` and ``ambiguous`` are the absence of
+# an answer (a transport or TLS failure, a 5xx that outlasted the retry policy, an unexpected
+# status) and say nothing about the package, so the only honest response is to read again - a
+# README must never tell a reader a package is unpublished because the network was down;
+# ``ownership_unconfirmed`` is a name some project holds that nothing ties to this repository;
+# ``no_registry`` is an ecosystem with no registry to ask (C++).
+RegistryReading = Literal[
+    "published", "not_published", "unreadable", "ambiguous", "ownership_unconfirmed", "no_registry"
+]
+# The classes that mean "ask again", not "the package is absent" (wave 6, JMAP-Go: an empty
+# version list was filed under the first of these and failed BC-02 as an unreadable registry).
+RETRYABLE_READINGS: frozenset[RegistryReading] = frozenset({"unreadable", "ambiguous"})
+
+
+def registry_reading(detail: str | None) -> RegistryReading | None:
+    """The class of one registry evidence detail, or None when it is not a registry reading.
+
+    The details are the shared vocabulary both observation types write (``RegistryObservation.
+    summary`` here and in ``extractors/surface/registry.py``, ``install_verdict``'s ownership
+    sentence), so classifying the text classifies the reading without a plugin having to carry a
+    second field. Order matters: an ownership sentence also contains "a distribution", and the
+    registry-less sentence also contains "could not be read".
+    """
+    text = (detail or "").lower()
+    if "ownership not confirmed" in text:
+        return "ownership_unconfirmed"
+    if "package registry: none could not be read" in text:
+        return "no_registry"
+    if "could not be read" in text or "package registry unreachable" in text:
+        return "unreadable"
+    if "answered ambiguously" in text:
+        return "ambiguous"
+    if "distribution not found" in text:
+        return "not_published"
+    if "package registry: found" in text:
+        return "published"
+    return None
+
+
+def fact_registry_reading(fact: Fact) -> RegistryReading | None:
+    """The registry reading an install fact's evidence records: the last evidence line that is
+    one (the registry is asked after the manifest, so its line is last)."""
+    for evidence in reversed(fact.evidence):
+        reading = registry_reading(evidence.detail)
+        if reading is not None:
+            return reading
+    return None
 
 
 @dataclass(frozen=True)

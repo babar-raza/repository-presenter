@@ -45,6 +45,22 @@ REPOSITORY_FILES_ATTRIBUTE = "repository_files"
 # was extracted before the check existed and keeps the ecosystem's template.
 SOURCE_CHECKOUT_COMMAND_ATTRIBUTE = "source_checkout_command"
 SOURCE_CHECKOUT_UNVERIFIED_ATTRIBUTE = "source_checkout_unverified"
+# The attributes of an ``install_command`` fact for an UNPUBLISHED package (BC-02, wave 6: the
+# JMAP libraries, Aspose.Cells for Rust). The registry reads "not found" (or the ecosystem has no
+# registry) AND the maintainers' own README says the package is not published, so the install is the
+# source checkout - not a failure. ``registry_command`` is the registry install the manifest would
+# have implied (``cargo add aspose-jmap-foss``): no rendered README may print it, because the
+# registry says there is nothing to install. ``source_basis`` is ``documented`` when the checkout's
+# build is the repository's own documented command (its CI workflow, script or toolchain
+# convention) that no build at this revision measured, and ``documented_command`` names exactly the
+# steps after the clone, which BC-02 holds the rendered block to. A measured build carries
+# ``build_command`` instead and needs none of these.
+REGISTRY_STATE_ATTRIBUTE = "registry_state"
+NOT_PUBLISHED = "not_published"
+REGISTRY_COMMAND_ATTRIBUTE = "registry_command"
+SOURCE_BASIS_ATTRIBUTE = "source_basis"
+DOCUMENTED_SOURCE_BASIS = "documented"
+DOCUMENTED_COMMAND_ATTRIBUTE = "documented_command"
 
 _SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 _UNSAFE = re.compile(r"[^a-z0-9._-]+")

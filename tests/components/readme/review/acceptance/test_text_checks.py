@@ -84,6 +84,9 @@ def test_implementation_label_fails_on_the_named_label_and_ignores_code() -> Non
         ("A registry receipt backs the install.", FAIL),
         ("The provider calls are logged.", FAIL),
         ("Validation status is green.", FAIL),
+        ("Build it from a source checkout, verified against this revision:", FAIL),
+        ("No license file is present at this revision.", FAIL),
+        ("The 2.0 revision of the format adds layers.", PASS),
         ("Install it with pip and import it.", PASS),
     ],
 )

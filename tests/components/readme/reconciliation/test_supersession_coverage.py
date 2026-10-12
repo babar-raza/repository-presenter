@@ -624,6 +624,9 @@ _ALLOWED_FOLDS = {
     ("SUPERSEDE_REDUNDANT", "VERIFIED_PRESERVE"),
     # A preserved unit still meets the placement rules: a contradicted link makes it a rewrite.
     ("SUPERSEDE_REDUNDANT", "VERIFIED_REWRITE"),
+    # ... and so does a kept unit that would print an edition label BC-06 forbids, or an example
+    # fence BC-03 holds to a verified body (wave 6: 3D-Java 072.list, Slides-C++ 102.list).
+    ("VERIFIED_PRESERVE", "VERIFIED_REWRITE"),
     ("SUPERSEDE_REDUNDANT", "DEFER_UNRESOLVED"),
     ("SUPERSEDE_REDUNDANT", "OMIT_UNSUPPORTED"),
     ("OMIT_UNSUPPORTED", "DEFER_UNRESOLVED"),

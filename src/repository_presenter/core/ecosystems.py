@@ -79,6 +79,12 @@ class EcosystemSpec:
     # The verb phrase that completes "To work from a source checkout instead, {...}:" - carried
     # apart from the command itself only so Python's sealed wording never moves a single byte.
     source_install_lead: str = ""
+    # The step that fetches a checkout's dependencies before the repository's own build command, for
+    # a toolchain whose build command does not do it (npm: `npm run build` fails on a fresh clone
+    # until `npm install` has run). Prepended only where the build command is READ from the
+    # repository's files rather than measured (evidence/facts/unpublished.py); a measured build
+    # names its own steps, and Cargo, Go and Maven fetch what they need inside the build.
+    source_dependencies: str = ""
     # A template over {repository}, {name} and {paths} for an ecosystem where a build/install
     # command can fail identically for every possible invocation (RESEARCH_LANE_E.md's
     # documented-PYTHONPATH-source-install observation, LANE-E-06/LANE-E-14/LANE-E-17):

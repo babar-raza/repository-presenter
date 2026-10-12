@@ -182,7 +182,16 @@ ACCEPT = "ACCEPT"
 # 20: CUT-4 (G3-W08): a finding about a unit the plan omitted, deferred or superseded folds only
 # with a
 # recorded refutation, and the asserting fact is cited in preference to a bare name.
-REVIEWER_LOGIC_VERSION = "20"
+# Same unreleased cut (AGENTS.md "Make reviewer findings repairable", README_CONTRACT section 6): a
+# finding that blames a composition stage (S6/S7/S8) for text the composer does not own - a
+# deterministic section, or the renderer's own rendering of a verified symbol in a mixed one - is
+# demoted to advisory with a recorded ``demoted: {rule, section, stage}``, never silently: it is not
+# refuted (the reviewer may be right about the renderer), it is outside repair's scope. A demoted
+# finding does not carry a rejection (``verdict_basis`` ``rejection_findings_demoted``), and a
+# finding about composer-owned prose still blocks.
+# 21: wave 6 (G3-W08, cut 6): a finding that blames a composition stage for renderer-owned text is
+# demoted to advisory with a recorded ``demoted`` rule, never refuted and never silent.
+REVIEWER_LOGIC_VERSION = "21"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -421,7 +430,7 @@ def second_read_decision(
         reasons.append(TRIGGER_PROSE_JUDGMENT)
     if any(decision == "ADVISORY" for decision in deferral_decisions):
         reasons.append(TRIGGER_ADVISORY_DEFERRAL)
-    if first.get("verdict_basis") == "rejection_refuted_deterministically":
+    if first.get("verdict_basis") == BASIS_REFUTED:
         reasons.append(TRIGGER_REJECTION_REFUTED)
     return SecondReadDecision(bool(reasons), tuple(reasons))
 
@@ -2499,6 +2508,140 @@ def refutation(rulings: Sequence[Ruling]) -> Ruling | None:
     return next((ruling for ruling in rulings if ruling.deterministic), None)
 
 
+# AGENTS.md "Make reviewer findings repairable: each names a section and a causal stage, or it is
+# advisory", and README_CONTRACT section 6: a finding demotes to advisory when a deterministic check
+# "shows the section it names is outside repair's scope". The repair loop reopens a composition
+# stage (S6, S7, S8) as S6 - the one job that revises LLM-owned content units - so a finding that
+# blames one of them for text the composer did not write has no stage the loop can act on: it
+# answers "section X is deterministic; its blocks change only when facts change" (repair/
+# targeted.py review_defects), or spends its one attempt on units that do not carry the quote and
+# is re-raised unchanged (wave 6: 11 of the 13 BC-10 rows carried such a finding).
+#
+# A demotion is not a refutation. ``refuted_by`` says the reviewer is wrong; a demoted finding may
+# be right (the renderer's "verified against this revision" narration is) and is kept, counted by
+# the acceptance scorer, and recorded as ``demoted: {rule, section, stage, owner, reason,
+# evidence}`` - the stage the reviewer named, the section it named, and the rule that shows no
+# revision could act on it. It lets a rejection stand down (``rejection_findings_demoted``) but
+# never turns a finding about composer-owned prose into anything: that finding blocks as before.
+_COMPOSITION_STAGES = frozenset({"S6", "S7", "S8"})
+_RENDERED_ROW_SECTIONS = frozenset({"api_reference"})
+DEMOTED_SECTION = "RENDERER_OWNED_SECTION"
+DEMOTED_QUOTE = "RENDERER_OWNED_QUOTE"
+DEMOTION_RULES = frozenset({DEMOTED_SECTION, DEMOTED_QUOTE})
+BASIS_DEMOTED = "rejection_findings_demoted"
+BASIS_REFUTED = "rejection_refuted_deterministically"
+
+
+@dataclass(frozen=True)
+class Demotion:
+    """Why a finding has no stage the repair loop can act on, as review.json records it."""
+
+    rule: str
+    section: str
+    stage: str
+    reason: str
+    evidence: Mapping[str, Any]
+
+    def record(self) -> dict[str, Any]:
+        """The ``demoted`` record: the rule, the named section and stage, the owner, the reason."""
+        return {
+            "rule": self.rule,
+            "section": self.section,
+            "stage": self.stage,
+            "owner": "renderer",
+            "reason": self.reason,
+            "evidence": dict(self.evidence),
+        }
+
+
+def unrepairable_demotion(
+    finding: Mapping[str, Any],
+    rulings: Sequence[Ruling],
+    standing: bool = False,
+    withhold_quote: bool = False,
+) -> Demotion | None:
+    """Why a finding names no stage the repair loop can act on, or None when it may block.
+
+    Reads typed fields only - the section and stage the finding names, and the scope rulings
+    (which read the quote against the content units and the facts); never the finding's prose.
+
+    - ``RENDERER_OWNED_SECTION``: the section is one the renderer owns outright
+      (``_DETERMINISTIC_SECTIONS``: the shell's ``D`` rows and At a Glance) and the criterion is
+      one of the two a reviewer uses for text it is reading (``_RENDERER_OWNED_CRITERIA``:
+      presentation, factuality). No content unit lives there, so the repair loop has nothing to
+      revise. What the reviewer should have named for a wrong fact there is S2 (the prompt says
+      so), and that stands: a mis-staged S6 is demoted, a correctly staged S2 still blocks. A
+      completeness or scope finding keeps its route: it says the fact set the section renders from
+      is short, which S2 can reopen (``renderer_owned_rulings``).
+    - ``RENDERER_OWNED_QUOTE``: the section is the API Reference, whose Core API table and
+      member reference README_CONTRACT row 14 renders from the SUPPORTED public_symbol facts (its
+      only content units are the intro and one description per hub), and the quote is the
+      renderer's own rendering of a SUPPORTED public symbol (``RENDERER_UNWRITTEN_FACT_FACTUAL``:
+      no content unit carries it) - a table row, a member row, a heading the renderer prints.
+      Other mixed sections hold unit text beside renderer labels and kept inherited text, where
+      "no unit carries the quote" does not show the renderer wrote it, so they are not demoted.
+
+    Only a composition stage is demoted. A finding naming S2, S3, S4 or S5 names an upstream stage
+    the loop can reopen and stays as filed; so does one with no section. ``standing`` (the finding
+    also says something is missing that code could neither find nor prove unrestorable) withholds
+    both demotions: that is a claim about the fact set a section renders from, which S2 can reopen
+    (``RENDERER_OWNED_OMISSION_STANDS`` keeps it standing for the same reason). ``withhold_quote``
+    withholds the quote demotion: a VERIFIED_PRESERVE or VERIFIED_MOVE unit's own text carries the
+    quote (kept maintainer text is no content unit's, but the repair loop routes a finding whose
+    quote a placed unit carries to S4, the stage that chose to keep it, so a stage can act and the
+    finding stays blocking - ``review_defects``, RC-04), or the quote has no text to measure (a
+    one-line fence normalizes to nothing).
+    """
+    stage = str(finding.get("causal_stage") or "")
+    section = str(finding.get("section_id") or "")
+    if not section or stage not in _COMPOSITION_STAGES:
+        return None
+    if standing:
+        return None
+    if section in _DETERMINISTIC_SECTIONS and finding.get("criterion") in _RENDERER_OWNED_CRITERIA:
+        return Demotion(
+            DEMOTED_SECTION,
+            section,
+            stage,
+            f"section {section} is rendered from facts, not written by a content unit: "
+            f"naming {stage} for it names no stage the repair loop can act on, and a deterministic "
+            "block changes only when its facts change (README_CONTRACT section 6)",
+            {
+                "criterion": str(finding.get("criterion") or ""),
+                "unrefuted_rules": sorted({ruling.rule for ruling in rulings}),
+            },
+        )
+    owned = next((r for r in rulings if r.rule == "RENDERER_UNWRITTEN_FACT_FACTUAL"), None)
+    if section in _RENDERED_ROW_SECTIONS and owned is not None and not withhold_quote:
+        return Demotion(
+            DEMOTED_QUOTE,
+            section,
+            stage,
+            f"the quoted text in section {section} is the renderer's own rendering of a verified "
+            f"symbol and no content unit carries it: naming {stage} for it names no stage the "
+            "repair loop can act on (README_CONTRACT section 6)",
+            {**owned.evidence, "unrefuted_rules": sorted({ruling.rule for ruling in rulings})},
+        )
+    return None
+
+
+_KEPT = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
+
+
+def kept_texts(dispositions: Mapping[str, Any] | None, by_id: Mapping[str, Fact]) -> list[str]:
+    """The verbatim text of every inherited unit S4 kept (``VERIFIED_PRESERVE``/``VERIFIED_MOVE``,
+    the dispositions ``composition/placement.py`` prints as written): maintainer text the renderer
+    prints, which no content unit wrote and no composition revision can change."""
+    texts: list[str] = []
+    for entry in (dispositions or {}).get("dispositions", []):
+        if not isinstance(entry, Mapping) or entry.get("disposition") not in _KEPT:
+            continue
+        fact = by_id.get(str(entry.get("unit_id")))
+        if fact is not None and fact.kind == "inherited_unit":
+            texts.append(fact.value)
+    return texts
+
+
 class _Scope:
     """The inputs of the scope fold, bound once, applied to each finding of each read."""
 
@@ -2521,14 +2664,18 @@ class _Scope:
         self.units = units
         self.dispositions = dispositions
         self.facts = facts
+        self.kept = kept_texts(dispositions, by_id)
 
     def apply(self, record: dict[str, Any], finding: Mapping[str, Any]) -> Ruling | None:
         """Record on ``record`` what the scope rules made of ``finding``; return the
-        deterministic refutation, or None when the finding stands.
+        deterministic refutation, or None when the finding is not refuted.
 
         A refutation is recorded as ``reviewer_scope_defect`` (its reason, as before) and
         ``refuted_by`` (its rule and evidence). A heuristic that matched but refutes nothing is
-        recorded under ``unrefuted_scope_rules`` and does not fold the finding.
+        recorded under ``unrefuted_scope_rules`` and does not fold the finding. A finding that is
+        not refuted but names no stage the repair loop can act on is recorded under ``demoted``
+        (``unrepairable_demotion``): the caller reads ``"demoted" in record`` and keeps it out of
+        the blocking set, without calling it refuted.
         """
         rulings = (
             scope_rulings(
@@ -2554,6 +2701,17 @@ class _Scope:
                 {"rule": ruling.rule, "reason": str(ruling), "evidence": dict(ruling.evidence)}
                 for ruling in rulings
             ]
+        standing = finding.get("causal_stage") in _COMPOSITION_STAGES and _standing_claims(
+            finding, self.candidate_readme, self.by_id, self.evidence, self.units
+        )
+        quote = str(finding.get("quote", ""))
+        withhold = not _normalized(quote) or (
+            bool(self.kept) and _carried_by_units(quote, self.kept)
+        )
+        demotion = unrepairable_demotion(finding, rulings, standing, withhold)
+        if demotion is not None:
+            record["demoted"] = demotion.record()
+            return None
         _record_standing_partitions(
             record, finding, self.candidate_readme, self.evidence, self.by_id, self.units
         )
@@ -2582,6 +2740,16 @@ def review_document(
     A finding that is the reviewer's own defect is recorded advisory with the reason as a field,
     the stage the reviewer named left intact: the record says why it does not block, and nothing
     downstream has to read prose to find out (section 27.5 D5).
+
+    A finding that is not refuted but blames a composition stage for text the renderer owns - a
+    deterministic section, or a rendered API Reference row - is recorded advisory too, under
+    ``demoted: {rule, section, stage, owner, reason, evidence}`` (``unrepairable_demotion``): the
+    repair loop has no stage to act on, so it cannot block, and it is never called refuted. A
+    returned rejection whose findings were all refuted or demoted reads ACCEPT, its
+    ``verdict_as_returned`` untouched. Its ``verdict_basis`` is
+    ``rejection_refuted_deterministically`` when any finding was refuted (so the second read
+    ``TRIGGER_REJECTION_REFUTED`` asks for still runs) and ``rejection_findings_demoted`` when
+    every one was only demoted.
 
     ``units`` is the round's own ``content_units.json`` document when the caller has it: the
     fold stack then knows which quoted text a unit wrote and which the renderer did (G4-W17
@@ -2655,17 +2823,22 @@ def review_document(
     # stays, and the repair loop acts on it.
     rejected = returned != ACCEPT
     unrefuted_advisory = 0
+    refuted_count = 0
     scoped = _Scope(candidate_readme, by_id, evidence, rendered, texts, units, dispositions, facts)
     for finding in output.get("findings", []):
         record = dict(finding)
         refuted = scoped.apply(record, finding)
+        # Folded out of the blocking set by a recorded rule: refuted (the reviewer is wrong) or
+        # demoted (no stage the repair loop can act on); a demoted finding is never "refuted".
+        folded = refuted is not None or "demoted" in record
+        refuted_count += refuted is not None
         uncorroborated = (
             second is not None
             and prose_judgment(finding)
             and finding_class(finding) not in corroborated
         )
         alone = uncorroborated and not rejected
-        if uncorroborated and rejected and refuted is None:
+        if uncorroborated and rejected and not folded:
             record.setdefault("unrefuted_scope_rules", []).append(
                 {
                     "rule": "SINGLE_READER_PROSE",
@@ -2674,14 +2847,14 @@ def review_document(
                     "evidence": {},
                 }
             )
-        if refuted is None and blocking(finding) and not alone:
+        if not folded and blocking(finding) and not alone:
             record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
             findings.append(record)
         else:
             record["causal_state"] = None
-            if alone and refuted is None:
+            if alone and not folded:
                 record["single_reader_advisory"] = True
-            elif refuted is None:
+            elif not folded:
                 # Names no section or a stage the loop cannot reopen: nothing can repair it, but
                 # nothing refuted it either, so it cannot clear a rejection.
                 record["unrepairable"] = (
@@ -2690,14 +2863,18 @@ def review_document(
                 )
                 unrefuted_advisory += 1
             advisory.append(record)
-    # A rejection stands unless EVERY finding it rested on carries a recorded deterministic
-    # refutation. A rejection returned with no finding at all has none to refute it.
+    # A rejection stands unless EVERY finding it rested on carries a recorded rule that takes it
+    # out of the blocking set: a deterministic refutation, or a demotion (the finding names no
+    # stage the repair loop can act on). A rejection returned with no finding at all has none to
+    # refute it. The basis says which: ``rejection_refuted_deterministically`` when any finding
+    # was refuted (its second-read trigger is unchanged), ``rejection_findings_demoted`` when
+    # every one was only demoted.
     if returned == ACCEPT:
         verdict, basis = ACCEPT, "accepted_as_returned"
     elif findings or unrefuted_advisory or not output.get("findings"):
         verdict, basis = returned, "rejection_stands"
     else:
-        verdict, basis = ACCEPT, "rejection_refuted_deterministically"
+        verdict, basis = ACCEPT, BASIS_REFUTED if refuted_count else BASIS_DEMOTED
     first_verdict = verdict
     if third is not None and second is not None and not findings:
         # 2-of-3 majority vote (section 5.6): the first read left nothing blocking, so an extra
@@ -2714,14 +2891,14 @@ def review_document(
         for reader_num, reader_output in ((2, second), (3, third)):
             for finding in reader_output.get("findings", []):
                 record = {**dict(finding), "reader": reader_num}
-                refuted = scoped.apply(record, finding)
-                in_majority = refuted is None and finding_class(finding) in majority
+                folded = scoped.apply(record, finding) is not None or "demoted" in record
+                in_majority = not folded and finding_class(finding) in majority
                 if in_majority and blocking(finding):
                     record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
                     survivors.append(record)
                 else:
                     record["causal_state"] = None
-                    if refuted is None and blocking(finding):
+                    if not folded and blocking(finding):
                         record["single_reader_advisory"] = True
                     advisory.append(record)
         if survivors:
@@ -2739,14 +2916,14 @@ def review_document(
         survivors = []
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
-            refuted = scoped.apply(record, finding)
+            folded = scoped.apply(record, finding) is not None or "demoted" in record
             alone = prose_judgment(finding) and finding_class(finding) not in first_raised
-            if refuted is None and blocking(finding) and not alone:
+            if not folded and blocking(finding) and not alone:
                 record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
                 survivors.append(record)
             else:
                 record["causal_state"] = None
-                if alone and refuted is None:
+                if alone and not folded:
                     record["single_reader_advisory"] = True
                 advisory.append(record)
         if survivors:
