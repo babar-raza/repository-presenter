@@ -1,0 +1,21 @@
+# lane L-iss4: SIMULATION ONLY - the owner's one-line registry change applied to a scratch edit of data/registry.json (NOT committed, reverted right after); approval record committed at a840f0c0
+issue-readiness: 4 handoff(s) on record; kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is OFF in this process (the repository variable itself is not readable from here)
+
+== aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp  [registry: dry_run, issues_mode file; write gate OPEN]
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119
+    status HANDOFF_PENDING; check BC-02 v4; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>
+    evidence_digest: sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907
+    re-verification: CONFIRMED at live head 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: approved by babar-raza until 2026-10-19T02:16:10+00:00
+    approvable: YES; fileable now: YES
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399
+    status HANDOFF_PENDING; check BC-03 v2; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+
+## file-upstream-defects --repo (dry run, kill switch OFF; read-only GETs; no --file)
+2:file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp 'Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>': WOULD-NOT-FILE - approved and eligible, but the kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is not 1 (dry run; pass --file to attempt)
+
+## with the kill switch on in this process, STILL a dry run (no --file, no write token): shows the verdict only
+file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp 'Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>': WOULD-FILE - owner-approved, no upstream duplicate, defect still fires (dry run; pass --file to attempt)
