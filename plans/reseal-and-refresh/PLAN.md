@@ -2121,6 +2121,22 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
 
 ---
 
+## 11B. Non-uniform candidate quality across repositories (owner concern, 2026-10-12) — BACKLOGGED, not started
+
+**The owner's concern, recorded verbatim in intent.** Wave 7 (`e19b0f3b`) sealed 7 of 44 repositories and the independent acceptance review found none of the 7 authorizable; 36 repositories failed outright. The owner asked: has this been investigated — why does the system behave differently for different products, causing some to fail while others seal? The owner's expectation, stated as a first-principles requirement: if the pipeline can produce an equally good candidate for some repositories, it must be able to do so for all of them; a uniform pipeline run on comparable inputs should not produce categorically different outcomes (sealed-but-wrong here, cleanly failed there) unless the inputs themselves are the reason, and that reason must be named, not assumed.
+
+**Why this is not yet answered.** Every wave triage to date (`wave3-triage.md` through `wave7-triage.md`) classifies failures per repository and fixes them one defect class at a time (list judgement, format facts, S4 dead ends, reviewer demotion, placement). That is root-cause analysis **per defect**, not an analysis of **why the defect rate itself is non-uniform across repositories** — whether the variance is legitimate (different ecosystems expose genuinely different information: JMAP's inputs are session URLs, not file formats; TeX-Python's source does not parse; 3D-.NET has 45 format constants where only 8 have working readers) or illegitimate (the same pipeline code path is reached unevenly: an ecosystem with more platform-plugin coverage gets more format facts and therefore fewer gate failures, not because its README is objectively easier). No card below is started; this section records the question so it is not lost.
+
+**What a first-principles investigation of this kind would need to establish, when the owner says RESUME (TC-UNI-01, G3-W08; no new register item — a sub-concern of the existing wave-triage work):**
+1. A per-repository **capability matrix**: for every one of the 44 entries, which deterministic fact kinds exist versus are structurally unavailable for that ecosystem (format facts, build receipts, registry ownership, example verification), separating "this ecosystem's extractor has not been written yet" from "this ecosystem has no equivalent of that fact."
+2. A **variance decomposition** over the wave-3 through wave-7 results: for each failure class (BC-10, BC-02, BC-05, model_output...), the share of occurrences explained by (a) an extractor/plugin gap that is fixable and ecosystem-general, (b) a genuine upstream difference (no README, build fails, source unparsable), (c) model/reviewer non-determinism, so the backlog can be ranked by "closes the gap for N repositories" rather than fixed one repository at a time as wave triage currently does.
+3. An explicit **uniformity acceptance test**: given the same shape of input (a repository with a buildable package, a real README, a working CI), the pipeline's blocking-check pass rate should not differ by ecosystem beyond a stated tolerance; a persistent gap by ecosystem (not by individual repository) is itself a defect to fix, not a fact to report.
+4. A decision for the owner on **what "equally good" means operationally** for repositories that are not comparable (GIS-.NET has no README at all; JMAP has no file-format diagram content) — this overlaps the already-open GIS-.NET `BLOCKED_UPSTREAM` question (not approved) and the maintainer-statement memory design (also awaiting the owner), and should be resolved together rather than separately.
+
+**Status: PROPOSED, not started.** `REQ-UNI-01` (uniformity of pipeline behaviour across comparable repositories) is recorded here as a requirement with no child card yet. No agent is to begin this investigation until the owner says RESUME.
+
+---
+
 ## 12. Validation, evidence, rollback, defaults
 
 **Official proof chain for every outcome:** real input (a live upstream head) → official entry point (`present`, `monitor`, `issue-readiness`, `wave-readiness`, `file-upstream-defects`, `propose`, `publish-candidates`, or the matching workflow) → processing → artifact (bundle, handoff, record, PR) → validator/gate (blocking checks, `verify-noop-proof`, `sealed-ready`, `issue-readiness`) → downstream consumer (CI tests that read `candidates/`, `status`, the next workflow) → observed result (run id, PR/issue URL, counts).
