@@ -1398,7 +1398,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
     - id: TC-REF-06-01
       title: Policy then code
       steps:
-        - "decide-owner | OWNER-12 outage policy (retry window, budget behavior, alerting) | recorded"
+        - "record | OWNER-12 is decided (2026-10-13, owner delegation): fail closed, no fallback route; an outage is BLOCKED_EXTERNAL with no cooldown and no budget burn, retried next cycle, annotated after 3 consecutive outage cycles | docs/DECISION_LOG.md entry of 2026-10-13, nothing left to ask"
         - "edit | wire renew_lease into long runs; classify outage as BLOCKED_EXTERNAL; no budget burn | tests"
         - "run | hosted rehearsal: kill a run mid-transaction; hold a stale lease | recovery without double processing"
 
@@ -2173,15 +2173,15 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
 | Tier | Order | Card | What | Gate to start | Parallel with |
 |---|---|---|---|---|---|
 | P0 | 1 | TC-UNI-01 | the owner's uniformity concern (§11B): capability matrix, variance decomposition, acceptance test | RESUME | everything below |
-| P0 | 1 | TC-WKR-03 | copy the scratchpad evidence into the repository; lint `run:` scripts | none | TC-UNI-01 |
+| P0 | 1 | TC-WKR-03 | the evidence is copied (child 01 done, 183 files); what remains is linting `run:` scripts (child 02) | none | TC-UNI-01 |
 | P0 | 2 | TC-WKR-01 | correct the register text, record waves 5 and 6 and the correction review | TC-WKR-03 | TC-UNI-01, TC-WKR-05 |
-| P0 | 2 | TC-WKR-02 | OWNER-22: rotation and the agent credential | owner (interactive form) | all |
-| P1 | 3 | TC-WKR-05 | one owner for a kept lead-in's destination; then push `integration/cut8` and measure wave 8 | none | TC-UNI-01 |
-| P1 | 4 | TC-WKR-04 | independent re-review of the current correction bundles | #335 hosted CI green and the merge decision | TC-WKR-05 |
-| P1 | 5 | TC-ISS-12, TC-WKR-06 | the issue list for the owner; the seven classes the nine drafts need | owner approvals; schema admission | TC-WKR-05 |
-| P1 | 6 | TC-REF-06 | outage as `BLOCKED_EXTERNAL`, not a 24-hour cooldown (raised: `sealing-scheduled.yml` is a daily cron, so read the pause variable first) | OWNER-12 | TC-WKR-05 |
+| P0 | 2 | TC-WKR-02 | OWNER-22: the rotation is met (2026-10-13); what remains is the GitLab secret and the read-only agent credential reaching the agent environment | the owner | all |
+| P1 | 3 | TC-REF-06, TC-REF-02-02 | the schedule safe to leave on: outage as `BLOCKED_EXTERNAL` (OWNER-12 is decided: fail closed) and a per-day provider-call budget; first read the pause variable `REPOSITORY_PRESENTER_SEALING_PAUSED` with the new credential | the agent credential (OWNER-22) | TC-WKR-05 |
+| P1 | 4 | TC-WKR-05 | one owner for a kept lead-in's destination; then push `integration/cut8` and measure wave 8 | none | TC-REF-06 |
+| P1 | 5 | TC-WKR-04 | independent re-review of the current correction bundles | #335 hosted CI green and the merge decision | TC-WKR-05 |
+| P1 | 6 | TC-ISS-12, TC-WKR-06 | the issue list for the owner; the seven classes the nine drafts need | owner approvals; schema admission | TC-WKR-05 |
 | P1 | 7 | TC-IDM-01 | root cause of regeneration non-idempotence, using the preserved analysis | TC-WKR-03 | TC-UNI-01 |
-| P2 | 8 | TC-WKR-07, TC-REF-02-02 | archived repositories, open-PR cap, daily budget, reconciliation delay | TC-REF-02, 05, 06 | after P1 |
+| P2 | 8 | TC-WKR-07 | archived repositories, open-PR cap, reconciliation delay | TC-REF-02, 05, 06 | after P1 |
 | P2 | 9 | TC-WKR-08 | `status` shows authorizable beside sealed | none | any |
 | P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214, and optionally allowing mypy's DLL under Application Control and installing MSVC build tools on this host (otherwise mypy is hosted-only and six C++ example tests stay red locally) | the owner | not agent work |
 
