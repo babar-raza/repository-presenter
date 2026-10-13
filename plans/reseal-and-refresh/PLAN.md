@@ -2183,7 +2183,7 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
 | P1 | 7 | TC-IDM-01 | root cause of regeneration non-idempotence, using the preserved analysis | TC-WKR-03 | TC-UNI-01 |
 | P2 | 8 | TC-WKR-07, TC-REF-02-02 | archived repositories, open-PR cap, daily budget, reconciliation delay | TC-REF-02, 05, 06 | after P1 |
 | P2 | 9 | TC-WKR-08 | `status` shows authorizable beside sealed | none | any |
-| P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214 | the owner | not agent work |
+| P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214, and optionally allowing mypy's DLL under Application Control and installing MSVC build tools on this host (otherwise mypy is hosted-only and six C++ example tests stay red locally) | the owner | not agent work |
 
 ### 11C.3 Cards
 
@@ -2342,6 +2342,7 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
       steps:
         - "package | push integration/cut8, open the pull request, wait for hosted CI on the exact head (mypy runs only there), scan the diff for removed asserts or new skips, merge by the established rule | merged"
         - "run | wave 8 over the 44 on the pushed head, then the acceptance review | counts and the authorizable number appended to the log"
+        - "record | from the wave-8 rows, each as cleared, still failing or masked behind an earlier stop: JMAP-Cpp's oversized opening (REG-26), the PDF-Python and Slides-Cpp examples.json receipts (REG-28), and the lead-in cases | the DEFECT_INDEX statuses updated, none closed without a live row"
 
 - id: TC-WKR-06
   title: Defect classes for the nine reproduced upstream defects the handoff model cannot carry
@@ -2358,6 +2359,7 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
       title: Re-verify and admit
       steps:
         - "run | the recorded reproduction command of each of the nine at the live head (Cells-Python moved on 2026-10-11; the other eight may have too) | reproduced or dropped, with the raw log"
+        - "run | re-count the TeX-Python source that fails to parse at the live head by both measures (the .py files under src/aspose_tex, recorded as 35 of 45, and all TeX files, recorded as 102 of 119 in finding F-22) and correct the handoff text c00f9615 to the re-verified number | one number in the handoff, the raw log kept"
         - "decide-owner | admit the additive classes through G6-W07 | the admission recorded"
     - id: TC-WKR-06-02
       title: Register and convert
