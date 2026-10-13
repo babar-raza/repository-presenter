@@ -447,6 +447,13 @@ owner_items:
     consumed_by: ["G7-W06", "G7-W13"]
     recorded_at: "2026-10-11T21:30:00+05:00"
     note: "Recorded by lane L-gov3 on owner decision D5 of 2026-10-11 (docs/DECISION_LOG.md); the question is the owner's, not delegated. Consumed by G7-W06 (re-scoped stage 1 and TC-REF-12) and G7-W13 (the hosted proof of 2026-10-08 stands for a hosted runner)."
+  - id: OWNER-22
+    status: OPEN
+    summary: "Rotate the GITHUB_TOKEN and GITLAB_TOKEN credentials that a lane printed into its output on 2026-10-11 (docs/DECISION_LOG.md, the incident entry of that date), and decide which credential agents use for GitHub reads and merges from then on."
+    resume_predicate: "The owner states that both tokens were rotated (the old values revoked at GitHub and GitLab) and names the credential agent sessions use for gh from then on: a repository-scoped, read-only token for analysis, with merges and pull-request creation by a separately scoped credential or by the owner. Until then any step that would use either token is BLOCKED_EXTERNAL under the incident entry; docs/DECISION_LOG.md 2026-10-13 records that gh on the owner's machine logs in through GITHUB_TOKEN itself, so the rule cannot be enforced by a lane alone. The value of neither token is ever written to a file, log or commit."
+    consumed_by: ["G7-W04"]
+    recorded_at: "2026-10-13T00:00:00+05:00"
+    note: "Recorded on the weekly-report verification of 2026-10-13 (docs/DECISION_LOG.md, finding 6; plans/reseal-and-refresh/PLAN.md section 11C, card TC-WKR-02). The incident itself was logged on 2026-10-11 with no owner item and no resume predicate. Whether any hosted workflow used either token was not assessed."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
