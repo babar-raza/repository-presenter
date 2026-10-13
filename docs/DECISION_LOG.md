@@ -5956,3 +5956,7 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Schedule change (supersedes the order recorded in the entry above).** P1 order is now TC-REF-06 and TC-REF-02-02 first, then TC-WKR-05, TC-WKR-04, TC-WKR-06 and TC-IDM-01; TC-WKR-07 follows them in P2 with TC-WKR-08.
   - **Counts after this entry.** Authorizable 0 of 44; sealed bundles on disk 29; registry 44.
   - **Reverse by:** revert the commit; OWNER-12 returns to OPEN and the sealing order to the entry above. Admitting a fallback route later is its own entry.
+- **2026-10-13 - OWNER-22 update: the GitLab secret is updated; the agent credential is the one open half.**
+  - **Owner statement.** The repository secret `GITLAB_TOKEN` is updated to the new GitLab value (not checked by an agent). The owner asked why the sealing pause variable could not be read. Checked: `gh auth status` with the environment token unset reports no stored login, so the revoked environment token was `gh`'s only credential, and git's credential manager refused the push; an environment variable is fixed when a session starts, so rotating it does not reach this session.
+  - **What closes it.** Either the owner runs `gh auth login` on this machine (then agents call `gh` with `GITHUB_TOKEN` and `GH_TOKEN` unset and can read the pause variable and push) or restarts the session after updating the environment variable. The pause variable is read, the branch pushed and the pull request opened as soon as one of those holds.
+  - **Reverse by:** records only.
