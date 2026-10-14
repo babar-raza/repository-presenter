@@ -33,6 +33,9 @@ do (G3-W10), written in `docs/README_STANDARD.md`; `README_CONTRACT.md` stays th
 assembly and blocking checks until the gates migrate (README_STANDARD §6.2), and every iteration of
 either lane must beat live. Gate exit floors that say "sealed" count sealed bundles, not the
 progress unit.
+Both lanes and the issue component run at once and are each proven on the seven Cells repositories (Lane L on
+GitHub Actions with merged pull requests, Lane R locally on frozen versions) before they are enabled for all
+repositories (owner directive D8 to D13, 2026-10-14; `plans/reseal-and-refresh/PLAN.md` section 11D).
 The observable repository transaction (Lane R in full; Lane L patches the live README under the
 same validation and review) is:
 

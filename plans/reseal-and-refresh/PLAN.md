@@ -29,6 +29,9 @@ serialised_paths:   # hot files: one writer at a time, serialised by the supervi
   - tools/workflow_rehearsal/cycle.py
   - tests/test_workflow_rehearsal.py
   - tests/test_workflow_rehearsal_cycle.py
+  - data/registry.json                     # mode flips land one reviewed wave pull request at a time (G6-W06)
+  - docs/REPOSITORY_LAYOUT.md
+  - docs/SUPERVISION.md
 authored: 2026-10-10 (Saturday); Monday delivery target is 2026-10-12
 placed: 2026-10-10 by TC-GOV-01 (lane L-gov); card statuses printed here are initial, the live fold is loop-status.jsonl
 ```
@@ -110,6 +113,8 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-MMD-01 the At a Glance diagram is never clipped and its three mother blocks (Starting Points, Core Capabilities, Outputs) run left to right, split by key capability, every box growing with its text, accepted only by a real render (owner ruling R7, 2026-10-11) · REQ-DIS-01 the registry allow-list is reconciled read-only against what its authorized organizations hold, and discovery never admits an entry or moves the denominator (owner finding 2026-10-11) · REQ-ADM-01 an admitted library is served by a registered platform plugin and the cursor denominator tracks the registry (owner decision 2026-10-11, the JMAP family) · REQ-WV4-01 a regression a wave triage finds in a stricter gate is repaired at its earliest causal stage, never by weakening a check, and verified by the next wave · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
 
 REQ-WKR-01 the register and the log say what is on `main` and what the owner's reports found, with no stale "pull request pending" · REQ-WKR-02 an exposed credential is rotated before it is used again, and the rule that follows from it is enforceable · REQ-WKR-03 the evidence a decision rests on is committed, not left in a session scratchpad · REQ-WKR-04 an authorizable count rests on an independent review of the current bytes · REQ-WKR-05 a kept lead-in has one owner of its destination, decided and tested · REQ-WKR-06 every reproduced upstream defect has a handoff the tool can approve · REQ-WKR-07 the autonomous cycle's proven gaps are closed or explicitly accepted · REQ-WKR-08 a sealed count is never presented as accepted output (§11C, the 2026-10-13 weekly-report verification) · REQ-UNI-01 the pipeline behaves the same way on comparable repositories, and a difference by ecosystem is named and either fixed or accepted by the owner (§11B).
+
+REQ-PRG-01 Lane L is proved on GitHub Actions by live correction pull requests merged on the Cells repositories · REQ-PRG-02 Lane L goes to production for all repositories · REQ-PRG-03 Lane R is proved locally, from scratch, on frozen governed versions · REQ-PRG-04 a version bump never invalidates a candidate that did not consume the changed input, and a Lane R rerun is byte-identical · REQ-PRG-05 the issue component is proved on the Cells repositories · REQ-PRG-06 the issue component goes live for all repositories · REQ-PRG-07 the supervisor starts every wake from a mechanical report and leads with dated plans (§11D, the 2026-10-14 directive).
 
 ---
 
@@ -2408,6 +2413,232 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
       title: Headline
       steps:
         - "edit | the status headline and the report that prints both counts | the CLI test updated deliberately, the README reference green"
+```
+
+---
+
+## 11D. Program of record from 2026-10-14: Lane L, Lane R and the issue component move at once, each proven on the Cells repositories, then enabled for all
+
+**Authority.** Part of the execution-control layer: the registered items it names (G3-W09, G3-W11, G6-W01, G6-W03, G6-W06, G6-W07, G7-W06, G7-W22) remain the plan. It records the owner's directive D8 to D13 of 2026-10-14 (`docs/DECISION_LOG.md`). Where it orders work it replaces the ordering table of section 11C.2; the cards of 11C stay and sit inside the tracks below. Dates are **targets** with stated dependencies, set on 2026-10-14; a slip of more than a day is reported the same day with a replan line, never silently.
+
+### 11D.1 The tracks
+
+| Track | Proves itself | Scope of the proof | Exit predicate (what the evidence must show) | Then | Targets (dependency) |
+|---|---|---|---|---|---|
+| **L** correction pull requests | on GitHub Actions (`propose.yml`) | the 7 `aspose-cells-foss` entries; up to 5 have something to push | at least 3 live correction PRs (Cells-.NET, -Cpp, -Go) opened under per-hash authorization and merged by the maintainers; a second dispatch and the next monitor cycle then create nothing and make no provider call | production for all 44: hosted generation, standing authorization, waves, unattended schedule, 7 clean daily cycles (TC-LPD-01) | re-review 15 Oct; canary 15 to 16 Oct; Cells PRs open 17 Oct; merged by 21 Oct (needs the maintainers); proof recorded 22 Oct; production waves 23 Oct to 5 Nov. Confidence medium |
+| **R** regeneration | locally | every processable repository, from scratch | on one frozen version set: all processable repositories sealed and independently accepted; a second full pass is byte-identical with zero provider calls; a non-affecting bump leaves all valid | self-hosted sealing, then the same expansion rule as L | freeze 16 Oct; bump immunity 20 Oct; first frozen full wave 22 to 24 Oct; checkpoint 28 Oct (if fewer than 20 of 44 authorizable on frozen code, the one owner-approved redesign cut of G3-W11 is brought to the owner); proof: no date, earliest about 10 Nov. Confidence low |
+| **I** issues | on the Cells repositories | 11 system-found, reproduced issues (8 handoffs, 3 text-only needing classes) | every approved Cells issue filed once with its URL, a second run creates none, redetect and close exercised on at least one | every repository (TC-IPD-01) | classes and approvals 15 to 16 Oct; App reach verified 16 Oct; filing 17 to 19 Oct; proof 22 Oct; all-repository expansion 23 to 30 Oct. Confidence medium |
+| **S** supervisor | on its own record | this project | the wake report exists and every wake uses it; no scheduled run stays red without a card; every committed date is met or replanned the same day | n/a | charter 14 Oct (done in `docs/SUPERVISION.md`); wake report 15 Oct (TC-SUP-02) |
+
+The older cards map in as: TC-WKR-04 (re-review) and TC-CAN-01 (canary) are Lane L's first steps; TC-WKR-05 (precedence, cut 8) is Lane R's freeze; TC-UNI-01, TC-INV-01, TC-CUR-01 and TC-IDM-01 are Lane R's evidence; TC-WKR-06 and TC-ISS-12 feed the issue track; TC-REF-06, TC-REF-02-02 and TC-WKR-07 are Lane L's production gates; TC-WKR-01 to TC-WKR-03 and TC-WKR-08 are cross-cutting P0.
+
+### 11D.2 Bump policy (Lane R and everything else)
+
+A change to a governed file moves a governed version and, without the consumed-scope recheck, reopens sealed candidates. After the freeze, a bump needs all three: (1) leaving the defect would ship a false claim or an unsafe effect; (2) it cannot be fixed outside the governed files (a data file, a non-governed module, a prompt-free deterministic layer); (3) the supervisor has written the finding, the earliest causal stage and the affected-candidate count before the change. Failing (1) is a backlog item, not a bump. One redesign cut for G3-W11 is the only planned exception and needs the owner's approval.
+
+### 11D.3 What only the owner can do (the complete list, asked once)
+
+1. Merging into a Cells repository is done by its maintainers; the supervisor does not merge into an Aspose repository unless the owner states that delegation.
+2. If the dry-run of the canary or the issue preflight shows the App lacks access or `Issues: write`, one browser consent on GitHub (the supervisor supplies the exact link and what to tick). OWNER-23.
+3. Anything outside the approved scope (a repository other than the seven before Lane L is proved; a new class of outbound effect).
+
+### 11D.4 Cards
+
+```yaml
+- id: TC-LCP-01
+  title: Lane L proof on GitHub Actions - live correction pull requests on the Cells repositories, merged
+  reqs: [REQ-PRG-01]
+  item: G3-W09
+  lane: L-hosted
+  depends: [TC-WKR-04, TC-CAN-01]
+  governed: false
+  no_bump: true
+  paths: {write: [data/registry.json, ops/proposal-authorizations/, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/cells-live-prs/]}
+  outcome: the exit predicate of Track L in 11D.1, recorded
+  accept: ["each pull request is opened by propose.yml through the App effect job under a per-hash record, the source revision rechecked immediately before the effect", "no default-branch push exists; the supervisor merges nothing into an Aspose repository without the owner's stated delegation", "a second dispatch creates no duplicate and a closed or merged state is observed, not recreated", "a DECISION_LOG entry records Lane L proved, with the run ids and pull-request URLs"]
+  children:
+    - id: TC-LCP-01-01
+      title: Preflight on the canary and the Cells entries
+      steps:
+        - "run | the sandbox canary dry-run (TC-CAN-01) | the App reaches the sandbox, or OWNER-23 is raised with the exact click"
+        - "inspect | data/registry.json for the 7 Cells entries and the correction run reviewed by TC-WKR-04 | per repository: push, diagram-only or nothing to push"
+    - id: TC-LCP-01-02
+      title: Flip and authorize in one reviewed pull request
+      steps:
+        - "edit | mode full for the Cells entries with something to push (Cells-Java already is), one dated authorization per repository naming the candidate hash, source revision, branch and expiry under ops/proposal-authorizations | the wave-record tests pass"
+        - "package | the pull request, hosted CI green on the exact head, merged by the supervisor | on main"
+    - id: TC-LCP-01-03
+      title: Open the pull requests
+      steps:
+        - "run | propose.yml with correction_run for Cells-.NET first, dry-run then do_propose, then Cpp and Go, then the diagram-only repositories, paced as the runbook says | each PR URL and its checks recorded"
+    - id: TC-LCP-01-04
+      title: Merged, then idempotent
+      steps:
+        - "record | the maintainers merge (the supervisor sends the links once, batched) | the merged state observed through the API"
+        - "run | propose.yml again and one monitor cycle | no PR, no change, zero provider calls; Lane L proved, entry appended"
+
+- id: TC-LPD-01
+  title: Lane L production - all 44 repositories, hosted generation, unattended
+  reqs: [REQ-PRG-02]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-LCP-01, TC-REF-06, TC-REF-02, TC-REF-03, TC-REF-12, TC-WKR-07]
+  governed: false
+  paths: {write: [.github/workflows/correct.yml, src/repository_presenter/components/readme_correction/, tests/test_correct_workflow.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/lane-l-production/]}
+  outcome: a relevant upstream change yields a correction pull request on any admitted repository without a person, bounded by the cap, the budget and the open-PR limit
+  accept: ["correct.yml generates a correction run on a hosted runner (toolchains installed in the job) and hands it to propose.yml; both proven by a hosted run", "waves of about ten repositories, each wave one reviewed pull request of mode flips and per-hash or standing records (G6-W06), each repository's candidate current and independently reviewed at that time", "the pause variable is cleared only after TC-REF-06 and TC-REF-02-02 have landed; 7 clean daily cycles are observed"]
+  children:
+    - id: TC-LPD-01-01
+      title: Hosted generation
+      steps:
+        - "inspect | how corrections/<run-id>/ is produced and committed today (tools/corrections/assemble.py, OPERATIONS_RUNBOOK section 12) | the minimal workflow shape"
+        - "create | .github/workflows/correct.yml (dispatch, then schedule) that runs correct-readme for a named repository on a hosted runner and hands the run to propose | a hosted run produces a run identical to the local one for a Cells repository"
+    - id: TC-LPD-01-02
+      title: Waves
+      steps:
+        - "run | the remaining 37 entries in waves of about ten, in this order: repositories with content corrections, then diagram-only | each wave: PR URLs, checks, merged state"
+        - "decide-owner | none: the Cells proof is the approval of the method; each wave's exact list is recorded in the log | entries appended"
+    - id: TC-LPD-01-03
+      title: Unattended
+      steps:
+        - "edit | clear REPOSITORY_PRESENTER_SEALING_PAUSED only when TC-REF-06 and TC-REF-02-02 are closed; enable the standing record (TC-REF-03) per repository | one hosted cycle observed end to end"
+        - "record | 7 clean daily cycles | Lane L production proved, entry appended"
+
+- id: TC-RLP-01
+  title: Freeze the governed versions and make bumps non-invalidating
+  reqs: [REQ-PRG-03, REQ-PRG-04]
+  item: G7-W22
+  lane: L-gov
+  depends: [TC-WKR-05]
+  governed: false
+  no_bump: true
+  paths: {write: [docs/SUPERVISION.md, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/freeze/]}
+  outcome: one named commit is the freeze, and a bump no longer reopens a candidate that did not consume the changed input
+  accept: ["the freeze commit is the merge of the cut-8 precedence fix; its constants are recorded in the log and no governed file differs afterwards without the necessity finding of 11D.2", "TC-INV-01 and TC-CUR-01 are scheduled first in Lane R and each lands with its tests; status then reports update_required, update_optional and update_unverified separately"]
+  children:
+    - id: TC-RLP-01-01
+      title: Declare
+      steps:
+        - "record | the freeze commit and the governed constants at it, in DECISION_LOG and G7-W22 | the commit hash named"
+    - id: TC-RLP-01-02
+      title: Immunity first
+      steps:
+        - "run | TC-INV-01 then TC-CUR-01 (doc 13 sections 5 and 6) before any new Lane R fix | a synthetic non-affecting bump on the real portfolio leaves every bundle valid"
+
+- id: TC-RLP-02
+  title: Lane R local waves on the frozen versions until every processable repository is accepted
+  reqs: [REQ-PRG-03]
+  item: G3-W11
+  lane: L-seal
+  depends: [TC-RLP-01, TC-UNI-01]
+  governed: false
+  paths: {write: [candidates/, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/frozen-waves/]}
+  outcome: the authorizable count on frozen code, with every failure classed and every fix routed outside the governed files or through the necessity test
+  accept: ["each wave runs on the frozen head with the local runner (reseal_wave), then the independent acceptance review of every sealed candidate", "a fix that needs a governed change carries the finding of 11D.2 or stays in the backlog", "the checkpoint on 28 Oct is reported to the owner with the count and the decision rule"]
+  children:
+    - id: TC-RLP-02-01
+      title: Wave and review
+      steps:
+        - "run | a full 44-repository wave on the frozen head (about 2 to 5 hours at 6 to 8 parallel) | counts appended to the log"
+        - "run | the independent acceptance review of every sealed candidate (a non-author) | authorizable count"
+    - id: TC-RLP-02-02
+      title: Triage and repair
+      steps:
+        - "record | per failed row the class, the earliest stage and whether a non-governed repair exists | a table that sums to 44"
+        - "edit | non-governed repairs first (extractors data, registry data, bundle and currency code); any governed change only with the 11D.2 finding | the next wave measures it"
+
+- id: TC-RLP-03
+  title: Lane R proof - idempotent and bump-immune
+  reqs: [REQ-PRG-04]
+  item: G3-W11
+  lane: L-seal
+  depends: [TC-RLP-02, TC-INV-01, TC-CUR-01]
+  governed: false
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/lane-r-proof/]}
+  outcome: the exit predicate of Track R in 11D.1, recorded
+  accept: ["a second full pass on the same frozen head reproduces every sealed candidate byte-identically with zero provider calls (the official present entry point, fresh process, empty runs)", "a deliberate non-affecting bump leaves every candidate valid or VALID_UPDATE_AVAILABLE, none INVALIDATED", "the count of authorizable candidates is reported beside it"]
+  children:
+    - id: TC-RLP-03-01
+      title: Prove
+      steps:
+        - "run | the second full pass and the rerun check | per-repository identical or the first differing stage"
+        - "run | a throwaway bump of an unconsumed input on a copy of the portfolio | no candidate invalidated"
+        - "record | Lane R proved locally, or the blocking classes with counts | entry appended"
+
+- id: TC-ICP-01
+  title: Issue approvals for the seven Cells repositories, under the owner's delegation
+  reqs: [REQ-PRG-05]
+  item: G6-W07
+  lane: L-issues
+  depends: [TC-WKR-06]
+  governed: false
+  paths: {write: [ops/issue_approvals/, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/decisions/issue-approval-cells/]}
+  outcome: a digest-bound approval record for every reproduced, quality-gated, system-found issue on a Cells repository
+  accept: ["each issue is re-verified against the live head the same day and dropped if it no longer reproduces", "the 3 text-only drafts are converted to handoffs only after their classes are registered (TC-WKR-06), the other 8 are existing handoffs", "records are emitted with approver babar-raza on the authority of the DECISION_LOG entry of 2026-10-14 and landed by the supervisor in one reviewed pull request"]
+  children:
+    - id: TC-ICP-01-01
+      title: Re-verify the eleven
+      steps:
+        - "run | issue-readiness and the recorded reproduction command for each of the 11 at the live head | reproduced or dropped, raw log kept"
+    - id: TC-ICP-01-02
+      title: Emit and land
+      steps:
+        - "run | issue-readiness --emit-approvals with the approver and the exact ids, all or nothing | records in a scratch directory"
+        - "package | one pull request adding the records, hosted CI green on the exact head, merged by the supervisor | on main"
+
+- id: TC-ICP-02
+  title: Issue proof - enable and file on the Cells repositories
+  reqs: [REQ-PRG-05]
+  item: G6-W01
+  lane: L-issues
+  depends: [TC-ICP-01, TC-ISS-06]
+  governed: false
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/cells-issues/]}
+  outcome: the exit predicate of Track I in 11D.1, recorded
+  accept: ["filing needs mode full on the Cells entries (landed by TC-LCP-01-02), the App's Issues write on aspose-cells-foss (verified by a minted token, OWNER-23 if missing) and the variable REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED=1, set by the supervisor on the authority of the log entry", "wave 1a (Cells-Cpp) is filed and verified alone first, then the rest paced by the per-repository cap", "a second run creates no duplicate; one redetect or close path is exercised; no token appears in any log"]
+  children:
+    - id: TC-ICP-02-01
+      title: Preflight
+      steps:
+        - "run | a minted installation token for aspose-cells-foss with the issues permission, one read-only call | the permission map shows Issues write, or OWNER-23 is raised"
+    - id: TC-ICP-02-02
+      title: File and repeat
+      steps:
+        - "run | issues-scheduled.yml for Cells-Cpp, then the other approved issues | each issue URL and its handoff FILED"
+        - "run | the same again, then a redetect cycle | no duplicate; lifecycle exercised; Track I proved, entry appended"
+
+- id: TC-IPD-01
+  title: Issue production - every repository
+  reqs: [REQ-PRG-06]
+  item: G6-W07
+  lane: L-issues
+  depends: [TC-ICP-02, TC-ISS-05]
+  governed: false
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/issues-production/]}
+  outcome: every confirmed, system-found issue on any admitted repository is filed once and tracked, continuously
+  accept: ["the remaining reproduced issues (about 19 FILE rows plus new finds) are approved the same way, in waves, each exact list recorded", "TC-ISS-05 (issues_mode) decouples issue filing from PR mode so a repository can be issue-enabled without being PR-enabled", "caps, pacing, the pause and the age alert (TC-ISS-11) are active"]
+  children:
+    - id: TC-IPD-01-01
+      title: Expand
+      steps:
+        - "run | approvals and filing in waves for the other repositories, then the daily scheduled run | issue funnel counts in status, no duplicates, no halt"
+
+- id: TC-SUP-02
+  title: The wake report - a mechanical start to every supervisor wake
+  reqs: [REQ-PRG-07]
+  item: G7-W06
+  lane: L-gov
+  depends: []
+  governed: false
+  paths: {write: [tools/supervisor/, tests/test_supervisor_wake.py, docs/REPOSITORY_LAYOUT.md, docs/SUPERVISION.md]}
+  outcome: one read-only command prints the eight reads of the charter, so a red scheduled run, a stranded PR, an unclaimed READY card, a missed date or a dead credential cannot go unseen
+  accept: ["python -m tools.supervisor wake prints: open pull requests with CI state; the last five runs of each scheduled workflow and any red one without a card; ledger READY cards not claimed; background jobs; the repository variables that arm writes; credential validity; dates committed in 11D against today; the lane count against the floor", "it uses an existing credential read-only and never prints a token", "tests use recorded API fixtures; the tool has a production importer in the CLI of the supervisor procedure"]
+  children:
+    - id: TC-SUP-02-01
+      title: Build and wire
+      steps:
+        - "inspect | tools/plan_lint ledger fold and tools/reviewer/procedure.md section 0 | what the wake already reads"
+        - "create | tools/supervisor wake with fixtures and tests; the procedure and SUPERVISION.md name it as the first step of every wake | a run against the live repository matches a hand check"
 ```
 
 ---

@@ -35,6 +35,55 @@ class; a rule with no incident behind it is a candidate for removal, not additio
 - **Dead-man** — `.github/workflows/liveness.yml`, the one supervisor that survives session death,
   reboot, and sleep. Scheduled every 30 minutes; read-only; fails loudly on stranded artifacts.
 
+## Supervisor charter v2 (2026-10-14)
+
+Written after the owner found the supervisor unreliable ("flaky") and asked for one that is more
+intelligent, leading, vigorous and reliable. Each rule below traces to an incident of 2026-10-11 to
+2026-10-14; none restates a rule of the sections that follow, which still apply. A rule whose incident
+stops recurring and whose wake report stays clean is a candidate for removal, not for reinforcement.
+
+1. **Lead with a dated plan.** Every wake ends with the next three actions, who or what does each,
+   when each will be verified, and what has slipped against the dates committed in
+   `plans/reseal-and-refresh/PLAN.md` section 11D. A slip of more than a day gets a replan line the
+   same wake. *Incident:* the Monday and Tuesday targets passed with no dated replan.
+2. **Decide; ask only for what is the owner's.** The supervisor decides ordering, lane assignment,
+   which check to run, what to preserve, the necessity test for a bump, merges of its own green pull
+   requests, ledger and register updates and retries. It asks the owner only for authority the owner
+   alone holds (a new class of outbound effect, a repository outside the approved scope), a credential,
+   a browser-only action, or a product-policy choice, and says which of the four applies. One
+   consolidated message, with the preflight done and a recommended answer. *Incident:* the owner was
+   asked to merge, to rotate and to "name a machine" for things the supervisor could decide or do, and
+   was sent to a wrong fix (`gh auth login`) before the cause was found.
+3. **Evidence before claim.** A statement that something is pushed, merged, passing, filed or true
+   rests on command output seen in this session. A lane's report is a claim: re-check the part that
+   matters before it enters the log, the register or a message. A log or register line is written after
+   the action, never before. *Incidents:* "pushed" logged before the push was attempted (it failed);
+   "mypy cannot run on this host" recorded from a lane report and false when tested.
+4. **Fast gate before slow gate.** Before any commit or push run `ruff check`, `ruff format --check`,
+   `mypy` and the tests that read the files touched; the pre-push hook (about 35 minutes) is the last
+   gate, not the first test. *Incident:* a format failure found 45 minutes into a hook run.
+5. **Diagnose before you report.** When something fails, open the log and name the cause, or state
+   exactly which evidence is missing and how it will be got, in the same wake. Never hand back "cannot
+   tell" while the log is on disk. *Incident:* a failed push returned unexplained though the log held
+   the format error and the owner's power-off time.
+6. **The wake report.** Every wake starts with the wake report (`python -m tools.supervisor wake`,
+   TC-SUP-02; until it exists, the same eight reads by hand): open pull requests with CI state; the last
+   five runs of each scheduled workflow and any red one that has no card; READY cards in the ledger not
+   claimed; background jobs; the repository variables that arm writes; credential validity; the
+   committed dates against today; the lane count against the floor. A red scheduled run with no card is
+   a defect of that wake. *Incident:* scheduled sealing was red on three of its last five runs and was
+   found only in a project recon.
+7. **Record as you go.** A merge, wave, review or decision is recorded in the log, the register and the
+   ledger in the same work item. A register that contradicts `main` is a defect (REG-30). *Incident:*
+   cut 4 to 6 on `main` while the register said "pull request pending", and waves 5 and 6 unrecorded.
+8. **Brief a lane completely.** Goal, exact paths, the checks to run before it commits, stop
+   conditions, the proof that counts, and "report only what you ran". Reject a report that cites no
+   output. *Incident:* lane claims taken as fact (rule 3).
+9. **Never wait idle.** While a long job runs (a hook, a wave, a hosted run) start the next ready,
+   disjoint card; the floor of concurrent roles below still applies. *Incident:* long runs awaited with
+   status messages that carried no new fact.
+10. **Close every task with three lines:** what was checked, what was not checked, what remains.
+
 ## The supervision matrix
 
 | Actor | Watches | Watched by |

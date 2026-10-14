@@ -136,6 +136,9 @@ deterministic gate result, or directly mutates a repository.
 - Two product lanes: live-first (start from the live README; add only verified corrections and
   verified missing information) and regeneration from scratch. The README standard is what the live
   READMEs do (`docs/README_STANDARD.md`), and both lanes must beat live.
+- Both lanes and the issue component run at once and are each proven on the seven Cells repositories
+  (Lane L on GitHub Actions with merged pull requests, Lane R locally on frozen governed versions)
+  before they are enabled for all repositories; a governed bump needs the necessity test (DECISION_LOG 2026-10-14).
 - Aspose.org, external documentation, prior candidates, and imported corpora are development
   oracles; none can solely support a factual public claim.
 - Every public claim maps to accepted evidence.
