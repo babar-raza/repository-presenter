@@ -12,7 +12,7 @@ Two views of the same question.
   edit (a character span the lane reports) covers it. 100% is the only passing value.
 
 The thresholds are those of the second first-principles analysis (0.6 and 0.85), kept so the
-numbers in ``plans/reseal-and-refresh/PLAN.md`` section 11A and this module's table agree. They make
+numbers in ``plans/archive/reseal-and-refresh/PLAN.md`` section 11A and this module's table agree. They make
 "kept" generous: ``verbatim`` is a ceiling for byte retention and ``lost`` may include a
 semantically equivalent restatement.
 

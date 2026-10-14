@@ -1,6 +1,6 @@
 """Ledger fold, legal transitions and evidence hashes (card TC-LNT-01-03).
 
-``plans/reseal-and-refresh/loop-status.jsonl`` is append-only; one line is one transition::
+``plans/archive/reseal-and-refresh/loop-status.jsonl`` is append-only; one line is one transition::
 
     {"ts", "card", "from", "to", "actor", "evidence": [{"path", "sha256"}], "scores": {...},
      "commit", "reason"}

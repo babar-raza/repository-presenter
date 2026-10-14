@@ -10,8 +10,8 @@ from .findings import Finding
 from .ledger import FoldResult, check_state_items, fold_ledger, load_state, read_ledger
 from .rules import lint_plan
 
-DEFAULT_PLAN = "plans/reseal-and-refresh/PLAN.md"
-DEFAULT_LEDGER = "plans/reseal-and-refresh/loop-status.jsonl"
+DEFAULT_PLAN = "plans/archive/reseal-and-refresh/PLAN.md"
+DEFAULT_LEDGER = "plans/archive/reseal-and-refresh/loop-status.jsonl"
 DEFAULT_STATE = "project/state.yaml"
 DEFAULT_MAPS_DIR = "evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/generated-artifacts"
 

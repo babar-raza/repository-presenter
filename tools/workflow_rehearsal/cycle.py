@@ -1446,7 +1446,7 @@ def evidence_header() -> dict[str, Any]:
     except (subprocess.CalledProcessError, OSError):
         revision = None
     return {
-        "authoritative_plan": "plans/reseal-and-refresh/PLAN.md",
+        "authoritative_plan": "plans/archive/reseal-and-refresh/PLAN.md",
         "execution_authority": False,
         "control_revision_at_run": revision,
         "environment": {

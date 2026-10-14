@@ -1,4 +1,4 @@
-"""Offline idempotence and retention harness (TC-IDM-01, plans/reseal-and-refresh/PLAN.md 11A).
+"""Offline idempotence and retention harness (TC-IDM-01, plans/archive/reseal-and-refresh/PLAN.md 11A).
 
 Makes "better than the live README" measurable and gates regressions, for both lanes: the
 live-first correction lane (``components/readme_correction``) and the regeneration lane. Everything

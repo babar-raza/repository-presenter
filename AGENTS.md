@@ -16,15 +16,13 @@ transitions are supporting work—not substitutes for a completed README transac
 
 Read in this order at the start of every session:
 
-1. `project/state.yaml` — the only live implementation cursor.
+1. `project/state.yaml` — the only live implementation cursor: the active work item and the current gate.
 2. The current gate in `docs/EXECUTION_STATE_MACHINE.md`.
-3. Relevant behavior in `docs/STATE_MACHINE.md`; `docs/README_STANDARD.md` for a README's
-   structure, composition, links and tone, and `docs/README_CONTRACT.md` for assembly and checks,
-   whenever the work item touches facts, composition, validation, or review.
-4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`; `docs/DECISION_LOG.md` (§31) for decisions since.
-5. `plans/idea.md` — the human product authority, for the outcome standard and standing
-   constraints; never a cursor or task list.
-6. Only reuse-source files (legacy or aspose.org) named by the active reuse-manifest record.
+3. `project/loop-prompt-ship.md` — the executor's queue since 2026-10-14. Everything else only when
+   the step at hand names it: `docs/STATE_MACHINE.md`, `docs/README_STANDARD.md` and
+   `docs/README_CONTRACT.md` for facts, composition, validation or review; `docs/RESEARCH_AND_GUIDELINES.md`
+   and `docs/DECISION_LOG.md` (§31) for a decision's record; `plans/idea.md` for the outcome standard,
+   never as a task list; reuse-source files only through the active reuse-manifest record.
 
 Authority by subject:
 
@@ -92,11 +90,13 @@ before picking.
 - Reuse accepted unaffected work when one dependency changes.
 - End every work item with a run of the official entry point on the canary. A module with no
   production importer is a defect, not a deliverable.
-- Count progress in one unit only: authorizable candidates, N/44 (the registry size on 2026-10-11; independent acceptance review
-  passed and not worse than the live README); report sealed counts alongside, never as progress.
+- Count progress in one unit only: authorizable candidates, N/44 (the registry size on 2026-10-11), as the
+  computed judge decides it (standard conformance, verified claims, retained inherited content, rerun
+  identity; not worse than a standard live README where one exists). A sealed count is never a headline.
 - Invalidate a candidate only through an input it consumed. Never add a global control-plane hash;
   validator and reviewer changes re-check and may yield `VALID_UPDATE_AVAILABLE`, never blanket
-  invalidation.
+  invalidation. A governed version moves only for a false claim or an unsafe effect that cannot be
+  fixed outside the governed files, with the finding written in `docs/DECISION_LOG.md` first.
 - Make reviewer findings repairable: each names a section and a causal stage, or it is advisory.
 - Keep governance within budget: this file at most 210 lines, the build plan at most 520 lines,
   at most eight gates. Replace a rule before adding one.
