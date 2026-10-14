@@ -153,15 +153,25 @@ def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
     assert info.value.code is Refusal.REGISTRY_INACTIVE
 
 
+# The shipped entries that set ``issues_mode`` explicitly, each with the owner approval that
+# admitted it. Any other entry setting the field fails this test: a flip is an owner act
+# (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing).
+ISSUE_FILING_OPT_INS: dict[str, str] = {
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp": "file",
+}
+
+
 def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
-    """All 44 shipped entries set no ``issues_mode``: issue_filing and issue_close are permitted
-    for exactly the entries the old ``mode == 'full'`` rule permitted (the 2 ``full`` ones), and
-    the README-side effects are unchanged."""
+    """Of the 44 shipped entries, only the owner-approved opt-ins set ``issues_mode``; every other
+    entry derives it from ``mode``. The README-side effects are permitted for exactly the 2
+    ``full`` entries, as before; issue_filing and issue_close for those 2 plus the opt-ins, and
+    an opt-in never arms a README pull request."""
     from support import REPO_ROOT
 
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
     assert len(registry.entries) == 44
-    assert all(entry.issues_mode is None for entry in registry.entries)
+    explicit = {e.repository: e.issues_mode for e in registry.entries if e.issues_mode is not None}
+    assert explicit == ISSUE_FILING_OPT_INS
 
     def permitted(repository: str, effect: WriteEffect) -> bool:
         try:
@@ -170,7 +180,11 @@ def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_bef
             return False
         return True
 
+    full = {e.repository for e in registry.entries if e.mode == "full"}
+    assert len(full) == 2
     for effect in EFFECTS:
         allowed = {e.repository for e in registry.entries if permitted(e.repository, effect)}
-        assert allowed == {e.repository for e in registry.entries if e.mode == "full"}
-        assert len(allowed) == 2
+        if effect in ("issue_filing", "issue_close"):
+            assert allowed == full | set(ISSUE_FILING_OPT_INS)
+        else:
+            assert allowed == full
