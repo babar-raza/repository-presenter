@@ -21,11 +21,6 @@ from dataclasses import dataclass
 
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
 from repository_presenter.components.readme.composition.renderer import render_readme
-from repository_presenter.components.readme.evidence.facts.commands import (
-    BUILD_COMMAND_FACT_ID,
-    CI_MATRIX_FACT_ID,
-    TEST_COMMAND_FACT_ID,
-)
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.components.readme_correction.augment import (
     CMAKE_FACT_ID,
@@ -38,11 +33,11 @@ from repository_presenter.components.readme_correction.detectors._layout import 
 )
 from repository_presenter.components.readme_correction.detectors.additions import (
     DEV_RE_ENABLE,
-    DOCS_RE_ENABLE,
+    Unmet,
     _bullet_token,
-    _dev_conditions_unmet,
-    doc_link_bullets,
-    docs_conditions_unmet,
+    dev_plan,
+    dev_unmet,
+    verified_doc_bullets,
 )
 from repository_presenter.components.readme_correction.detectors.stale import (
     registry_says_unpublished,
@@ -58,6 +53,7 @@ from repository_presenter.components.readme_correction.model import (
 )
 from repository_presenter.components.readme_correction.text_gate import clean
 from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
+from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.package_registry import PUBLISHED_VERSION_FACT_ID
 
 NL = chr(10)
@@ -141,28 +137,28 @@ def _dependency_ids(ctx: Context) -> tuple[str, ...]:
 
 
 def _development_ids(ctx: Context) -> tuple[str, ...]:
-    return tuple(
-        fact.id
-        for fact in (
-            ctx.supported(fact_id)
-            for fact_id in (
-                "build_test_asset:tests",
-                "build_test_asset:ci",
-                BUILD_COMMAND_FACT_ID,
-                TEST_COMMAND_FACT_ID,
-                CI_MATRIX_FACT_ID,
-            )
-        )
-        if fact is not None
+    return dev_plan(ctx, whole_section=True).cited
+
+
+def _development_block(ctx: Context) -> str:
+    """The Development and Testing section over the facts the README does not already cover and
+    whose commands are in the verified chain."""
+    plan = dev_plan(ctx, whole_section=True)
+    return _rendered(
+        ctx,
+        "development_testing",
+        FactsDocument(
+            ctx.facts.repository, ctx.facts.source_revision, plan.kept, ctx.facts.schema_version
+        ),
     )
 
 
 def _docs_locators(ctx: Context) -> tuple[str, ...]:
-    return tuple(f"tree:{path}" for _bullet, path in doc_link_bullets(ctx))
+    return tuple(f"tree:{path}" for _bullet, path in verified_doc_bullets(ctx)[0])
 
 
 def _docs_block(ctx: Context) -> str:
-    bullets = [bullet for bullet, _path in doc_link_bullets(ctx)]
+    bullets = [bullet for bullet, _path in verified_doc_bullets(ctx)[0]]
     return NL.join(["## Documentation & Resources", "", *bullets]) if bullets else ""
 
 
@@ -197,7 +193,13 @@ def _never(_ctx: Context) -> bool:
 DERIVABLE: tuple[Derivable, ...] = (
     Derivable("installation", _installation_ids, _spells_install_command),
     Derivable("dependencies", _dependency_ids, _never),
-    Derivable("development_testing", _development_ids, _never, required=False),
+    Derivable(
+        "development_testing",
+        _development_ids,
+        _never,
+        required=False,
+        render=_development_block,
+    ),
     Derivable("license", _license_ids, _never),
     Derivable(
         "documentation_resources",
@@ -210,14 +212,13 @@ DERIVABLE: tuple[Derivable, ...] = (
 )
 
 
-def _report_only_why(ctx: Context, section_id: str, evidence: tuple[str, ...]) -> str:
-    """Why a whole Development and Testing or Documentation section may not yet be inserted: its
-    facts are the ones the independent review found unreliable (see additions.py)."""
+def _report_only_why(ctx: Context, section_id: str, evidence: tuple[str, ...]) -> Unmet | None:
+    """Why a whole Development and Testing section may not yet be inserted: a command in it is not
+    part of a verified chain (see additions.py). The Documentation section is built from the
+    links the tree and the documentation fact allow, so it has nothing held back."""
     if section_id == "development_testing":
-        return _dev_conditions_unmet(ctx, evidence)
-    if section_id == "documentation_resources":
-        return docs_conditions_unmet(ctx)
-    return ""
+        return dev_unmet(ctx, evidence)
+    return None
 
 
 def _present(ctx: Context, section_id: str) -> bool:
@@ -243,10 +244,10 @@ def _h2_order(ctx: Context) -> list[tuple[int, int]]:
     return found
 
 
-def _rendered(ctx: Context, section_id: str) -> str:
+def _rendered(ctx: Context, section_id: str, facts: FactsDocument | None = None) -> str:
     _spec(ctx)
     plan = {"sections": [{"section_id": section_id, "include": True}]}
-    text = render_readme(ctx.entry, ctx.facts, plan, {"units": []}, {"dispositions": []})
+    text = render_readme(ctx.entry, facts or ctx.facts, plan, {"units": []}, {"dispositions": []})
     body = clean(text.strip(NL))
     return augment_dependencies(ctx, body) if section_id == "dependencies" else body
 
@@ -305,19 +306,21 @@ def missing_sections(ctx: Context) -> DetectorResult:
                     )
                 )
             continue
+        if sid == "development_testing":  # what the README shows, or the chain leaves out
+            findings.extend(dev_plan(ctx, whole_section=True).findings)
         unmet = _report_only_why(ctx, sid, evidence)
-        if unmet:  # the same facts that withdrew add_dev_commands / add_doc_links
+        if unmet is not None:  # the same facts that withdrew add_dev_commands
             findings.append(
                 Finding(
                     "missing_sections",
                     0,
                     "",
                     f"{_SHELL[sid].heading} is absent and could be inserted from the cited facts; "
-                    f"not applied: {unmet}",
+                    f"not applied: {unmet.text}",
                     evidence,
-                    report_only_reason="RE_ENABLE_CONDITION_UNMET",
+                    report_only_reason=unmet.code,
                     candidate=block,
-                    re_enable=DEV_RE_ENABLE if sid == "development_testing" else DOCS_RE_ENABLE,
+                    re_enable=DEV_RE_ENABLE,
                     locators=locators,
                 )
             )

@@ -255,6 +255,7 @@ from repository_presenter.components.readme.validation.registry import (
     coverage_rows,
     summarize_validation,
 )
+from repository_presenter.components.readme_correction.enrich import ReceiptOptions
 from repository_presenter.components.readme_correction.gate import load_proposable_correction
 from repository_presenter.components.readme_correction.pull_request import (
     compose_correction_pull_request,
@@ -1123,6 +1124,26 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     correct.add_argument(
+        "--receipts",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help=(
+            "where build receipts are read from (and written to by --verify-commands): proof that "
+            "the build and test commands a Development and Testing addition would print ran on a "
+            "clean clone; without one the commands stay report-only"
+        ),
+    )
+    correct.add_argument(
+        "--verify-commands",
+        action="store_true",
+        help=(
+            "run a command chain that has no receipt in --receipts on a clean clone with the "
+            "machine's toolchains, and store the receipt (builds and tests run; nothing is "
+            "written to the target)"
+        ),
+    )
+    correct.add_argument(
         "--out",
         type=Path,
         required=True,
@@ -1564,7 +1585,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_stage_transaction_artifact(args.transaction, args.staging)
     if args.command == "correct-readme":
         return run_correct_readme(
-            args.repo, args.root, facts_path=args.facts, out=args.out, sandbox=args.sandbox
+            args.repo,
+            args.root,
+            facts_path=args.facts,
+            out=args.out,
+            sandbox=args.sandbox,
+            receipts=args.receipts,
+            verify_commands=args.verify_commands,
         )
     if args.command == "propose":
         return run_propose(
@@ -3215,6 +3242,8 @@ def run_correct_readme(
     facts_path: Path | None,
     out: Path,
     sandbox: bool = False,
+    receipts: Path | None = None,
+    verify_commands: bool = False,
 ) -> int:
     """``correct-readme``: write the correction bundle for ``repository``'s live README.
 
@@ -3255,6 +3284,11 @@ def run_correct_readme(
             facts_path=facts_path,
             extract_facts=extract_facts,
             token=os.environ.get("GH_TOKEN") or None,
+            receipts=ReceiptOptions(
+                directory=receipts,
+                verify=verify_commands,
+                scratch=root / RUNS_DIRNAME / "chains",
+            ),
         )
         leaks = scan_for_secrets(out, configured_secrets(os.environ))
         if leaks:

@@ -170,6 +170,14 @@ def _perm(value: Any) -> str:
     return ", ".join(f"{k}: {v}" for k, v in sorted(value.items()))
 
 
+def _runs_on(value: Any) -> str:
+    """The ``runs-on`` cell: a label, a label list, or an expression (code-formatted, no pipes)."""
+    if isinstance(value, list):
+        return ", ".join(str(v) for v in value)
+    text = " ".join(str(value).split()).replace("|", "/")
+    return f"`{text}`" if "${{" in text else text
+
+
 def _code(items: list[str]) -> str:
     return ", ".join(f"`{i}`" for i in items) if items else "-"
 
@@ -202,7 +210,7 @@ def render(rows: list[dict[str, Any]]) -> str:
             cond = "-" if not j["if"] else "`" + " ".join(str(j["if"]).split()).replace("|", "/") + "`"
             conc = "-" if not j["concurrency"] else _scalar_or_list(j["concurrency"]).replace("|", "/")
             out.append(
-                f"| `{j['id']}` | {_code(j['needs'])} | {j['runs_on']} "
+                f"| `{j['id']}` | {_code(j['needs'])} | {_runs_on(j['runs_on'])} "
                 f"| {_perm(j['permissions'] if j['permissions'] is not None else r['permissions'])}"
                 f"{'' if j['permissions'] is not None else ' (workflow)'} "
                 f"| {'; '.join(j['app_token_scopes']) or '-'} | {j['environment'] or '-'} | {conc} | {'yes' if j['matrix'] else '-'} | {cond} |"

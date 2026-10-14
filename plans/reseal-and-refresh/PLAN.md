@@ -20,6 +20,15 @@ serialised_paths:   # hot files: one writer at a time, serialised by the supervi
   - docs/RESEARCH_AND_GUIDELINES.md
   - plans/reseal-and-refresh/
   - evidence/build/G3_PYTHON_COHORT/
+  - docs/DEFECT_INDEX.md                   # every card appends or closes an entry (section 11C, 2026-10-13)
+  - src/repository_presenter/cli.py
+  - tests/test_cli.py
+  - src/repository_presenter/components/readme/reconciliation/dispositions.py
+  - tests/components/readme/reconciliation/test_s4_dead_ends.py
+  - tools/workflow_rehearsal/shape_checks.py
+  - tools/workflow_rehearsal/cycle.py
+  - tests/test_workflow_rehearsal.py
+  - tests/test_workflow_rehearsal_cycle.py
 authored: 2026-10-10 (Saturday); Monday delivery target is 2026-10-12
 placed: 2026-10-10 by TC-GOV-01 (lane L-gov); card statuses printed here are initial, the live fold is loop-status.jsonl
 ```
@@ -99,6 +108,8 @@ The owner's quality bar (this session): ALL useful information from the cloned r
 ## 3. Requirements (stable IDs)
 
 REQ-GOV-01 one authority, taskcard layer subordinate · REQ-LNT-01 plan structure and transitions machine-checked · REQ-CON-01 no churn/races before the cut · REQ-CUT-01 the cut is a recorded commit · REQ-RSL-01 all 36 entries reach a terminal typed state on the cut code, sealed on the production environment · REQ-RSL-02 hosted seals land in `candidates/` by workflow-authored PR · REQ-ACC-01 **no authorization list is built from a candidate that has not passed independent comparison with the live README** · REQ-WAV-01 push wave follows the runbook; owner approves the exact list · REQ-ISS-01…11 issue system (§10) · REQ-REV-01 reviewer REJECT not demoted without recorded deterministic refutation · REQ-REV-02 independence real or honestly compensated · REQ-DSP-01 disposition truth · REQ-DSP-02 live-README floor · REQ-CLM-01 version/install/publication claims equal manifest or registry facts · REQ-CLM-02 capability claims cite facts · REQ-COV-01 every material clone-information unit has one explicit disposition · REQ-EXT-01 extractor defects fixed · REQ-INV-01 reopen only through consumed facts · REQ-INV-02 volatile web observations do not invalidate · REQ-CUR-01 consumed-scope recheck and currency states (doc 13) · REQ-BND-01 bundle integrity and replay completeness · REQ-CTR-01 optional sections follow verified facts inside the 10-section template · REQ-PRP-01 `propose` refuses unproven content · REQ-VER-01 version literals from one source · REQ-LIV-01 the live-first candidate starts from the live README and changes it only by verified corrections and verified missing information, each citing accepted facts · REQ-LIV-02 a correction candidate is authorizable only if it passes the independent acceptance review and is not worse than the live README (D4) · REQ-LIV-03 all 36 registry entries have a correction candidate or a typed terminal state, and the only push is the sandbox canary (D6, D7) · REQ-STD-01 the README standard is surveyed from the 36 live READMEs as a common schema plus a product-differences schema, `docs/README_CONTRACT.md` is rewritten from it, and both lanes must beat live (D2) · REQ-IDM-01 regeneration from a conformant source is a fixed point (D1) · REQ-MMD-01 the At a Glance diagram is never clipped and its three mother blocks (Starting Points, Core Capabilities, Outputs) run left to right, split by key capability, every box growing with its text, accepted only by a real render (owner ruling R7, 2026-10-11) · REQ-DIS-01 the registry allow-list is reconciled read-only against what its authorized organizations hold, and discovery never admits an entry or moves the denominator (owner finding 2026-10-11) · REQ-ADM-01 an admitted library is served by a registered platform plugin and the cursor denominator tracks the registry (owner decision 2026-10-11, the JMAP family) · REQ-WV4-01 a regression a wave triage finds in a stricter gate is repaired at its earliest causal stage, never by weakening a check, and verified by the next wave · REQ-REF-01…12 refresh app (§11): REF-10 every workflow rehearsed locally in its hosted shape, REF-11 the whole autonomous cycle rehearsed locally on synthetic upstreams, REF-12 production hosting go-live.
+
+REQ-WKR-01 the register and the log say what is on `main` and what the owner's reports found, with no stale "pull request pending" · REQ-WKR-02 an exposed credential is rotated before it is used again, and the rule that follows from it is enforceable · REQ-WKR-03 the evidence a decision rests on is committed, not left in a session scratchpad · REQ-WKR-04 an authorizable count rests on an independent review of the current bytes · REQ-WKR-05 a kept lead-in has one owner of its destination, decided and tested · REQ-WKR-06 every reproduced upstream defect has a handoff the tool can approve · REQ-WKR-07 the autonomous cycle's proven gaps are closed or explicitly accepted · REQ-WKR-08 a sealed count is never presented as accepted output (§11C, the 2026-10-13 weekly-report verification) · REQ-UNI-01 the pipeline behaves the same way on comparable repositories, and a difference by ecosystem is named and either fixed or accepted by the owner (§11B).
 
 ---
 
@@ -1195,7 +1206,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-VER-01]
   item: G3-W08
   lane: L-core
-  depends: [TC-VER-01, TC-DSP-01, TC-DSP-02, TC-COV-03, TC-EXT-01, TC-INV-02, TC-CTR-01]
+  depends: [TC-VER-01, TC-DSP-01, TC-DSP-02, TC-COV-03, TC-EXT-01, TC-INV-02, TC-CTR-01, TC-WKR-05]
   cut: 2
   governed: true
   ground: "owner approval D-OWN-2"
@@ -1387,7 +1398,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
     - id: TC-REF-06-01
       title: Policy then code
       steps:
-        - "decide-owner | OWNER-12 outage policy (retry window, budget behavior, alerting) | recorded"
+        - "record | OWNER-12 is decided (2026-10-13, owner delegation): fail closed, no fallback route; an outage is BLOCKED_EXTERNAL with no cooldown and no budget burn, retried next cycle, annotated after 3 consecutive outage cycles | docs/DECISION_LOG.md entry of 2026-10-13, nothing left to ask"
         - "edit | wire renew_lease into long runs; classify outage as BLOCKED_EXTERNAL; no budget burn | tests"
         - "run | hosted rehearsal: kill a run mid-transaction; hold a stale lease | recovery without double processing"
 
@@ -1505,7 +1516,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-12]
   item: G7-W06
   lane: supervisor
-  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02, TC-DIS-01]
+  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02, TC-DIS-01, TC-WKR-03, TC-WKR-07]
   governed: false
   no_bump: true
   paths: {write: [docs/OPERATIONS_RUNBOOK.md, project/state.yaml, docs/DECISION_LOG.md, .github/workflows/, tools/workflow_rehearsal/, tests/test_hosting_preflight.py]}
@@ -1799,7 +1810,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-IDM-01]
   item: G3-W11
   lane: L-idm
-  depends: [TC-IDM-01, TC-STD-03, TC-R2-02, TC-Q1-01, TC-Q2-01]
+  depends: [TC-IDM-01, TC-STD-03, TC-R2-02, TC-Q1-01, TC-Q2-01, TC-WKR-05]
   cut: "4 - with TC-STD-04; never inside cut 3"
   governed: true
   ground: "owner decision D1 (2026-10-11, docs/DECISION_LOG.md): Lane R's non-idempotence is fixed with production-grade design changes; recorded as the owner approval G7-W22 clause 2 requires"
@@ -1818,7 +1829,7 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
   reqs: [REQ-VER-01]
   item: G3-W11
   lane: L-core
-  depends: [TC-STD-04, TC-IDM-02, TC-MMD-03, TC-Q1-01, TC-Q2-01, TC-Q3-01, TC-NOD-01]
+  depends: [TC-STD-04, TC-IDM-02, TC-MMD-03, TC-Q1-01, TC-Q2-01, TC-Q3-01, TC-NOD-01, TC-WKR-05]
   cut: "4"
   governed: true
   ground: "owner decisions D2 and D1 (2026-10-11, docs/DECISION_LOG.md), with the cut declared by the owner before this card runs"
@@ -2117,6 +2128,286 @@ On 2026-10-11 the owner decided D1 to D7 (`docs/DECISION_LOG.md`, the entry of t
         - "run | issue-readiness over every handoff with the redetectors that exist, re-verifying each against the live head | a CONFIRMED, NOT_A_DEFECT or FIXED_OR_CHANGED verdict per handoff"
         - "create | the owner table of the exact list with the blockers of every row left out | a readable list in analysis/issue-list/"
         - "decide-owner | the owner marks the issues to approve and the window | the list recorded, then TC-ISS-07 emits the records"
+```
+
+---
+
+## 11B. Non-uniform candidate quality across repositories (owner concern, 2026-10-12) — BACKLOGGED, not started
+
+**The owner's concern, recorded verbatim in intent.** Wave 7 (`e19b0f3b`) sealed 7 of 44 repositories and the independent acceptance review found none of the 7 authorizable; 36 repositories failed outright. The owner asked: has this been investigated — why does the system behave differently for different products, causing some to fail while others seal? The owner's expectation, stated as a first-principles requirement: if the pipeline can produce an equally good candidate for some repositories, it must be able to do so for all of them; a uniform pipeline run on comparable inputs should not produce categorically different outcomes (sealed-but-wrong here, cleanly failed there) unless the inputs themselves are the reason, and that reason must be named, not assumed.
+
+**Why this is not yet answered.** Every wave triage to date (`wave3-triage.md` through `wave7-triage.md`) classifies failures per repository and fixes them one defect class at a time (list judgement, format facts, S4 dead ends, reviewer demotion, placement). That is root-cause analysis **per defect**, not an analysis of **why the defect rate itself is non-uniform across repositories** — whether the variance is legitimate (different ecosystems expose genuinely different information: JMAP's inputs are session URLs, not file formats; TeX-Python's source does not parse; 3D-.NET has 45 format constants where only 8 have working readers) or illegitimate (the same pipeline code path is reached unevenly: an ecosystem with more platform-plugin coverage gets more format facts and therefore fewer gate failures, not because its README is objectively easier). No card below is started; this section records the question so it is not lost.
+
+**What a first-principles investigation of this kind would need to establish, when the owner says RESUME (TC-UNI-01, G3-W08; no new register item — a sub-concern of the existing wave-triage work):**
+1. A per-repository **capability matrix**: for every one of the 44 entries, which deterministic fact kinds exist versus are structurally unavailable for that ecosystem (format facts, build receipts, registry ownership, example verification), separating "this ecosystem's extractor has not been written yet" from "this ecosystem has no equivalent of that fact."
+2. A **variance decomposition** over the wave-3 through wave-7 results: for each failure class (BC-10, BC-02, BC-05, model_output...), the share of occurrences explained by (a) an extractor/plugin gap that is fixable and ecosystem-general, (b) a genuine upstream difference (no README, build fails, source unparsable), (c) model/reviewer non-determinism, so the backlog can be ranked by "closes the gap for N repositories" rather than fixed one repository at a time as wave triage currently does.
+3. An explicit **uniformity acceptance test**: given the same shape of input (a repository with a buildable package, a real README, a working CI), the pipeline's blocking-check pass rate should not differ by ecosystem beyond a stated tolerance; a persistent gap by ecosystem (not by individual repository) is itself a defect to fix, not a fact to report.
+4. A decision for the owner on **what "equally good" means operationally** for repositories that are not comparable (GIS-.NET has no README at all; JMAP has no file-format diagram content) — this overlaps the already-open GIS-.NET `BLOCKED_UPSTREAM` question (not approved) and the maintainer-statement memory design (also awaiting the owner), and should be resolved together rather than separately.
+
+**Status: PROPOSED, not started.** `REQ-UNI-01` (uniformity of pipeline behaviour across comparable repositories) is recorded here as a requirement with no child card yet. No agent is to begin this investigation until the owner says RESUME.
+
+---
+
+## 11C. The weekly report of 2026-10-13: verified, deduplicated, prioritised, scheduled — LOGGED, not executed
+
+**Authority.** This section is part of the execution-control layer: the registered items it names (G3-W08, G3-W09, G3-W11, G6-W07, G7-W04, G7-W06, G7-W22) remain the plan. The owner pasted a weekly report of nine risks and asked that each be verified against the repository, logged for analysis, gap filling and reverification, deduplicated against what this plan, `docs/DECISION_LOG.md` and `docs/DEFECT_INDEX.md` already hold, prioritised and scheduled so the supervisor picks them up at RESUME. Nothing below was executed. The evidence for every verdict is in the `docs/DECISION_LOG.md` entry of 2026-10-13; this section keeps the matrix, the schedule and the cards.
+
+### 11C.1 Verification matrix
+
+| # | Report item | Verdict | The repository says | Already logged in | Net new |
+|---|---|---|---|---|---|
+| 1 | Acceptance 0/44; 29 sealed bundles are not accepted output | CONFIRMED, newer | authorizable 0, sealed 29; waves 3 to 7 sealed 8, 4, 3, 1, 7 and none authorizable | D4 (2026-10-11), wave 3/4 and wave 7 entries | waves 5 and 6 unrecorded; `status` headline prints the sealed count first (TC-WKR-08) |
+| 2 | Correction bundles need independent re-review; dev-command and doc-link additions report-only | CONFIRMED, one correction | run 90a5a934 reviewed (35 PUSHABLE, 3 text fixes, 2 HOLD, 4 none); run b6123802 (#335) not reviewed; additions re-enabled on #335, report-only on `main` | G3-W09 entry, TC-LIV-03 | the review result is in no record; re-review card (TC-WKR-04) |
+| 3 | Regeneration inconsistent; JMAP-Cpp opening regression; PDF-Python nondeterministic `examples.json` | CONFIRMED | wave 4: 4 sealed, 39 failed, 1 NOT_READY; JMAP-Cpp masked behind an earlier BC-05 stop; PDF-Python NOT_READY in 3 waves, fix only on local `integration/cut8` | REG-26 and the coherence-cap class for JMAP-Cpp | PDF-Python receipts class (third sighting, settled priority); the cut-8 lead-in conflict (TC-WKR-05) |
+| 4 | Recovery rehearsal: outage as FAILED_INTERNAL with a 24-hour cooldown; no daily budget or open-PR cap; archived repositories | CONFIRMED exactly | four recorded gaps in `tools/workflow_rehearsal/cycle.py`, the outage pinned by a test | TC-REF-06 (outage, OWNER-12), TC-REF-02-02 (budget) | archived repositories, the open-PR cap, the stale-candidate hand-off and the lost-answer delay had no card (TC-WKR-07) |
+| 5 | Production readiness: runner unregistered, writes paused, canary predicates | CONFIRMED | OWNER-21 OPEN; #334 open; first wave of four waits on the canary | OWNER-11/20/21, TC-CAN-01, D5, D6 | the canary variable rule verified (the 2026-10-12 note was wrong); no card |
+| 6 | Credential incident needs follow-through | CONFIRMED, wider | no owner item or resume predicate existed; `gh` logs in through `GITHUB_TOKEN` itself | incident entry (2026-10-11) | OWNER-22 and TC-WKR-02 |
+| 7 | Evidence uneven: idempotence analysis not under investigations; scratchpad references; no shellcheck or pyflakes | CONFIRMED | analysis, owner table, acceptance summaries and triage files only in the scratchpad; rehearsal evidence names the missing linters | G3-W11 exit predicate; TC-IDM-01 step | preservation (TC-WKR-03) |
+| 8 | Upstream defects; nine filing-ready drafts without a class | CONFIRMED, one count to correct | nine drafts need seven classes, four are registered; TeX counts differ (35/45 `.py` vs 102/119 files) | TC-ISS-12, G6-W07, `issues.redetect_*` classes | TC-WKR-06; re-verify the TeX number before it is filed |
+| 9 | Cut 4 recorded unreleased though reachable from `main` | CONFIRMED, now stale | cut 4, 5, 6 are on `main` (#331, #332); six register purposes still say "pull request pending"; no entry for #331, #332 or waves 5 and 6 | entry of 2026-10-11 (true then) | TC-WKR-01 |
+
+### 11C.2 Priorities and schedule for RESUME
+
+Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the next deliverable (cut 8, the canary, the first wave of four, the issue wave); **P2** before hosted go-live; **P3** owner queue. Lanes below are disjoint on paths, so at least four run at once as the owner's standing rule requires. Nothing outbound (merge to a product repository, issue, comment, variable, secret, App change) starts without the owner's exact approval. A `depends` in the cards below orders writers of a shared path; a dependency whose work is already landed on `main` but not yet scored by a non-author (TC-ISS-03, TC-ISS-09, TC-ISS-11, TC-REF-01, TC-DSP-01 where applicable) does not block the start.
+
+| Tier | Order | Card | What | Gate to start | Parallel with |
+|---|---|---|---|---|---|
+| P0 | 1 | TC-UNI-01 | the owner's uniformity concern (§11B): capability matrix, variance decomposition, acceptance test | RESUME | everything below |
+| P0 | 1 | TC-WKR-03 | the evidence is copied (child 01 done, 183 files); what remains is linting `run:` scripts (child 02) | none | TC-UNI-01 |
+| P0 | 2 | TC-WKR-01 | correct the register text, record waves 5 and 6 and the correction review | TC-WKR-03 | TC-UNI-01, TC-WKR-05 |
+| P0 | 2 | TC-WKR-02 | OWNER-22: the rotation is met (2026-10-13); what remains is the GitLab secret and the read-only agent credential reaching the agent environment | the owner | all |
+| P1 | 3 | TC-REF-06, TC-REF-02-02 | the schedule safe to leave on: outage as `BLOCKED_EXTERNAL` (OWNER-12 is decided: fail closed) and a per-day provider-call budget; first read the pause variable `REPOSITORY_PRESENTER_SEALING_PAUSED` with the new credential | the agent credential (OWNER-22) | TC-WKR-05 |
+| P1 | 4 | TC-WKR-05 | one owner for a kept lead-in's destination; then push `integration/cut8` and measure wave 8 | none | TC-REF-06 |
+| P1 | 5 | TC-WKR-04 | independent re-review of the current correction bundles | #335 hosted CI green and the merge decision | TC-WKR-05 |
+| P1 | 6 | TC-ISS-12, TC-WKR-06 | the issue list for the owner; the seven classes the nine drafts need | owner approvals; schema admission | TC-WKR-05 |
+| P1 | 7 | TC-IDM-01 | root cause of regeneration non-idempotence, using the preserved analysis | TC-WKR-03 | TC-UNI-01 |
+| P2 | 8 | TC-WKR-07 | archived repositories, open-PR cap, reconciliation delay | TC-REF-02, 05, 06 | after P1 |
+| P2 | 9 | TC-WKR-08 | `status` shows authorizable beside sealed | none | any |
+| P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214, and optionally installing MSVC build tools on this host (otherwise six C++ example tests stay red locally; mypy was blocked once by Application Control and ran clean afterward) | the owner | not agent work |
+
+### 11C.3 Cards
+
+```yaml
+- id: TC-UNI-01
+  title: Why does candidate quality differ by repository and ecosystem? First-principles investigation (read-only)
+  reqs: [REQ-UNI-01]
+  item: G3-W08
+  lane: verifier
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/uniformity/]}
+  outcome: a named, ranked answer to the owner's question of 2026-10-12, with the fixable ecosystem-general gaps separated from genuine upstream differences and from model noise, and a stated uniformity test
+  accept: ["a capability matrix of the 44 entries: which deterministic fact kinds exist for each ecosystem, and which are missing because an extractor is unwritten versus structurally unavailable", "a variance decomposition over waves 3 to 7 by failure class: ecosystem-general extractor gap, genuine upstream difference, model or reviewer non-determinism, each with its share", "an acceptance test of uniformity stated as a measurable tolerance, and the backlog ranked by repositories closed per fix", "no src, test or register change; any fix is a new card the supervisor schedules"]
+  children:
+    - id: TC-UNI-01-01
+      title: Capability matrix
+      kind: investigation
+      produces: [TC-UNI-02]
+      steps:
+        - "inspect | the platform plugins under components/readme/extractors/platforms, the fact kinds each emits, and the facts.json of the latest transaction of each of the 44 entries | a matrix of entry by fact kind"
+        - "record | per empty cell: unwritten extractor or no equivalent in that ecosystem | the matrix with a reason per cell"
+    - id: TC-UNI-01-02
+      title: Variance decomposition
+      steps:
+        - "inspect | wave3 to wave7 triage files (preserved by TC-WKR-03) and results.jsonl | one row per entry per wave with its recorded failure class"
+        - "run | the decomposition: for each class the share explained by an ecosystem-general gap, an upstream difference and non-determinism, using repeated rows of the same entry as the noise estimate | a table that sums to the denominator per wave"
+    - id: TC-UNI-01-03
+      title: Uniformity test and the owner's question
+      steps:
+        - "create | the test: given a repository with a buildable package, a real README and a working CI, the blocking-check pass rate may not differ by ecosystem beyond a stated tolerance | the test and its tolerance written down"
+        - "decide-owner | what equally good means for repositories that are not comparable (GIS-.NET without a README, the JMAP family without a published package), together with the GIS-.NET BLOCKED_UPSTREAM question and the maintainer-statement memory design | the answer recorded"
+
+- id: TC-WKR-01
+  title: Register and records say what is true (cut 4 to 6 on main, waves 5 and 6, the correction review)
+  reqs: [REQ-WKR-01]
+  item: G7-W22
+  lane: L-gov
+  depends: [TC-WKR-03]
+  governed: false
+  no_bump: true
+  paths: {write: [project/state.yaml, docs/RESEARCH_AND_GUIDELINES.md, docs/DEFECT_INDEX.md, docs/DECISION_LOG.md]}
+  outcome: no register purpose says "pull request pending" for work that is on main, and the log records the merges, the wave 5 and 6 results and the correction review
+  accept: ["every purpose naming integration/cut4 as pending is corrected in project/state.yaml and byte-identically in docs/RESEARCH_AND_GUIDELINES.md 27.9", "the log has one entry for pull requests #331 and #332 with their constants, one for waves 5 and 6 and one for the review of correction run 20261012-90a5a934, each citing committed evidence", "tests/test_queue_agreement.py, test_register_integrity.py, test_governance_consistency.py, test_schemas.py and test_cursor*.py pass"]
+  children:
+    - id: TC-WKR-01-01
+      title: Correct the stale register text
+      steps:
+        - "inspect | the six purposes in project/state.yaml that name integration/cut4 and their mirrors | the list with line numbers"
+        - "edit | each purpose and its mirror, byte-identical: cut 4, 5 and 6 are on main through #331 and #332; cut 7a is pull request #335; cut 8 is local | the queue agreement tests pass"
+    - id: TC-WKR-01-02
+      title: Record the merges, waves 5 and 6 and the correction review
+      steps:
+        - "record | DECISION_LOG entries from the preserved wave5 and wave6 triage and acc-corr6-summary (paths under analysis/preserved) | each entry cites a committed file"
+        - "record | the session note of 2026-10-12 morning is superseded on the canary variable (do not set it as a repository variable) | the memory note corrected"
+    - id: TC-WKR-01-03
+      title: Defect index and checks
+      steps:
+        - "edit | DEFECT_INDEX statuses as the cards close | the entries match the log"
+        - "validate | the governance tests named in accept | green"
+
+- id: TC-WKR-02
+  title: Credential incident follow-through (OWNER-22)
+  reqs: [REQ-WKR-02]
+  item: G7-W04
+  lane: supervisor
+  depends: [TC-WKR-01]
+  governed: false
+  no_bump: true
+  paths: {write: [project/state.yaml, docs/SUPERVISION.md]}
+  outcome: both exposed tokens are rotated by the owner, agents use a credential whose scope matches the incident rule, and OWNER-22 is SATISFIED with a date
+  accept: ["no token value appears in any file, log or commit", "the credential agents use for gh is named and its scope recorded", "docs/SUPERVISION.md states that a lane never merges or opens a pull request under a credential OWNER-22 lists while it is OPEN"]
+  children:
+    - id: TC-WKR-02-01
+      title: Ask and record
+      steps:
+        - "decide-owner | rotate GITHUB_TOKEN and GITLAB_TOKEN; name the credential agents use (repository-scoped and read-only for analysis; merges and pull requests by a separate credential or by the owner) | the answer recorded, OWNER-22 resume predicate met"
+    - id: TC-WKR-02-02
+      title: Blast radius and the rule
+      steps:
+        - "inspect | which hosted workflows and secrets could have used either variable (the nine secrets of the rotation runbook) | a statement of use, no values"
+        - "edit | SUPERVISION.md with the rule and the new credential; the runbook cross-reference is left to TC-ISS-06, which owns that file | tests/test_governance_consistency.py green"
+
+- id: TC-WKR-03
+  title: Move the scratchpad evidence into the repository and lint run scripts
+  reqs: [REQ-WKR-03]
+  item: G3-W11
+  lane: L-hosted
+  depends: []
+  governed: false
+  no_bump: true
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/preserved/, tools/workflow_rehearsal/shape_checks.py, tests/test_workflow_rehearsal.py]}
+  outcome: every report a decision rests on is a committed, hashed, redacted file, and the rehearsal lints the shell and Python in run steps or says exactly why it cannot
+  accept: ["first-principles-2-idempotence.md, correction-owner-table.md, every acc-corr*.md, wave3 to wave7 triage and bc10-triage are under analysis/preserved with the non-authority header and a sha256 MANIFEST", "a grep for token patterns over the copied files finds none", "the rehearsal evidence no longer says shellcheck and pyflakes are absent without a recorded reason"]
+  children:
+    - id: TC-WKR-03-01
+      title: Preserve
+      steps:
+        - "inspect | the session scratchpad for the files named in accept, and each for token patterns and personal paths | a list with a redaction verdict per file"
+        - "create | analysis/preserved/<file> with the header authoritative_plan, artifact_role analysis_or_evidence_only, execution_authority false, plus MANIFEST.csv with sha256 | files and manifest"
+        - "validate | plan_lint and the evidence tests | green"
+    - id: TC-WKR-03-02
+      title: Lint run steps
+      steps:
+        - "inspect | the run: blocks of the 11 workflows: how many are shell, how many Python | counts"
+        - "edit | shape_checks.py: shellcheck found like actionlint (variable, PATH, D:/tools); Python in run steps checked with ruff F rules, already a dependency, not a new pyflakes install | a unit test with a seeded defect for each"
+        - "run | the rehearsal | the evidence records the result or, where shellcheck is not installed on the host, that fact once with the install path under D:\\tools\\rp-toolchains"
+
+- id: TC-WKR-04
+  title: Independent re-review of the current correction bundles
+  reqs: [REQ-WKR-04]
+  item: G3-W09
+  lane: verifier
+  depends: [TC-WKR-01]
+  governed: false
+  no_bump: true
+  paths: {write: [evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/correction-review/]}
+  outcome: a verdict per correction bundle at the bytes the owner would approve, and the exact first-wave list with hashes
+  accept: ["the reviewer authored none of the bundles", "replay, idempotence on all 43 corrected or empty bundles, drift to the live heads, and a clean-clone check of every added command and link are repeated at the current head", "authorizable_candidates changes only when a bundle passes TC-LIV-03, and the count is reported next to the sealed count"]
+  children:
+    - id: TC-WKR-04-01
+      title: Fix the bytes under review
+      steps:
+        - "decide-owner | merge pull request #335 once hosted CI is green on its exact head, or review from its head without merging | the decision recorded; the head sha named"
+    - id: TC-WKR-04-02
+      title: Review
+      steps:
+        - "run | a non-author reviewer replays run 20261012-b6123802: sha256, README.patch applies, idempotence, drift to the live heads (Cells-Python moved on 2026-10-11), every added command and link on a clean clone, every PR text against its patch | a verdict table"
+        - "record | for the four first-wave repositories (Cells-.NET, Cells-Cpp, Cells-Go, PDF-Java) the bundle hash and verdict | input to the owner's exact list; nothing is pushed"
+
+- id: TC-WKR-05
+  title: One owner for a kept lead-in's destination, then cut 8 and wave 8
+  reqs: [REQ-WKR-05]
+  item: G3-W08
+  lane: L-disp
+  depends: [TC-DSP-01]
+  governed: true
+  ground: "factual accuracy, G7-W22 clause 2: integration/cut8 cannot be pushed with three failing tests, and a lead-in separated from its payload is a false statement (the dangling 'Run the test suite:' found in the Cells-Java review of 2026-10-10 is the harm class); the change rides the unreleased cut-8 constants, so no further bump"
+  paths: {write: [src/repository_presenter/components/readme/reconciliation/dispositions.py, tests/components/readme/reconciliation/test_s4_dead_ends.py]}
+  outcome: one function decides where a kept lead-in goes, every case of both lanes passes, and cut 8 is on main with its hosted CI green
+  accept: ["tests/components/readme/reconciliation/test_s4_dead_ends.py and the L-t2 kept-remainder and disposition tests all pass on integration/cut8", "the six test_cpp_examples.py failures are recorded as BLOCKED_EXTERNAL (MSVC absent on this host, identical on main) and the hosted run is the check", "wave 8 runs on the pushed head and its counts are appended to the log, not inferred"]
+  children:
+    - id: TC-WKR-05-01
+      title: Reproduce and decide the precedence
+      steps:
+        - "inspect | the three failing tests and the L-t2 cases in a worktree of integration/cut8 (f2f19f90): what each asserts and which function decides the destination | the two rules side by side"
+        - "record | the rule, first-principles: a lead-in introduces the unit after it, so it follows its payload's destination; the home-heading rule applies to a unit with no payload; the reason and the cases each decides | a DECISION_LOG entry (a supervisor decision, not a product-policy question)"
+    - id: TC-WKR-05-02
+      title: Implement once
+      steps:
+        - "edit | a single decision in coordinate_neighbor_promises, RED first with both lanes' cases | all cases green, no assertion removed or relaxed"
+        - "run | the full suite on integration/cut8 | counts recorded; only the MSVC rows may fail"
+    - id: TC-WKR-05-03
+      title: Land and measure
+      steps:
+        - "package | push integration/cut8, open the pull request, wait for hosted CI on the exact head (mypy runs only there), scan the diff for removed asserts or new skips, merge by the established rule | merged"
+        - "run | wave 8 over the 44 on the pushed head, then the acceptance review | counts and the authorizable number appended to the log"
+        - "record | from the wave-8 rows, each as cleared, still failing or masked behind an earlier stop: JMAP-Cpp's oversized opening (REG-26), the PDF-Python and Slides-Cpp examples.json receipts (REG-28), and the lead-in cases | the DEFECT_INDEX statuses updated, none closed without a live row"
+
+- id: TC-WKR-06
+  title: Defect classes for the nine reproduced upstream defects the handoff model cannot carry
+  reqs: [REQ-WKR-06]
+  item: G6-W07
+  lane: L-issues
+  depends: [TC-ISS-03, TC-ISS-09, TC-ISS-11]
+  governed: false
+  paths: {write: [src/repository_presenter/components/issues/classes.py, src/repository_presenter/components/issues/model.py, schemas/upstream-defect-handoff.schema.json, tests/components/issues/]}
+  outcome: NO_CI_TESTS, PACKAGING_BROKEN, LOCALE_DEPENDENT_BEHAVIOUR, NO_TESTS, RUNTIME_ERROR, LIBRARY_SIDE_EFFECT and DOC_CONTRADICTION are registered classes, and the nine drafts are handoffs with digests
+  accept: ["the schema change is admitted by the owner in the log before the code", "each class has a template, a fingerprint basis, a redetector that re-runs the recorded reproduction command, and a negative control", "issue-readiness reports each of the nine with only the owner-approval blocker; nothing is filed"]
+  children:
+    - id: TC-WKR-06-01
+      title: Re-verify and admit
+      steps:
+        - "run | the recorded reproduction command of each of the nine at the live head (Cells-Python moved on 2026-10-11; the other eight may have too) | reproduced or dropped, with the raw log"
+        - "run | re-count the TeX-Python source that fails to parse at the live head by both measures (the .py files under src/aspose_tex, recorded as 35 of 45, and all TeX files, recorded as 102 of 119 in finding F-22) and correct the handoff text c00f9615 to the re-verified number | one number in the handoff, the raw log kept"
+        - "decide-owner | admit the additive classes through G6-W07 | the admission recorded"
+    - id: TC-WKR-06-02
+      title: Register and convert
+      steps:
+        - "edit | the class registry, model tuple and schema together; a guard test that the three agree | tests green"
+        - "create | the nine handoffs from issue-texts-not-yet-fileable.md through the draft tooling, digests recomputed, quality gate passing | issue-readiness output"
+
+- id: TC-WKR-07
+  title: Autonomous-cycle gaps the rehearsal proved and no card closes
+  reqs: [REQ-WKR-07]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-REF-01, TC-REF-02, TC-REF-05, TC-REF-06]
+  governed: false
+  paths: {write: [src/repository_presenter/components/monitor/, src/repository_presenter/components/propose/, src/repository_presenter/core/sealing_plan.py, tools/workflow_rehearsal/cycle.py, tests/test_workflow_rehearsal_cycle.py]}
+  outcome: each remaining PROVEN_WITH_GAP rehearsal row becomes PROVEN, or the gap is accepted by the owner in the log
+  accept: ["an archived or deleted repository is neither sealed nor proposed and is reported once", "a cross-repository cap on open presenter pull requests exists with a number the owner chose", "a changed upstream README selects a re-seal on the next cycle with a recorded reason", "a lost branch, pull-request or issue-create answer is reconciled inside the run"]
+  children:
+    - id: TC-WKR-07-01
+      title: Archived and deleted repositories
+      steps:
+        - "edit | the monitor and the sealing plan read the archived and deleted state; no seal, no propose, one report | the archived-repository rehearsal row flips to PROVEN"
+    - id: TC-WKR-07-02
+      title: Open pull request cap
+      steps:
+        - "decide-owner | the maximum open presenter pull requests across all targets | the number recorded"
+        - "edit | propose refuses at the cap with a typed reason | a test at the cap and one below it"
+    - id: TC-WKR-07-03
+      title: Hand-off and reconciliation
+      steps:
+        - "edit | a propose refusal for a moved source marks the repository for re-seal in the next plan | the stale-candidate row flips to PROVEN"
+        - "edit | reconcile a lost branch, pull-request and issue-create answer by reading before any retry, as reconcile_write does for the contents PUT | the lost-response row flips to PROVEN"
+
+- id: TC-WKR-08
+  title: The status headline never reads as accepted output
+  reqs: [REQ-WKR-08]
+  item: G3-W09
+  lane: L-core
+  depends: [TC-WKR-07]
+  governed: false
+  paths: {write: [src/repository_presenter/cli.py, tests/test_cli.py, README.md]}
+  outcome: status prints the authorizable count first and labels the sealed count as sealed, not accepted
+  accept: ["the pin in tests/test_cli.py moves with the owner's D4 ruling as its ground; no assertion is deleted", "README.md and tests/test_readme_reference.py agree"]
+  children:
+    - id: TC-WKR-08-01
+      title: Headline
+      steps:
+        - "edit | the status headline and the report that prints both counts | the CLI test updated deliberately, the README reference green"
 ```
 
 ---

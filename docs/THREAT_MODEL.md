@@ -236,6 +236,20 @@ inside its own fresh, ephemeral GitHub Actions container (`monitor.yml`/`present
 state into a *different* repository's later transaction, but it runs with the same privileges as
 the orchestrating process for the *current* transaction's container.
 
+**Where this runs, and what changes under owner decision D5 (2026-10-11).** The paragraph above describes
+the hosted run, where the surrounding container is destroyed after each transaction. D5 puts production
+sealing on a self-hosted runner on the owner's own machine, selected by the repository variable
+`REPOSITORY_PRESENTER_SEAL_RUNNER` (hosted remains the default until it is set). Then the same unsandboxed
+install, build and example execution runs as a dedicated low-privilege Windows account on a persistent
+machine, in a public repository. What that adds - a fork pull request asking for the runner, reach into the
+account's readable files and the Internet, a child process reading its parent's environment (the gateway key),
+theft of the runner's own credential, persistence in the account's profile, and no per-run teardown - the
+controls that stand in for the destroyed container, and the risk that remains are in
+`docs/SELF_HOSTED_RUNNER.md` section 4 (R1 to R8), with the isolation designs considered and why they are not
+adopted on Windows 11 Home. The workflow's own guard (`select-runner`: trusted triggers on the default branch
+only, one workflow can name the labels) is pinned by `tests/test_present_runner_selection.py`; the part YAML
+cannot do (a fork's rewritten workflow) is the repository setting `hosting_preflight.py` checks.
+
 **Already-tested containment for the credential-exfiltration and denial-of-service forms of this
 attack** (the forms that matter most given the above - a build step has no credential to steal and
 is bounded in wall-clock time even though it is not otherwise sandboxed):
