@@ -369,6 +369,24 @@ def test_each_defect_moves_the_stage_it_belongs_to(
     assert all(verdict[s]["go"] for s in earlier), (defect, [verdict[s] for s in earlier])
 
 
+def test_the_sandbox_canarys_record_is_not_an_owner_approval_of_a_product_proposal(
+    guarded_tree: Path,
+) -> None:
+    fake = FakeGh(guarded_tree)
+    fake.records["ops/proposal-authorizations"] = [
+        "babar-raza__presenter-sandbox__0123456789ab.json"
+    ]
+    checks, verdict = run_preflight(fake, guarded_tree)
+    check = by_id(checks)["records:ops/proposal-authorizations"]
+    assert check.status != hp.OK and "0 record(s)" in check.detail
+    assert not verdict["H3"]["go"]
+    fake.records["ops/proposal-authorizations"].append(
+        "aspose-cells-foss__Aspose.Cells-FOSS-for-Go__0123456789ab.json"
+    )
+    checks, _ = run_preflight(fake, guarded_tree)
+    assert by_id(checks)["records:ops/proposal-authorizations"].status == hp.OK
+
+
 def test_a_missing_secret_names_the_secret_in_the_owner_action(guarded_tree: Path) -> None:
     fake = FakeGh(guarded_tree)
     fake.secrets.discard("GPT_OSS_API_KEY")

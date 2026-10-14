@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "note": "The commit tools/canary/seed.py --commit makes in a clone of the sandbox, and the owner pushes once. Reproducible: tree = the product's tree at product.revision minus .github/, parent = sandbox.parent. The canary bundle's source revision is seed.commit.",
+  "product": {
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+    "revision": "941814fd138dc28cf47123d48194f329f283498d"
+  },
+  "sandbox": {
+    "repository": "babar-raza/presenter-sandbox",
+    "parent": "fb26260d5b9dad7e77142659b5396591ec2d2357"
+  },
+  "seed": {
+    "commit": "5c41a5028b37fa3e9812dcd0c1320fe7248929f5",
+    "tree": "b8201cf4ff580e83ad5d164f04b5b7f11fea91af",
+    "message": "Seed the sandbox with Aspose.Cells-FOSS-for-.NET at 941814fd138dc28cf47123d48194f329f283498d",
+    "files": 454,
+    "bytes": 9713266,
+    "dropped": []
+  }
+}
