@@ -2183,7 +2183,7 @@ Tiers: **P0** truth and safety, cheap, first; **P1** the gates in front of the n
 | P1 | 7 | TC-IDM-01 | root cause of regeneration non-idempotence, using the preserved analysis | TC-WKR-03 | TC-UNI-01 |
 | P2 | 8 | TC-WKR-07 | archived repositories, open-PR cap, reconciliation delay | TC-REF-02, 05, 06 | after P1 |
 | P2 | 9 | TC-WKR-08 | `status` shows authorizable beside sealed | none | any |
-| P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214, and optionally allowing mypy's DLL under Application Control and installing MSVC build tools on this host (otherwise mypy is hosted-only and six C++ example tests stay red locally) | the owner | not agent work |
+| P3 | owner | OWNER-11, OWNER-20, OWNER-21 | canary steps (#334, the App on the sandbox, environment `sandbox-canary`), the self-hosted runner, #333 approval, the first wave of four, the maintainer-statement memory design (10 questions), GIS-.NET policy, older #328, #317, #233, #214, and optionally installing MSVC build tools on this host (otherwise six C++ example tests stay red locally; mypy was blocked once by Application Control and ran clean afterward) | the owner | not agent work |
 
 ### 11C.3 Cards
 

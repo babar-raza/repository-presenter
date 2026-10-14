@@ -1,7 +1,7 @@
 authoritative_plan: plans/reseal-and-refresh/PLAN.md
 artifact_role: analysis_or_evidence_only
 execution_authority: false
-preserved_from: session scratchpad, 2026-10-13 (TC-WKR-03-01); content unchanged below this header
+preserved_from: session scratchpad, 2026-10-13 (TC-WKR-03-01); content unchanged below this header except two Python code fences reformatted by ruff format so the repository's format check passes
 
 # aspose-font
 
@@ -274,10 +274,18 @@ print(font.smart_instancer.resolve({"wght": "Bold", "wdth": "Condensed"}).label)
 print(font.smart_instancer.suggest_axis_values("wght", include_bounds=True))
 print(font.get_axis("wght").name(("fr-CA", "en")))
 print(font.get_axis("wght").range_summary)
-print(font.get_named_instance("Condensed Bold").format_coordinates(font.variable_axes, include_tags=True))
+print(
+    font.get_named_instance("Condensed Bold").format_coordinates(
+        font.variable_axes, include_tags=True
+    )
+)
 print(font.get_axis("wght").localized_labels(("pt-PT", "fr-CA")))
 print(font.variable_presentation(preferred_languages=("en",))["axes"][0]["range_summary"])
-print(font.variable_presentation(preferred_languages=("fr-CA", "en"))["axes"][0]["language_profiles"][0])
+print(
+    font.variable_presentation(preferred_languages=("fr-CA", "en"))["axes"][0]["language_profiles"][
+        0
+    ]
+)
 ```
 
 ```text
