@@ -1521,7 +1521,7 @@ Today is Saturday; Monday 2026-10-12 is the owner's target for "live system prov
   reqs: [REQ-REF-12]
   item: G7-W06
   lane: supervisor
-  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02, TC-DIS-01, TC-WKR-03, TC-WKR-07]
+  depends: [TC-REF-11, TC-REF-07, TC-REF-08, TC-REF-04, TC-REF-06, TC-REF-02, TC-RSL-02, TC-DIS-01, TC-WKR-03, TC-WKR-07, TC-WKR-09]
   governed: false
   no_bump: true
   paths: {write: [docs/OPERATIONS_RUNBOOK.md, project/state.yaml, docs/DECISION_LOG.md, .github/workflows/, tools/workflow_rehearsal/, tests/test_hosting_preflight.py]}
@@ -2438,7 +2438,7 @@ A change to a governed file moves a governed version and, without the consumed-s
 
 ### 11D.3 What only the owner can do (the complete list, asked once)
 
-1. Merging into a Cells repository is done by its maintainers; the supervisor does not merge into an Aspose repository unless the owner states that delegation.
+1. ~~Merging into a Cells repository~~ **Delegated (2026-10-14):** the supervisor may merge on the seven Cells repositories where required, under the guardrails (a) to (e) of the D11 addendum in `docs/DECISION_LOG.md`. Everything else stays with the maintainers.
 2. If the dry-run of the canary or the issue preflight shows the App lacks access or `Issues: write`, one browser consent on GitHub (the supervisor supplies the exact link and what to tick). OWNER-23.
 3. Anything outside the approved scope (a repository other than the seven before Lane L is proved; a new class of outbound effect).
 
@@ -2482,7 +2482,7 @@ A change to a governed file moves a governed version and, without the consumed-s
   reqs: [REQ-PRG-02]
   item: G7-W06
   lane: L-hosted
-  depends: [TC-LCP-01, TC-REF-06, TC-REF-02, TC-REF-03, TC-REF-12, TC-WKR-07]
+  depends: [TC-LCP-01, TC-REF-06, TC-REF-02, TC-REF-03, TC-REF-12, TC-WKR-07, TC-WKR-09]
   governed: false
   paths: {write: [.github/workflows/correct.yml, src/repository_presenter/components/readme_correction/, tests/test_correct_workflow.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/lane-l-production/]}
   outcome: a relevant upstream change yields a correction pull request on any admitted repository without a person, bounded by the cap, the budget and the open-PR limit
@@ -2622,6 +2622,25 @@ A change to a governed file moves a governed version and, without the consumed-s
       title: Expand
       steps:
         - "run | approvals and filing in waves for the other repositories, then the daily scheduled run | issue funnel counts in status, no duplicates, no halt"
+
+- id: TC-WKR-09
+  title: A schedule that survives best-effort cron - the sealing plan behind the monitor, freshness measured by the last good run
+  reqs: [REQ-PRG-02]
+  item: G7-W06
+  lane: L-hosted
+  depends: [TC-REF-02]
+  governed: false
+  no_bump: true
+  paths: {write: [.github/workflows/sealing-scheduled.yml, .github/workflows/monitor.yml, tests/test_sealing_workflow.py, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/validation/schedule-robustness/]}
+  outcome: a late or skipped cron slot never turns a scheduled run red, and the sealing plan never reads evidence it cannot trust
+  accept: ["measured basis recorded: sealing started 5.7 to 7.8 hours after its slot on 10-09 to 10-13 and the monitor had a 13.5 hour gap on 10-13", "the plan job runs behind a successful monitor run (workflow_run or one chain), and the 12 hour bound is measured against the last successful monitor run, not the clock", "a stale-evidence stop is a typed skip with an alert, and the run is green; a test reproduces the 10-13 run and fails before the change", "the pause variable is honoured before any evidence is read"]
+  children:
+    - id: TC-WKR-09-01
+      title: Reproduce, then fix
+      steps:
+        - "inspect | the failed run 38400790073 and the drift-contract step of sealing-scheduled.yml and sealing_plan.py | the exact stale-evidence rule and where the pause check sits"
+        - "edit | order the pause check first; chain the plan behind the monitor; measure freshness against the last successful monitor run; report a typed skip | a test that replays the 10-13 inputs is red before and green after"
+        - "run | one dispatched sealing run on the hosted runner with the pause set and one with stale evidence | green and typed in both"
 
 - id: TC-SUP-02
   title: The wake report - a mechanical start to every supervisor wake
