@@ -20,6 +20,9 @@ _OPEN = re.compile(r"<details\b", re.IGNORECASE)
 _CLOSE = re.compile(r"</details\s*>", re.IGNORECASE)
 _CODE_SPAN = re.compile(r"`[^`]*`")
 _LIST_ITEM = re.compile(r"^\s{0,3}(?:[-*+]|\d+[.)])\s+")
+#: A thematic break (``---``): the rule that closes a section visually. An addition goes in front of
+#: it, so it stays the section's last line and the bullet is inside the section it belongs to.
+_RULE = re.compile(r"^\s{0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
 
 
 @dataclass(frozen=True)
@@ -101,8 +104,37 @@ def _before_trailing_details(section: H2Section, body: list[ReadmeLine]) -> Read
     return earlier[-1] if earlier else None
 
 
+def _unclosed_opener(section: H2Section) -> ReadmeLine | None:
+    """The line that opens a ``<details>`` block the section never closes (everything after it
+    renders collapsed), or ``None`` when every block closes."""
+    depth = 0
+    opener: ReadmeLine | None = None
+    for line in section.lines:
+        if line.in_fence:
+            continue
+        text = _CODE_SPAN.sub(" ", line.text)
+        for _ in _OPEN.findall(text):
+            if depth == 0:
+                opener = line
+            depth += 1
+        for _ in _CLOSE.findall(text):
+            depth = max(0, depth - 1)
+    return opener if depth > 0 else None
+
+
+def _is_rule(ctx: Context, line: ReadmeLine) -> bool:
+    """Whether ``line`` is a thematic break and not the underline of a setext heading (which
+    follows its text on the very next line)."""
+    if _RULE.match(line.text) is None:
+        return False
+    before = ctx.lines[line.number - 2] if line.number >= 2 else None
+    return before is None or not before.text.strip()
+
+
 def append_point(ctx: Context, section: H2Section) -> AppendPoint | None:
     body = [line for line in section.lines if line.text.strip()]
+    while body and not body[-1].in_fence and _is_rule(ctx, body[-1]):
+        body.pop()  # a closing rule is not content: the addition goes before it
     markers = sum(1 for line in section.lines if line.in_fence and _FENCE_MARK.match(line.text))
     if markers % 2:
         return None  # a fence opened and never closed inside the section
@@ -112,9 +144,17 @@ def append_point(ctx: Context, section: H2Section) -> AppendPoint | None:
             text = _CODE_SPAN.sub(" ", line.text)
             opens += len(_OPEN.findall(text))
             closes += len(_CLOSE.findall(text))
-    if opens != closes:
-        return None  # a <details> block that would swallow (or hide) the addition
-    last = _before_trailing_details(section, body) if body else section.heading
+    if opens < closes:
+        return None  # a closing tag with no opener: the structure cannot be read
+    if opens > closes:
+        # A block opened and never closed hides everything after its opener; the addition goes in
+        # front of the opener, where it is visible whether or not the maintainers close the block
+        # (the structure fix that closes it at the section's end then leaves it where it is).
+        opener = _unclosed_opener(section)
+        earlier = [line for line in body if opener is not None and line.start < opener.start]
+        last = earlier[-1] if earlier else None
+    else:
+        last = _before_trailing_details(section, body) if body else section.heading
     if last is None:
         return None  # the section is only a collapsed block: nothing visible to sit beside
     terminator = ctx.readme[last.end : last.end + 2]

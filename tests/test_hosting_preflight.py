@@ -104,6 +104,10 @@ class FakeGh:
             "ops/proposal-authorizations": ["a.json"],
         }
         self.unreadable: set[str] = set()
+        self.unreadable_paths: set[str] = set()
+        self.private = False
+        self.runners: list[dict[str, Any]] = []
+        self.fork_policy: str | None = "all_external_contributors"
         self.seen: list[list[str]] = []
 
     def __call__(self, args: list[str]) -> tuple[int, str, str]:
@@ -135,8 +139,17 @@ class FakeGh:
     def api(self, path: str) -> tuple[int, str, str]:
         assert path.startswith(f"repos/{REPO}"), path
         rest = path[len(f"repos/{REPO}") :]
+        if rest in self.unreadable_paths:
+            return 1, "", "HTTP 403"
         if rest == "":
-            return 0, json.dumps({"default_branch": "main"}), ""
+            return 0, json.dumps({"default_branch": "main", "private": self.private}), ""
+        if rest == "/actions/runners":
+            body = {"total_count": len(self.runners), "runners": self.runners}
+            return 0, json.dumps(body), ""
+        if rest == "/actions/permissions/fork-pr-contributor-approval":
+            if self.fork_policy is None:
+                return 1, "", "HTTP 404"
+            return 0, json.dumps({"approval_policy": self.fork_policy}), ""
         if rest == "/actions/organization-secrets":
             return 0, json.dumps({"secrets": []}), ""
         if rest == "/branches/main/protection":
@@ -212,8 +225,51 @@ def test_the_write_jobs_are_found_with_the_stage_that_first_needs_them() -> None
 # --- the real workflow tree --------------------------------------------------------------------
 
 
-def test_the_real_tree_is_h0_go_and_h1_no_go_without_environments() -> None:
+def seal_runner(label_case: bool = False, status: str = "online") -> dict[str, Any]:
+    names = ["self-hosted", "Windows", "X64", "repository-presenter-seal"]
+    labels = names if label_case else [n.lower() for n in names]
+    return {
+        "id": 7,
+        "name": "rp-seal",
+        "os": "Windows",
+        "status": status,
+        "busy": False,
+        "labels": [{"id": i, "name": n, "type": "read-only"} for i, n in enumerate(labels)],
+    }
+
+
+def provisioned(fake: FakeGh) -> FakeGh:
+    """The owner has done every runner item: the variable, the online runner, the fork policy."""
+    fake.variables[hp.SEAL_RUNNER] = hp.SEAL_RUNNER_SELF_HOSTED
+    fake.runners = [seal_runner(label_case=True)]
+    return fake
+
+
+RUNNER_IDS = [
+    f"variable:{hp.SEAL_RUNNER}",
+    "runner:registered",
+    "runner:fork-approval",
+    "runner:host-check",
+    "runner:isolation",
+]
+
+
+def test_the_real_tree_is_h0_no_go_until_the_runner_and_its_variable_exist() -> None:
     checks, verdict = run_preflight(FakeGh())
+    # Confirmed manual items are promoted to OK, so only what the owner must still DO blocks.
+    assert not verdict["H0"]["go"]
+    assert verdict["H0"]["blocking"] == [
+        f"variable:{hp.SEAL_RUNNER}",
+        "runner:registered",
+    ]
+    rows = by_id(checks)
+    assert rows[f"variable:{hp.SEAL_RUNNER}"].detail == "hosted (the default)"
+    assert rows["runner:registered"].detail == "0 runner(s) registered, none with the labels"
+    assert {c.stage for c in checks if c.id in RUNNER_IDS} == {"H0"}
+
+
+def test_the_real_tree_is_h0_go_and_h1_no_go_without_environments() -> None:
+    checks, verdict = run_preflight(provisioned(FakeGh()))
     assert verdict["H0"]["go"], verdict["H0"]["blocking"]
     assert not verdict["H1"]["go"]
     assert "environment:candidates-publish.yml:write" in verdict["H1"]["blocking"]
@@ -447,6 +503,10 @@ def test_the_runbook_gate_posture_table_equals_the_preflights_stage_model() -> N
 
 def test_the_runbook_wires_both_tools_and_every_stage() -> None:
     for needle in (
+        "runner:fork-approval",
+        "runner:registered",
+        "REPOSITORY_PRESENTER_SEAL_RUNNER",
+        "docs/SELF_HOSTED_RUNNER.md",
         "tools/workflow_rehearsal/hosting_preflight.py",
         "tools/workflow_rehearsal/no_bump_check.py origin/main --no-src",
         "assert_read_only",
@@ -455,3 +515,149 @@ def test_the_runbook_wires_both_tools_and_every_stage() -> None:
         "Kill switch and rollback rehearsal",
     ):
         assert needle in RUNBOOK, needle
+
+
+# --- the self-hosted seal runner (owner decision D5) ----------------------------------------------
+
+
+def test_a_tree_in_which_no_workflow_reads_the_selection_has_no_runner_requirement(
+    guarded_tree: Path,
+) -> None:
+    checks, verdict = run_preflight(FakeGh(guarded_tree), guarded_tree)
+    assert [c.id for c in checks if c.id in RUNNER_IDS] == []
+    assert verdict["H0"]["go"]
+
+
+def test_the_selection_variable_is_modelled_and_the_runner_items_are_all_h0() -> None:
+    checks, _ = run_preflight(provisioned(FakeGh()))
+    rows = by_id(checks)
+    assert rows["variables:modelled"].status == hp.OK
+    assert [rows[i].status for i in RUNNER_IDS] == [hp.OK] * len(RUNNER_IDS)
+
+
+@pytest.mark.parametrize(
+    ("value", "detail"),
+    [
+        (None, "hosted (the default)"),
+        ("", "hosted (the default)"),
+        ("ubuntu-latest", "hosted (the default)"),
+        ("self-hosted-linux", "an unrecognised value (the workflow refuses it)"),
+        (SENTINEL_VARIABLE, "an unrecognised value (the workflow refuses it)"),
+    ],
+)
+def test_only_the_self_hosted_selection_satisfies_the_variable_check(
+    value: str | None, detail: str
+) -> None:
+    fake = provisioned(FakeGh())
+    if value is None:
+        del fake.variables[hp.SEAL_RUNNER]
+    else:
+        fake.variables[hp.SEAL_RUNNER] = value
+    checks, verdict = run_preflight(fake)
+    row = by_id(checks)[f"variable:{hp.SEAL_RUNNER}"]
+    assert row.status == hp.MISSING and row.detail == detail
+    assert not verdict["H0"]["go"]
+    assert hp.SEAL_RUNNER_SELF_HOSTED in row.action
+    assert SENTINEL_VARIABLE not in hp.render(REPO, checks)  # classified, never echoed
+
+
+@pytest.mark.parametrize(
+    ("defect", "detail"),
+    [
+        ("none", "0 runner(s) registered, none with the labels"),
+        ("other-labels", "1 runner(s) registered, none with the labels"),
+        ("offline", "registered but offline"),
+    ],
+)
+def test_the_runner_must_be_registered_online_and_carry_every_label(
+    defect: str, detail: str
+) -> None:
+    fake = provisioned(FakeGh())
+    if defect == "none":
+        fake.runners = []
+    elif defect == "other-labels":
+        runner = seal_runner()
+        runner["labels"] = [{"name": "self-hosted"}, {"name": "linux"}]
+        fake.runners = [runner]
+    else:
+        fake.runners = [seal_runner(status="offline")]
+    checks, verdict = run_preflight(fake)
+    row = by_id(checks)["runner:registered"]
+    assert row.status == hp.MISSING and row.detail == detail and row.action
+    assert "runner:registered" in verdict["H0"]["blocking"]
+
+
+def test_the_runner_labels_match_without_regard_to_case_and_one_online_runner_is_enough() -> None:
+    fake = provisioned(FakeGh())
+    fake.runners = [seal_runner(status="offline"), seal_runner(label_case=False)]
+    checks, _ = run_preflight(fake)
+    assert by_id(checks)["runner:registered"].status == hp.OK
+
+
+@pytest.mark.parametrize(
+    ("policy", "private", "status"),
+    [
+        ("all_external_contributors", False, hp.OK),
+        ("first_time_contributors", False, hp.MISSING),
+        ("first_time_contributors_new_to_github", False, hp.MISSING),
+        ("first_time_contributors", True, hp.OK),  # a private repository has no outside fork runs
+        (None, False, hp.UNKNOWN),
+    ],
+)
+def test_a_public_repository_must_require_approval_for_every_outside_contributor(
+    policy: str | None, private: bool, status: str
+) -> None:
+    fake = provisioned(FakeGh())
+    fake.fork_policy, fake.private = policy, private
+    checks, verdict = run_preflight(fake)
+    row = by_id(checks)["runner:fork-approval"]
+    assert row.status == status
+    assert verdict["H0"]["go"] == (status == hp.OK)
+    if status == hp.MISSING:
+        assert "Require approval for all external contributors" in row.action
+
+
+def test_an_unreadable_runner_fact_is_no_go_never_go() -> None:
+    for path in ("/actions/runners", "/actions/permissions/fork-pr-contributor-approval"):
+        fake = provisioned(FakeGh())
+        fake.unreadable_paths.add(path)
+        checks, verdict = run_preflight(fake)
+        assert any(c.status == hp.UNKNOWN for c in checks), path
+        assert not verdict["H0"]["go"], path
+
+
+def test_the_two_machine_items_are_operator_confirmations_for_this_run_only() -> None:
+    fake = provisioned(FakeGh())
+    checks, verdict = run_preflight(fake, confirm=False)
+    rows = by_id(checks)
+    assert rows["runner:host-check"].status == hp.CONFIRM == rows["runner:isolation"].status
+    assert not verdict["H0"]["go"]
+    assert set(verdict["H0"]["blocking"]) == {"runner:host-check", "runner:isolation"}
+    assert "--confirm runner:host-check" in rows["runner:host-check"].action
+    assert "check_runner.py" in rows["runner:host-check"].action
+    only_one = hp.collect(hp.Gh(REPO, fake), inventory.WORKFLOWS_DIR, {"runner:host-check"})
+    assert by_id(only_one)["runner:isolation"].status == hp.CONFIRM
+
+
+def test_every_call_the_runner_checks_make_is_read_only() -> None:
+    fake = provisioned(FakeGh())
+    run_preflight(fake)
+    paths = [args[1] for args in fake.seen if args[0] == "api"]
+    assert f"repos/{REPO}/actions/runners" in paths
+    assert f"repos/{REPO}/actions/permissions/fork-pr-contributor-approval" in paths
+    for args in fake.seen:
+        hp.assert_read_only(args)
+        assert not any(a.startswith(("-X", "--method", "-f", "-F")) for a in args)
+
+
+def test_the_labels_the_preflight_looks_for_are_the_ones_the_workflow_asks_for() -> None:
+    import re
+
+    import yaml
+
+    workflow = yaml.safe_load((inventory.WORKFLOWS_DIR / "present.yml").read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["select-runner"]["steps"]
+    script = next(s for s in steps if s.get("id") == "select")["run"]
+    asked = re.search(r"runs_on='(\[[^']+\])'", script)
+    assert asked is not None and json.loads(asked.group(1)) == list(hp.SEAL_RUNNER_LABELS)
+    assert hp.SEAL_RUNNER_SELF_HOSTED in script

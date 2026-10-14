@@ -23,6 +23,7 @@ from typing import Any
 
 from repository_presenter.components.readme_correction.bundle import write_bundle
 from repository_presenter.components.readme_correction.engine import CorrectionError
+from repository_presenter.components.readme_correction.enrich import ReceiptOptions, enrich_facts
 from repository_presenter.components.readme_correction.model import Context
 from repository_presenter.components.readme_correction.render import measure_diagrams
 from repository_presenter.components.readme_correction.send import NO_PUSH_REASONS
@@ -89,6 +90,7 @@ def produce_correction(
     facts_path: Path | None = None,
     extract_facts: FactsExtractor | None = None,
     token: str | None = None,
+    receipts: ReceiptOptions | None = None,
 ) -> CorrectionOutcome:
     clone = pinned_read_only_clone(entry.clone_url, clone_directory, token=token)
     snapshot = capture_snapshot(entry.repository, clone)
@@ -127,7 +129,11 @@ def produce_correction(
             f"facts are for {facts.repository} @ {facts.source_revision}, but the registry head "
             f"is {entry.repository} @ {clone.revision}; extract facts at the head and retry"
         )
-    ctx = Context(entry, facts, text, tuple(list_tree_paths(clone.path)), snapshot.readme_path)
+    tree = tuple(list_tree_paths(clone.path))
+    # what two re-enable conditions need and the extractors do not record: the command chain with
+    # its build receipt, and the documentation fact (components/readme_correction/enrich.py)
+    facts = enrich_facts(facts, clone.path, tree, receipts).facts
+    ctx = Context(entry, facts, text, tree, snapshot.readme_path)
     result, delta = correct_settled(ctx, original)
     if delta["introduced"]:
         raise CorrectionError(

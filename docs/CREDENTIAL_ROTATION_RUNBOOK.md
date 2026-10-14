@@ -49,7 +49,11 @@ text is persisted, and every one is scanned for verbatim leakage into a sealed c
   regenerate itself.
 - **Where stored:** `GPT_OSS_API_KEY` and `GPT_OSS_ENDPOINT` as GitHub Actions repository secrets
   on `babar-raza/repository-presenter` (consumed by `.github/workflows/monitor.yml`), plus the
-  owner's own local shell/User-environment copy for interactive `preflight`/`present` runs
+  owner's own local shell/User-environment copy for interactive `preflight`/`present` runs. On the
+  self-hosted seal runner (owner decision D5, `docs/SELF_HOSTED_RUNNER.md`) the key is still only the
+  repository secret: it reaches that machine as a step environment variable during a job, is never in the
+  runner's `.env` or a machine/user variable (`tools/runner/check_runner.py` fails on it), and so rotating the
+  secret needs nothing on the machine
   (`docs/DECISION_LOG.md`'s 2026-09-24 entries read it via
   `[System.Environment]::GetEnvironmentVariable('GPT_OSS_API_KEY','User')`).
 - **Rotation steps:**

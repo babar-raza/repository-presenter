@@ -74,7 +74,10 @@ WORKFLOW_PLAN: dict[str, dict[str, str]] = {
         "mode": "dryrun",
         "gap": "needs the live LLM gateway (GPT_OSS_*), the repository's toolchains, a read-only App token "
         "scoped to the target and the state-ref token; precedent: act run of 2026-10-04 reached the mint "
-        "step and failed closed.",
+        "step and failed closed. Since owner decision D5 the `present` job's runs-on comes from the "
+        "`select-runner` job's output, which `act -n` cannot evaluate (a typed act limitation); `act -j "
+        "select-runner --var ...` runs the selection itself, the self-hosted Windows steps are never run "
+        "locally.",
     },
     "candidates-publish.yml": {
         "event": "workflow_dispatch",

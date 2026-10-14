@@ -15,6 +15,13 @@ passes. The stages (docs/OPERATIONS_RUNBOOK.md section 9, plan TC-REF-12): H0 ho
 every write gate closed; H1 shadow (monitor, seal, commit-back to the control repository only); H2
 approved issues; H3 PR pilot on owner-named repositories; H4 per-repository expansion.
 
+Owner decision D5 puts production sealing on a self-hosted runner (docs/SELF_HOSTED_RUNNER.md). When a
+workflow reads ``REPOSITORY_PRESENTER_SEAL_RUNNER`` the preflight also requires, from H0 on (the first
+seal is the H0 pilot), that the owner has selected that runner, that it is registered and online with
+the labels the workflow asks for, that fork pull requests need the owner's approval (the repository is
+public), and, as operator confirmations, that the machine check and the account isolation were done.
+Until then those items are NO-GO: the workflow keeps running hosted, which is its default.
+
 Standard library plus the sibling ``inventory`` module (PyYAML, already a project dependency). It
 only reads: every ``gh`` call passes ``assert_read_only`` before it runs, and the tool has no code
 path that sets a variable or a secret, dispatches or enables a workflow, or writes a repository.
@@ -55,6 +62,15 @@ GATES = {
     "REPOSITORY_PRESENTER_PROPOSAL_WRITE_AUTHORIZED": ("H3", "H4"),
 }
 PAUSE = "REPOSITORY_PRESENTER_SEALING_PAUSED"
+# The runner the seal pipeline (present.yml) runs on. Not a write gate: unset means hosted.
+SEAL_RUNNER = "REPOSITORY_PRESENTER_SEAL_RUNNER"
+SEAL_RUNNER_SELF_HOSTED = "self-hosted-windows"
+# The labels present.yml's select-runner job asks for (a test pins them to the YAML).
+SEAL_RUNNER_LABELS = ("self-hosted", "windows", "x64", "repository-presenter-seal")
+RUNNER_STAGE = "H0"
+# On a public repository a fork's pull request may ask for a self-hosted runner in a workflow it
+# rewrites; only the owner's approval of every outside contributor's run stops that.
+FORK_APPROVAL_REQUIRED = "all_external_contributors"
 # A second owner switch inside the issues stage (update comments on a filed issue): it narrows what the
 # issues gate permits, so it is modelled as known but is not a stage gate of its own.
 ISSUES_COMMENTS = "REPOSITORY_PRESENTER_ISSUES_COMMENTS_AUTHORIZED"
@@ -121,6 +137,7 @@ class Gh:
         self._run = run or _subprocess_run
         self.calls: list[list[str]] = []
         self._branch: str | None = None
+        self._info: Any | None = None
 
     def json(self, args: list[str]) -> Any | None:
         """Parsed JSON of one read-only call, or ``None`` when it failed (never an exception)."""
@@ -137,9 +154,15 @@ class Gh:
     def api(self, path: str) -> Any | None:
         return self.json(["api", path.format(repo=self.repo)])
 
+    def info(self) -> Any | None:
+        """``GET /repos/{repo}``, read once."""
+        if self._info is None:
+            self._info = self.api("repos/{repo}")
+        return self._info
+
     def default_branch(self) -> str:
         if self._branch is None:
-            self._branch = str(_nested(self.api("repos/{repo}"), "default_branch") or "main")
+            self._branch = str(_nested(self.info(), "default_branch") or "main")
         return self._branch
 
 
@@ -279,7 +302,7 @@ def _variable_checks(
     gh: Gh, rows: list[dict[str, Any]]
 ) -> tuple[list[Check], dict[str, str] | None]:
     values, _ = _variable_state(gh)
-    known = set(GATES) | {PAUSE, ISSUES_COMMENTS}
+    known = set(GATES) | {PAUSE, ISSUES_COMMENTS, SEAL_RUNNER}
     unmodelled = sorted({v for row in rows for v in row["variables"]} - known)
     checks = [
         Check(
@@ -507,6 +530,144 @@ def _environment_checks(gh: Gh, rows: list[dict[str, Any]]) -> list[Check]:
     return checks
 
 
+def _seal_runner_choice(values: dict[str, str] | None) -> tuple[str, str]:
+    """(status, detail) of the owner's runner selection; the value is classified, not echoed."""
+    if values is None:
+        return UNKNOWN, "variables unreadable"
+    selected = values.get(SEAL_RUNNER, "")
+    if selected == SEAL_RUNNER_SELF_HOSTED:
+        return OK, "self-hosted"
+    if selected in ("", "ubuntu-latest"):
+        return MISSING, "hosted (the default)"
+    return MISSING, "an unrecognised value (the workflow refuses it)"
+
+
+def _runner_checks(
+    gh: Gh, rows: list[dict[str, Any]], values: dict[str, str] | None
+) -> list[Check]:
+    """D5: production sealing on the owner's self-hosted runner. Derived from the YAML: a tree in
+    which no workflow reads the selection variable has no runner requirement."""
+    if not any(SEAL_RUNNER in row["variables"] for row in rows):
+        return []
+    status, detail = _seal_runner_choice(values)
+    checks = [
+        Check(
+            f"variable:{SEAL_RUNNER}",
+            "the seal pipeline is set to run on the self-hosted runner (owner decision D5)",
+            RUNNER_STAGE,
+            status,
+            detail,
+            (
+                f"owner: once the other runner items are OK, "
+                f"`gh variable set {SEAL_RUNNER} --body {SEAL_RUNNER_SELF_HOSTED}` "
+                "(docs/SELF_HOSTED_RUNNER.md section 6); unset it to go back to hosted"
+            )
+            if status != OK
+            else "",
+        )
+    ]
+    runners = _nested(gh.api("repos/{repo}/actions/runners"), "runners")
+    title = f"a runner carrying {', '.join(SEAL_RUNNER_LABELS)} is registered and online"
+    if not isinstance(runners, list):
+        checks.append(
+            Check(
+                "runner:registered",
+                title,
+                RUNNER_STAGE,
+                UNKNOWN,
+                "runner list unreadable (needs repository admin)",
+                "run with a token that may list the repository's self-hosted runners",
+            )
+        )
+    else:
+        wanted = {label.lower() for label in SEAL_RUNNER_LABELS}
+        matching = [
+            r
+            for r in runners
+            if isinstance(r, dict)
+            and wanted
+            <= {
+                str(label.get("name", "")).lower()
+                for label in r.get("labels") or []
+                if isinstance(label, dict)
+            }
+        ]
+        online = [r for r in matching if r.get("status") == "online"]
+        if online:
+            checks.append(
+                Check("runner:registered", title, RUNNER_STAGE, OK, f"{len(online)} online")
+            )
+        else:
+            checks.append(
+                Check(
+                    "runner:registered",
+                    title,
+                    RUNNER_STAGE,
+                    MISSING,
+                    "registered but offline"
+                    if matching
+                    else f"{len(runners)} runner(s) registered, none with the labels",
+                    "owner: start the runner service on the machine"
+                    if matching
+                    else "owner: register the runner (docs/SELF_HOSTED_RUNNER.md section 3)",
+                )
+            )
+    checks.append(_fork_approval_check(gh))
+    checks += [
+        Check(
+            "runner:host-check",
+            "tools/runner/check_runner.py passes on the runner machine, as the service account",
+            RUNNER_STAGE,
+            CONFIRM,
+            "only the machine can say",
+            "owner: run `python tools/runner/check_runner.py --work-dir <work folder> "
+            "--runner-dir <runner folder>` there, then --confirm runner:host-check",
+        ),
+        Check(
+            "runner:isolation",
+            "the service account is the dedicated low-privilege user, with the deny rules and "
+            "the LAN egress rule of docs/SELF_HOSTED_RUNNER.md section 4",
+            RUNNER_STAGE,
+            CONFIRM,
+            "only the machine can say",
+            "owner: do docs/SELF_HOSTED_RUNNER.md section 4, then --confirm runner:isolation",
+        ),
+    ]
+    return checks
+
+
+def _fork_approval_check(gh: Gh) -> Check:
+    """A public repository's self-hosted runner is only as safe as the fork-run approval."""
+    title = "a fork's workflow run needs the owner's approval before it can use a runner"
+    private = _nested(gh.info(), "private")
+    if private is True:
+        return Check("runner:fork-approval", title, RUNNER_STAGE, OK, "private repository")
+    policy = _nested(
+        gh.api("repos/{repo}/actions/permissions/fork-pr-contributor-approval"), "approval_policy"
+    )
+    if policy is None:
+        return Check(
+            "runner:fork-approval",
+            title,
+            RUNNER_STAGE,
+            UNKNOWN,
+            "approval policy unreadable (needs repository admin)",
+            "run with a token that may read the repository's Actions permissions",
+        )
+    if policy == FORK_APPROVAL_REQUIRED:
+        return Check("runner:fork-approval", title, RUNNER_STAGE, OK, f"public; {policy}")
+    return Check(
+        "runner:fork-approval",
+        title,
+        RUNNER_STAGE,
+        MISSING,
+        f"public; policy is {policy}",
+        "owner: Settings > Actions > General > Fork pull request workflows > Require approval "
+        "for all external contributors, before the runner is registered "
+        "(docs/SELF_HOSTED_RUNNER.md section 2)",
+    )
+
+
 def _record_checks(gh: Gh) -> list[Check]:
     branch = gh.default_branch()
     checks = []
@@ -582,6 +743,7 @@ def collect(
         *_protection_check(gh, directory),
         *_app_checks(gh, rows),
         *_environment_checks(gh, rows),
+        *_runner_checks(gh, rows, values),
         *_record_checks(gh),
         _registry_check(),
     ]
@@ -648,7 +810,7 @@ def main(argv: list[str] | None = None, run: Run | None = None) -> int:
     args = parser.parse_args(argv)
     gh = Gh(args.repo, run)
     try:
-        if gh.api("repos/{repo}") is None:
+        if gh.info() is None:
             print(
                 "hosting_preflight: gh cannot read the repository "
                 "(not installed, not authenticated, or no access)",

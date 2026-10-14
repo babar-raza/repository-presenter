@@ -217,13 +217,50 @@ def validation_delta(ctx: Context, result: CorrectionResult, original: bytes) ->
         "corrected_failures": {key: len(value) for key, value in sorted(after.items())},
         "introduced": introduced,
         "allowed": allowed,
-        "revealed": _increases(live, base),
+        "revealed": _revealed_by(ctx, result, live, base, original, revision),
         "resolved": [
             {"check": check_id, "fewer": len(live[check_id]) - len(after.get(check_id, []))}
             for check_id in sorted(live)
             if len(live[check_id]) > len(after.get(check_id, []))
         ],
     }
+
+
+def _revealed_by(
+    ctx: Context,
+    result: CorrectionResult,
+    live: dict[str, list[str]],
+    base: dict[str, list[str]],
+    original: bytes,
+    revision: str,
+) -> list[dict[str, Any]]:
+    """The failures newly judged once the structure fixes are applied, each with the structure
+    fixes (``caused_by``, detector names) that bring it when applied alone: closing a ``<details>``
+    exposes text, promoting a second H1 re-segments the README, and a pull request must name the
+    one that did it."""
+    revealed = _increases(live, base)
+    fixes = [e for e in result.edits if e.kind == STRUCTURE_FIX]
+    if not revealed or len(fixes) < 2:
+        causes = sorted({e.detector for e in fixes})
+        return [{**item, "caused_by": causes} for item in revealed]
+    alone = {
+        e.detector: _increases(
+            live, _failures(ctx, apply_edits(ctx.readme, [e])[0], original, revision)
+        )
+        for e in fixes
+    }
+    out: list[dict[str, Any]] = []
+    for item in revealed:
+        caused = sorted(
+            detector
+            for detector, found in alone.items()
+            if any(
+                other["check"] == item["check"] and set(item["details"]) & set(other["details"])
+                for other in found
+            )
+        )
+        out.append({**item, "caused_by": caused or sorted(alone)})
+    return out
 
 
 def _increases(before: dict[str, list[str]], after: dict[str, list[str]]) -> list[dict[str, Any]]:
