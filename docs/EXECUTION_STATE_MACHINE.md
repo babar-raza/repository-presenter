@@ -306,9 +306,9 @@ governed version change never invalidates a candidate it did not touch (owner, 2
 
 ### Work
 
-1. Invalidation by consumed input (`components/readme/bundle/`): a governed-version difference
-   re-checks the scopes a bundle consumed and lands `VALID_UPDATE_AVAILABLE` or current, never
-   blanket `INVALIDATED`; only a changed consumed fact reopens a stage.
+1. Invalidation by consumed input is built (`bundle/recheck.py`, G7-W25); prove it on a fresh seal:
+   a throwaway change to each governed constant leaves it `RECHECKED_CURRENT`; whatever leaves it
+   `UNVERIFIED` or `UPDATE_REQUIRED` with no changed consumed input is fixed; `status` reads receipts.
 2. The judge (`components/readme/acceptance/judge.py`): standard conformance, every public claim
    cites an accepted fact, every material inherited unit has one disposition, a rerun is
    byte-identical with zero provider calls, and not worse than a standard live README where one
@@ -317,7 +317,7 @@ governed version change never invalidates a candidate it did not touch (owner, 2
 
 ### Exit predicates
 
-- A synthetic bump over `candidates/` leaves every bundle valid; `status` prints the judge's
+- A bundle sealed on the frozen base stays current across a throwaway bump of each constant; `status` prints the judge's
   `authorizable N/44` first and the cursor carries it; every repository without a standard live
   README has a judge verdict on the frozen base; one passing Lane R candidate reaches `propose` through the sandbox-proven write path.
 

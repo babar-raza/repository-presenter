@@ -29,7 +29,7 @@ progress:
 current_gate:
   id: G3_PYTHON_COHORT
   status: READY
-  purpose: "Lane R produces, for any admitted repository, a README candidate a computed judge accepts, and a governed version change never invalidates a candidate it did not touch (owner decision 2026-10-14; docs/EXECUTION_STATE_MACHINE.md G3). Exit: a synthetic bump over candidates/ leaves every bundle valid; status prints the judge's authorizable N/44 first and the cursor carries it; every repository without a standard live README has a judge verdict on the frozen base; one passing Lane R candidate reaches propose through the sandbox-proven write path. The Python-cohort text this gate carried from 2026-09-06 is history (docs/DECISION_LOG.md, 2026-10-14)."
+  purpose: "Lane R produces, for any admitted repository, a README candidate a computed judge accepts, and a governed version change never invalidates a candidate it did not touch (owner decision 2026-10-14; docs/EXECUTION_STATE_MACHINE.md G3). Exit: a bundle sealed on the frozen base stays current across a throwaway bump of each governed constant; status prints the judge's authorizable N/44 first and the cursor carries it; every repository without a standard live README has a judge verdict on the frozen base; one passing Lane R candidate reaches propose through the sandbox-proven write path. The Python-cohort text this gate carried from 2026-09-06 is history (docs/DECISION_LOG.md, 2026-10-14)."
 
 accepted_gates:
   - G0_FOUNDATION
@@ -41,23 +41,25 @@ active_work_item:
   status: IN_PROGRESS
   purpose: 'Lane R, the primary lane (owner, 2026-10-14): a README generated from scratch for any admitted
     repository, accepted by a computed judge, on a base where a governed version change never invalidates
-    a candidate it did not touch. Ladder: project/loop-prompt-ship.md rungs 3 to 5 and 7 (invalidation
-    by consumed input; the judge; the frozen base; Lane R measured first on the repositories without a
-    standard live README; the first Lane R proposal). The LLM reviewer is advisory while it shares the
-    author''s route; /readme-refresh is the fallback when R fails a repository. The section 27.9 text
-    of this item (regeneration idempotence, TC-IDM cards) is its history.'
+    a candidate it did not touch. Ladder: project/loop-prompt-ship.md rungs 3 to 5 and 7 (proving the
+    built recheck, bundle/recheck.py, on a fresh seal; the judge; the frozen base; Lane R measured first
+    on the repositories without a standard live README; the first Lane R proposal). The LLM reviewer is
+    advisory while it shares the author''s route; /readme-refresh is the fallback when R fails a repository.
+    The section 27.9 text of this item (regeneration idempotence, TC-IDM cards) is its history.'
   prerequisites:
   - origin/main green (hosted CI).
   - 'Lane L''s correction engine on main (pull request #335), the write path Lane R will reuse.'
-  - docs/investigations/13-bump-cost-and-recheck-design.md as the invalidation design.
+  - 'bundle/recheck.py (G7-W25) and docs/investigations/13-bump-cost-and-recheck-design.md: the built
+    recheck and its design.'
   owned_paths:
-  - src/repository_presenter/components/readme/bundle/
+  - src/repository_presenter/components/readme/bundle/ (recheck fixes only)
   - src/repository_presenter/components/readme/acceptance/
   - src/repository_presenter/cli.py (status and wave-readiness output only)
   - tests/components/readme/bundle/
   - tests/components/readme/acceptance/
   acceptance:
-  - A synthetic bump over candidates/ leaves every bundle valid (a test on main).
+  - A bundle sealed on the frozen base stays RECHECKED_CURRENT across a throwaway bump of each governed
+    constant (a test on main).
   - status prints the judge's authorizable N/44 first and progress.authorizable_candidates equals it.
   - Every repository without a standard live README has a judge verdict on the frozen base.
   - No governed version moves without the necessity finding in docs/DECISION_LOG.md.

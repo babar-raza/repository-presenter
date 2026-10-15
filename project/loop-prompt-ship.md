@@ -53,12 +53,15 @@ checked by command.
    read and write); report the run URL. Done: the issue is listed by `gh issue list -R
    aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`, the handoff reads `FILED` with its URL, a second
    dispatch creates none.
-3. **A bump never invalidates what it did not touch.** `components/readme/bundle/` (`evaluation.py`,
-   new `recheck.py`; design `docs/investigations/13-bump-cost-and-recheck-design.md`): a
-   governed-version difference re-checks the scopes a bundle consumed and lands
-   `VALID_UPDATE_AVAILABLE` or current; only a changed consumed fact invalidates. Tests: unconsumed
-   change keeps a bundle valid; consumed change reopens the earliest affected stage; a synthetic bump
-   over the real `candidates/` leaves every bundle valid. Done: that test passes on `main`.
+3. **A bump never invalidates what it did not touch: prove the built recheck on a fresh seal.**
+   `bundle/recheck.py` (G7-W25) exists and `repository-presenter recheck` runs it; the 30 old bundles
+   come out `UPDATE_REQUIRED`/`recompose` because the contracts really changed since they were sealed,
+   which is correct. Seal one repository on the frozen base (`present --repo <canary>`), run `recheck
+   --write-receipts`, then bump each governed constant in a scratch copy with no behaviour change and
+   require `RECHECKED_CURRENT` or `UPDATE_OPTIONAL` (never `UPDATE_REQUIRED`). Fix whatever leaves it
+   `UNVERIFIED` or `UPDATE_REQUIRED` with no changed consumed input (an extractor-version difference is
+   `UNVERIFIED` for kinds that need a clone: decide, with a test, whether the drift monitor covers
+   it). Done: that test passes on `main` and `status` reads the receipts.
 4. **The judge.** New `components/readme/acceptance/judge.py`: `README_STANDARD` conformance
    (`data/readme_standard`); every public claim cites an accepted fact; every material inherited unit
    has one disposition and kept text is printed; a rerun is byte-identical with zero provider calls;
