@@ -1,0 +1,52 @@
+# lane L-iss4: repository-presenter issue-readiness --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp (before the approval record; origin/main 7299f628)
+issue-readiness: 4 handoff(s) on record; kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is OFF in this process (the repository variable itself is not readable from here)
+
+== aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp  [registry: dry_run; write gate REFUSES issue_filing]
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119
+    status HANDOFF_PENDING; check BC-02 v4; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>
+    evidence_digest: sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907
+    re-verification: CONFIRMED at live head 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119.json is not committed)
+    approvable: YES; fileable now: NO
+    blocker: registry write gate refuses issue_filing: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp is dry_run, not full (owner decision, OWNER-20)
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399
+    status HANDOFF_PENDING; check BC-03 v2; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: README 'Load an Existing Workbook' example does not compile, missing WorksheetCollection.h
+    evidence_digest: sha256:87bcad6474114d3e29a6080cbd532e4f64f6329e95daf9525c726af9341728fe
+    re-verification: NOT_A_DEFECT at 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399.json is not committed)
+    approvable: NO; fileable now: NO
+    blocker: not independently confirmed: NOT_A_DEFECT at 9f852d0ff1cf (2026-10-11T18:33Z)
+    blocker: registry write gate refuses issue_filing: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp is dry_run, not full (owner decision, OWNER-20)
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab
+    status HANDOFF_PENDING; check LICENSE_MISSING_ROOT v1; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: the license file is only in License/, not at the repository root
+    evidence_digest: sha256:7a5cd343358cb65c171215647e2556bc53761d941d6e743a4fdd163628c85adc
+    re-verification: CONFIRMED at live head 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab.json is not committed)
+    approvable: YES; fileable now: NO
+    blocker: registry write gate refuses issue_filing: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp is dry_run, not full (owner decision, OWNER-20)
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365
+    status HANDOFF_PENDING; check BC-02 v3; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: the library build uses -Werror and fails on warnings with GCC 13-15 and Clang 22
+    evidence_digest: sha256:b01bfc931bff8bccfb57d02c80cc4aac3f0e46a3aecfd89c506b2d5f9ae769f2
+    re-verification: CONFIRMED at live head 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365.json is not committed)
+    approvable: YES; fileable now: NO
+    blocker: registry write gate refuses issue_filing: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp is dry_run, not full (owner decision, OWNER-20)
+
+3 handoff(s) the owner can approve now:
+  aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119@sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907
+  aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab@sha256:7a5cd343358cb65c171215647e2556bc53761d941d6e743a4fdd163628c85adc
+  aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365@sha256:b01bfc931bff8bccfb57d02c80cc4aac3f0e46a3aecfd89c506b2d5f9ae769f2
+
+To approve a batch: repository-presenter issue-readiness --emit-approvals <scratch dir> --approver <your login> --handoff-id <id>@<digest> ... (writes files only; nothing is committed, nothing is sent to GitHub). Then commit the files under ops/issue_approvals/ in a reviewed pull request.

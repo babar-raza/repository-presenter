@@ -1,0 +1,31 @@
+# repository clone: Aspose.Cells-FOSS-for-Cpp (fresh --depth 1 clone)
+# head: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+# utc: 2026-10-12T02:14:44Z
+# image: gcc:14
+# command: docker run --rm -v <clone>:/src:ro gcc:14 bash -c 'g++ -std=c++17 -fsyntax-only -I include src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp' (no -Werror, no cmake), then the same on a scratch copy with #include <limits> added after line 37
+g++ (GCC) 14.4.0
+--- include block, lines 29-37:
+#include <algorithm>
+#include <cctype>
+#include <charconv>
+#include <cstdio>
+#include <memory>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+--- unmodified TU, no -Werror:
+syntax-only-exit=1
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:24: error: 'numeric_limits' is not a member of 'std'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:39: error: expected primary-expression before 'int'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:39: error: expected ')' before 'int'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:27: error: 'numeric_limits' is not a member of 'std'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:42: error: expected primary-expression before 'int'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:42: error: expected ')' before 'int'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:24: error: 'numeric_limits' is not a member of 'std'
+src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:39: error: expected primary-expression before 'int'
+errors: 12
+--- scratch copy with #include <limits> added after line 37, no -Werror:
+control-exit=0
+errors: 0
+# end 2026-10-12T02:14:49Z
