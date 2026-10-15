@@ -16,7 +16,7 @@ The At a Glance diagram (README.md line 25) is drawn top-down (`flowchart TD`), 
 
 ### How this was checked
 - Only `README.md` changes, and only at the places listed: with the edits removed, the corrected README and yours are identical.
-- We ran repository-presenter's README checks (install commands, version claims, links, structure, length) on your README and on the corrected one. They report 245 failure(s) on yours and 244 on the corrected one: it removes 1 of the 245 and adds none.
+- We ran repository-presenter's README checks (install commands, examples, links, version and edition claims) on your README and on the corrected one. They report 10 failure(s) on yours and 10 on the corrected one: it removes none and adds none.
 - Running the correction again on the corrected README makes no further edit (idempotent: yes); the same inputs give the same bytes (deterministic: yes). No model wrote any of this text (model calls: 0).
 - The redrawn diagram was drawn in a headless browser on Mermaid 11.17.2, 11.4.1, 11.12.0, 12.1.0, natively and in 5 wider fonts: horizontal on every release, 0 clipped labels, 0 words split across lines, 0 other problems.
 

@@ -20,6 +20,7 @@ from repository_presenter.components.propose.pull_request import load_pull_reque
 from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme_correction import bundle as files
 from repository_presenter.components.readme_correction.pull_request import (
+    _ABOUT_YOURS,
     INTERNAL_IDENTIFIERS,
     compose_correction_pull_request,
     internal_identifiers,
@@ -427,19 +428,19 @@ def delta_of(tmp_path: Path) -> dict[str, Any]:
     return json.loads((tmp_path / "bundle" / files.DELTA_NAME).read_text(encoding="utf-8"))
 
 
-def tally(delta: dict[str, Any]) -> tuple[int, int, int, int]:
+def tally(delta: dict[str, Any], only: frozenset[str] | None = None) -> tuple[int, int, int, int]:
     live, after = delta["live_failures"], delta["corrected_failures"]
-    names = set(live) | set(after)
+    names = {n for n in set(live) | set(after) if only is None or n.split("/")[0] in only}
     removed = sum(max(live.get(n, 0) - after.get(n, 0), 0) for n in names)
     added = sum(max(after.get(n, 0) - live.get(n, 0), 0) for n in names)
-    return sum(live.values()), sum(after.values()), removed, added
+    return sum(live.get(n, 0) for n in names), sum(after.get(n, 0) for n in names), removed, added
 
 
 def test_a_correction_that_only_removes_failures_says_how_many_of_how_many(
     tmp_path: Path, make_context: Any
 ) -> None:
     content = compose(tmp_path, make_context, VERSION)
-    before, after, removed, added = tally(delta_of(tmp_path))
+    before, after, removed, added = tally(delta_of(tmp_path), _ABOUT_YOURS)
     assert added == 0 and removed > 0
     assert f"They report {before} failure(s) on yours and {after} on the corrected one: " in (
         checks_line(content)
@@ -453,10 +454,11 @@ def test_failures_it_adds_are_stated_and_nothing_is_called_fewer_when_hidden_tex
 ) -> None:
     # The Cells-Go case: closing the markup resolves failures and exposes one in text it hid.
     content = compose(tmp_path, make_context, STRUCTURE)
-    _before, _after, removed, added = tally(delta_of(tmp_path))
+    delta = delta_of(tmp_path)
+    shape = tally(delta)[3] - tally(delta, _ABOUT_YOURS)[3]
     line = checks_line(content)
-    assert added > 0  # the net may even be positive; the sentence still says removes and adds
-    assert f"it removes {removed} and adds {added}; the added ones are explained below." in line
+    assert shape > 0  # the net may even be positive; the other checks' additions are still stated
+    assert f"find {shape} new item(s) after the change; each is explained below." in content.body
     assert "fewer" not in line and "no failure that yours" not in line
     assert "they now judge a code span (`v26`, line 17) that they skipped before" in content.body
     assert "new problems this change introduces" not in content.body
@@ -472,10 +474,11 @@ def test_a_redraw_that_tips_the_length_limit_says_how_many_lines_and_by_how_much
     )
     edit = next(e for e in document["edits"] if e["kind"] == "DIAGRAM_FIX")
     grown = len(edit["replacement"].splitlines()) - len(edit["original"].splitlines())
-    before, after, removed, added = tally(delta_of(tmp_path))
-    line = checks_line(content)
-    assert added > 0 and before - after <= 0
-    assert f"it removes {removed} and adds {added}" in line and "fewer" not in line
+    delta = delta_of(tmp_path)
+    shape = tally(delta)[3] - tally(delta, _ABOUT_YOURS)[3]
+    assert shape > 0
+    assert f"find {shape} new item(s) after the change; each is explained below." in content.body
+    assert "fewer" not in checks_line(content)
     found = re.search(
         r"the README now has ([0-9]+) lines outside collapsed blocks, "
         r"([0-9]+) over the 300-line limit",
@@ -494,11 +497,14 @@ def test_a_content_fix_with_a_redraw_over_the_limit_states_both_without_a_false_
     # The PDF-Java case: a version fix and a redraw; failures removed and one length failure added.
     readme = tight(with_diagram(diagram())).replace(":26.7.0", ":26.5.0", 1)
     content = compose(tmp_path, make_context, readme)
-    before, after, removed, added = tally(delta_of(tmp_path))
+    delta = delta_of(tmp_path)
+    before, after, removed, added = tally(delta, _ABOUT_YOURS)
+    shape = tally(delta)[3] - added
     line = checks_line(content)
-    assert removed > added > 0
+    assert removed > 0 and added == 0 and shape > 0
     assert f"They report {before} failure(s) on yours and {after} on the corrected one: " in line
-    assert f"it removes {removed} and adds {added}; the added ones are explained below." in line
+    assert f"it removes {removed} of the {before} and adds none." in line
+    assert f"find {shape} new item(s) after the change; each is explained below." in content.body
     assert "fewer" not in line and "no failure that yours" not in line
     assert "the redrawn diagram adds" in content.body
     assert_plain(content)

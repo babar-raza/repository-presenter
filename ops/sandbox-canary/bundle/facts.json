@@ -2,6 +2,8 @@
   "facts": [
     {
       "attributes": {
+        "build_receipt_failed": "NOT_RUN: the chain has not been run on a clean clone",
+        "command_chain": "project_files",
         "role": "build command",
         "source": "toolchain convention"
       },
