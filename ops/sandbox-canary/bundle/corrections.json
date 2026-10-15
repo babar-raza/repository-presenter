@@ -86,7 +86,7 @@
   "original_sha256": "2c6abdab5d0ed6d634563035e22f055d7e114ae219ef7d100fb8c29eb9cd0c30",
   "readme_path": "README.md",
   "render_check": {
-    "browser": "Chrome/154.0.8037.99",
+    "browser": "Chrome/155.0.8059.41",
     "diagrams": [
       {
         "clipped_fonts": 0,
