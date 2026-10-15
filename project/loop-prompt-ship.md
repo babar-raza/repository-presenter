@@ -54,15 +54,12 @@ checked by command.
    read and write); report the run URL. Done: the issue is listed by `gh issue list -R
    aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`, the handoff reads `FILED` with its URL, a second
    dispatch creates none.
-3. **A bump never invalidates what it did not touch: prove the built recheck on a fresh seal.**
-   `bundle/recheck.py` (G7-W25) exists and `repository-presenter recheck` runs it; the 30 old bundles
-   come out `UPDATE_REQUIRED`/`recompose` because the contracts really changed since they were sealed,
-   which is correct. Seal one repository on the frozen base (`present --repo <canary>`), run `recheck
-   --write-receipts`, then bump each governed constant in a scratch copy with no behaviour change and
-   require `RECHECKED_CURRENT` or `UPDATE_OPTIONAL` (never `UPDATE_REQUIRED`). Fix whatever leaves it
-   `UNVERIFIED` or `UPDATE_REQUIRED` with no changed consumed input (an extractor-version difference is
-   `UNVERIFIED` for kinds that need a clone: decide, with a test, whether the drift monitor covers
-   it). Done: that test passes on `main` and `status` reads the receipts.
+3. **A bump never invalidates what it did not touch. DONE 2026-10-15.** On real wave-7 bundles sealed on
+   `main` (Cells-Go, Note-Python) `python tools/reviewer/bump_proof/bump_proof.py --target ROOT=OWNER/NAME`
+   gives `CURRENT`, and after a throwaway bump of NORMALISATION, RENDERER, REVIEWER_LOGIC, INHERITED_UNITS or
+   VALIDATOR `RECHECKED_CURRENT` (evidence: `analysis/bump-proof-2026-10-15.json`). EXTRACTOR_VERSION gives
+   `UNVERIFIED` (re-extraction needs the pinned clone): the one bump that always needs the necessity test.
+   Re-run the command after any change to `bundle/recheck.py` or a governed file.
 4. **The judge.** New `components/readme/acceptance/judge.py`: `README_STANDARD` conformance
    (`data/readme_standard`); every public claim cites an accepted fact; every material inherited unit
    has one disposition and kept text is printed; a rerun is byte-identical with zero provider calls;
