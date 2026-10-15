@@ -29,8 +29,9 @@ Read `project/loop-prompt.md` §0, §4, §5, §8 and follow them, with these sub
   iteration. Another session's or a lane's report is a claim.
 - Environment: `runs/wt/<name>` from `scripts/new_worktree.sh`; `PYTHONPATH=$PWD/src`,
   `RP_VENV=E:/Users/prora/OneDrive/Documents/GitHub/repository-presenter/.venv`,
-  `CI_TOOLS_VENV=C:/dev-tools/rp-ci-tools`. `gh` uses the user-level `GITHUB_TOKEN`; if
-  `gh api rate_limit` fails, stop and report; never hunt for a credential.
+  `CI_TOOLS_VENV=C:/dev-tools/rp-ci-tools`, `GIT_CEILING_DIRECTORIES=C:\Users\babar` (a stray `.git` in the
+  home folder makes fixture repos refuse to init and fails ~70 tests). `gh` uses the user-level `GITHUB_TOKEN`;
+  if `gh api rate_limit` fails, stop and report; never hunt for a credential.
 
 ## 1. Orient (five minutes)
 
