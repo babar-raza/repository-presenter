@@ -227,3 +227,93 @@ def test_a_conformant_readme_yields_no_corrections_and_nothing_to_propose(
     with pytest.raises(WriteRefusedError) as raised:
         load_proposable_correction(out, REPOSITORY, root=target["root"])
     assert "nothing to propose" in raised.value.message
+
+
+def command_facts_for(revision: str, make_facts: Any, make_fact: Any) -> list[Any]:
+    """The base facts plus a build and a test command from the project's own manifest."""
+    return [
+        *make_facts(),
+        make_fact(
+            "build_test_asset:build-command",
+            "mvn package",
+            evidence=(("pom.xml", "standard `mvn package`; no workflow step or script names it"),),
+            attributes={"role": "build command", "source": "toolchain convention"},
+        ),
+        make_fact(
+            "build_test_asset:test-command",
+            "mvn test",
+            evidence=(("pom.xml", "standard `mvn test`; no workflow step or script names it"),),
+            attributes={"role": "test command", "source": "toolchain convention"},
+        ),
+    ]
+
+
+def test_commands_are_printed_only_with_the_receipt_the_run_is_given(
+    target: dict[str, Any], make_facts: Any, make_fact: Any
+) -> None:
+    from repository_presenter.components.readme_correction.chain import plan_chain
+    from repository_presenter.components.readme_correction.receipts import (
+        EXECUTED,
+        Receipt,
+        StepResult,
+        receipt_path,
+        store_receipt,
+    )
+
+    document = FactsDocument(
+        REPOSITORY,
+        target["revision"],
+        tuple(command_facts_for(target["revision"], make_facts, make_fact)),
+    )
+    facts = target["tmp"] / "facts.json"
+    write_facts(document, facts)
+    # without a receipts directory the commands are held back
+    bare = target["tmp"] / "bare"
+    assert run_correct(target, facts, bare) == EXIT_OK
+    held = json.loads((bare / CORRECTIONS_NAME).read_text(encoding="utf-8"))["report_only"]
+    assert "NO_BUILD_RECEIPT" in {entry["report_only_reason"] for entry in held}
+    assert "mvn package" not in (bare / "README.md").read_text(encoding="utf-8")
+    # with a stored receipt for this revision and this chain they are printed, and the bundle's
+    # own facts carry the proof the typed gate re-derives the addition from
+    plan = plan_chain(document, target["tmp"] / "upstream", [])
+    receipts = target["tmp"] / "receipts"
+    steps = tuple(StepResult(s.command, EXECUTED, 0) for s in plan.steps)
+    store_receipt(
+        receipt_path(receipts, REPOSITORY, target["revision"], plan),
+        Receipt(
+            REPOSITORY,
+            target["revision"],
+            plan.digest(),
+            EXECUTED,
+            "every step exited 0",
+            steps,
+            {"mvn": "3.9"},
+            "Windows 11 AMD64",
+        ),
+    )
+    proven = target["tmp"] / "proven"
+    code = main(
+        [
+            "correct-readme",
+            "--repo",
+            REPOSITORY,
+            "--root",
+            str(target["root"]),
+            "--facts",
+            str(facts),
+            "--receipts",
+            str(receipts),
+            "--out",
+            str(proven),
+        ]
+    )
+    assert code == EXIT_OK
+    corrected = (proven / "README.md").read_text(encoding="utf-8")
+    assert "```bash\nmvn package\nmvn test\n```" in corrected
+    assert corrected.index("mvn package") < corrected.index("## License")
+    stored = {f["id"]: f for f in json.loads((proven / "facts.json").read_text("utf-8"))["facts"]}
+    attributes = stored["build_test_asset:test-command"]["attributes"]
+    assert attributes["command_chain"] == "project_files" and len(attributes["build_receipt"]) == 64
+    assert (
+        load_proposable_correction(proven, REPOSITORY, root=target["root"]).readme_text == corrected
+    )

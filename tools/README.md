@@ -200,7 +200,11 @@ governance tracks, two directories, no overlap.
     version constant; the diff-level proof behind the plan's `no_bump: true` cards (TC-REF-10/11/12).
   - `hosting_preflight.py` — read-only go/no-go table for the staged go-live H0 to H4
     (`docs/OPERATIONS_RUNBOOK.md` section 9): requirements generated from the workflow YAML,
-    compared with read-only `gh` calls; prints names and verdicts, never values.
+    compared with read-only `gh` calls; prints names and verdicts, never values. When a workflow reads
+    `REPOSITORY_PRESENTER_SEAL_RUNNER` it also requires, from H0, the self-hosted seal runner (owner
+    decision D5): the variable set, a runner with the workflow's labels registered and online, the fork-run
+    approval policy on a public repository, and two operator confirmations (`runner:host-check`,
+    `runner:isolation`).
   - Tests: `tests/test_workflow_rehearsal.py`, `tests/test_no_bump_check.py` and
     `tests/test_hosting_preflight.py` (no network, Docker, act or real `gh`).
   - `fake_rest.py` — an in-process, stateful model of the GitHub REST write paths (refs, contents with
@@ -215,15 +219,30 @@ governance tracks, two directories, no overlap.
     `tests/test_workflow_rehearsal_cycle.py` (no network; the model scenarios use the scripted gateway
     of `tests/test_cli.py`; set `RP_REHEARSAL_EVIDENCE_DIR` to record their evidence).
 
+- `runner/` — the self-hosted seal runner's machine check (owner decision D5;
+  `docs/SELF_HOSTED_RUNNER.md`). Nothing here registers, installs or writes anything.
+  - `check_runner.py` — read-only: the interpreter is the pinned patch version on Windows, Git for Windows'
+    `bash` (not WSL's launcher), the toolchain registry and every tool a verifier invokes, the toolchain
+    fingerprint against the sealed bundles, free disk and a writable work folder off OneDrive, the runner's
+    `.env` and `.path`, the account, credential-shaped variables, and (without `--job`) that the gateway
+    answers - no key is sent, and no secret, path or host detail is printed. `present.yml` runs it with
+    `--job` on the self-hosted runner before the first provider call.
+  - Tests: `tests/test_check_runner.py` (injected resolvers and probes; no network, toolchain or real
+    registry), `tests/test_present_runner_selection.py` (the workflow's runner selection).
+
 - `canary/` — the sandbox canary's operator tooling (owner decision D6, 2026-10-11;
   `docs/PROPOSAL_WAVE_RUNBOOK.md` section 9): the one pull request allowed while real product
   repositories stay paused, against the owner's own `babar-raza/presenter-sandbox`. No command here
   writes to GitHub.
-  - `seed.py` — local files only: copies one product's committed tree into a clone of the sandbox
-    for the owner to review, commit and push (refuses a symlink, a submodule, `.github/`, a dirty
-    clone, any remote but the sandbox).
+  - `seed.py` — local objects only: makes the one pinned, reproducible seed commit (the product's
+    tree at the pinned revision minus `.github/`, on the sandbox head; fixed author, date and
+    message) in a clone of the sandbox for the owner to push, and refuses unless it equals
+    `ops/sandbox-canary/seed.json` (refuses a symlink, a submodule, a product off its pinned
+    revision or repository, a sandbox off its pinned head, a dirty clone, any remote but the
+    sandbox). Pushes nothing.
   - `canary.py` — `preflight` and `verify` (read-only GETs; the token comes from `GH_TOKEN`) and
-    `assemble` (writes the bundle, the record and the one-line registry flip into a worktree).
+    `assemble` (writes the bundle with its `PULL_REQUEST.md` and `SHA256SUMS`, the record and the
+    registry flip into a worktree; the bundle must correct the pinned seed commit).
   - Tests: `tests/test_canary_rehearsal.py` (every step against the workflow rehearsal's fakes),
     `tests/test_propose_sandbox_workflow.py`, `tests/core/registry/test_sandbox.py`.
 
@@ -255,6 +274,26 @@ governance tracks, two directories, no overlap.
     recomputes every frequency, and checks the document's tags and tables; `--write-counts` and
     `--write-doc` refresh the machine-maintained parts.
   - Tests: `tests/test_readme_standard.py`.
+
+- `idempotence/` — the offline idempotence and retention harness (TC-IDM-01,
+  `plans/reseal-and-refresh/PLAN.md` section 11A): makes "better than the live README" measurable
+  and gates regressions, for the live-first correction lane and the regeneration lane. Read-only:
+  no network, no model, no write outside `data/idempotence/` and the file you name.
+  - `corpus.py` / `data/idempotence/corpus.json` — the 44 registry READMEs frozen with head commit and
+    SHA-256 (the shape of `data/readme_standard/survey.json`); `build-corpus --root <clones>` rebuilds it.
+  - `retention.py`, `editscript.py`, `introduced.py` — the metrics: what a candidate keeps of the
+    live README (verbatim, reworded, lost, with positions), how many hunks and changed lines separate
+    them, and which candidate sentences have no source in the live README or the facts.
+  - `lane.py`, `mutations.py`, `gate.py` — the fixed-point test (`P(P(x)) = P(x)`, no unexplained hunk,
+    100% of non-diagram live lines kept unless a reported edit covers them) over the corpus, and the
+    mutation generator (second H1, unclosed `<details>`, vertical diagram, false version, dead link,
+    dropped section). `python -X utf8 -m tools.idempotence gate [--mutations]` prints the table and
+    exits 1 on any failure; CI runs the same through the tests.
+  - `report.py` — `python -X utf8 -m tools.idempotence report <dir> ... [--since T] [--exclude DIR]`:
+    for sealed bundles, drafts and correction bundles, the table of retention %, introduced % and
+    hunks against the live README at the same revision (recovered from `README.patch`, a draft's
+    `source/README.md`, the corpus, or `git show` in a clone).
+  - Tests: `tests/test_idempotence_metrics.py` and `tests/test_idempotence_gate.py`.
 
 ## Environment variables
 

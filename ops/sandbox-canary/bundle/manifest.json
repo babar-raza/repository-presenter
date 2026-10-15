@@ -1,0 +1,52 @@
+{
+  "corrected_sha256": "fa4a4f68a6d620a0b323ca774a7d57fa6eb88cf210215d37f4f2d18f1658d4ad",
+  "files": {
+    "README.md": {
+      "bytes": 26465,
+      "sha256": "fa4a4f68a6d620a0b323ca774a7d57fa6eb88cf210215d37f4f2d18f1658d4ad"
+    },
+    "README.original.md": {
+      "bytes": 25989,
+      "sha256": "2c6abdab5d0ed6d634563035e22f055d7e114ae219ef7d100fb8c29eb9cd0c30"
+    },
+    "README.patch": {
+      "bytes": 2588,
+      "sha256": "edea7a374bde76f76afd2d0f63a7cbe6ca2ed16826686d118590b6049258adbb"
+    },
+    "corrections.json": {
+      "bytes": 7549,
+      "sha256": "bef2a64e4fd7a4ce95ddb014db3d3c9ba5b27296b3a9678203e784fe5c2a470e"
+    },
+    "facts.json": {
+      "bytes": 458553,
+      "sha256": "c485a00768f9163d8aa199b291e69a99317ecf6405863fd72254f9cbfdf2b759"
+    },
+    "tree.txt": {
+      "bytes": 23115,
+      "sha256": "db3e30764ed8ecb7ee7aec50a83246e3d0f10fdeab040312ba998b434496de40"
+    },
+    "validation_delta.json": {
+      "bytes": 410,
+      "sha256": "82241542a584406a85205ce00c8b350e4bacacf1ec8e4836fc0a8716f16a2a89"
+    }
+  },
+  "kind": "correction",
+  "no_op_proof": {
+    "byte_identical": true,
+    "idempotent_on_output": true,
+    "method": "deterministic re-run of the correction over the bundle's own inputs",
+    "provider_calls": 0,
+    "runs": 2
+  },
+  "original_sha256": "2c6abdab5d0ed6d634563035e22f055d7e114ae219ef7d100fb8c29eb9cd0c30",
+  "readme_path": "README.md",
+  "repository": "babar-raza/presenter-sandbox",
+  "revision": "5c41a5028b37fa3e9812dcd0c1320fe7248929f5",
+  "schema_version": 1,
+  "state": "CORRECTION_READY",
+  "summary": {
+    "DIAGRAM_FIX": 1,
+    "MISSING_INFO": 1,
+    "MISSING_SECTION": 1
+  }
+}

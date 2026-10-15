@@ -1,0 +1,14 @@
+{
+  "approver": "babar-raza",
+  "base_branch": "main",
+  "branch": "repository-presenter/readme-update",
+  "candidate_hash": "fa4a4f68a6d620a0b323ca774a7d57fa6eb88cf210215d37f4f2d18f1658d4ad",
+  "expires_at": "2026-10-19T02:35:31Z",
+  "issued_at": "2026-10-12T02:35:31Z",
+  "policy_version": "1",
+  "pr_intent": "CREATE_OR_UPDATE_README_PROPOSAL",
+  "repository": "babar-raza/presenter-sandbox",
+  "schema_version": 1,
+  "source_revision": "5c41a5028b37fa3e9812dcd0c1320fe7248929f5",
+  "supersedes_prs": []
+}

@@ -378,12 +378,12 @@ owner_items:
     recorded_at: "2026-10-05T10:45:00+05:00"
     note: "Recorded by the register PR; the question is the owner's, not delegated. 2026-10-09 owner answer: a brand-new throwaway repository, not the control repository (docs/DECISION_LOG.md 2026-10-10). The name is recorded here once the repository exists and the App is installed on it; this item then closes. 2026-10-11 owner decision D6 (docs/DECISION_LOG.md): the first and only push is a sandbox canary on babar-raza/presenter-sandbox, named by the owner as the canary target; whether the App is installed on it and whether rollback is exercised on it stay this item's open predicates, and after the canary the owner is asked again before any other push."
   - id: OWNER-12
-    status: OPEN
+    status: SATISFIED
     summary: "Gateway outage policy: fail closed while the single qwen3-next route is down, or allow a fallback route whose output is re-reviewed."
-    resume_predicate: "The owner chooses; the G7 failure exercise then asserts exactly that behavior."
+    resume_predicate: "Met 2026-10-13: the owner delegated the decision (interactive form, answer on the sealing pause: take the appropriate decision given that the process has to run autonomously) and the supervisor chose fail closed: no fallback route; an outage is BLOCKED_EXTERNAL with no cooldown and no budget burn, retried next cycle, annotated after 3 consecutive outage cycles (docs/DECISION_LOG.md, entry of 2026-10-13). The G7 failure exercise asserts exactly that behavior once TC-REF-06 lands; until then the rehearsal test pins the old FAILED_INTERNAL landing."
     consumed_by: ["G7-W07"]
     recorded_at: "2026-10-05T10:45:00+05:00"
-    note: "Recorded by the register PR; the question is the owner's, not delegated."
+    note: "Recorded by the register PR as the owner's question; decided on 2026-10-13 under the owner's delegation, reversible by a new entry (admitting a fallback route is its own owner decision)."
   - id: OWNER-13
     status: SATISFIED
     summary: "Ratify the 30-point acceptance profile (profile.RATIFIED is False, so publication_eligible counts 0 and nothing blocks on the score) and decide whether READY_FOR_PROPOSAL may be set before any acceptance score exists (REV-V2-02, REV-V4-08)."
@@ -447,6 +447,13 @@ owner_items:
     consumed_by: ["G7-W06", "G7-W13"]
     recorded_at: "2026-10-11T21:30:00+05:00"
     note: "Recorded by lane L-gov3 on owner decision D5 of 2026-10-11 (docs/DECISION_LOG.md); the question is the owner's, not delegated. Consumed by G7-W06 (re-scoped stage 1 and TC-REF-12) and G7-W13 (the hosted proof of 2026-10-08 stands for a hosted runner)."
+  - id: OWNER-22
+    status: OPEN
+    summary: "Rotate the GITHUB_TOKEN and GITLAB_TOKEN credentials that a lane printed into its output on 2026-10-11 (docs/DECISION_LOG.md, the incident entry of that date), and decide which credential agents use for GitHub reads and merges from then on."
+    resume_predicate: "Rotation half MET 2026-10-13: the owner states both tokens are already rotated, and the GITHUB_TOKEN this shell still holds returns Bad credentials from the GitHub API (docs/DECISION_LOG.md, entry of 2026-10-13). GitLab half MET 2026-10-13 on the owner's statement that the repository secret GITLAB_TOKEN is updated (not checked by an agent). STILL OPEN: the credential agent sessions use for gh from now on reaches the agent environment (this session's environment variable is the revoked token, gh has no stored login of its own, and git's credential manager refused the push). Original predicate: The owner states that both tokens were rotated (the old values revoked at GitHub and GitLab) and names the credential agent sessions use for gh from then on: a repository-scoped, read-only token for analysis, with merges and pull-request creation by a separately scoped credential or by the owner. Until then any step that would use either token is BLOCKED_EXTERNAL under the incident entry; docs/DECISION_LOG.md 2026-10-13 records that gh on the owner's machine logs in through GITHUB_TOKEN itself, so the rule cannot be enforced by a lane alone. The value of neither token is ever written to a file, log or commit."
+    consumed_by: ["G7-W04"]
+    recorded_at: "2026-10-13T00:00:00+05:00"
+    note: "Recorded on the weekly-report verification of 2026-10-13 (docs/DECISION_LOG.md, finding 6; plans/reseal-and-refresh/PLAN.md section 11C, card TC-WKR-02). The incident itself was logged on 2026-10-11 with no owner item and no resume predicate. Whether any hosted workflow used either token was not assessed."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer

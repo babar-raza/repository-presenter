@@ -16,6 +16,7 @@ from repository_presenter.components.readme.evidence.facts.commands import (
     BUILD_COMMAND_FACT_ID,
     CI_MATRIX_FACT_ID,
     TEST_COMMAND_FACT_ID,
+    ci_jobs,
     ci_matrix_fact,
     command_facts,
     command_form,
@@ -980,4 +981,49 @@ def test_commands_are_read_from_fences_indented_blocks_prompts_and_inline_code()
         ("npm", ("build",)),
         ("cargo", ("test",)),
         ("go", ("test",)),
+    ]
+
+
+def test_the_jobs_a_command_can_belong_to_are_the_ones_the_commands_are_read_from(
+    tmp_path: Path,
+) -> None:
+    """``ci_jobs`` is the one place that says which jobs count: a sanitizer job and a step of
+    another directory are not there, a release workflow's job is, flagged, and every line keeps
+    whether it is a plain command and whether its step is conditional."""
+    workflow = """\
+name: ci
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install -e .
+      - run: pytest -q
+        if: matrix.os == 'linux'
+      - run: echo "$HOME" | tee log
+      - run: make docs
+        working-directory: docs
+  asan:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pytest
+"""
+    clone, tree = _clone(
+        tmp_path,
+        {
+            ".github/workflows/ci.yml": workflow,
+            ".github/workflows/publish.yml": EMAIL_PYTHON_RELEASE,
+        },
+    )
+    jobs = {(job.path, job.job): job for job in ci_jobs(clone, tree)}
+    assert set(jobs) == {
+        (".github/workflows/ci.yml", "test"),
+        (".github/workflows/publish.yml", "publish"),
+    }
+    test = jobs[(".github/workflows/ci.yml", "test")]
+    assert test.release is False and jobs[(".github/workflows/publish.yml", "publish")].release
+    assert [(run.line, run.admitted, run.conditional) for run in test.runs] == [
+        ("pip install -e .", True, False),
+        ("pytest -q", True, True),
+        ('echo "$HOME" | tee log', False, False),
     ]

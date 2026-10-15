@@ -327,6 +327,50 @@ def _workflow_candidates(
     return found
 
 
+@dataclass(frozen=True)
+class CiRun:
+    """One line of a CI job's ``run`` steps, in file order: the line as written, whether it is a
+    plain printable command (no expression, secret word, pipe, redirect or shell control flow),
+    and whether its step is conditional (``if:``)."""
+
+    line: str
+    admitted: bool
+    conditional: bool
+
+
+@dataclass(frozen=True)
+class CiJob:
+    """A workflow job that is not a side job (``_SIDE_JOB``), with its run lines in order."""
+
+    path: str
+    job: str
+    release: bool
+    runs: tuple[CiRun, ...]
+
+
+def ci_jobs(clone_path: Path, tree_paths: Sequence[str]) -> list[CiJob]:
+    """Every non-side job of every workflow, in (path, job) order, with the run lines the
+    extractor reads (steps in another directory and side steps are already left out).
+
+    The same eligibility the build and test commands are read with, exposed so a caller that must
+    know *which job* a command belongs to (the correction path's command chain) asks the one
+    place that decides it rather than re-deriving it."""
+    found: list[CiJob] = []
+    for path, document in workflow_documents(clone_path, tree_paths):
+        jobs = document.get("jobs")
+        if not isinstance(jobs, dict):
+            continue
+        release = is_release_workflow(path)
+        for job_id, job in jobs.items():
+            if not isinstance(job, dict) or _is_side(f"{job_id} {job.get('name', '')}", release):
+                continue
+            runs = tuple(
+                CiRun(run.line, run.admitted, run.conditional) for run in _job_runs(job, release)
+            )
+            found.append(CiJob(path, str(job_id), release, runs))
+    return found
+
+
 def _script_defined(scripts: dict[str, Any] | None, name: str) -> bool:
     body = scripts.get(name) if scripts is not None else None
     return isinstance(body, str) and bool(body.strip()) and "no test specified" not in body
@@ -836,8 +880,11 @@ __all__ = [
     "PRECONDITION_ATTRIBUTE",
     "RELEASE_WORKFLOW_FACT_ID",
     "TEST_COMMAND_FACT_ID",
+    "CiJob",
+    "CiRun",
     "CommandForm",
     "ConventionRule",
+    "ci_jobs",
     "ci_matrix_fact",
     "command_facts",
     "command_form",

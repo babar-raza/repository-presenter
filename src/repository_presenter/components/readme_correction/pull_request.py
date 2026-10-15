@@ -1,11 +1,19 @@
 """The pull request text for a correction: what changes, how it was checked, in plain words.
 
-Written from the bundle alone (``corrections.json``, ``validation_delta.json``, ``facts.json``) for
-the maintainer who will read it: one bullet per edit with the line, the quoted before and after for
-a text edit, a reason in ordinary language and where the evidence is (the file, the registry), the
-exact counts of what was checked, how to review and how to decline, then the provenance block the
-shared effect reads back. It claims only what the bundle records: a diagram is called drawn in a
-browser only when the bundle holds a render record, and a check is counted as the delta counts it.
+Written from the bundle alone (``corrections.json``, ``validation_delta.json``, ``facts.json``,
+``README.original.md``) for the maintainer who will read it: one bullet per edit with the line, the
+quoted before and after for a text edit, a reason in ordinary language and where the evidence is
+(the file, the registry), the exact counts of what was checked, how to review and how to decline,
+then the provenance block the shared effect reads back. It claims only what the bundle records: a
+diagram is called drawn in a browser only when the bundle holds a render record, and a check is
+counted as the delta counts it.
+
+What the README already shows is read from the whole original README, never assumed: a command it
+shows anywhere (or in another form) is never called missing, and the text says which of build and
+test it adds. "No wording changes" is said only when no line of the maintainers' text changes. A
+command is credited to the file that states it (a workflow job, a package script, a make target),
+and a standard command to the project file that marks the toolchain, never to a manifest that
+merely sits beside it. A title names the change, or counts exactly the edits listed.
 
 It names no internal artifact: no check or decision identifiers, no fact ids, no detector or file
 names of this tool. ``internal_identifiers`` is the one list of what that means; the composer
@@ -19,12 +27,19 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 from repository_presenter.components.propose.pull_request import PullRequestContent
-from repository_presenter.components.readme_correction.bundle import CORRECTIONS_NAME, DELTA_NAME
+from repository_presenter.components.readme.evidence.facts.commands import commands_in_text
+from repository_presenter.components.readme_correction.bundle import (
+    CORRECTIONS_NAME,
+    DELTA_NAME,
+    ORIGINAL_NAME,
+)
+from repository_presenter.components.readme_correction.commands import form_covered
 from repository_presenter.components.readme_diagram.model import NotAGlanceError
 from repository_presenter.components.readme_diagram.parse import parse
 from repository_presenter.core.facts import FACTS_FILENAME, Fact, read_facts
@@ -111,6 +126,10 @@ def _category(edit: dict[str, Any]) -> str:
         return "link"
     if kind == "MISSING_SECTION" or (kind == "MISSING_INFO" and detector == "missing_sections"):
         return "sections"
+    if detector == "add_dev_commands":
+        return "dev"
+    if detector == "add_doc_links":
+        return "docs"
     return "info"
 
 
@@ -124,8 +143,204 @@ def _headings(edits: list[dict[str, Any]]) -> list[str]:
     ]
 
 
-def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
-    """The change(s) of one category, each a phrase that completes "this pull request will ..."."""
+_ROLE_OF = {"build_test_asset:build-command": "build", "build_test_asset:test-command": "test"}
+_ROLE_WORDS = {"build": "how to build", "test": "how to run the tests"}
+_ROLE_SHORT = {"build": "how to build", "test": "how to test"}
+_COUNT_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
+_WRAPPERS = frozenset({"python", "python3", "py"})
+_H2 = re.compile(r"(?m)^## ")
+_LINK_ITEM = re.compile(r"- \*\*\[([^\]]+)\]\(([^)]+)\)\*\*")
+_DOCS_HEADING = "Documentation & Resources"
+
+
+def _squash(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _join(words: list[str], *, oxford: bool = False) -> str:
+    if len(words) < 2:
+        return "".join(words)
+    if len(words) == 2:
+        return f"{words[0]} and {words[1]}"
+    return f"{', '.join(words[:-1])}{',' if oxford else ''} and {words[-1]}"
+
+
+@dataclass(frozen=True)
+class _Dev:
+    """What the Development and Testing additions hold, and what the live README already shows.
+
+    ``shown`` is computed from the whole live README, and from the candidates the correction
+    itself held back as already shown: a command the README shows anywhere is never called
+    missing."""
+
+    commands: tuple[Fact, ...] = ()  # the build and test facts the block prints, build first
+    setup: tuple[str, ...] = ()  # the lines the block runs before them
+    block: bool = False  # a fenced block of commands is added
+    ci: bool = False  # a sentence about where the CI runs
+    release: bool = False  # a sentence about how releases are made
+    shown: dict[str, str | None] = field(default_factory=dict)  # role -> the command as written
+    here: bool = False  # what the README shows is in the section the block is added to
+    after: bool = False  # the block follows the README's own command, in the same section
+    platform: str = ""  # where the receipt ran the commands
+
+    @property
+    def roles(self) -> tuple[str, ...]:
+        return tuple(_ROLE_OF[f.id] for f in self.commands)
+
+
+def _block_lines(text: str) -> list[str]:
+    lines: list[str] = []
+    inside = False
+    for raw in text.splitlines():
+        if raw.startswith("```"):
+            inside = not inside
+        elif inside and raw.strip():
+            lines.append(raw.strip())
+    return lines
+
+
+def _dev_content(edits: list[dict[str, Any]]) -> tuple[bool, bool, bool]:
+    """``(commands, CI sentence, release sentence)`` the Development and Testing edits add."""
+    text = "\n".join(e["replacement"] for e in edits)
+    return (
+        "```" in text,
+        re.search(r"\bworkflow\]\([^)]+\) runs\b", text) is not None,
+        "Releases run through" in text,
+    )
+
+
+def _dev_state(
+    edits: list[dict[str, Any]], facts: dict[str, Fact], original: str, document: dict[str, Any]
+) -> _Dev:
+    """The Development and Testing additions in terms of what they add and what the README shows."""
+    dev = [e for e in edits if _category(e) == "dev"]
+    if not dev:
+        return _Dev()
+    block, ci, release = _dev_content(dev)
+    cited: dict[str, Fact] = {}
+    for edit in dev:
+        for item in edit["evidence"]:
+            fact_id = item["fact_id"] or ""
+            if fact_id in _ROLE_OF and fact_id in facts:
+                cited[_ROLE_OF[fact_id]] = facts[fact_id]
+    commands = tuple(cited[role] for role in ("build", "test") if role in cited)
+    wanted = {_squash(line) for f in commands for line in [f.value, *f.value.splitlines()]}
+    setup = tuple(
+        line
+        for line in _block_lines("\n".join(e["replacement"] for e in dev))
+        if _squash(line) not in wanted
+    )
+    held = {
+        _squash(f["candidate"])
+        for f in document.get("report_only", [])
+        if f["detector"] == "add_dev_commands" and f["report_only_reason"] == "ALREADY_SHOWN"
+    }
+    forms = commands_in_text(original)
+    flat = _squash(original)
+    shown: dict[str, str | None] = {}
+    seen: list[Fact] = []
+    for fact_id, role in _ROLE_OF.items():
+        fact = facts.get(fact_id)
+        if fact is None or role in cited or fact.polarity != "SUPPORTED":
+            continue
+        if _squash(fact.value) in held or form_covered(forms, fact.value):
+            shown[role] = fact.value.splitlines()[0] if _squash(fact.value) in flat else None
+            seen.append(fact)
+    here = after = False
+    first = next((e for e in dev if "```" in e["replacement"]), None)
+    if first is not None and seen:
+        where = first["start"]
+        begin = max((m.start() for m in _H2.finditer(original) if m.start() < where), default=0)
+        end = next((m.start() for m in _H2.finditer(original) if m.start() >= where), len(original))
+        section = commands_in_text(original[begin:end])
+        here = all(form_covered(section, f.value) for f in seen)
+        anchor = next(iter(shown.values())) if len(shown) == 1 else None
+        after = bool(anchor) and original.find(anchor or "", begin, where) >= 0
+    platform = next(
+        (
+            f.attributes["build_receipt_platform"]
+            for f in commands
+            if f.attributes and f.attributes.get("build_receipt")
+            if f.attributes.get("build_receipt_platform")
+        ),
+        "",
+    )
+    return _Dev(commands, setup, block, ci, release, shown, here, after, platform)
+
+
+def _dev_sentence_words(ci: bool, release: bool) -> str:
+    if ci and release:
+        return "where the project's CI runs and how its releases are made"
+    return "where the project's CI runs" if ci else "how the project's releases are made"
+
+
+def _roles_phrase(roles: tuple[str, ...]) -> str:
+    if len(roles) > 1:
+        return "how to build and test the project"
+    return f"{_ROLE_SHORT[roles[0]]} the project" if roles else "how to build and test the project"
+
+
+def _shown_words(shown: dict[str, str | None]) -> str:
+    return " and ".join(f"`{v}`" if v else _ROLE_WORDS[r] for r, v in shown.items())
+
+
+def _program(command: str) -> str:
+    tokens = command.split()
+    if len(tokens) > 2 and tokens[0] in _WRAPPERS and tokens[1] == "-m":
+        return tokens[2]
+    return tokens[0].rsplit("/", 1)[-1] if tokens else "build"
+
+
+def _structure_phrase(edits: list[dict[str, Any]]) -> str:
+    words = {
+        "second_h1": "a second top-level heading",
+        "unclosed_details": "a `<details>` block that is never closed",
+    }
+    found = [words.get(e["detector"], "broken markup") for e in edits]
+    count = _COUNT_WORDS.get(len(edits), str(len(edits)))
+    noun = "markup problem" if len(edits) == 1 else "markup problems"
+    return f"{'a' if len(edits) == 1 else count} {noun} in README.md ({_join(found)})"
+
+
+def _wording_neutral(edit: dict[str, Any]) -> bool:
+    """Whether a structure fix that changes a line of the README changes none of its words: a
+    heading's ``#`` marks."""
+    original, replacement = str(edit["original"]), str(edit["replacement"])
+    return edit["detector"] == "second_h1" and original.lstrip("#") == replacement.lstrip("#")
+
+
+def _links_section(edits: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    """``(label, target)`` of an inserted ``Documentation & Resources`` section made only of
+    links, else ``[]``."""
+    found: list[tuple[str, str]] = []
+    for edit in edits:
+        if edit["kind"] != "MISSING_SECTION":
+            continue
+        lines = [x for x in edit["replacement"].splitlines() if x.strip()]
+        matches = [_LINK_ITEM.match(x) for x in lines[1:]]
+        if lines[:1] == [f"## {_DOCS_HEADING}"] and matches and all(matches):
+            found += [(m.group(1), m.group(2)) for m in matches if m]
+    return found
+
+
+def _dev_title(dev: _Dev) -> list[str]:
+    parts: list[str] = []
+    if dev.commands:
+        program = _program(dev.commands[0].value)
+        single = dev.roles[0] if program == dev.roles[0] else f"{program} {dev.roles[0]}"
+        what = "build and test commands" if len(dev.commands) > 1 else f"{single} command"
+        steps = f", with the steps {'it needs' if len(dev.commands) == 1 else 'they need'} first"
+        parts.append(f"add the {what}{steps if dev.setup else ''}")
+    elif dev.block:
+        parts.append("add the build and test commands")
+    if dev.ci or dev.release:
+        parts.append(f"say {_dev_sentence_words(dev.ci, dev.release)}")
+    return parts or ["add verified information the README lacks"]
+
+
+def _parts(category: str, edits: list[dict[str, Any]], dev: _Dev) -> list[str]:
+    """The change(s) of one category, each a phrase that completes "this pull request will ...";
+    a count is the number of edits listed, never fewer."""
     if category == "version":
         versions = sorted({e["replacement"] for e in edits})
         if len(versions) == 1:
@@ -134,25 +349,49 @@ def _parts(category: str, edits: list[dict[str, Any]]) -> list[str]:
     if category == "claims":
         return [f"correct {len(edits)} claim(s) the repository contradicts"]
     if category == "structure":
-        known = {
-            "unclosed_details": "close an unclosed <details> block",
-            "second_h1": "demote a stray second H1",
+        phrases = {
+            "unclosed_details": (
+                "close an unclosed <details> block",
+                "close {n} unclosed <details> blocks",
+            ),
+            "second_h1": ("demote a stray second H1", "demote {n} stray second H1s"),
         }
-        found = [known[e["detector"]] for e in edits if e["detector"] in known]
-        return list(dict.fromkeys(found)) or ["repair broken README markup"]
+        out = []
+        for detector, (one, many) in phrases.items():
+            n = sum(e["detector"] == detector for e in edits)
+            out += [one] if n == 1 else [many.format(n=n)] if n else []
+        known = sum(e["detector"] in phrases for e in edits)
+        return out + (["repair broken README markup"] if known < len(edits) else [])
     if category == "sections":
         names = _headings(edits)
-        navigation = any(e["kind"] == "MISSING_INFO" for e in edits)
-        what = (
-            f"add the {' and '.join(names)} section{'s' if len(names) > 1 else ''}"
-            if names
-            else "extend the contents list"
-        )
-        return [what + (" and its Navigation item" if navigation and names else "")]
+        links = _links_section(edits)
+        counted = sum(_has_item(edits, name) for name in names)
+        if links and names == [_DOCS_HEADING]:
+            labels = [label for label, _target in links]
+            what = (
+                f"add {_join(labels)} links in a {_DOCS_HEADING} section"
+                if len(labels) > 1
+                else f"add a {labels[0]} link in a {_DOCS_HEADING} section"
+            )
+        elif names:
+            what = f"add the {' and '.join(names)} section{'s' if len(names) > 1 else ''}"
+        else:
+            what = "extend the contents list"
+        if counted:
+            what += " and its Navigation item" if counted == 1 else " and their Navigation items"
+        return [what]
     if category == "link":
-        return ["repair a broken README link"]
+        return [
+            "repair a broken README link"
+            if len(edits) == 1
+            else f"repair {len(edits)} broken README links"
+        ]
     if category == "diagram":
         return ["lay out the At a Glance diagram left to right"]
+    if category == "dev":
+        return [" and ".join(_dev_title(dev))]
+    if category == "docs":
+        return ["link the project files the README does not mention"]
     additions = {
         "add_version_badge": "add the published-version badge",
         "add_dependency_groups": "add the dependency groups the README lacks",
@@ -168,16 +407,23 @@ def _groups(edits: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for edit in edits:
         grouped.setdefault(_category(edit), []).append(edit)
-    order = ["version", "claims", "structure", "link", "sections", "info", "diagram"]
+    order = ["version", "claims", "structure", "link", "sections", "info", "dev", "docs", "diagram"]
     return {name: grouped[name] for name in order if name in grouped}
 
 
-def title_of(edits: list[dict[str, Any]]) -> str:
-    """The change in a sentence, or its count when the sentence would not fit a title."""
+def title_of(edits: list[dict[str, Any]], dev: _Dev | None = None) -> str:
+    """The change in a sentence. When it would have more than three parts, two or more structure
+    fixes become one (``fix two markup problems``); when it still would not fit a title, the title
+    is the count of the edits, which is the number of changes listed."""
     groups = _groups(edits)
-    parts = [part for name, group in groups.items() for part in _parts(name, group)]
-    sentence = ", ".join(parts[:-1]) + " and " + parts[-1] if len(parts) > 1 else parts[0]
-    if len(parts) <= 3 and len(_PREFIX + sentence) <= _TITLE_LIMIT:
+    state = dev or _Dev(block=any(_dev_content(groups.get("dev", []))[:1]))
+    parts = {name: _parts(name, group, state) for name, group in groups.items()}
+    if sum(len(p) for p in parts.values()) > 3 and len(groups.get("structure", [])) > 1:
+        count = _COUNT_WORDS.get(len(groups["structure"]), str(len(groups["structure"])))
+        parts["structure"] = [f"fix {count} markup problems"]
+    flat = [part for found in parts.values() for part in found]
+    sentence = ", ".join(flat[:-1]) + " and " + flat[-1] if len(flat) > 1 else flat[0]
+    if len(flat) <= 3 and len(_PREFIX + sentence) <= _TITLE_LIMIT:
         return _PREFIX + sentence
     return f"{_PREFIX}{len(edits)} verified corrections"
 
@@ -190,6 +436,85 @@ def _where(fact: Fact) -> str:
         return ""
     path = paths[0]
     return f"at {path}" if path.startswith("http") else f"in `{path}`"
+
+
+_PROJECT_KINDS = {
+    "go.mod": "a Go module",
+    "Cargo.toml": "a Rust crate",
+    "pom.xml": "a Maven project",
+    "pyproject.toml": "a Python project",
+    ".sln": "a .NET solution",
+}
+
+
+def _project_kind(path: str) -> str:
+    name = path.rsplit("/", 1)[-1]
+    return _PROJECT_KINDS.get(name) or _PROJECT_KINDS.get(Path(name).suffix) or "the project"
+
+
+def _evidence_head(fact: Fact) -> tuple[str, str]:
+    """``(path, detail)`` of the evidence that names a command: the file that states it."""
+    first = fact.evidence[0] if fact.evidence else None
+    return (first.path, first.detail or "") if first is not None else ("", "")
+
+
+def _origin_key(fact: Fact) -> tuple[str, str, str]:
+    path, detail = _evidence_head(fact)
+    job = re.search(r"\bjob (\S+) runs\b", detail)
+    attributes = fact.attributes or {}
+    source = attributes.get("source", "")
+    if not source and (job or attributes.get("command_chain") == "ci_job"):
+        source = "ci workflow"
+    return (source, path, job.group(1) if job else "")
+
+
+def _command_where(fact: Fact) -> str:
+    """Where a build or test command is stated, as a short noun phrase: the workflow job, the
+    package script or make target that defines it, or the project file a standard command is for."""
+    source, path, job = _origin_key(fact)
+    _path, detail = _evidence_head(fact)
+    named = re.search(r'script "([^"]+)"|target (\S+) is defined', detail)
+    name = (named.group(1) or named.group(2)) if named else ""
+    if source == "ci workflow":
+        return f"named by job `{job}` of `{path}`" if job else f"named in `{path}`"
+    if source == "package.json script" and name:
+        return f"the `{name}` script of `{path}`"
+    if source == "Makefile" and name:
+        return f"the `{name}` target of `{path}`"
+    return f"the standard command for {_project_kind(path)}, `{path}`"
+
+
+def _origins(commands: tuple[Fact, ...]) -> str:
+    """Who states the commands, in a clause: the file that does (workflow, package script, make
+    target), or for a standard command, the project file that marks the toolchain. A manifest is
+    never credited with naming a command it only sits beside."""
+    groups: dict[tuple[str, str, str], list[Fact]] = {}
+    for fact in commands:
+        groups.setdefault(_origin_key(fact), []).append(fact)
+    clauses: list[str] = []
+    for (source, path, job), found in groups.items():
+        many = len(found) > 1
+        names = []
+        for fact in found:
+            named = re.search(r'script "([^"]+)"|target (\S+) is defined', _evidence_head(fact)[1])
+            if named:
+                names.append(f"`{named.group(1) or named.group(2)}`")
+        if source == "ci workflow":
+            where = f"the CI job `{job}` in `{path}`" if job else f"the CI workflow `{path}`"
+            clauses.append(f"{where} runs {'them' if many else 'it'}")
+        elif source in {"package.json script", "Makefile"} and names:
+            noun = "script" if source == "package.json script" else "target"
+            clauses.append(
+                f"the {_join(names)} {noun}{'s' if len(names) > 1 else ''} in `{path}` "
+                f"{'define' if many else 'defines'} {'them' if many else 'it'}"
+            )
+        else:
+            values = _join([f"`{f.value}`" for f in found])
+            clauses.append(
+                f"`{path}` marks {_project_kind(path)}, so {values} "
+                f"{'apply' if many else 'applies'}"
+            )
+    return "; ".join(clauses) or "the repository's own files name them"
 
 
 def _fact_text(fact: Fact) -> str:
@@ -213,6 +538,23 @@ def _fact_text(fact: Fact) -> str:
         what = f"target frameworks `{value}`"
     elif fid.startswith("install_command:"):
         what = f"install command `{value}`"
+    elif fid in {"build_test_asset:build-command", "build_test_asset:test-command"}:
+        role = "build" if fid.endswith("build-command") else "test"
+        what = f"{role} command `{value}` ({_command_where(fact)})"
+        platform = (fact.attributes or {}).get("build_receipt_platform")
+        if (fact.attributes or {}).get("build_receipt") and platform:
+            what += (
+                f", which ran to success with every step exiting 0 on a clean clone ({platform})"
+            )
+        return what  # the file that states it is named above, never the manifest beside it
+    elif fid == "build_test_asset:ci":
+        what = "the repository's workflow files"
+    elif fid == "build_test_asset:ci-matrix":
+        what = "the systems and runtimes the CI workflow runs on"
+    elif fid == "build_test_asset:release-workflow":
+        what = "the workflow whose steps publish a release"
+    elif fid == "build_test_asset:documentation":
+        what = "prose documentation under `docs/`"
     else:
         what = f"{fact.kind.replace('_', ' ')} `{value}`"
     where = _where(fact)
@@ -281,9 +623,47 @@ def _tested_range(render: dict[str, Any] | None) -> str:
     return f" in the Mermaid versions tested ({low[0]}.{low[1]} to {high[0]}.{high[1]})"
 
 
-def _why(edit: dict[str, Any]) -> str:
+def _either(words: list[str]) -> str:
+    if len(words) < 2:
+        return "".join(words)
+    return f"{', '.join(words[:-1])} or {words[-1]}"
+
+
+def _dev_why(dev: _Dev) -> str:
+    if not dev.commands:
+        return (
+            "the README does not show how to build and test the project; the repository's own "
+            "files name them"
+        )
+    if dev.shown:
+        lack = (
+            f"the README shows {_join([_ROLE_SHORT[r] for r in dev.shown])} but not "
+            f"{_ROLE_SHORT[dev.roles[0]]}"
+        )
+    else:
+        lack = f"the README does not show {_roles_phrase(dev.roles)}"
+    ran = f" ({dev.platform})" if dev.platform else ""
+    exited = (
+        "it exited 0 on a clean clone of this revision"
+        if len(dev.commands) == 1 and not dev.setup
+        else "every step exited 0 when run on a clean clone of this revision"
+    )
+    return f"{lack}; {_origins(dev.commands)}, and {exited}{ran}"
+
+
+def _why(edit: dict[str, Any], dev: _Dev | None = None) -> str:
     kind, detector = edit["kind"], edit["detector"]
     lines = _locator_lines(edit)
+    if detector == "add_dev_commands":
+        if "```" in edit["replacement"]:
+            return _dev_why(dev or _Dev())
+        _commands, ci, release = _dev_content([edit])
+        return (
+            f"the README does not say {_dev_sentence_words(ci, release)}; the workflow files "
+            "in the repository state it"
+        )
+    if detector == "add_doc_links":
+        return "the README does not mention these files, and the repository holds them"
     if detector == "claim_version":
         return str(edit["rationale"])
     if kind == "FALSE_CLAIM_FIX":
@@ -307,6 +687,13 @@ def _why(edit: dict[str, Any]) -> str:
     if kind == "MISSING_SECTION":
         lines_ = edit["replacement"].splitlines()
         heading = next((x[3:].strip() for x in lines_ if x.startswith("## ")), "")
+        links = _links_section([edit])
+        if links:
+            targets = _either([f"`{target}`" for _label, target in links])
+            return (
+                f"the README has no {heading} section and does not link {targets}, which the "
+                "repository holds"
+            )
         return (
             f"the README has no {heading} section; this one states what the repository's own "
             "files declare"
@@ -324,7 +711,7 @@ def _why(edit: dict[str, Any]) -> str:
 
 
 def _bullet(
-    edit: dict[str, Any], facts: dict[str, Fact], render: dict[str, Any] | None
+    edit: dict[str, Any], facts: dict[str, Fact], render: dict[str, Any] | None, dev: _Dev
 ) -> list[str]:
     kind, line = edit["kind"], edit["line"]
     if kind == "DIAGRAM_FIX":
@@ -335,7 +722,7 @@ def _bullet(
             "order, and one `%%{init}%%` line (SVG text, which a wider font cannot clip).",
             f"  - evidence: README.md line {line} (the diagram as it is today)",
         ]
-    why = f"  - why: {_why(edit)}"
+    why = f"  - why: {_why(edit, dev)}"
     evidence = f"  - evidence: {_evidence(edit, facts)}"
     if kind == "MISSING_SECTION":
         heading = next(x for x in edit["replacement"].splitlines() if x.startswith("## "))
@@ -359,10 +746,155 @@ def _lines(edits: list[dict[str, Any]]) -> str:
     return f"lines {', '.join(numbers[:-1])} and {numbers[-1]}"
 
 
+def _structure_lead(edits: list[dict[str, Any]]) -> str:
+    """The paragraph for the markup fixes alone. It says no wording changes only when no line of
+    the README is changed by them; a heading marker is a changed line, and is said so."""
+    closing = "Each is explained in the list below, with the line it sits on."
+    changed = [e for e in edits if e["original"]]
+    if not changed:
+        return f"Rendering problems in README.md; no wording changes. {closing}"
+    if all(_wording_neutral(e) for e in changed):
+        only = (
+            f"The only existing line that changes is line {changed[0]['line']}, and only its "
+            "heading level"
+            if len(changed) == 1
+            else f"Existing lines change only at {_lines(changed)}, and only in heading levels"
+        )
+        return f"Rendering problems in README.md. {only}; no word changes. {closing}"
+    return f"Rendering problems in README.md. {closing}"
+
+
+def _overview_item(name: str, edits: list[dict[str, Any]], dev: _Dev) -> str:
+    if name == "version":
+        return "a release the registry has moved past"
+    if name == "claims":
+        return "claims the repository contradicts"
+    if name == "link":
+        return "a broken link" if len(edits) == 1 else f"{len(edits)} broken links"
+    if name == "sections":
+        names = _headings(edits)
+        if names:
+            return f"a missing {_join(names)} section{'s' if len(names) > 1 else ''}"
+        return "a contents item"
+    if name == "dev":
+        items = []
+        if dev.commands or dev.block:
+            what = (
+                "build and test commands" if len(dev.commands) != 1 else f"a {dev.roles[0]} command"
+            )
+            items.append(f"{what} the development section lacks")
+        if dev.ci or dev.release:
+            items.append(f"a sentence saying {_dev_sentence_words(dev.ci, dev.release)}")
+        return _join(items)
+    if name == "docs":
+        return "links to project files the README does not mention"
+    if name == "diagram":
+        return "the At a Glance diagram layout"
+    return "information the README lacks"
+
+
+def _overview(groups: dict[str, list[dict[str, Any]]], dev: _Dev) -> str:
+    """One sentence naming every change of a pull request that mixes markup fixes with others."""
+    first = _structure_phrase(sorted(groups["structure"], key=lambda e: e["start"]))
+    items = [first[0].upper() + first[1:]]
+    items += [_overview_item(n, e, dev) for n, e in groups.items() if n != "structure"]
+    return f"{_join(items, oxford=True)}. Each is listed below with its line."
+
+
+def _dev_lead(dev: _Dev, revision: str) -> str:
+    said: list[str] = []
+    rev = f"revision `{revision[:12]}`"
+    if dev.commands:
+        if dev.shown:
+            head = (
+                f"{'The development section' if dev.here else 'The README'} shows "
+                f"{_shown_words(dev.shown)} but not {_ROLE_SHORT[dev.roles[0]]}."
+            )
+        else:
+            head = f"The README's development section does not show {_roles_phrase(dev.roles)}."
+        if len(dev.commands) > 1:
+            tail = (
+                f"We add the commands below, run in this order on a clean clone of {rev} and each "
+                f"exiting 0{', with the install steps they need first' if dev.setup else ''}."
+            )
+        else:
+            command = f"`{_clip(dev.commands[0].value)}`"
+            steps = ""
+            if dev.setup:
+                listed = len(dev.setup) <= 2
+                steps = ", preceded by " + (
+                    _join([f"`{_clip(s)}`" for s in dev.setup])
+                    if listed
+                    else "the steps it needs first"
+                )
+            ran = f" ({dev.platform})" if dev.platform else ""
+            tail = (
+                f"We add {command}{' after it' if dev.after else ''}{steps}. It exited 0 on a "
+                f"clean clone of {rev}{ran}{'' if dev.setup else '; it needs no steps first'}."
+            )
+        said.append(f"{head} {tail}")
+    elif dev.block:
+        said.append(
+            "The README's development section does not show how to build and test the project. "
+            "We add the commands below."
+        )
+    if dev.ci or dev.release:
+        said.append(
+            f"The README does not say {_dev_sentence_words(dev.ci, dev.release)}. We add a "
+            "sentence that links the workflow file stating it."
+        )
+    return " ".join(said)
+
+
+def _has_item(edits: list[dict[str, Any]], heading: str) -> bool:
+    """Whether the contents list gains an item for ``heading`` (a ``- [Heading](#...)`` line)."""
+    return any(e["kind"] == "MISSING_INFO" and f"[{heading}]" in e["replacement"] for e in edits)
+
+
+def _sections_lead(edits: list[dict[str, Any]]) -> str:
+    names = _headings(edits)
+    links = _links_section(edits)
+    docs_links = bool(links) and _DOCS_HEADING in names
+    whole = [n for n in names if not (docs_links and n == _DOCS_HEADING)]
+    said: list[str] = []
+    if whole:
+        what = " and ".join(f"`{n}`" for n in whole)
+        many = len(whole) > 1
+        item = all(_has_item(edits, n) for n in whole)
+        said.append(
+            f"The README has no {what} section{'s' if many else ''}. "
+            + ("We added them; each" if many else "We added one that")
+            + " states what the repository's own files declare (cited below)"
+            + (
+                f", with an item for {'each' if many else 'it'} in the contents list."
+                if item
+                else "."
+            )
+        )
+    if docs_links:
+        targets = _either([f"`{target}`" for _label, target in links])
+        both = "it" if len(links) == 1 else "both" if len(links) == 2 else "all"
+        said.append(
+            f"The README does not link {targets}, which the repository holds. We add a short "
+            f"`{_DOCS_HEADING}` section that links {both}."
+            + (
+                " We also add an item for it to the contents list."
+                if _has_item(edits, _DOCS_HEADING)
+                else ""
+            )
+        )
+    if not said:
+        said.append(
+            "We extended the contents list so a section the README holds can be reached from it."
+        )
+    return " ".join(said)
+
+
 def _lead(
-    groups: dict[str, list[dict[str, Any]]], facts: dict[str, Fact], revision: str
+    groups: dict[str, list[dict[str, Any]]], facts: dict[str, Fact], revision: str, dev: _Dev
 ) -> list[str]:
     paragraphs: list[str] = []
+    mixed = "structure" in groups and any(n not in {"structure", "diagram"} for n in groups)
     for name, edits in groups.items():
         if name == "diagram":
             head = edits[0]["original"].splitlines()[:3]
@@ -387,17 +919,15 @@ def _lead(
                 "older one."
             )
         elif name == "structure":
-            paragraphs.append(
-                "Rendering problems in README.md; no wording changes. Each is explained in the "
-                "list below, with the line it sits on."
-            )
+            paragraphs.append(_overview(groups, dev) if mixed else _structure_lead(edits))
         elif name == "sections":
-            names = _headings(edits)
-            what = " and ".join(f"`{n}`" for n in names) if names else "a contents item"
+            paragraphs.append(_sections_lead(edits))
+        elif name == "dev":
+            paragraphs.append(_dev_lead(dev, revision))
+        elif name == "docs":
             paragraphs.append(
-                f"The README has no {what} section. We added one that states what the "
-                "repository's own files declare (cited below), with an item for it in the "
-                "contents list."
+                "The README does not link some files the repository holds (listed below). We "
+                "added a link to each, in the section that lists the project's documents."
             )
         elif name == "info" and any(e["detector"] == "add_version_badge" for e in edits):
             package = facts.get("package:name")
@@ -413,7 +943,7 @@ def _lead(
             )
         else:
             paragraphs.append(
-                f"{_parts(name, edits)[0].capitalize()}, against the repository at revision "
+                f"{_parts(name, edits, dev)[0].capitalize()}, against the repository at revision "
                 f"`{revision[:12]}` (evidence cited below)."
             )
     return paragraphs
@@ -434,7 +964,64 @@ def _tally(delta: dict[str, Any]) -> tuple[int, int, int, int]:
     return sum(live.values()), sum(after.values()), removed, added
 
 
-def _delta_lines(delta: dict[str, Any], edits: list[dict[str, Any]]) -> list[str]:
+def _span_line(original: str, span: str, start: int) -> int | None:
+    """The line of the README that holds the code span ``span``, from ``start`` on."""
+    needle = f"`{span}`"
+    lines = original.splitlines()
+    first = max(int(start), 1)
+    for number in [*range(first, len(lines) + 1), *range(1, first)]:
+        if needle in lines[number - 1]:
+            return int(number)
+    return None
+
+
+def _revealed_line(
+    revealed: list[dict[str, Any]], edits: list[dict[str, Any]], original: str
+) -> tuple[int, str]:
+    """``(count, bullet)``: the issues the checks newly find in text that was already there, and
+    the change that lets them read it. The cause is the one the record names: a fix that changes a
+    heading level changes how the README is split into sections, a closed block makes text
+    visible; the two are never swapped."""
+    count = sum(i["extra"] for i in revealed)
+    spans = [
+        m.group(1)
+        for item in revealed
+        for detail in item["details"]
+        if (m := re.search(r"code span '([^']+)'", detail))
+    ]
+    causes = sorted({c for i in revealed for c in i.get("caused_by", [])})
+    if not causes:
+        causes = sorted({e["detector"] for e in edits if e["kind"] == "STRUCTURE_FIX"})
+    if causes == ["second_h1"]:
+        heading = next(e for e in edits if e["detector"] == "second_h1")
+        number = _span_line(original, spans[0], heading["line"]) if spans else None
+        at = f", line {number}" if number else ""
+        if count == 1 and len(spans) == 1:
+            result = f"they now judge a code span (`{spans[0]}`{at}) that they skipped before."
+        else:
+            example = f" (for example the code span `{spans[0]}`{at})" if spans else ""
+            result = f"they now report {count} issue(s) in text they skipped before{example}."
+        return count, (
+            "- Changing the heading level changes how our checks split the README into "
+            f"sections, so {result} That text is yours and is unchanged."
+        )
+    about = f" (for example the code span `{spans[0]}`)" if spans else ""
+    if causes == ["unclosed_details"]:
+        return count, (
+            "- Closing the broken markup makes text visible that the checks could not read "
+            f"before; they now report {count} issue(s) there{about}. That text is yours and this "
+            "change does not alter it."
+        )
+    return count, (
+        "- Fixing the markup problems changes how the checks read the README, so they now report "
+        f"{count} issue(s) in text they could not read before{about}. That text is yours and this "
+        "change does not alter it."
+    )
+
+
+def _delta_lines(
+    delta: dict[str, Any], edits: list[dict[str, Any]], original: str = ""
+) -> list[str]:
     """What the README checks found, computed from the record and nothing else: the totals before
     and after, what the correction removes and what it adds. It never says "fewer" unless it adds
     nothing, and every failure it adds is explained in a line of its own."""
@@ -458,20 +1045,9 @@ def _delta_lines(delta: dict[str, Any], edits: list[dict[str, Any]]) -> list[str
     explained = 0
     revealed = delta.get("revealed", [])
     if revealed:
-        count = sum(i["extra"] for i in revealed)
+        count, bullet = _revealed_line(revealed, edits, original)
         explained += count
-        spans = [
-            m.group(1)
-            for item in revealed
-            for detail in item["details"]
-            if (m := re.search(r"code span '([^']+)'", detail))
-        ]
-        about = f" (for example the code span `{spans[0]}`)" if spans else ""
-        lines.append(
-            "- Closing the broken markup makes text visible that the checks could not read "
-            f"before; they now report {count} issue(s) there{about}. That text is yours and this "
-            "change does not alter it."
-        )
+        lines.append(bullet)
     grown = sum(
         len(e["replacement"].splitlines()) - len(e["original"].splitlines())
         for e in edits
@@ -540,12 +1116,15 @@ def compose_correction_pull_request(
     facts = _facts(bundle)
     edits: list[dict[str, Any]] = document["edits"]
     groups = _groups(edits)
+    original_file = bundle / ORIGINAL_NAME
+    original = original_file.read_text(encoding="utf-8") if original_file.is_file() else ""
+    dev = _dev_state(edits, facts, original, document)
     stability = document.get("stability", {})
     render = document.get("render_check")
     checks = [
         "- Only `README.md` changes, and only at the places listed: with the edits removed, the "
         "corrected README and yours are identical.",
-        *_delta_lines(delta, edits),
+        *_delta_lines(delta, edits, original),
         "- Running the correction again on the corrected README makes no further edit "
         f"(idempotent: {'yes' if stability.get('idempotent') else 'NO'}); the same inputs give the "
         f"same bytes (deterministic: {'yes' if stability.get('deterministic') else 'NO'}). No "
@@ -554,10 +1133,10 @@ def compose_correction_pull_request(
     ]
     changes: list[str] = []
     for edit in sorted(edits, key=lambda e: (e["kind"] == "DIAGRAM_FIX", e["start"])):
-        changes += _bullet(edit, facts, render)  # the content changes first, the diagram last
+        changes += _bullet(edit, facts, render, dev)  # the content changes first, the diagram last
     above = "\n".join(
         [
-            *[p + "\n" for p in _lead(groups, facts, source_revision)],
+            *[p + "\n" for p in _lead(groups, facts, source_revision, dev)],
             "### What changes",
             *changes,
             "",
@@ -590,4 +1169,4 @@ def compose_correction_pull_request(
             "",
         ]
     )
-    return PullRequestContent(title=title_of(edits), body=above + "\n\n" + footer)
+    return PullRequestContent(title=title_of(edits, dev), body=above + "\n\n" + footer)

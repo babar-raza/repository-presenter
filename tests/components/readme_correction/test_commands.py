@@ -12,8 +12,10 @@ from repository_presenter.components.readme_correction.commands import (
     commands_of,
     covered,
     equivalent,
+    form_covered,
     missing_precondition,
     readme_commands,
+    shown_forms,
     signature,
 )
 from repository_presenter.components.readme_correction.detectors.additions import (
@@ -232,3 +234,37 @@ def test_a_section_that_is_only_a_collapsed_block_gets_no_addition(
         dev_readme(body), build_facts(make_facts, make_fact, "mvn package", "mvn test")
     )
     assert add_dev_commands(ctx).edits == ()
+
+
+@pytest.mark.parametrize(
+    ("wanted", "shown", "same"),
+    [
+        ("mvn package", "mvn verify -Dgpg.skip=true", True),  # a later phase runs the earlier ones
+        ("mvn test", "mvn verify", True),
+        ("mvn test", "mvn clean package", False),  # package is so often run with -DskipTests
+        ("mvn verify", "mvn package", False),
+        ("mvn install", "mvn verify", False),
+    ],
+)
+def test_a_maven_phase_covers_the_phases_before_it(wanted: str, shown: str, same: bool) -> None:
+    assert equivalent(sig(wanted), sig(shown)) is same
+
+
+@pytest.mark.parametrize(
+    ("shown", "wanted", "same"),
+    [
+        ("`pytest`", "python -m pytest -q", True),
+        ("```bash\npip install -e .[test]\n```", "python -m pip install -e '.[test]'", True),
+        ("```bash\npip install -e .\n```", "python -m pip install -e '.[test]'", False),
+        ("`npm ci`", "npm install", False),
+        ("`dotnet build A.sln`", "dotnet build B.csproj", True),
+        ("`dotnet build A.sln`", "dotnet test A.sln", False),
+        ("`cargo test`", "cargo test --all-targets", True),
+        ("`go build ./...`", "go test ./...", False),
+    ],
+)
+def test_a_command_is_shown_when_the_renderers_notion_of_the_same_command_says_so(
+    make_context: Any, shown: str, wanted: str, same: bool
+) -> None:
+    ctx = make_context("# P" + NL + NL + shown + NL)
+    assert form_covered(shown_forms(ctx), wanted) is same
