@@ -17,7 +17,8 @@ progress:
   # D4 (owner, 2026-10-11) and the reset of 2026-10-14 (docs/DECISION_LOG.md): progress is AUTHORIZABLE
   # candidates as the computed judge decides it (docs/EXECUTION_STATE_MACHINE.md G3: standard conformance,
   # verified claims, retained inherited content, rerun identity; not worse than a standard live README where
-  # one exists). Until the judge lands, authorizable_candidates stays 0: no agent review counts. current_candidates
+  # one exists). authorizable_candidates is the N that `status` prints first (components/readme/acceptance/judge.py;
+  # tests/test_cli.py ties the two): no agent review counts, and 0 until a current bundle passes. current_candidates
   # keeps its name and is the SEALED count on disk (derived by status, tied to disk by tests); it is never a headline.
   unit: authorizable README candidates
   current_candidates: 29

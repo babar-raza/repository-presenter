@@ -15,6 +15,7 @@ from typing import Any
 
 import httpx
 import pytest
+import yaml
 
 from repository_presenter import __version__, cli
 from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
@@ -66,22 +67,45 @@ def test_status_reports_this_repository_cursor(
 ) -> None:
     assert main(["status", "--root", str(repo_root)]) == EXIT_OK
     out = capsys.readouterr().out.splitlines()
-    assert out[0] == f"repository-presenter {__version__}"
-    assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[1])
-    assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[2])
     denominator = len(load_registry(REPO_ROOT / "data" / "registry.json").entries)
+    assert re.fullmatch(rf"authorizable \d+/{denominator}", out[0])
+    assert out[1] == f"repository-presenter {__version__}"
+    assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[2])
+    assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[3])
     assert re.fullmatch(
         rf"candidates: \d+/{denominator} current-code reproducible, independently accepted, "
         r"no-op-proven",
-        out[3],
+        out[4],
     )
     assert re.fullmatch(
         r"progress: \d+ ever sealed, \d+ integrity-valid, \d+ current-code reproducible, "
         r"\d+ independently accepted \(stale-excluded\)",
-        out[4],
+        out[5],
     )
-    assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[5])
-    assert out[6] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+    assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[6])
+    assert out[7] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+    # The cursor carries the count status prints first (docs/EXECUTION_STATE_MACHINE.md G3).
+    progress = yaml.safe_load((REPO_ROOT / "project" / "state.yaml").read_text("utf-8"))["progress"]
+    assert out[0] == f"authorizable {progress['authorizable_candidates']}/{progress['denominator']}"
+
+
+def test_status_json_carries_the_authorizable_count(
+    repo_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(repo_root), "--json"]) == EXIT_OK
+    document = json.loads(capsys.readouterr().out)
+    registry = load_registry(REPO_ROOT / "data" / "registry.json")
+    assert document["authorizable"]["denominator"] == len(registry.entries)
+    # The count is the funnel's no-op-proven stage: a current bundle every judge clause passes.
+    assert document["authorizable"]["count"] == document["portfolio"]["counts"]["no_op_proven"]
+
+
+def test_status_without_a_registry_prints_the_authorizable_line_over_the_cursor_denominator(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["status", "--root", str(project)]) == EXIT_OK
+    first = capsys.readouterr().out.splitlines()[0]
+    assert re.fullmatch(r"authorizable 0/\d+", first)
 
 
 def test_status_reports_the_seven_separated_counts_and_the_denominator(

@@ -1,0 +1,176 @@
+[
+ {
+  "constant": null,
+  "change": "baseline",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "CURRENT",
+  "cost": null,
+  "differences": [],
+  "scopes": {}
+ },
+ {
+  "constant": null,
+  "change": "baseline",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "CURRENT",
+  "cost": null,
+  "differences": [],
+  "scopes": {}
+ },
+ {
+  "constant": "NORMALISATION_VERSION",
+  "change": "36 -> 37",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.normalisation"
+  ],
+  "scopes": {
+   "authoring": "PASSED"
+  }
+ },
+ {
+  "constant": "NORMALISATION_VERSION",
+  "change": "36 -> 37",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.normalisation"
+  ],
+  "scopes": {
+   "authoring": "PASSED"
+  }
+ },
+ {
+  "constant": "RENDERER_VERSION",
+  "change": "34 -> 35",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.renderer"
+  ],
+  "scopes": {
+   "presentation": "PASSED"
+  }
+ },
+ {
+  "constant": "RENDERER_VERSION",
+  "change": "34 -> 35",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.renderer"
+  ],
+  "scopes": {
+   "presentation": "PASSED"
+  }
+ },
+ {
+  "constant": "REVIEWER_LOGIC_VERSION",
+  "change": "21 -> 22",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.reviewer_logic"
+  ],
+  "scopes": {
+   "reviewer": "PASSED"
+  }
+ },
+ {
+  "constant": "REVIEWER_LOGIC_VERSION",
+  "change": "21 -> 22",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "components.reviewer_logic"
+  ],
+  "scopes": {
+   "reviewer": "PASSED"
+  }
+ },
+ {
+  "constant": "EXTRACTOR_VERSION",
+  "change": "5 -> 6",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "UNVERIFIED",
+  "cost": null,
+  "differences": [
+   "environment.extractor_version"
+  ],
+  "scopes": {
+   "extraction": "UNVERIFIED"
+  }
+ },
+ {
+  "constant": "EXTRACTOR_VERSION",
+  "change": "5 -> 6",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "UNVERIFIED",
+  "cost": null,
+  "differences": [
+   "environment.extractor_version"
+  ],
+  "scopes": {
+   "extraction": "UNVERIFIED"
+  }
+ },
+ {
+  "constant": "INHERITED_UNITS_VERSION",
+  "change": "4 -> 5",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "environment.inherited_units_version"
+  ],
+  "scopes": {
+   "extraction": "PASSED"
+  }
+ },
+ {
+  "constant": "INHERITED_UNITS_VERSION",
+  "change": "4 -> 5",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "environment.inherited_units_version"
+  ],
+  "scopes": {
+   "extraction": "PASSED"
+  }
+ },
+ {
+  "constant": "VALIDATOR_VERSION",
+  "change": "23 -> 24",
+  "repo": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "validators"
+  ],
+  "scopes": {
+   "validator": "PASSED"
+  }
+ },
+ {
+  "constant": "VALIDATOR_VERSION",
+  "change": "23 -> 24",
+  "repo": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "currency": "RECHECKED_CURRENT",
+  "cost": null,
+  "differences": [
+   "validators"
+  ],
+  "scopes": {
+   "validator": "PASSED"
+  }
+ }
+]

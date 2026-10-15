@@ -90,7 +90,10 @@ def test_only_the_registry_reads_the_manifest_directory() -> None:
     # cloned repository's own .github/workflows files to verify a build-status badge target
     # (plans/idea.md "real build status"). It never reads this repository's prompt manifests; the
     # assertion above is what pins that (no module but the registry spells the manifest suffix).
+    # The acceptance judge reads data/readme_standard (assignments.yaml: the required elements of a
+    # repository's archetype), never a prompt manifest.
     assert yaml_readers == [
+        "components/readme/acceptance/judge.py",
         "components/readme/evidence/facts/assets.py",
         "core/llm/prompts.py",
         "cursor.py",
