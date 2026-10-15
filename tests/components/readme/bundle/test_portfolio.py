@@ -12,6 +12,19 @@ from typing import Any
 
 import pytest
 
+from repository_presenter.components.readme.acceptance.judge import (
+    FAIL,
+    J1,
+    J2,
+    J3,
+    J4,
+    J5,
+    J6,
+    NOT_APPLICABLE,
+    PASS,
+    Clause,
+    JudgeVerdict,
+)
 from repository_presenter.components.readme.bundle.portfolio import (
     BUCKETS,
     COUNT_NAMES,
@@ -57,8 +70,39 @@ def _stored_record(bundle: Path, directory: str) -> dict[str, Any]:
     return record if isinstance(record, dict) else {}
 
 
+def _stored_verdict(bundle: Path, _repository: str) -> JudgeVerdict:
+    """A test double for the judge: the verdict these synthetic bundles' own records imply (review
+    ACCEPT and BC-10 for the first four clauses, the no-op proof and BC-11 for the rerun clause).
+
+    The funnel's mechanics are tested given a judge verdict; whether the real judge reaches that
+    verdict for a real bundle is tested in tests/components/readme/acceptance/test_judge.py."""
+    review = json.loads((bundle / "review.json").read_text(encoding="utf-8"))
+    checks = json.loads((bundle / "validation.json").read_text(encoding="utf-8"))["checks"]
+    verdicts = {check["id"]: check["verdict"] for check in checks}
+    manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    proof = manifest.get("no_op_proof") or {}
+    accepted = review.get("verdict") == "ACCEPT" and verdicts.get(REVIEW_CHECK) == "PASS"
+    rerun = (
+        proof.get("byte_identical") is True
+        and proof.get("fresh_process") is True
+        and proof.get("provider_calls") == 0
+        and verdicts.get(RERUN_CHECK) == "PASS"
+    )
+    clauses = (
+        Clause(J1, PASS, "stub"),
+        Clause(J2, PASS, "stub"),
+        Clause(J3, PASS, "stub"),
+        Clause(J4, PASS if accepted else FAIL, "stub: no independent ACCEPT"),
+        Clause(J5, PASS if rerun else FAIL, "stub: no no-op proof"),
+        Clause(J6, NOT_APPLICABLE, "stub"),
+    )
+    failing = tuple(clause.id for clause in clauses if clause.status == FAIL)
+    return JudgeVerdict(not failing, clauses, failing)
+
+
 def assess_portfolio(*args: Any, **kwargs: Any):
     kwargs.setdefault("acceptance_scorer", _stored_record)
+    kwargs.setdefault("judge", _stored_verdict)
     return assess_portfolio_live(*args, **kwargs)
 
 
@@ -656,7 +700,13 @@ def _scored_pair(root: Path, *, defect: str = "") -> tuple[RegistryEntry, Regist
 def _live_buckets(root: Path, *entries: RegistryEntry) -> dict[str, str]:
     drift = {entry.repository: DriftObservation("CURRENT", _revision(entry)) for entry in entries}
     report = assess_portfolio_live(
-        root, entries, stale_directories=(), expected_branch=BRANCH, now=NOW, drift=drift
+        root,
+        entries,
+        stale_directories=(),
+        expected_branch=BRANCH,
+        now=NOW,
+        drift=drift,
+        judge=_stored_verdict,
     )
     return {a.repository.rsplit("-for-", 1)[1]: a.bucket for a in report.entries}
 
@@ -684,6 +734,7 @@ def test_a_score_below_the_full_thirty_is_ready_but_not_publication_eligible(
         expected_branch=BRANCH,
         now=NOW,
         drift=drift,
+        judge=_stored_verdict,
     )
     landed = {a.repository.rsplit("-for-", 1)[1]: a.bucket for a in report.entries}
     assert landed == {"Alpha": "source_fresh", "Bravo": "publication_eligible"}
@@ -743,6 +794,7 @@ def test_an_unratified_override_scores_nothing_and_leaves_ready_entries_advisory
         now=NOW,
         drift={e.repository: DriftObservation("CURRENT", _revision(e)) for e in (first, second)},
         acceptance_ratified=False,
+        judge=_stored_verdict,
     )
     assert report.counts["publication_eligible"] == 0
     assert report.ready_acceptance_advisory == 2
@@ -836,6 +888,10 @@ def test_funnel_lines_are_printed_unchanged_by_the_headline(tmp_path: Path) -> N
 # --- the PROPOSE gate's acceptance check (TC-PRP-01) ---------------------------------------------
 
 
+def _authorizing_judge(_bundle: Path, _repository: str) -> JudgeVerdict:
+    return JudgeVerdict(True, (Clause(J1, PASS, "stub"),), ())
+
+
 def test_the_proposal_gate_passes_only_a_ratified_pass(tmp_path: Path) -> None:
     from repository_presenter.components.readme.bundle.portfolio import proposal_acceptance_gate
 
@@ -854,12 +910,14 @@ def test_the_proposal_gate_passes_only_a_ratified_pass(tmp_path: Path) -> None:
     def scorer(_bundle: Path, directory: str) -> dict[str, Any]:
         return records[directory]
 
-    gate = proposal_acceptance_gate(tmp_path, scorer=scorer)
+    gate = proposal_acceptance_gate(tmp_path, scorer=scorer, judge=_authorizing_judge)
     assert gate(tmp_path, "pass") is None
     reason = gate(tmp_path, "fail")
     assert reason is not None and "'FAIL'" in reason and "12/30" in reason and "D3" in reason
     assert gate(tmp_path, "unratified") is not None
-    unratified_profile = proposal_acceptance_gate(tmp_path, ratified=False, scorer=scorer)
+    unratified_profile = proposal_acceptance_gate(
+        tmp_path, ratified=False, scorer=scorer, judge=_authorizing_judge
+    )
     assert "not ratified" in str(unratified_profile(tmp_path, "pass"))
 
 
