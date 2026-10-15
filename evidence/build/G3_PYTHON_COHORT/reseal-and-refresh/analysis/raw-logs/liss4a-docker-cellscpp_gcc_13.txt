@@ -1,0 +1,41 @@
+# repository clone: Aspose.Cells-FOSS-for-Cpp (fresh --depth 1 clone of https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp)
+# head: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+# utc: 2026-10-12T02:14:44Z
+# image: gcc:13
+# extra cmake flags: none
+# command: docker run --rm -v <clone>:/src:ro gcc:13 bash -c 'apt-get install cmake ninja-build; cd /src/Aspose.Cells.Foss.Cpp && cmake -S . -B /tmp/b -G Ninja  && cmake --build /tmp/b -- -k 0'
+g++ (GCC) 13.5.0
+cmake version 3.25.1
+cmake-configure-exit=0
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /tmp/b
+build-exit=1
+error-lines: 19
+numeric_limits-error-lines: 4
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o 
+/usr/local/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -Wall -Wextra -Werror -std=c++17 -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/NumberFormat.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/NumberFormat.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/NumberFormat.cpp:30:17: error: trigraph ??/ ignored, use -trigraphs to enable [-Werror=trigraphs]
+cc1plus: all warnings being treated as errors
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o 
+/usr/local/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -Wall -Wextra -Werror -std=c++17 -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:24: error: 'numeric_limits' is not a member of 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:39: error: expected primary-expression before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965:39: error: expected ')' before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:27: error: 'numeric_limits' is not a member of 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:42: error: expected primary-expression before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:966:42: error: expected ')' before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:24: error: 'numeric_limits' is not a member of 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:39: error: expected primary-expression before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:967:39: error: expected ')' before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:27: error: 'numeric_limits' is not a member of 'std'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:42: error: expected primary-expression before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:968:42: error: expected ')' before 'int'
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:107:12: error: 'Aspose::Cells_FOSS::XmlElement Aspose::Cells_FOSS::{anonymous}::ElemAttrText(const std::string&, Aspose::Cells_FOSS::Attrs, std::string)' defined but not used [-Werror=unused-function]
+cc1plus: all warnings being treated as errors
+FAILED: CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o 
+/usr/local/bin/c++  -I/src/Aspose.Cells.Foss.Cpp/include -Wall -Wextra -Werror -std=c++17 -MD -MT CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o -MF CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o.d -o CMakeFiles/aspose_cells_foss.dir/src/aspose/cells_foss/XlsxWorkbookStyles.cpp.o -c /src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookStyles.cpp
+/src/Aspose.Cells.Foss.Cpp/src/aspose/cells_foss/XlsxWorkbookStyles.cpp:233:6: error: 'bool Aspose::Cells_FOSS::{anonymous}::IsNullOrWhiteSpace(const std::string&)' defined but not used [-Werror=unused-function]
+cc1plus: all warnings being treated as errors
+ninja: build stopped: cannot make progress due to previous errors.
+# end 2026-10-12T02:15:13Z

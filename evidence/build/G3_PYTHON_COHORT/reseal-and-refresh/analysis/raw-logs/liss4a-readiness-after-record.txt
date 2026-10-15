@@ -1,0 +1,28 @@
+# lane L-iss4: AFTER the approval record commit (a840f0c0), registry UNCHANGED (as this pull request leaves it)
+issue-readiness: 4 handoff(s) on record; kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is OFF in this process (the repository variable itself is not readable from here)
+
+== aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp  [registry: dry_run; write gate REFUSES issue_filing]
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119
+    status HANDOFF_PENDING; check BC-02 v4; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>
+    evidence_digest: sha256:d0b98ad7b94167e9f20405e58183725868299dcaec32ece3b69092e923050907
+    re-verification: CONFIRMED at live head 9f852d0ff1cf (2026-10-11T18:33Z)
+    recheck: replayable
+    issue text: passes the quality gate
+    owner approval: approved by babar-raza until 2026-10-19T02:16:10+00:00
+    approvable: YES; fileable now: NO
+    blocker: registry write gate refuses issue_filing: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp is dry_run, not full (owner decision, OWNER-20)
+  handoff aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399
+    status HANDOFF_PENDING; check BC-03 v2; revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+    title: Aspose.Cells FOSS for Cpp: README 'Load an Existing Workbook' example does not compile, missing WorksheetCollection.h
+    evidence_digest: sha256:87bcad6474114d3e29a6080cbd532e4f64f6329e95daf9525c726af9341728fe
+
+## file-upstream-defects --repo (dry run; read-only GETs; no --file)
+file: kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED = OFF (necessary, never sufficient: each handoff also needs its own approval record)
+file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp 'Aspose.Cells FOSS for Cpp: XlsxWorkbookSerializerCommon.cpp uses std::numeric_limits without including <limits>': WOULD-NOT-FILE - approved and eligible, but the kill switch REPOSITORY_PRESENTER_ISSUES_WRITE_AUTHORIZED is not 1 (dry run; pass --file to attempt)
+file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp "Aspose.Cells FOSS for Cpp: README 'Load an Existing Workbook' example does not compile, missing WorksheetCollection.h": WOULD-NOT-FILE - no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399.json is not committed) (dry run; pass --file to attempt)
+  owner approval: commit ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399.json with handoff_id aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__74b4b0a3e029c0c8531d541b951c356a5c7224e36ed7e0f5e016606397f86399, repository aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp, evidence_digest sha256:87bcad6474114d3e29a6080cbd532e4f64f6329e95daf9525c726af9341728fe, approver, approved_at, expires_at (see ops/issue_approvals/README.md)
+file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp 'Aspose.Cells FOSS for Cpp: the license file is only in License/, not at the repository root': WOULD-NOT-FILE - no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab.json is not committed) (dry run; pass --file to attempt)
+  owner approval: commit ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab.json with handoff_id aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__9bc5df82959293f5957082e668078bafd52fdcedfbbf411b491364fd900421ab, repository aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp, evidence_digest sha256:7a5cd343358cb65c171215647e2556bc53761d941d6e743a4fdd163628c85adc, approver, approved_at, expires_at (see ops/issue_approvals/README.md)
+file: aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp 'Aspose.Cells FOSS for Cpp: the library build uses -Werror and fails on warnings with GCC 13-15 and Clang 22': WOULD-NOT-FILE - no approval record (ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365.json is not committed) (dry run; pass --file to attempt)
+  owner approval: commit ops/issue_approvals/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365.json with handoff_id aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp__b3df5761421b54a0e30d65eafab785a0c6ca8f3a13653e1dbb63a8488e170365, repository aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp, evidence_digest sha256:b01bfc931bff8bccfb57d02c80cc4aac3f0e46a3aecfd89c506b2d5f9ae769f2, approver, approved_at, expires_at (see ops/issue_approvals/README.md)

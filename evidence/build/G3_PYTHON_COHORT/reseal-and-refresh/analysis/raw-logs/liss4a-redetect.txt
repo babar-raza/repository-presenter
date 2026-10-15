@@ -1,0 +1,4 @@
+# redetect (read-only GitHub GETs) at 2026-10-12T02:12:10+00:00
+status HANDOFF_PENDING source_revision 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+replay_gap None
+RedetectionResult(repository='aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp', defect_fingerprint='sha256:3f1b3176a85aff35f608c19c67a1aee801783b540debcb14f445ed3c4890d119', triggering_check_id='BC-02', checked_at='2026-10-12T02:12:14+00:00', checked_at_revision='9f852d0ff1cfdad2d661556d6b87a8eff8c063a2', revision_drifted=False, still_fires=True, note='still fires: the default branch is still at 9f852d0ff1cf, the revision this finding was made against, so none of the inputs of the recorded toolchain run changed (the run itself is not re-executed here)', fresh_evidence=(EvidenceEntry(path='default branch head', detail='9f852d0ff1cfdad2d661556d6b87a8eff8c063a2 (unchanged)'),), proposed_status=None, proposed_close_reason=None)
