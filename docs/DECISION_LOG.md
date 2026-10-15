@@ -5983,3 +5983,9 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Decision.** The extractor case stays `UNVERIFIED`, not counted: a different extractor can change the facts and only a re-extraction at the pinned revision proves it did not, which a recheck never does and the drift monitor (upstream moved) does not cover. So an extractor bump is the one that always needs the necessity test; the other five need none to keep sealed bundles current. No code changed.
   - **Not checked.** The 30 old bundles stay `UPDATE_REQUIRED` (their contracts really changed); a real-clone re-extraction recheck is not built.
   - **Reverse by:** revert the commit.
+
+- **2026-10-15 - first system-found issue filed upstream (Cells-Cpp #3); the other seven approved Cells handoffs get approval records (G6-W01, rung 2).**
+
+  - **Artifact.** https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues/3 (handoff `3f1b3176`, `std::numeric_limits` without `<limits>`), created by `issues-scheduled.yml` with the App token; a second dispatch created none.
+  - **Next.** Approval records for the seven remaining FILE-approved Cells handoffs (Cpp `b3df5761`, `9bc5df82`; TypeScript `c04f74bf`, `5dc560bf`; .NET `cf626176`; Java `83a93576`; Python `a2e2612a`), approver `babar-raza`; `issues_mode: file` on Cells .NET, Python, TypeScript (Java is already `full`). `7e755ed8` is not approved. Three text-only drafts wait for new defect classes.
+  - **Reverse by:** close the issue as not planned; revert the records and registry lines.
