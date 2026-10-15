@@ -1525,7 +1525,7 @@ decisions:
       R7: no clipping, a box grows with its text. The three mother blocks run left to right, each
       split by key capability, Core included, as some older live revisions drew it. Acceptance is
       by a real render (STR-28); the defect classes are MERMAID_CLIPPED (DEF-29) and
-      MERMAID_VERTICAL (DEF-30). Cards TC-MMD-01 to TC-MMD-03 in plans/reseal-and-refresh/PLAN.md
+      MERMAID_VERTICAL (DEF-30). Cards TC-MMD-01 to TC-MMD-03 in plans/archive/reseal-and-refresh/PLAN.md
       section 11A.
     migration: >-
       Item 15 (the At a Glance builder, BC-07 label geometry and the renderer): TC-MMD-03. Owner-ruled,

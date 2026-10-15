@@ -91,6 +91,7 @@
       "platform": "cpp",
       "ecosystem": "cpp",
       "mode": "dry_run",
+      "issues_mode": "file",
       "policy_profile": "aspose-cells-foss-cpp",
       "active": true,
       "provider_identity": {

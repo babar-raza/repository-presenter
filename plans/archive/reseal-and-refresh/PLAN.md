@@ -39,6 +39,13 @@ placed: 2026-10-10 by TC-GOV-01 (lane L-gov); card statuses printed here are ini
 
 ---
 
+> **Frozen on 2026-10-14 (owner).** The active execution instruction is
+> `project/loop-prompt-ship.md`: a five-rung ladder whose only unit of progress is an artifact with
+> a URL. Sections 11A to 11D below are backlog, read only when a rung names a card. No section,
+> card, requirement or charter is added to this file before rungs 1 and 2 are done. The branch
+> `docs/program-of-record-1014` (a draft section 11D) is not merged; the proposed section 11E is not
+> adopted. Reason: six weeks of plan layers and zero deliverables (`docs/DECISION_LOG.md`, 2026-10-14).
+
 ## 1. Context and findings
 
 The owner's complaint (register G7-W22): each enhancement bumps a governed version, every sealed candidate reads stale, and re-sealing starts again. The owner's standing rulings (DECISION_LOG 2026-10-09/10): one cut, one portfolio reseal, no governed-version bump afterwards except safety/factual-accuracy defects or owner approval; **no real upstream push until 20 candidates are re-sealed**; the name gate is unchanged; Monday 2026-10-12 targets "the live autonomous system proven once", at least 20 candidates pushed *as a target, not a claim*, with an upstream issue logger active.

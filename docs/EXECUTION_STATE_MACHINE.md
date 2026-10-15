@@ -105,7 +105,7 @@ invalidated gate. It never creates a competing plan.
 ## 4. Build-state overview
 
 Gate transitions: G0 to G1 buildable, checkable, protected; G1 to G2 first candidate accepted and no-op proven; G2 to G3
-invalidation proven, D1 D2 D5 D6 on the canary; G3 to G4 Python cohort sealed, contract v1 frozen; G4 to G5 every enabled
+invalidation proven, D1 D2 D5 D6 on the canary; G3 to G4 a judge-accepted Lane R candidate, bump-immune; G4 to G5 every enabled
 entry local, census recorded; G5 to G6 fresh-state proofs, hosted run equal; G6 to G7 disposable PR lifecycle proven.
 
 The agent may research ahead of the cursor but may not build or claim a later gate's machinery
@@ -128,7 +128,7 @@ Gate identifiers: `G0_FOUNDATION`, `G1_FIRST_VALID_CANDIDATE`, `G2_STABILITY_UND
 **Register.** Work items whose `project/state.yaml` owner begins `REGISTER:` and `owner_items` OWNER-10 to OWNER-19 own every reviewer id in `docs/DEFECT_INDEX.md`: G6-W05 write path; G3-W06 README contract (under revision since 2026-10-11, G3-W10); G3-W07 code freeze and re-seal; G5-W08 seal routing, status, durable state, registry coverage; G5-W09 no-op proof; G7-W07 autonomy and safeguards; G4-W18 discovery into `src/`; G4-W19 product-evidence surfaces; G7-W08 hygiene and prompts; G7-W09 documentation claims; G7-W10
 cursor-staleness guard; G7-W11 sealing-loop failure memory; G7-W12 UNCLASSIFIED deferral family (classes
 and nested-test extraction, S4 command fold and recover landed; PSD-.NET open); G7-W13 unattended sealing hosted pipeline proof; G7-W14 hosted portfolio-currency
-durability; G7-W15 S6 must-carry gap (settled, third sighting; root-caused and fixed, live-cleared); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (fixed with G7-W15); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching; G7-W23 dotted file name in prose (the extractor records tree-verified file names). Registered 2026-10-10 under plans/reseal-and-refresh/PLAN.md: G3-W08 candidate content gate and coverage; G6-W07 issue-system operations; G7-W25 consumed-scope recheck. Registered 2026-10-11 under owner decisions D1 to D7 (`plans/reseal-and-refresh/PLAN.md` section 11A): G3-W09 live-first correction lane; G3-W10 README structure standard from the live survey (`README_CONTRACT.md` under revision); G3-W11 regeneration idempotence.
+durability; G7-W15 S6 must-carry gap (settled, third sighting; root-caused and fixed, live-cleared); G7-W17 S8 coherence must-carry recovery gap (settled, seventh sighting); G7-W18 the same shape's S6 re-ask exhaustion (fixed with G7-W15); G7-W19 absence-finding restated-claim fold gap (fixed). G7-W20 acceptance profile ratification (OWNER-13, owner-decided); G7-W21 Monday delivery plan and background-track schedule; G7-W22 candidate currency freeze and re-seal batching; G7-W23 dotted file name in prose (the extractor records tree-verified file names). Registered 2026-10-10 under plans/archive/reseal-and-refresh/PLAN.md: G3-W08 candidate content gate and coverage; G6-W07 issue-system operations; G7-W25 consumed-scope recheck. Registered 2026-10-11 under owner decisions D1 to D7 (`plans/archive/reseal-and-refresh/PLAN.md` section 11A): G3-W09 live-first correction lane; G3-W10 README structure standard from the live survey (`README_CONTRACT.md` under revision); G3-W11 regeneration idempotence.
 `tests/test_register_integrity.py` fails when an id loses its work item.
 
 **Owner-only predicates never live in a gate.** Branch protection, secrets, App installation, and
@@ -299,28 +299,32 @@ reached — and the first-candidate causes of drift (`RESEARCH_AND_GUIDELINES.md
   advisories; every job holds the 85 first-attempt floor (per-job thresholds need three sealed
   compositions, §27.10); the coverage ledger is in the bundle (check 12 waits for a sealed defect).
 
-## G3 — Python Cohort and Contract Freeze
+## G3 — An Accepted Candidate for Any Repository (Lane R)
 
-Goal: every processable Python repository has a candidate or an evidence-bound disposition, and the
-contract freezes against thirteen sealed products rather than one (§28.5).
+Goal: Lane R produces, for any admitted repository, a README candidate a computed judge accepts, and a
+governed version change never invalidates a candidate it did not touch (owner, 2026-10-14; `/readme-refresh` is the fallback).
 
 ### Work
 
-1. Python cohort: the twelve remaining Python registry entries through the existing pipeline, one
-   transaction each; seal what passes all eleven checks; an evidence-bound disposition with a resume
-   predicate for the rest (PSD-Python `NON_PROCESSABLE`); fixes by failure class, a regression test each.
-2. Freeze acceptance contract v1: the 30-point profile with hard disqualifiers, the blocking checks,
-   and the advisory set, each versioned in every bundle's `dependencies.json`.
+1. Invalidation by consumed input is built (`bundle/recheck.py`, G7-W25); prove it on a fresh seal:
+   a throwaway change to each governed constant leaves it `RECHECKED_CURRENT`; whatever leaves it
+   `UNVERIFIED` or `UPDATE_REQUIRED` with no changed consumed input is fixed; `status` reads receipts.
+2. The judge (`components/readme/acceptance/judge.py`): standard conformance, every public claim
+   cites an accepted fact, every material inherited unit has one disposition, a rerun is
+   byte-identical with zero provider calls, and not worse than a standard live README where one
+   exists; wired into `status`, `wave-readiness` and `propose`; the LLM reviewer is advisory.
+3. A frozen base; Lane R measured first on the repositories without a standard live README.
 
 ### Exit predicates
 
-- `status` prints the sealed count (up to 12/34); the gate manifest carries the cohort report by
-  repository (sealed, disposition, failure class); every sealed bundle is zero-call proven; v1 frozen.
+- A bundle sealed on the frozen base stays current across a throwaway bump of each constant; `status` prints the judge's
+  `authorizable N/44` first and the cursor carries it; every repository without a standard live
+  README has a judge verdict on the frozen base; one passing Lane R candidate reaches `propose` through the sandbox-proven write path.
 
 ## G4 — Multi-Language Cohorts, Local
 
 Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 44/44
-dispositions through one shared surface extractor and six thin plugins, before hosted machinery.
+dispositions through one shared surface extractor and six thin plugins, before hosted machinery; Lane L proves the live write path.
 
 | Ecosystem | Mandatory truth |
 |---|---|

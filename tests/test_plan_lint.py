@@ -1,8 +1,8 @@
 """tools/plan_lint: every structural promise of the plan's section 6 is a failing test (TC-LNT-01).
 
 Each rule has a failing fixture (the synthetic plan with one defect injected) and a passing one
-(the synthetic plan itself). The real plan (plans/reseal-and-refresh/PLAN.md, or the file named by
-PLAN_LINT_PLAN) is linted when it exists; it is skipped, loudly, when it does not.
+(the synthetic plan itself). The real plan (plans/archive/reseal-and-refresh/PLAN.md, or the file
+named by PLAN_LINT_PLAN) is linted when it exists; it is skipped, loudly, when it does not.
 """
 
 from __future__ import annotations
@@ -789,12 +789,14 @@ def _plan() -> cards.Plan:
 
 
 def test_every_map_carries_the_non_authority_header() -> None:
-    for name, text in maps.generate_maps(_plan(), "plans/reseal-and-refresh/PLAN.md").items():
+    for name, text in maps.generate_maps(
+        _plan(), "plans/archive/reseal-and-refresh/PLAN.md"
+    ).items():
         head = text.splitlines()[:3]
         if name.endswith(".csv"):
             head = [line.removeprefix("# ") for line in head]
         assert head == [
-            "authoritative_plan: plans/reseal-and-refresh/PLAN.md",
+            "authoritative_plan: plans/archive/reseal-and-refresh/PLAN.md",
             "artifact_role: analysis_or_evidence_only",
             "execution_authority: false",
         ], name

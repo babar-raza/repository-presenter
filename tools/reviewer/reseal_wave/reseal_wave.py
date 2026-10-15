@@ -1,4 +1,4 @@
-# TC-RSL-01 (plans/reseal-and-refresh, 2026-10-10). Owner/reviewer operator tooling (tools/README.md):
+# TC-RSL-01 (plans/archive/reseal-and-refresh, 2026-10-10). Owner/reviewer operator tooling (tools/README.md):
 # never imported by src/, never read by a gate. Starts real `present` runs (gateway spend) - but only
 # inside its own isolated work clones, and writes nothing to candidates/, project/state.yaml, git history
 # or GitHub.

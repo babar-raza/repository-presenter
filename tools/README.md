@@ -178,7 +178,7 @@ governance tracks, two directories, no overlap.
     `docs/DECISION_LOG.md`, 2026-09-23 16:04 UTC.
 
 - `workflow_rehearsal/` — runs this repository's GitHub workflows locally in their hosted shape
-  (TC-REF-10, `plans/reseal-and-refresh/PLAN.md` section 11). Nothing here writes to GitHub: every
+  (TC-REF-10, `plans/archive/reseal-and-refresh/PLAN.md` section 11). Nothing here writes to GitHub: every
   write endpoint is a local fake.
   - `inventory.py` — parses `.github/workflows/*.yml` and renders the triggers / permissions /
     variables / secrets / job-graph tables embedded between markers in `docs/OPERATIONS_RUNBOOK.md`
@@ -276,7 +276,7 @@ governance tracks, two directories, no overlap.
   - Tests: `tests/test_readme_standard.py`.
 
 - `idempotence/` — the offline idempotence and retention harness (TC-IDM-01,
-  `plans/reseal-and-refresh/PLAN.md` section 11A): makes "better than the live README" measurable
+  `plans/archive/reseal-and-refresh/PLAN.md` section 11A): makes "better than the live README" measurable
   and gates regressions, for the live-first correction lane and the regeneration lane. Read-only:
   no network, no model, no write outside `data/idempotence/` and the file you name.
   - `corpus.py` / `data/idempotence/corpus.json` — the 44 registry READMEs frozen with head commit and

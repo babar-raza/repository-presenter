@@ -1,6 +1,6 @@
 # Operations Runbook
 
-Status: operational runbook, `TC-REF-10` (G7-W06; `plans/reseal-and-refresh/PLAN.md` section 11);
+Status: operational runbook, `TC-REF-10` (G7-W06; `plans/archive/reseal-and-refresh/PLAN.md` section 11);
 sections 9 to 11 prepare `TC-REF-12` (staged go-live, kill-switch rehearsal, no-bump guard) and
 **enable nothing**: every variable, schedule and environment change in them is an owner action.
 Owns: what runs when, what each hosted workflow needs (variables, secrets, permissions), how to stop
