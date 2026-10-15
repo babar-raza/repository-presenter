@@ -953,15 +953,28 @@ def _lead(
 _LENGTH = re.compile(r"(\d+) visible lines of \d+ exceed the visible budget (\d+)")
 
 
-def _tally(delta: dict[str, Any]) -> tuple[int, int, int, int]:
+#: The checks whose findings are about a maintainer's own README: commands, examples, links, and
+#: version and edition claims. The others judge the layout and wording this tool gives the READMEs
+#: it writes; a live README is not held to them, so what they find in it is never said to be wrong
+#: with it, only reported when the correction itself changes it.
+_ABOUT_YOURS = frozenset({"BC-02", "BC-03", "BC-06", "BC-12", "BC-14"})
+
+
+def _tally(delta: dict[str, Any], only: frozenset[str] | None = None) -> tuple[int, int, int, int]:
     """``(before, after, removed, added)``: the failures the checks report on the README and on the
-    corrected one, and how many of them the correction takes away and brings, check by check."""
+    corrected one, and how many of them the correction takes away and brings, check by check.
+    ``only`` limits the count to those checks (a check's length variant counts with it)."""
     live = delta.get("live_failures", {})
     after = delta.get("corrected_failures", {})
-    names = set(live) | set(after)
+    names = {n for n in set(live) | set(after) if only is None or n.split("/")[0] in only}
     removed = sum(max(live.get(n, 0) - after.get(n, 0), 0) for n in names)
     added = sum(max(after.get(n, 0) - live.get(n, 0), 0) for n in names)
-    return sum(live.values()), sum(after.values()), removed, added
+    return (
+        sum(live.get(n, 0) for n in names),
+        sum(after.get(n, 0) for n in names),
+        removed,
+        added,
+    )
 
 
 def _span_line(original: str, span: str, start: int) -> int | None:
@@ -1027,11 +1040,12 @@ def _delta_lines(
     nothing, and every failure it adds is explained in a line of its own."""
     if not delta:
         return []
-    before, after, removed, added = _tally(delta)
+    before, after, removed, added = _tally(delta, _ABOUT_YOURS)
+    shape = _tally(delta)[3] - added
     text = (
-        "- We ran repository-presenter's README checks (install commands, version claims, links, "
-        f"structure, length) on your README and on the corrected one. They report {before} "
-        f"failure(s) on yours and {after} on the corrected one: "
+        "- We ran repository-presenter's README checks (install commands, examples, links, "
+        "version and edition claims) on your README and on the corrected one. They report "
+        f"{before} failure(s) on yours and {after} on the corrected one: "
     )
     if added == 0:
         text += (
@@ -1042,6 +1056,12 @@ def _delta_lines(
     else:
         text += f"it removes {removed} and adds {added}; the added ones are explained below."
     lines = [text]
+    if shape:
+        lines.append(
+            "- Separately, our other checks (section layout, line length and wording rules for "
+            f"the READMEs this tool writes, which yours is not held to) find {shape} new item(s) "
+            "after the change; each is explained below."
+        )
     explained = 0
     revealed = delta.get("revealed", [])
     if revealed:
@@ -1065,9 +1085,9 @@ def _delta_lines(
                 "checks apply (yours was within it). That is the one check the redraw makes "
                 "fail; the redraw is what makes the labels fit."
             )
-    if added > explained:
+    if added + shape > explained:
         lines.append(
-            f"- {added - explained} of the failure(s) it adds are new problems this change "
+            f"- {added + shape - explained} of the failure(s) it adds are new problems this change "
             "introduces."
         )
     return lines
