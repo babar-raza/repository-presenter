@@ -157,7 +157,10 @@ def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
 # admitted it. Any other entry setting the field fails this test: a flip is an owner act
 # (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing).
 ISSUE_FILING_OPT_INS: dict[str, str] = {
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp": "file",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-Python": "file",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "file",
 }
 
 
