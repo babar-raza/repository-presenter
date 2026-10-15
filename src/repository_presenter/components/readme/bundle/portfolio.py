@@ -19,10 +19,13 @@ at a stage only when it counted at every stage before it, so the counts are a fu
    (``PRESENTATION_CHECKS``, BC-07).
 3. ``independently_accepted``: presentation-valid, manifest state ``READY_FOR_PROPOSAL`` (not
    ``VALID_UPDATE_AVAILABLE``), not behind the running code's component/check versions (the same
-   stale-excluded rule ``status``'s ``progress:`` line already applies), ``review.json`` verdict
-   ``ACCEPT`` and the review check (BC-10) PASS.
-4. ``no_op_proven``: independently accepted, the manifest's ``no_op_proof`` records a fresh-process,
-   byte-identical replay with zero provider calls, and the rerun check (BC-11) is PASS.
+   stale-excluded rule ``status``'s ``progress:`` line already applies), and every clause of the
+   judge (``acceptance/judge.py``) but its rerun clause passes. The judge is computed from the
+   sealed files; the reviewer model's verdict is advisory and decides nothing here.
+4. ``no_op_proven``: independently accepted, and the judge's rerun clause passes: the manifest's
+   ``no_op_proof`` records a fresh-process, byte-identical replay with zero provider calls, and the
+   rerun check (BC-11) is PASS. Counted by stage 4 is exactly what ``status`` prints first as
+   ``authorizable N/D``: a current bundle every judge clause passes.
 5. ``source_fresh``: no-op-proven, and a supplied drift observation (``components/monitor``'s
    evidence document) says this repository's upstream head equals the bundle's revision. Freshness
    is a network fact this offline command cannot establish, so without a drift document the count is
@@ -73,6 +76,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.acceptance.judge import (
+    J5,
+    JudgeVerdict,
+    judge_repository_bundle,
+)
 from repository_presenter.components.readme.bundle.recheck import COUNTING, UPDATE_REQUIRED
 from repository_presenter.components.readme.review.acceptance.profile import RATIFIED
 from repository_presenter.components.readme.review.acceptance.scorer import PASS
@@ -142,6 +150,8 @@ CURRENT_DRIFT_STATUS = "CURRENT"  # components/monitor/drift.py Status
 
 # (sealed bundle path, repository directory name) -> an acceptance record (scorer.score_candidate).
 AcceptanceScorer = Callable[[Path, str], Mapping[str, Any]]
+# (sealed bundle path, repository "owner/name") -> the judge's verdict (acceptance/judge.py).
+BundleJudge = Callable[[Path, str], JudgeVerdict]
 
 
 def sealed_acceptance_scorer(root: Path) -> AcceptanceScorer:
@@ -222,6 +232,7 @@ def assess_portfolio(
     acceptance_ratified: bool = RATIFIED,
     acceptance_scorer: AcceptanceScorer | None = None,
     currency: Mapping[str, str] | None = None,
+    judge: BundleJudge = judge_repository_bundle,
 ) -> PortfolioReport:
     """Assess every entry and total the seven counts and the partition.
 
@@ -241,6 +252,7 @@ def assess_portfolio(
             acceptance_ratified=acceptance_ratified,
             acceptance_scorer=acceptance_scorer,
             currency=currency or {},
+            judge=judge,
         )
         for entry in entries
     ]
@@ -261,6 +273,12 @@ def assess_portfolio(
         authorizations_supplied=authorizations is not None,
         entries=tuple(assessments),
     )
+
+
+def authorizable_candidates(report: PortfolioReport | None) -> int:
+    """The progress unit: entries whose current bundle every clause of the judge authorizes (the
+    depth-4 stage above). No report (no registry) counts nothing."""
+    return 0 if report is None else int(report.counts["no_op_proven"] or 0)
 
 
 def current_reproducible_no_op_proven(
@@ -298,6 +316,7 @@ def _assess(
     acceptance_ratified: bool,
     acceptance_scorer: AcceptanceScorer | None,
     currency: Mapping[str, str],
+    judge: BundleJudge,
 ) -> EntryAssessment:
     def stop(bucket: str, depth: int, reason: str, advisory: bool = False) -> EntryAssessment:
         return EntryAssessment(entry.repository, entry.mode, bucket, depth, reason, advisory)
@@ -328,7 +347,6 @@ def _assess(
     if validation.get("source_revision") != revision or not _all_pass(verdicts, FACT_CHECKS):
         return stop("not_fact_valid", 0, "a factual/safety validation check is not PASS")
     depth = 1  # ``halt`` below reads the depth reached so far
-    review = _read_object(bundle / "review.json")
     acceptance_pass = (
         acceptance_ratified
         and acceptance_scorer is not None
@@ -361,10 +379,12 @@ def _assess(
             "update_unverified",
             f"{why} and its consumed-scope recheck is {rechecked or 'not available'}",
         )
-    if review.get("verdict") != "ACCEPT" or not _all_pass(verdicts, (REVIEW_CHECK,)):
-        return halt("presentation_valid", "no independent ACCEPT")
+    verdict = judge(bundle, entry.repository)
+    refusal = verdict.refusal(ignore=(J5,))
+    if refusal is not None:
+        return halt("presentation_valid", refusal)
     depth = 3
-    if not _no_op_proven(manifest) or not _all_pass(verdicts, (RERUN_CHECK,)):
+    if not verdict.passes(J5):
         return halt("independently_accepted", "no byte-identical zero-call no-op proof")
     depth = 4
 
@@ -406,15 +426,22 @@ def _assess(
 
 
 def proposal_acceptance_gate(
-    root: Path, *, ratified: bool = RATIFIED, scorer: AcceptanceScorer | None = None
+    root: Path,
+    *,
+    ratified: bool = RATIFIED,
+    scorer: AcceptanceScorer | None = None,
+    judge: BundleJudge = judge_repository_bundle,
 ) -> AcceptanceGate:
-    """The PROPOSE gate's acceptance check (TC-PRP-01): ``None`` for a bundle whose ratified
-    30-point outcome is PASS, otherwise why not. The same scorer and the same predicate
-    (:func:`_acceptance_passed`) as the funnel's ``publication_eligible`` count; READY_FOR_PROPOSAL
-    itself does not depend on it."""
+    """The PROPOSE gate's acceptance check (TC-PRP-01): ``None`` for a bundle the judge authorizes
+    whose ratified 30-point outcome is also PASS, otherwise why not, the judge's failing clause
+    first. The same scorer and the same predicate (:func:`_acceptance_passed`) as the funnel's
+    ``publication_eligible`` count; READY_FOR_PROPOSAL itself does not depend on either."""
     score = scorer if scorer is not None else sealed_acceptance_scorer(root)
 
     def gate(bundle: Path, directory: str) -> str | None:
+        refusal = judge(bundle, _repository_of(bundle, directory)).refusal()
+        if refusal is not None:
+            return refusal
         if not ratified:
             return "the 30-point acceptance profile is not ratified: nothing scores PASS"
         record = score(bundle, directory)
@@ -428,6 +455,12 @@ def proposal_acceptance_gate(
         )
 
     return gate
+
+
+def _repository_of(bundle: Path, directory: str) -> str:
+    """The ``owner/name`` a sealed bundle describes: its manifest's, else the directory's."""
+    named = _read_object(bundle / "manifest.json").get("repository")
+    return named if isinstance(named, str) else directory.replace("__", "/", 1)
 
 
 def _read_object(path: Path) -> dict[str, Any]:
@@ -447,16 +480,6 @@ def _verdicts(validation: Mapping[str, Any]) -> dict[str, Any]:
 
 def _all_pass(verdicts: Mapping[str, Any], required: Sequence[str]) -> bool:
     return all(verdicts.get(check) == "PASS" for check in required)
-
-
-def _no_op_proven(manifest: Mapping[str, Any]) -> bool:
-    proof = manifest.get("no_op_proof")
-    return (
-        isinstance(proof, dict)
-        and proof.get("byte_identical") is True
-        and proof.get("fresh_process") is True
-        and proof.get("provider_calls") == 0
-    )
 
 
 def _acceptance_passed(record: Mapping[str, Any]) -> bool:

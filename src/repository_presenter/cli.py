@@ -166,6 +166,7 @@ from repository_presenter.components.readme.bundle.portfolio import (
     DriftObservation,
     PortfolioReport,
     assess_portfolio,
+    authorizable_candidates,
     current_reproducible_no_op_proven,
     load_authorizations,
     load_drift,
@@ -3646,7 +3647,8 @@ def run_status(
     discovery_path: Path | None = None,
     verbose: bool = False,
 ) -> int:
-    """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
+    """Print ``authorizable N/D`` (the judge's count of current bundles it authorizes, over the
+    registry's size), then version, gate, work item, and the sealed-bundle counts from disk.
 
     ``--stale`` additionally reports every current candidate whose sealed ``dependencies.json``
     is behind the running code's component/check versions (``core.candidates.stale_candidates``,
@@ -3725,6 +3727,8 @@ def run_status(
     accepted = independently_accepted_candidates(root, effective)
     portfolio = _portfolio_report(root, found, drift, authorizations, currency)
     headline = current_reproducible_no_op_proven(portfolio, reproducible)
+    authorizable = authorizable_candidates(portfolio)
+    registry_size = cursor.denominator if portfolio is None else portfolio.denominator
     try:
         issue_rows = _issue_funnel_rows(root)
     except (HandoffError, ApprovalProvenanceError):
@@ -3744,6 +3748,7 @@ def run_status(
                         "id": cursor.active_work_item_id,
                         "status": cursor.active_work_item_status,
                     },
+                    "authorizable": {"count": authorizable, "denominator": registry_size},
                     "candidates": {
                         "current": headline,
                         "ready_for_proposal": on_disk,
@@ -3796,6 +3801,7 @@ def run_status(
             )
         )
     else:
+        print(f"authorizable {authorizable}/{registry_size}")
         print(f"{PROGRAM} {__version__}")
         print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
         print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
