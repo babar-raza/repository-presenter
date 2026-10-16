@@ -13,9 +13,9 @@ N/44` as the judge computes it, plus artifacts with URLs.
 Read `project/loop-prompt.md` §0, §4, §5, §8 and follow them, with these substitutions:
 - **Your queue is §2, in order.** Not `next_ready_items`, not the archived plan
   (`plans/archive/reseal-and-refresh/`, frozen; read a card only when a rung names it). Add no plan
-  section, card, requirement or charter, except the G3-W12 cards (plan of 2026-10-16, D8). One `docs/DECISION_LOG.md` entry per shipped artifact, at
+  section, card, requirement or charter, except the cards G3-W12 to G3-W19 (plan of 2026-10-16, D8). One `docs/DECISION_LOG.md` entry per shipped artifact, at
   most eight lines, after it exists.
-- **No governed version moves** without the necessity test: a `docs/DECISION_LOG.md` entry naming the measured defect, the metric and the G7-W22 clause (G3-W12 common rules). Until rung 3 lands, a bump
+- **No governed version moves** without a bump entry: a `docs/DECISION_LOG.md` entry naming the measured defect, the metric and the G7-W22 clause (G3-W12 common rules). Until rung 3 lands, a bump
   invalidates every sealed bundle: that is the loop this ladder ends.
 - **Ask the owner only for** a browser-only action a run proved missing (exact link, what to tick) or
   a new class of outbound effect. Standing authority (owner, 2026-10-14): R primary; L and issues
@@ -58,7 +58,7 @@ checked by command.
    `main` (Cells-Go, Note-Python) `python tools/reviewer/bump_proof/bump_proof.py --target ROOT=OWNER/NAME`
    gives `CURRENT`, and after a throwaway bump of NORMALISATION, RENDERER, REVIEWER_LOGIC, INHERITED_UNITS or
    VALIDATOR `RECHECKED_CURRENT` (evidence: `analysis/bump-proof-2026-10-15.json`). EXTRACTOR_VERSION gives
-   `UNVERIFIED` (re-extraction needs the pinned clone): the one bump that always needs the necessity entry.
+   `UNVERIFIED` (re-extraction needs the pinned clone): the one bump that always needs a bump entry.
    Re-run the command after any change to `bundle/recheck.py` or a governed file.
 4. **The judge.** New `components/readme/acceptance/judge.py`: `README_STANDARD` conformance
    (`data/readme_standard`); every public claim cites an accepted fact; every material inherited unit
@@ -67,12 +67,12 @@ checked by command.
    clause, a fixture per clause; wired into `status` (prints `authorizable N/44` first),
    `wave-readiness` and `propose`; the LLM reviewer is advisory to J1 to J6 and binding through J7 once G3-W17 (C6) lands. Done: the cursor's
    `authorizable_candidates` equals `status`'s count.
-5. **Frozen base; R where it is needed** (Lane R changes ride G3-W12's cards, `docs/investigations/14-lane-r-dependability.md`; C1 first, measure before change). Record the freeze commit; the freeze ends when G3-W13 (C2) lands. Run `tools/reviewer/reseal_wave`
+5. **Frozen base; R where it is needed** (Lane R changes ride G3-W12 to G3-W19, `docs/investigations/14-lane-r-dependability.md`; C1 first, measure before change). Record the freeze commit; the freeze ends when G3-W13 (C2) lands. Run `tools/reviewer/reseal_wave`
    on repositories without a standard live README (`data/readme_standard/survey.json`: `readme:
    false`, `glance_form: null` or `banner: false`), then the judge. A failure is repaired outside the
    governed files, or with a necessity finding, or handed to `/readme-refresh`. Done: every such
-   repository has a judge verdict, counts in the log. This rung seals only repositories without a usable live README (from scratch is correct there, README_STANDARD PRC-07); it is not a reseal wave of the 30 existing bundles, which docs/investigations/14 risk R2 bars before C8.
-5a. **Lane R dependable rebuild (G3-W12 to G3-W19, plan of 2026-10-16).** G3-W12 (C1, measurement, no shared code) may start beside G3-W11 now. G3-W13 to G3-W19 wait for the owner's go (an `Owner go:` line in the D8 entry). Promotion: when G3-W11's acceptance holds (rungs 3 and 4 done, rung 5's verdict table exists), commit `chore(state)`: G3-W11 to ACCEPTED with each acceptance bullet quoted beside its evidence, and the first of G3-W12 to G3-W19 that is not COMPLETE and whose prerequisites hold into `active_work_item` (IN_PROGRESS) and out of `next_ready_items`, one shared-code card at a time. A card is done when its Complete line holds by the command in its Validation, `lane-r/<card>.json` is written and `evidence/build/G3_PYTHON_COHORT/manifest.json` carries its acceptance record.
+   repository has a judge verdict, counts in the log. This rung seals only repositories without a usable live README (from scratch is correct only where `survey.json` says `readme: false`, one row at 5f8f7ef5; the other twelve rows the selector matches have a README, wait for the live-anchored route of G3-W15 and get a judge verdict on their existing sealed bundle meanwhile); it is not a reseal wave of the 30 existing bundles, which docs/investigations/14 risk R2 bars before C8.
+5a. **Lane R dependable rebuild (G3-W12 to G3-W19, plan of 2026-10-16).** G3-W12 (C1, measurement, no shared code) is started by the owner's order (a line `Start G3-W12` in the D8 entry), in its own worktree beside G3-W11; its first commit appends `STARTED <date> <commit>` to G3-W12's owner field in `project/state.yaml`, so a later session sees it is begun. G3-W13 to G3-W19 wait for the owner's go (an `Owner go:` line in the D8 entry). Promotion: when G3-W11's acceptance holds (rungs 3 and 4 done, rung 5's verdict table exists), commit `chore(state)`: G3-W11 to ACCEPTED with each acceptance bullet quoted beside its evidence, and the first of G3-W12 to G3-W19 that is not COMPLETE and whose prerequisites hold into `active_work_item` (IN_PROGRESS) and out of `next_ready_items`, one shared-code card at a time. A card is done when its Complete line holds by the command in its Validation, `lane-r/<card>.json` is written and `evidence/build/G3_PYTHON_COHORT/manifest.json` carries its acceptance record. Done: G3-W19 is COMPLETE or the owner has recorded a typed stop; until then, while the owner's go (OWNER-27) is absent, report 5a once as blocked and proceed to rung 6.
 6. **The write path (Lane L).** Sandbox canary (`docs/PROPOSAL_WAVE_RUNBOOK.md` §9; record expires
    2026-10-19T02:35Z): seed, dry-run, `do_propose`, approve the waiting `sandbox-canary` deployment
    via `gh api -X POST repos/babar-raza/repository-presenter/actions/runs/<run>/pending_deployments`,

@@ -28,7 +28,7 @@ schemas, transitions, and closed work items are not progress.
 There are two product lanes (owner decision D1, 2026-10-11). **Lane L, live-first** starts from the
 live upstream README and adds only verified corrections and verified missing information (G3-W09).
 **Lane R, regeneration** is live-anchored where a usable README exists and composes from scratch only where none does; its
-dependability is rebuilt in G3-W12 (idempotence, G3-W11). The standard for README structure, composition, links and tone is what the live READMEs
+dependability is rebuilt in G3-W12 to G3-W19 (idempotence, G3-W11). The standard for README structure, composition, links and tone is what the live READMEs
 do (G3-W10), written in `docs/README_STANDARD.md`; `README_CONTRACT.md` stays the legacy encoding of
 assembly and blocking checks until the gates migrate (README_STANDARD §6.2), and every iteration of
 either lane must beat live. Gate exit floors that say "sealed" count sealed bundles, not the
@@ -60,7 +60,7 @@ same validation and review) is:
    paths without human template selection. Each platform extractor is independent of every other
    and of every downstream stage, sharing only `facts.json` (`REPOSITORY_LAYOUT.md` §2.1).
 7. The exact immutable repository snapshot is factual authority.
-8. Existing README content is high-value evidence: validate, preserve, improve, correct, or omit every material unit, an omission only on CONTRADICTED evidence (G3-W14, C3); everything else is kept and flagged.
+8. Existing README content is high-value evidence: validate, preserve, improve, correct, or omit every material unit, an omission only on CONTRADICTED evidence and a supersession only with a coverage proof (G3-W14, C3); everything else is kept and flagged.
 9. Aspose.org and previously published candidates are development oracles, never runtime
    dependencies. Legacy per-product profiles and catalogs hold the same status: pulled and
    reviewed per repository or family as needed, never in bulk (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
@@ -80,7 +80,7 @@ same validation and review) is:
 23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared version boundaries with regression evaluation across every current candidate.
 24. **Governance stays compact.** `AGENTS.md` at most 210 lines, this document at most 520, at most eight gates. When a new rule is needed, an old one is replaced.
 25. **Write-scope expansion is gated, never a cursor-only edit (G6-W06).** Flipping a registry entry's `mode` from `dry_run` to `full` requires, per repository: an owner authorization dated in `docs/DECISION_LOG.md`; a committed record under `ops/proposal-authorizations/`; and that repository's candidate current-code reproducible, independently accepted, and no-op-proven. An agent never flips `mode` unilaterally absent all three (`OWNER-20`).
-26. **Dependability is measured, not inferred (G3-W12).** A green check proves only that the check ran: Lane R is dependable when ledger completeness, uncited omissions, claim escapes, reviewer catch rate and rerun fixed point meet their floors on a frozen holdout, and those baselines ratchet in CI.
+26. **Dependability is measured, not inferred (G3-W12 to G3-W19).** A green check proves only that the check ran: Lane R is dependable when ledger completeness, uncited omissions, claim escapes, reviewer catch rate and rerun fixed point meet their floors on a frozen holdout, and those baselines ratchet in CI.
 
 ## 3. Authority and conflict resolution
 
@@ -314,7 +314,7 @@ governed version change never invalidates a candidate it did not touch (owner, 2
    byte-identical with zero provider calls, and not worse than a standard live README where one
    exists; wired into `status`, `wave-readiness` and `propose`; the LLM reviewer is advisory to J1 to J6 and binding through J7 once G3-W17 (C6) lands.
 3. A frozen base; Lane R measured first on the repositories without a standard live README.
-4. **G3-W12 to G3-W19, Lane R dependable rebuild, one card each C1 to C8** (plan of 2026-10-16, D8; analysis `docs/investigations/14-lane-r-dependability.md`; each item's `purpose` in `project/state.yaml` carries its owned paths, prerequisites, validation, evidence and rollback, and G3-W12's carries the common rules and the metrics). It is a plan, not yet a go: G3-W12 (C1, measurement only) may start beside G3-W11; G3-W13 to G3-W19 wait for the owner's go recorded in `docs/DECISION_LOG.md`. One shared-code card at a time, each ending on a canary run and a measured delta, each governed-version bump behind a ground-naming entry, the legacy route the default until G3-W19:
+4. **G3-W12 to G3-W19, Lane R dependable rebuild, one card each C1 to C8** (plan of 2026-10-16, D8; analysis `docs/investigations/14-lane-r-dependability.md`; each item's `purpose` in `project/state.yaml` carries its owned paths, prerequisites, validation, evidence and rollback, and G3-W12's carries the common rules and the metrics). It is a plan, not yet a go: G3-W12 (C1, measurement only) starts on the owner's order beside G3-W11; G3-W13 to G3-W19 wait for the owner's go (OWNER-27, recorded in `docs/DECISION_LOG.md`). One shared-code card at a time, each ending on a canary run and a measured delta, each governed-version bump behind a ground-naming entry, the legacy route the default until G3-W19:
    W12/C1 measure (pinned holdout, 60-case corpus with dev/test split, metrics M1 to M9, CI ratchet; no product change); W13/C2 claim gate (identifiers, numbers, versions, packages, formats and capability claims in prose equal cited non-identity fact values; published-version and rename check; junk lint; propose refuses a stale bundle); W14/C3 honest ledger (only computed CONTRADICTED content is deleted, a supersession carries a coverage proof, a kept unit renders, BC-05 covers every unit kind);
    W15/C4 live-anchored patch engine (the live README is the skeleton; the model emits operations once per section; a deterministic applier copies kept bytes; pinned-revision pilot); W16/C5 fact-rendered sections; W17/C6 a reviewer that can say no (a factual REJECT stands unless a registered byte-level rule refutes it; judge clause J7; cross-family blind review if OWNER-23 admits it); W18/C7 fixed point (per-section memoization, honestly named); W19/C8 pilot on ten repositories with blind human review by the owner.
 
@@ -323,7 +323,7 @@ governed version change never invalidates a candidate it did not touch (owner, 2
 - A bundle sealed on the frozen base stays current across a throwaway bump of each constant; `status` prints the judge's
   `authorizable N/44` first and the cursor carries it; every repository without a standard live
   README has a judge verdict on the frozen base; one passing Lane R candidate reaches `propose` through the sandbox-proven write path.
-- G3-W12 to G3-W19 (dependability), measured on the test half of the frozen holdout, the C1 corpus and ten pilot repositories, at the final merged code revision (floors in the card text, changeable only by an owner decision): M1 ledger completeness 100 percent and M2, M3, M4, M5 zero; injected factual defects caught at least 95 percent by gates and reviewer together; M7 holds; M8 zero unsupported claims in 200 sampled claims audited blind by the human OWNER-25 names; M9 yield at least 8 of 10 pilot repositories; at least 8 of 10 pilot READMEs accepted blind by the owner, none with an unflagged factual error, results beside the C1 baseline.
+- G3-W12 to G3-W19 (dependability), measured at the final merged code revision (floors in the card text, changeable only by an owner decision): M1 ledger completeness 100 percent and M2, M3 zero on the ten pilot READMEs and on the test half of the holdout re-run through the live-anchored route at pinned revisions; M4, M5 zero on the same sets and on the corpus test split; injected factual defects caught at least 95 percent by gates and reviewer together; M7 holds (memoization; the fresh-process proof is G5-W02's); M8 zero unsupported claims in 200 sampled claims audited blind by the human OWNER-25 names; M9 yield at least 8 of 10 pilot repositories; at least 8 of 10 pilot READMEs accepted blind by the owner, none with an unflagged factual error, results beside the C1 baseline.
 
 ## G4 — Multi-Language Cohorts, Local
 
