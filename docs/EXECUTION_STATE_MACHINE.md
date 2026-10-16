@@ -60,8 +60,7 @@ same validation and review) is:
    paths without human template selection. Each platform extractor is independent of every other
    and of every downstream stage, sharing only `facts.json` (`REPOSITORY_LAYOUT.md` §2.1).
 7. The exact immutable repository snapshot is factual authority.
-8. Existing README content is high-value evidence: validate, preserve, improve, correct, or
-   explicitly omit every material unit.
+8. Existing README content is high-value evidence: validate, preserve, improve, correct, or omit every material unit, an omission only on CONTRADICTED evidence (G3-W14, C3); everything else is kept and flagged.
 9. Aspose.org and previously published candidates are development oracles, never runtime
    dependencies. Legacy per-product profiles and catalogs hold the same status: pulled and
    reviewed per repository or family as needed, never in bulk (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
@@ -77,7 +76,7 @@ same validation and review) is:
 19. **Every work item ends with a run of the official entry point on the canary.** A module with no production importer is a defect, not a deliverable.
 20. **A candidate is invalidated only by a change to an input it consumed.** Every bundle carries a per-candidate dependency manifest; no global control-plane hash exists in the codebase.
 21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a typed factual, safety, or protected-content failure. Only the last invalidates.
-22. **Reviewer findings must be repairable, and a factual REJECT stands.** A finding names a candidate section and a causal stage from a fixed vocabulary; one that names neither is advisory and never blocks twice, but a REJECT that names a section and a claim is refuted only by a registered, tested byte-level rule, never by scope (G3-W12 C6).
+22. **Reviewer findings must be repairable, and a factual REJECT stands.** A finding names a candidate section and a causal stage from a fixed vocabulary; one that names neither is advisory and never blocks twice. A factual REJECT that names a section and a claim is refuted only by a registered, tested byte-level rule, never by scope; a presentation REJECT stays repairable and advisory (G3-W17, C6).
 23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared version boundaries with regression evaluation across every current candidate.
 24. **Governance stays compact.** `AGENTS.md` at most 210 lines, this document at most 520, at most eight gates. When a new rule is needed, an old one is replaced.
 25. **Write-scope expansion is gated, never a cursor-only edit (G6-W06).** Flipping a registry entry's `mode` from `dry_run` to `full` requires, per repository: an owner authorization dated in `docs/DECISION_LOG.md`; a committed record under `ops/proposal-authorizations/`; and that repository's candidate current-code reproducible, independently accepted, and no-op-proven. An agent never flips `mode` unilaterally absent all three (`OWNER-20`).
@@ -313,18 +312,18 @@ governed version change never invalidates a candidate it did not touch (owner, 2
 2. The judge (`components/readme/acceptance/judge.py`): standard conformance, every public claim
    cites an accepted fact, every material inherited unit has one disposition, a rerun is
    byte-identical with zero provider calls, and not worse than a standard live README where one
-   exists; wired into `status`, `wave-readiness` and `propose`; the LLM reviewer is advisory.
+   exists; wired into `status`, `wave-readiness` and `propose`; the LLM reviewer is advisory to J1 to J6 and binding through J7 once G3-W17 (C6) lands.
 3. A frozen base; Lane R measured first on the repositories without a standard live README.
-4. **G3-W12, Lane R dependable rebuild** (owner D8, 2026-10-16; analysis `docs/investigations/14-lane-r-dependability.md`; the cards with owned paths, validation, evidence and rollback are the item's `purpose` in `project/state.yaml`). One shared-code card at a time, each ending on a canary run and a measured delta, each governed-version bump behind a necessity entry, the legacy route the default until C8:
-   C1 measure (frozen holdout, defect-injection corpus, metrics M1 to M8, CI ratchet; no product change); C2 claim gate (identifiers, numbers, versions, packages and formats in prose equal cited non-identity fact values; published-version and rename check; junk lint); C3 honest ledger (only CONTRADICTED content is deleted, a supersession carries a coverage proof, a kept unit renders, BC-05 covers every unit kind);
-   C4 live-anchored patch engine (the live README is the skeleton; the model emits operations on stable unit ids; a deterministic applier copies kept bytes); C5 fact-rendered sections; C6 a reviewer that can say no (a REJECT stands unless a registered byte-level rule refutes it; cross-family blind review if OWNER-23 admits it); C7 fixed point (only units whose input facts changed call the model; verdicts per candidate hash); C8 pilot on ten repositories with blind human review.
+4. **G3-W12 to G3-W19, Lane R dependable rebuild, one card each C1 to C8** (plan of 2026-10-16, D8; analysis `docs/investigations/14-lane-r-dependability.md`; each item's `purpose` in `project/state.yaml` carries its owned paths, prerequisites, validation, evidence and rollback, and G3-W12's carries the common rules and the metrics). It is a plan, not yet a go: G3-W12 (C1, measurement only) may start beside G3-W11; G3-W13 to G3-W19 wait for the owner's go recorded in `docs/DECISION_LOG.md`. One shared-code card at a time, each ending on a canary run and a measured delta, each governed-version bump behind a ground-naming entry, the legacy route the default until G3-W19:
+   W12/C1 measure (pinned holdout, 60-case corpus with dev/test split, metrics M1 to M9, CI ratchet; no product change); W13/C2 claim gate (identifiers, numbers, versions, packages, formats and capability claims in prose equal cited non-identity fact values; published-version and rename check; junk lint; propose refuses a stale bundle); W14/C3 honest ledger (only computed CONTRADICTED content is deleted, a supersession carries a coverage proof, a kept unit renders, BC-05 covers every unit kind);
+   W15/C4 live-anchored patch engine (the live README is the skeleton; the model emits operations once per section; a deterministic applier copies kept bytes; pinned-revision pilot); W16/C5 fact-rendered sections; W17/C6 a reviewer that can say no (a factual REJECT stands unless a registered byte-level rule refutes it; judge clause J7; cross-family blind review if OWNER-23 admits it); W18/C7 fixed point (per-section memoization, honestly named); W19/C8 pilot on ten repositories with blind human review by the owner.
 
 ### Exit predicates
 
 - A bundle sealed on the frozen base stays current across a throwaway bump of each constant; `status` prints the judge's
   `authorizable N/44` first and the cursor carries it; every repository without a standard live
   README has a judge verdict on the frozen base; one passing Lane R candidate reaches `propose` through the sandbox-proven write path.
-- G3-W12 (dependability), on the frozen holdout and the C1 corpus: ledger completeness 100 percent (every live unit byte-identical or removed with an evidence code); zero omissions without a cited fact; injected defects caught at least 95 percent by the gates and reviewer together; zero unflagged factual errors in a blind hand audit of a fixed sample; an unchanged-input rerun byte-identical with zero calls and a changed fact re-rendering only its units; ten pilot repositories reviewed blind by a human, results beside the C1 baseline.
+- G3-W12 to G3-W19 (dependability), measured on the test half of the frozen holdout, the C1 corpus and ten pilot repositories, at the final merged code revision (floors in the card text, changeable only by an owner decision): M1 ledger completeness 100 percent and M2, M3, M4, M5 zero; injected factual defects caught at least 95 percent by gates and reviewer together; M7 holds; M8 zero unsupported claims in 200 sampled claims audited blind by the human OWNER-25 names; M9 yield at least 8 of 10 pilot repositories; at least 8 of 10 pilot READMEs accepted blind by the owner, none with an unflagged factual error, results beside the C1 baseline.
 
 ## G4 — Multi-Language Cohorts, Local
 

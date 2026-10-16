@@ -2,10 +2,10 @@
 
 One named question: why can Lane R not be trusted to produce a README a human can publish, and what
 change makes it dependable. History and analysis, never a cursor or a task list: the work is the
-cards of G3-W12 (`docs/EXECUTION_STATE_MACHINE.md` G3; `project/state.yaml`). Evidence and checksums:
+cards G3-W12 to G3-W19 (`docs/EXECUTION_STATE_MACHINE.md` G3; `project/state.yaml`). Evidence and checksums:
 `evidence/lane-r-dependability/` (P kept units, Q claims, R determinism and review, S restore
-experiment, T research; `ledger_baseline.json` is re-derivable from `candidates/`). Owner direction:
-`docs/DECISION_LOG.md` 2026-10-16 (D8). Agent-written reports are approximate where they say so; the
+experiment, T research; `ledger_baseline.json` is re-derivable from `candidates/`). The plan record:
+`docs/DECISION_LOG.md` 2026-10-16 (D8), which is a plan answering the owner's request to investigate and plan, not an authorization to run the cards beyond the measurement card. Agent-written reports are approximate where they say so; the
 ledger baseline was re-run against the committed bundles.
 
 ## 1. Symptom
@@ -20,7 +20,7 @@ Agent repair of the 15 best candidates converged on the live README (the repair 
 |---|---|---|---|
 | F1 | Critical | Keep decisions are not honoured: 389 of 746 PRESERVE/MOVE units (52%) are not printed. | `ledger_baseline.json`; P |
 | F2 | Critical | A claim is checked for a citation, not for truth. BC-04 tests that a cited fact id exists and is SUPPORTED (`validation/registry.py:1267-1281`) and backtick spans against a global whitelist (`:1337-1349`); words, numbers, versions, "supports / not functional" are not checked. | Q (10 traced cases) |
-| F3 | Critical | The reviewer is overruled: the model returned REJECT on 26-27 of 30 candidates (4 factual); the fold stack overturned every one; 30 of 30 sealed ACCEPT, none with a blocking finding. | R, Q; `review/independent/review.py` |
+| F3 | Critical | The reviewer is overruled: the model returned REJECT on 26 of 30 candidates (22 presentation, 4 factual; one source counted 27 by including a re-read); the fold stack overturned every one; 30 of 30 sealed ACCEPT, none with a blocking finding. | R, Q; `review/independent/review.py` |
 | F4 | High | "Unsupported" is used as "false": 316 of 338 OMIT_UNSUPPORTED cite no fact (93%); examples are a maintainer's null-return note, "Or build from source:", a Contributing heading. | ledger baseline; sampled |
 | F5 | High | "Redundant" is an unverified rationale string: 1,514 SUPERSEDE_REDUNDANT (55%); exact text still present: tables 0/205, lists 14/273, paragraphs 28/266. | ledger baseline |
 | F6 | High | The ledger has no position or grouping, so verbatim printing onto generated text produces a pile (J6 passes 2 of 26; 72% of insertions are guessed positions; 116 of 146 inserted headings have no body). | S |
@@ -52,12 +52,12 @@ Agent repair of the 15 best candidates converged on the live README (the repair 
    skeleton; healed: Lane R is live-anchored where a usable README exists (G3-W12 C4).
 2. Principle 22 permitted the reviewer demotion in F3; replaced.
 3. The G7 section carried about 25 lines of dated history (items 5-11 and their predicates) inside a document capped at 520 lines;
-   the verbatim text moves to `docs/DECISION_LOG.md` (2026-10-16 archive entry) and the plan keeps one line each.
+   the verbatim text moves to `docs/investigations/15-esm-g7-history-2026-10-16.md` and the plan keeps one line each.
 4. A queued item exists in three places that tests keep verbatim-equal (ESM, `project/state.yaml`, `RESEARCH_AND_GUIDELINES.md` 27.9); a new item costs three
    edits. Recorded as risk R3; collapsing it is a G7-W08 hygiene candidate, not done here.
 5. Stale dated figures remain in the plan ("0/34" in G0, "34 entries" in section 12); they are marked dated observations, not changed.
 
-## 5. Design the evidence supports (what G3-W12 builds)
+## 5. Design the evidence supports (what G3-W12 to G3-W19 build)
 
 1. Measure first (C1): freeze the holdout, turn the real defects into an injection corpus, publish baseline numbers, ratchet them in CI.
 2. Deterministic claim gate (C2): every identifier, number, version, package, format and framework in prose equals a value of a cited non-identity fact; mandatory published-version fact and rename check; junk lint; head re-resolved.
@@ -90,5 +90,19 @@ Support: aider's measured 3x drop in lazy elision for unified diffs; ALCE and Li
 
 ## 8. Readiness
 
-Plan updated and verified (section C of the handoff in the change). Verdict recorded in `docs/DECISION_LOG.md` D8: READY WITH CONDITIONS - no
-card has started; C1 is READY, the rest are gated on their prerequisites and OWNER-23.
+READY WITH CONDITIONS, each checkable: (1) the owner's go, a line `Owner go: <date, words>` in the D8 entry of `docs/DECISION_LOG.md`, before G3-W13 to G3-W19; (2) G3-W12 records its `tools/` exception in `docs/REPOSITORY_LAYOUT.md`, `tools/README.md` and `project/loop-prompt.md` in its first commit; (3) OWNER-24 before G3-W14's first bump; (4) OWNER-25 before G3-W19; (5) OWNER-26 before G3-W14's mapping field, G3-W15 and G3-W18; (6) OWNER-23 only for G3-W17's cross-family route; (7) G5-W02 COMPLETE or untouched before G3-W18 edits `core/llm/`. G3-W12 (measurement, no product change) is the only item that may start now.
+
+## 9. Audit round 1 (three independent adversarial audits of commit 1aafd9dc; reports in `evidence/lane-r-dependability/plan-audit-1/`)
+
+Counts: governance and executability 22 findings (2 Critical, 8 High), feasibility and measurement 17 (2 Critical, 6 High), adversarial 28 (3 Critical, 11 High). All three read the committed text and ran the repository's tests; none of the findings was visible to the existing tests. What changed because of them:
+
+- **Authority.** D8 had been written as an owner decision; the owner asked to investigate and plan. It is now a plan: only the measurement item may start, the rest wait for an explicit `Owner go`, and the 2026-10-14 directive stands. The AGENTS.md necessity test I had cited does not exist; the rule is G7-W22 clause (2) and is now stated that way.
+- **Metrics that could not fail.** M1 counted only the units the model chose to keep (so moving a unit to DEFER gave 100 percent) and M4 to M5 were identities of the gates being built. M1 is now over all live units with computed evidence, DEFER counts as not accounted, M1 to M5 are implemented outside the gates, a yield metric M9 was added, floors are numbers, and catch rate is differential on a dev/test split with synthetic mutants and clean twins.
+- **Reproducibility.** `present` clones the current upstream head, so re-running the 30 inputs measures moved inputs, and a scratch root that tracks `candidates/` is overwritten in place. Validation is now an offline replay of the deterministic stages over pinned inputs, a scratch-root script refuses to run near a tracked `candidates/` or on a nearly full disk, and the pilot uses a pinned-revision option.
+- **Rollback claim.** My claim that a reverted bump never invalidates was false for any bump that adds or alters fact records (none of the 30 bundles carries `consumed_fact_ids`). The rule now says which bumps are safe to revert, which are not, and requires a bump-and-revert test on the stored bundles.
+- **Deletion and fallback.** CONTRADICTED is computed by code and never asserted by the model; a malformed patch operation keeps the unit (the earlier fallback was a rewrite).
+- **Wrong premises about reuse.** Lane L's `Edit` is a line fragment of at most 200 characters with no delete or heading insertion, unit ids are ordinal, `present` has no mode, and a second unit inventory would break J4 and BC-05; the C4 card now says so and lists the real owned paths, the schema proposal, and the bundle mapping.
+- **Completion tests.** C8 could complete at a 0 percent accept rate; it now has numeric thresholds, a named blind protocol and verdict files committed by the owner, and the judge is frozen for the pilot. The rung 7 proposal path that could publish a legacy candidate is closed until the claim gate is complete, and the propose gate now refuses a stale bundle.
+- **Structure.** One 28,000-character queue entry became eight queued items (G3-W12 to G3-W19), each with its own status, and each owner item names the item that consumes it, so only that card is ever blocked. Card acceptance reuses the existing rule that ties COMPLETE to a gate-manifest record, so no new status test was needed. The ship loop gained a promotion rung (5a), and stale text in `project/loop-prompt.md`, `DEFECT_INDEX.md` and this document was corrected.
+
+Residual risks, stated plainly: the live-anchored patch engine is untested and the legacy route stays the default until the pilot; the false-positive rate of the claim gate is unknown until G3-W13 measures it; the human review depends on the owner's time (OWNER-25); the numeric floors are proposals; the extractor bump needed by the published-version fact leaves candidates UNVERIFIED and conflicts with the first G3 exit bullet, so it needs its own entry; AGENTS.md line 137 still says "regeneration from scratch" (flagged for the owner, not edited). A second audit round is the next step before any card beyond G3-W12 starts.

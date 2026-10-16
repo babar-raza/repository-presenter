@@ -799,7 +799,7 @@ failing shape - this environment's own provider-call layer could not be made to 
 reported failing completion on demand, so the fix's deterministic correctness is proven directly
 against the real check functions (above) and by mutation test, not by a fresh live reproduction in
 this session. Registered as `G7-W17` (`project/state.yaml`,
-`docs/EXECUTION_STATE_MACHINE.md` G7 Work item 9).
+`docs/EXECUTION_STATE_MACHINE.md` G7 Work item 5, moved to `docs/investigations/15-esm-g7-history-2026-10-16.md`, item 9).
 
 ### `composition.coherence.inherited_diagram_content_loss`
 
@@ -870,7 +870,7 @@ rejections are byte-identical, naming the dropped `public_symbol:workbook.tocsv`
 but leaves the prose unchanged, so the check correctly re-fires on the first review pass after
 repair, and the job fails closed (no final accepted output for call `620641b315e9`). Below AGENTS.md's
 three-independent-sightings threshold: registered `PENDING` investigation, not settled priority.
-Registered as `G7-W16` (`project/state.yaml`, `docs/EXECUTION_STATE_MACHINE.md` G7 Work item 8,
+Registered as `G7-W16` (`project/state.yaml`, `docs/EXECUTION_STATE_MACHINE.md` G7 Work item 5, moved to `docs/investigations/15-esm-g7-history-2026-10-16.md`, item 8,
 `docs/RESEARCH_AND_GUIDELINES.md` §27.9, REG-23 below). Separate, unrelated operational note from
 the same draw: example verification (`examples.json`) shows all 3 examples `NOT_VERIFIED`,
 `BLOCKED_TOOLCHAIN: tsc did not report a version` - not the cause of the rejection above, and
