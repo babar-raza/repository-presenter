@@ -13,7 +13,7 @@ N/44` as the judge computes it, plus artifacts with URLs.
 Read `project/loop-prompt.md` §0, §4, §5, §8 and follow them, with these substitutions:
 - **Your queue is §2, in order.** Not `next_ready_items`, not the archived plan
   (`plans/archive/reseal-and-refresh/`, frozen; read a card only when a rung names it). Add no plan
-  section, card, requirement or charter. One `docs/DECISION_LOG.md` entry per shipped artifact, at
+  section, card, requirement or charter, except the G3-W12 cards (owner D8, 2026-10-16). One `docs/DECISION_LOG.md` entry per shipped artifact, at
   most eight lines, after it exists.
 - **No governed version moves** without the necessity test in `AGENTS.md`. Until rung 3 lands, a bump
   invalidates every sealed bundle: that is the loop this ladder ends.
@@ -67,7 +67,7 @@ checked by command.
    clause, a fixture per clause; wired into `status` (prints `authorizable N/44` first),
    `wave-readiness` and `propose`; the LLM reviewer is advisory. Done: the cursor's
    `authorizable_candidates` equals `status`'s count.
-5. **Frozen base; R where it is needed.** Record the freeze commit. Run `tools/reviewer/reseal_wave`
+5. **Frozen base; R where it is needed** (Lane R changes ride G3-W12's cards, `docs/investigations/14-lane-r-dependability.md`; C1 first, measure before change). Record the freeze commit. Run `tools/reviewer/reseal_wave`
    on repositories without a standard live README (`data/readme_standard/survey.json`: `readme:
    false`, `glance_form: null` or `banner: false`), then the judge. A failure is repaired outside the
    governed files, or with a necessity finding, or handed to `/readme-refresh`. Done: every such
