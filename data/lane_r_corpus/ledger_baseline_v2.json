@@ -1,0 +1,1079 @@
+{
+  "bundles": {
+    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 39,
+        "defer_unresolved": 0,
+        "m1": 0.58209,
+        "m2": 14,
+        "m3": 16,
+        "omit_unsupported": 15,
+        "omit_unsupported_without_fact": 12,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 43,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 12,
+          "SUPERSEDE_REDUNDANT": 15,
+          "VERIFIED_MOVE": 1
+        },
+        "units": 67
+      },
+      "revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+      "v1": {
+        "kept": 9,
+        "kept_not_printed": 1,
+        "omit_unsupported": 15,
+        "omit_unsupported_without_fact": 12,
+        "supersede_redundant": 43,
+        "units": 70
+      }
+    },
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Java": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 46,
+        "defer_unresolved": 8,
+        "m1": 0.505495,
+        "m2": 6,
+        "m3": 19,
+        "omit_unsupported": 6,
+        "omit_unsupported_without_fact": 6,
+        "supersede_destination_unlocated": 7,
+        "supersede_redundant": 36,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 8,
+          "OMIT_UNSUPPORTED": 6,
+          "SUPERSEDE_REDUNDANT": 19,
+          "VERIFIED_MOVE": 1,
+          "VERIFIED_PRESERVE": 10,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 91
+      },
+      "revision": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3",
+      "v1": {
+        "kept": 40,
+        "kept_not_printed": 11,
+        "omit_unsupported": 6,
+        "omit_unsupported_without_fact": 6,
+        "supersede_redundant": 36,
+        "units": 94
+      }
+    },
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 43,
+        "defer_unresolved": 4,
+        "m1": 0.558442,
+        "m2": 0,
+        "m3": 8,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 0,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 35,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 4,
+          "SUPERSEDE_REDUNDANT": 8,
+          "VERIFIED_PRESERVE": 21,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 77
+      },
+      "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+      "v1": {
+        "kept": 35,
+        "kept_not_printed": 21,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 0,
+        "supersede_redundant": 35,
+        "units": 77
+      }
+    },
+    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 33,
+        "defer_unresolved": 1,
+        "m1": 0.6,
+        "m2": 0,
+        "m3": 10,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 36,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 1,
+          "SUPERSEDE_REDUNDANT": 10,
+          "VERIFIED_PRESERVE": 9,
+          "VERIFIED_REWRITE": 2
+        },
+        "units": 55
+      },
+      "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+      "v1": {
+        "kept": 16,
+        "kept_not_printed": 9,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_redundant": 36,
+        "units": 59
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 36,
+        "defer_unresolved": 8,
+        "m1": 0.461538,
+        "m2": 21,
+        "m3": 5,
+        "omit_unsupported": 21,
+        "omit_unsupported_without_fact": 21,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 17,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 8,
+          "OMIT_UNSUPPORTED": 16,
+          "SUPERSEDE_REDUNDANT": 5,
+          "VERIFIED_PRESERVE": 12,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 78
+      },
+      "revision": "941814fd138dc28cf47123d48194f329f283498d",
+      "v1": {
+        "kept": 31,
+        "kept_not_printed": 12,
+        "omit_unsupported": 21,
+        "omit_unsupported_without_fact": 21,
+        "supersede_redundant": 17,
+        "units": 78
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 19,
+        "defer_unresolved": 6,
+        "m1": 0.301587,
+        "m2": 17,
+        "m3": 18,
+        "omit_unsupported": 18,
+        "omit_unsupported_without_fact": 17,
+        "supersede_destination_unlocated": 2,
+        "supersede_redundant": 33,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 6,
+          "OMIT_UNSUPPORTED": 16,
+          "SUPERSEDE_REDUNDANT": 18,
+          "VERIFIED_MOVE": 1,
+          "VERIFIED_PRESERVE": 2,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 63
+      },
+      "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "v1": {
+        "kept": 5,
+        "kept_not_printed": 3,
+        "omit_unsupported": 18,
+        "omit_unsupported_without_fact": 17,
+        "supersede_redundant": 33,
+        "units": 65
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Go": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 43,
+        "defer_unresolved": 2,
+        "m1": 0.605634,
+        "m2": 4,
+        "m3": 8,
+        "omit_unsupported": 4,
+        "omit_unsupported_without_fact": 4,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 35,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 2,
+          "OMIT_UNSUPPORTED": 3,
+          "SUPERSEDE_REDUNDANT": 8,
+          "VERIFIED_PRESERVE": 14,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 71
+      },
+      "revision": "fa4e890e46c509efd22d09b97411202c2b0b8a67",
+      "v1": {
+        "kept": 29,
+        "kept_not_printed": 14,
+        "omit_unsupported": 4,
+        "omit_unsupported_without_fact": 4,
+        "supersede_redundant": 35,
+        "units": 71
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 34,
+        "defer_unresolved": 0,
+        "m1": 0.596491,
+        "m2": 6,
+        "m3": 18,
+        "omit_unsupported": 6,
+        "omit_unsupported_without_fact": 6,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 40,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 4,
+          "SUPERSEDE_REDUNDANT": 17,
+          "VERIFIED_PRESERVE": 2
+        },
+        "units": 57
+      },
+      "revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+      "v1": {
+        "kept": 11,
+        "kept_not_printed": 2,
+        "omit_unsupported": 6,
+        "omit_unsupported_without_fact": 6,
+        "supersede_redundant": 40,
+        "units": 57
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS"
+      ],
+      "ledger": {
+        "accounted": 37,
+        "defer_unresolved": 1,
+        "m1": 0.72549,
+        "m2": 1,
+        "m3": 7,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 1,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 32,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 1,
+          "SUPERSEDE_REDUNDANT": 7,
+          "VERIFIED_MOVE": 5,
+          "VERIFIED_PRESERVE": 1
+        },
+        "units": 51
+      },
+      "revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7",
+      "v1": {
+        "kept": 17,
+        "kept_not_printed": 6,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 1,
+        "supersede_redundant": 32,
+        "units": 54
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 27,
+        "defer_unresolved": 8,
+        "m1": 0.350649,
+        "m2": 0,
+        "m3": 12,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 26,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 8,
+          "SUPERSEDE_REDUNDANT": 12,
+          "VERIFIED_PRESERVE": 27,
+          "VERIFIED_REWRITE": 3
+        },
+        "units": 77
+      },
+      "revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+      "v1": {
+        "kept": 40,
+        "kept_not_printed": 27,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_redundant": 26,
+        "units": 81
+      }
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 31,
+        "defer_unresolved": 0,
+        "m1": 0.632653,
+        "m2": 5,
+        "m3": 9,
+        "omit_unsupported": 5,
+        "omit_unsupported_without_fact": 5,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 28,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 3,
+          "SUPERSEDE_REDUNDANT": 9,
+          "VERIFIED_PRESERVE": 6
+        },
+        "units": 49
+      },
+      "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+      "v1": {
+        "kept": 16,
+        "kept_not_printed": 6,
+        "omit_unsupported": 5,
+        "omit_unsupported_without_fact": 5,
+        "supersede_redundant": 28,
+        "units": 49
+      }
+    },
+    "aspose-email-foss__Aspose.Email-FOSS-for-.Net": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 35,
+        "defer_unresolved": 0,
+        "m1": 0.486111,
+        "m2": 2,
+        "m3": 23,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 2,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 42,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 2,
+          "SUPERSEDE_REDUNDANT": 23,
+          "VERIFIED_PRESERVE": 10,
+          "VERIFIED_REWRITE": 2
+        },
+        "units": 72
+      },
+      "revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+      "v1": {
+        "kept": 26,
+        "kept_not_printed": 10,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 2,
+        "supersede_redundant": 42,
+        "units": 72
+      }
+    },
+    "aspose-email-foss__Aspose.Email-FOSS-for-Cpp": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 28,
+        "defer_unresolved": 0,
+        "m1": 0.35,
+        "m2": 8,
+        "m3": 22,
+        "omit_unsupported": 8,
+        "omit_unsupported_without_fact": 8,
+        "supersede_destination_unlocated": 5,
+        "supersede_redundant": 41,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 8,
+          "SUPERSEDE_REDUNDANT": 21,
+          "VERIFIED_MOVE": 1,
+          "VERIFIED_PRESERVE": 21,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 80
+      },
+      "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+      "v1": {
+        "kept": 30,
+        "kept_not_printed": 22,
+        "omit_unsupported": 8,
+        "omit_unsupported_without_fact": 8,
+        "supersede_redundant": 41,
+        "units": 80
+      }
+    },
+    "aspose-email-foss__Aspose.Email-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 57,
+        "defer_unresolved": 0,
+        "m1": 0.626374,
+        "m2": 2,
+        "m3": 29,
+        "omit_unsupported": 3,
+        "omit_unsupported_without_fact": 2,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 81,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 2,
+          "SUPERSEDE_REDUNDANT": 28,
+          "VERIFIED_PRESERVE": 4
+        },
+        "units": 91
+      },
+      "revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+      "v1": {
+        "kept": 7,
+        "kept_not_printed": 4,
+        "omit_unsupported": 3,
+        "omit_unsupported_without_fact": 2,
+        "supersede_redundant": 81,
+        "units": 94
+      }
+    },
+    "aspose-font-foss__Aspose.Font-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS"
+      ],
+      "ledger": {
+        "accounted": 21,
+        "defer_unresolved": 0,
+        "m1": 0.3,
+        "m2": 10,
+        "m3": 28,
+        "omit_unsupported": 11,
+        "omit_unsupported_without_fact": 10,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 42,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 10,
+          "SUPERSEDE_REDUNDANT": 26,
+          "VERIFIED_MOVE": 5,
+          "VERIFIED_PRESERVE": 8
+        },
+        "units": 70
+      },
+      "revision": "c520e3ebed3c36a56850cffb2b067afb29c5e2e9",
+      "v1": {
+        "kept": 17,
+        "kept_not_printed": 13,
+        "omit_unsupported": 11,
+        "omit_unsupported_without_fact": 10,
+        "supersede_redundant": 42,
+        "units": 70
+      }
+    },
+    "aspose-html-foss__Aspose.HTML-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 48,
+        "defer_unresolved": 0,
+        "m1": 0.470588,
+        "m2": 8,
+        "m3": 34,
+        "omit_unsupported": 8,
+        "omit_unsupported_without_fact": 8,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 58,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 6,
+          "SUPERSEDE_REDUNDANT": 33,
+          "VERIFIED_MOVE": 2,
+          "VERIFIED_PRESERVE": 12,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 102
+      },
+      "revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11",
+      "v1": {
+        "kept": 35,
+        "kept_not_printed": 14,
+        "omit_unsupported": 8,
+        "omit_unsupported_without_fact": 8,
+        "supersede_redundant": 58,
+        "units": 103
+      }
+    },
+    "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 3,
+        "defer_unresolved": 0,
+        "m1": 0.130435,
+        "m2": 9,
+        "m3": 11,
+        "omit_unsupported": 9,
+        "omit_unsupported_without_fact": 9,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 12,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 7,
+          "SUPERSEDE_REDUNDANT": 11,
+          "VERIFIED_REWRITE": 2
+        },
+        "units": 23
+      },
+      "revision": "a7c7314b18e1a5bd209fab38c15e72574337366f",
+      "v1": {
+        "kept": 0,
+        "kept_not_printed": 0,
+        "omit_unsupported": 9,
+        "omit_unsupported_without_fact": 9,
+        "supersede_redundant": 12,
+        "units": 23
+      }
+    },
+    "aspose-note-foss__Aspose.Note-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 42,
+        "defer_unresolved": 0,
+        "m1": 0.388889,
+        "m2": 13,
+        "m3": 32,
+        "omit_unsupported": 19,
+        "omit_unsupported_without_fact": 13,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 57,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 10,
+          "SUPERSEDE_REDUNDANT": 32,
+          "VERIFIED_PRESERVE": 24
+        },
+        "units": 108
+      },
+      "revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+      "v1": {
+        "kept": 32,
+        "kept_not_printed": 24,
+        "omit_unsupported": 19,
+        "omit_unsupported_without_fact": 13,
+        "supersede_redundant": 57,
+        "units": 113
+      }
+    },
+    "aspose-page-foss__Aspose.Page-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 55,
+        "defer_unresolved": 0,
+        "m1": 0.528846,
+        "m2": 16,
+        "m3": 25,
+        "omit_unsupported": 16,
+        "omit_unsupported_without_fact": 16,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 56,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 13,
+          "SUPERSEDE_REDUNDANT": 25,
+          "VERIFIED_MOVE": 4,
+          "VERIFIED_PRESERVE": 7
+        },
+        "units": 104
+      },
+      "revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967",
+      "v1": {
+        "kept": 32,
+        "kept_not_printed": 11,
+        "omit_unsupported": 16,
+        "omit_unsupported_without_fact": 16,
+        "supersede_redundant": 56,
+        "units": 107
+      }
+    },
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 37,
+        "defer_unresolved": 4,
+        "m1": 0.411111,
+        "m2": 0,
+        "m3": 32,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 62,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 4,
+          "SUPERSEDE_REDUNDANT": 31,
+          "VERIFIED_PRESERVE": 18
+        },
+        "units": 90
+      },
+      "revision": "286484d235196d65c9a458c5eff3d3d6539216dc",
+      "v1": {
+        "kept": 24,
+        "kept_not_printed": 18,
+        "omit_unsupported": 0,
+        "omit_unsupported_without_fact": 0,
+        "supersede_redundant": 62,
+        "units": 92
+      }
+    },
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 49,
+        "defer_unresolved": 1,
+        "m1": 0.429825,
+        "m2": 10,
+        "m3": 39,
+        "omit_unsupported": 12,
+        "omit_unsupported_without_fact": 10,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 65,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 1,
+          "OMIT_UNSUPPORTED": 8,
+          "SUPERSEDE_REDUNDANT": 39,
+          "VERIFIED_MOVE": 6,
+          "VERIFIED_PRESERVE": 10,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 114
+      },
+      "revision": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167",
+      "v1": {
+        "kept": 35,
+        "kept_not_printed": 16,
+        "omit_unsupported": 12,
+        "omit_unsupported_without_fact": 10,
+        "supersede_redundant": 65,
+        "units": 117
+      }
+    },
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 183,
+        "defer_unresolved": 0,
+        "m1": 0.782051,
+        "m2": 1,
+        "m3": 37,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 1,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 206,
+        "unaccounted_by_disposition": {
+          "SUPERSEDE_REDUNDANT": 37,
+          "VERIFIED_MOVE": 1,
+          "VERIFIED_PRESERVE": 10,
+          "VERIFIED_REWRITE": 3
+        },
+        "units": 234
+      },
+      "revision": "d10e2c829e1e41d3a9529057ad2ea7c7f53b1095",
+      "v1": {
+        "kept": 23,
+        "kept_not_printed": 11,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 1,
+        "supersede_redundant": 206,
+        "units": 239
+      }
+    },
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 48,
+        "defer_unresolved": 5,
+        "m1": 0.393443,
+        "m2": 24,
+        "m3": 43,
+        "omit_unsupported": 24,
+        "omit_unsupported_without_fact": 24,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 77,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 5,
+          "OMIT_UNSUPPORTED": 20,
+          "SUPERSEDE_REDUNDANT": 43,
+          "VERIFIED_MOVE": 2,
+          "VERIFIED_PRESERVE": 4
+        },
+        "units": 122
+      },
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "v1": {
+        "kept": 16,
+        "kept_not_printed": 6,
+        "omit_unsupported": 24,
+        "omit_unsupported_without_fact": 24,
+        "supersede_redundant": 77,
+        "units": 124
+      }
+    },
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 90,
+        "defer_unresolved": 0,
+        "m1": 0.6,
+        "m2": 2,
+        "m3": 46,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 2,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 118,
+        "unaccounted_by_disposition": {
+          "SUPERSEDE_REDUNDANT": 46,
+          "VERIFIED_PRESERVE": 13,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 150
+      },
+      "revision": "db2d3f0622f035825419c6d46727022064f39f15",
+      "v1": {
+        "kept": 26,
+        "kept_not_printed": 13,
+        "omit_unsupported": 2,
+        "omit_unsupported_without_fact": 2,
+        "supersede_redundant": 118,
+        "units": 152
+      }
+    },
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS"
+      ],
+      "ledger": {
+        "accounted": 6,
+        "defer_unresolved": 10,
+        "m1": 0.063158,
+        "m2": 61,
+        "m3": 16,
+        "omit_unsupported": 61,
+        "omit_unsupported_without_fact": 61,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 19,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 10,
+          "OMIT_UNSUPPORTED": 58,
+          "SUPERSEDE_REDUNDANT": 16,
+          "VERIFIED_MOVE": 5
+        },
+        "units": 95
+      },
+      "revision": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b",
+      "v1": {
+        "kept": 5,
+        "kept_not_printed": 5,
+        "omit_unsupported": 61,
+        "omit_unsupported_without_fact": 61,
+        "supersede_redundant": 19,
+        "units": 95
+      }
+    },
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 39,
+        "defer_unresolved": 0,
+        "m1": 0.309524,
+        "m2": 21,
+        "m3": 57,
+        "omit_unsupported": 27,
+        "omit_unsupported_without_fact": 21,
+        "supersede_destination_unlocated": 7,
+        "supersede_redundant": 76,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 16,
+          "SUPERSEDE_REDUNDANT": 57,
+          "VERIFIED_MOVE": 13,
+          "VERIFIED_PRESERVE": 1
+        },
+        "units": 126
+      },
+      "revision": "c41f8dddc499fb0058fc9557cb364d70fbd3cef1",
+      "v1": {
+        "kept": 23,
+        "kept_not_printed": 14,
+        "omit_unsupported": 27,
+        "omit_unsupported_without_fact": 21,
+        "supersede_redundant": 76,
+        "units": 127
+      }
+    },
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Java": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 56,
+        "defer_unresolved": 3,
+        "m1": 0.5,
+        "m2": 1,
+        "m3": 40,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 1,
+        "supersede_destination_unlocated": 1,
+        "supersede_redundant": 64,
+        "unaccounted_by_disposition": {
+          "CORRECT_WITH_EVIDENCE": 1,
+          "DEFER_UNRESOLVED": 3,
+          "SUPERSEDE_REDUNDANT": 40,
+          "VERIFIED_MOVE": 6,
+          "VERIFIED_PRESERVE": 6
+        },
+        "units": 112
+      },
+      "revision": "620a2614418854b4a18966a361e6907ddc88c7cb",
+      "v1": {
+        "kept": 43,
+        "kept_not_printed": 12,
+        "omit_unsupported": 1,
+        "omit_unsupported_without_fact": 1,
+        "supersede_redundant": 64,
+        "units": 113
+      }
+    },
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 26,
+        "defer_unresolved": 0,
+        "m1": 0.419355,
+        "m2": 3,
+        "m3": 9,
+        "omit_unsupported": 3,
+        "omit_unsupported_without_fact": 3,
+        "supersede_destination_unlocated": 0,
+        "supersede_redundant": 16,
+        "unaccounted_by_disposition": {
+          "OMIT_UNSUPPORTED": 3,
+          "SUPERSEDE_REDUNDANT": 9,
+          "VERIFIED_MOVE": 14,
+          "VERIFIED_PRESERVE": 10
+        },
+        "units": 62
+      },
+      "revision": "becd199a776682785768c60c778558d975b0c2f9",
+      "v1": {
+        "kept": 43,
+        "kept_not_printed": 24,
+        "omit_unsupported": 3,
+        "omit_unsupported_without_fact": 3,
+        "supersede_redundant": 16,
+        "units": 62
+      }
+    },
+    "aspose-words-foss__Aspose.Words-FOSS-for-.NET": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS"
+      ],
+      "ledger": {
+        "accounted": 22,
+        "defer_unresolved": 11,
+        "m1": 0.217822,
+        "m2": 18,
+        "m3": 16,
+        "omit_unsupported": 18,
+        "omit_unsupported_without_fact": 18,
+        "supersede_destination_unlocated": 2,
+        "supersede_redundant": 32,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 11,
+          "OMIT_UNSUPPORTED": 18,
+          "SUPERSEDE_REDUNDANT": 16,
+          "VERIFIED_MOVE": 4,
+          "VERIFIED_PRESERVE": 29,
+          "VERIFIED_REWRITE": 1
+        },
+        "units": 101
+      },
+      "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+      "v1": {
+        "kept": 39,
+        "kept_not_printed": 33,
+        "omit_unsupported": 18,
+        "omit_unsupported_without_fact": 18,
+        "supersede_redundant": 32,
+        "units": 104
+      }
+    },
+    "aspose-words-foss__Aspose.Words-FOSS-for-Python": {
+      "authorizable": false,
+      "judge_failing": [
+        "J4_DISPOSITIONS",
+        "J6_NOT_WORSE_THAN_LIVE"
+      ],
+      "ledger": {
+        "accounted": 41,
+        "defer_unresolved": 13,
+        "m1": 0.347458,
+        "m2": 35,
+        "m3": 11,
+        "omit_unsupported": 35,
+        "omit_unsupported_without_fact": 35,
+        "supersede_destination_unlocated": 7,
+        "supersede_redundant": 29,
+        "unaccounted_by_disposition": {
+          "DEFER_UNRESOLVED": 13,
+          "OMIT_UNSUPPORTED": 26,
+          "SUPERSEDE_REDUNDANT": 11,
+          "VERIFIED_MOVE": 25,
+          "VERIFIED_PRESERVE": 2
+        },
+        "units": 118
+      },
+      "revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+      "v1": {
+        "kept": 41,
+        "kept_not_printed": 27,
+        "omit_unsupported": 35,
+        "omit_unsupported_without_fact": 35,
+        "supersede_redundant": 29,
+        "units": 119
+      }
+    }
+  },
+  "control_revision": "4a7baf11926a6ee8707f41b8c6a525367c5f8fcd",
+  "m1": {
+    "accounted": 1274,
+    "defer_unresolved_not_accounted": 85,
+    "over": 2710,
+    "value": 0.470111
+  },
+  "m2": {
+    "of_omit_unsupported": 338,
+    "of_which_cite_no_fact": 316,
+    "value": 318
+  },
+  "m3": {
+    "destination_unlocated": 43,
+    "of_supersede_redundant": 1514,
+    "threshold": 0.8,
+    "tokeniser": "m3-tokens-v1",
+    "value": 680
+  },
+  "m3_definition": {
+    "destination": "the destination_section of the disposition, located in the sealed README (an H2 by name, the lead for identity/badges/banner/opening)",
+    "threshold": 0.8,
+    "threshold_status": "provisional; frozen here until an owner decision in DECISION_LOG",
+    "tokeniser": "m3-tokens-v1"
+  },
+  "m9": {
+    "authorizable": 0,
+    "inputs": 30
+  },
+  "pins_file": "data/lane_r_corpus/pins.json",
+  "schema_version": 2,
+  "survey_sha256": "1ad6cf8464828b4eb180e3aef930589693c5b792534a5438e72a5c5068d14b9a",
+  "unaccounted_by_disposition": {
+    "CORRECT_WITH_EVIDENCE": 1,
+    "DEFER_UNRESOLVED": 85,
+    "OMIT_UNSUPPORTED": 267,
+    "SUPERSEDE_REDUNDANT": 672,
+    "VERIFIED_MOVE": 96,
+    "VERIFIED_PRESERVE": 293,
+    "VERIFIED_REWRITE": 22
+  },
+  "v1_judge": {
+    "J4_fail": 29,
+    "J6_fail": 26
+  },
+  "v1_reproduced": {
+    "kept": 746,
+    "kept_not_printed": 389,
+    "omit_unsupported": 338,
+    "omit_unsupported_without_fact": 316,
+    "supersede_redundant": 1514,
+    "units": 2761
+  }
+}
