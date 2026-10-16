@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:9647d373340a719a6e4ee4803b1d81d1a9fbcfd65c01aefcba692f2950b54bb0",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "package.json",
+      "detail": "line 10: \"lint\": \"eslint 'src/**/*.ts'\"; eslint ^8.57.1 and @typescript-eslint/* in devDependencies; no eslintConfig entry"
+    },
+    {
+      "path": "docker node:22-slim: npm install && npm run lint",
+      "detail": "2026-10-16: ESLint 8.57.1 \"couldn't find a configuration file\"; root entries: AGENTS.md README.md jest.config.js package.json src tests tsconfig.json"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, npm run lint exits with \"ESLint couldn't find a configuration file\" because the repository contains no ESLint configuration.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: npm run lint fails because the repository has no ESLint configuration",
+  "suggested_issue_body": "## Summary\n\n`npm run lint` fails immediately because the repository contains no ESLint configuration file. `package.json` defines the `lint` script and lists `eslint` and the `@typescript-eslint` packages as devDependencies, but there is no `.eslintrc.*`, no `eslint.config.*` and no `eslintConfig` entry.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run lint\n```\n\n## Expected\n\nESLint runs over `src/**/*.ts` and reports findings or none.\n\n## Actual result\n\n```\n> @aspose/3d@24.12.0 lint\n> eslint 'src/**/*.ts'\n\nOops! Something went wrong! :(\n\nESLint: 8.57.1\n\nESLint couldn't find a configuration file. To set up a configuration file for this project, please run:\n\n    npm init @eslint/config\n```\n\n## Where in the repository\n\n- `package.json:10` (`\"lint\": \"eslint 'src/**/*.ts'\"`) and the `eslint`, `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` devDependencies\n- The root of the repository holds `AGENTS.md`, `README.md`, `jest.config.js`, `package.json`, `src`, `tests` and `tsconfig.json`; no ESLint configuration\n\n<!-- repository-presenter-defect: sha256:9647d373340a719a6e4ee4803b1d81d1a9fbcfd65c01aefcba692f2950b54bb0 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

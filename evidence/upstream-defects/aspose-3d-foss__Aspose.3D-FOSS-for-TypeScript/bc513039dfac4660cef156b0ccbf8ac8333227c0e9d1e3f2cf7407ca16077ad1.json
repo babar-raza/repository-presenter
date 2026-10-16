@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:bc513039dfac4660cef156b0ccbf8ac8333227c0e9d1e3f2cf7407ca16077ad1",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/aspose/threed/formats/obj/ObjExporter.ts",
+      "detail": "lines 62-76: _collectNodes visits child nodes only when the current node has an entity (line 64)"
+    },
+    {
+      "path": "src/aspose/threed/Scene.ts",
+      "detail": "line 331: file stream writes on close() only when content is non-empty"
+    },
+    {
+      "path": "docker node:22-slim: node repro.js (script in the issue body)",
+      "detail": "2026-10-16: 'root.obj written: true', 'child.obj written: false', no exception"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, Scene.save to a .obj path writes no file and raises no error when the mesh is attached to a child node of the root node.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: Scene.save to .obj writes no file and no error when the geometry is on a child node",
+  "suggested_issue_body": "## Summary\n\n`scene.save('x.obj')` produces no output file, and no error, when the mesh is attached with `rootNode.createChildNode(name, mesh)`. The same mesh attached directly to `rootNode.entity` is exported.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run build\nnode repro.js   # repro.js holds the script below, saved in the repository root\n```\n\n```js\nconst fs = require('fs');\nconst { Scene } = require('./dist/aspose/threed');\nconst { Mesh } = require('./dist/aspose/threed/entities');\nconst { Vector4 } = require('./dist/aspose/threed/utilities');\n\nfunction triangle() {\n  const mesh = new Mesh('tri');\n  mesh.controlPoints = [new Vector4(10, 20, 30, 1), new Vector4(11, 20, 30, 1), new Vector4(10, 21, 30, 1)];\n  mesh.createPolygon(0, 1, 2);\n  return mesh;\n}\n\nconst root = new Scene();\nroot.rootNode.entity = triangle();\nroot.save('root.obj');\nconsole.log('root.obj written:', fs.existsSync('root.obj'));\n\nconst child = new Scene();\nchild.rootNode.createChildNode('n', triangle());\nchild.save('child.obj');\nconsole.log('child.obj written:', fs.existsSync('child.obj'));\n```\n\n## Expected\n\n`child.obj` is written with the `v` and `f` lines of the triangle, as `root.obj` is (or an error says why not).\n\n## Actual result\n\n```\nroot.obj written: true\nchild.obj written: false\n```\nNo exception is thrown.\n\n## Where in the repository\n\n- `src/aspose/threed/formats/obj/ObjExporter.ts:62-76`: `_collectNodes` recurses into `node.childNodes` only inside `if (mesh !== undefined && ...)` (`:64`), so a root node without an entity ends the walk before its children are visited\n- `src/aspose/threed/Scene.ts:331`: the file stream writes the file on `close()` only when its content is non-empty, so an empty export leaves no file\n\n<!-- repository-presenter-defect: sha256:bc513039dfac4660cef156b0ccbf8ac8333227c0e9d1e3f2cf7407ca16077ad1 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

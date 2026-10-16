@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:3c9023d5959c35c813a9198b17707c1d6e601f14ff27249d22ab1d2f60aae0b2",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/aspose/threed/Scene.ts",
+      "detail": "line 161: only the first 100 characters are examined; line 172: OBJ is recognised only by mtllib, usemtl or a leading 'v <number>'; lines 216-221: otherwise StlImporter is used"
+    },
+    {
+      "path": "docker node:22-slim: node repro.js (script in the issue body)",
+      "detail": "2026-10-16: for '# exported by a tool' / 'o Tri' / v / f content the result is node STL_Node with 0 control points and 0 polygons; the same file starting with 'v 0 0 0' or 'mtllib x.mtl' loads 3 control points and 1 polygon"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, Scene.open detects OBJ content only when the first 100 characters contain 'mtllib' or 'usemtl' or start with 'v <number>', so other valid OBJ files are read by the STL importer and give an empty mesh without an error.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: Scene.open returns an empty mesh for an OBJ file that does not start with 'v' or mtllib",
+  "suggested_issue_body": "## Summary\n\n`scene.open('model.obj')` returns a scene with an empty mesh (named `STL_Node`) for a valid OBJ file whose first line is a comment or an `o` line. The format detection in `Scene.openFromBuffer` recognises OBJ only when the first 100 characters contain `mtllib` or `usemtl`, or begin with `v` followed by a number; every other text file falls through to the STL importer, which finds no facets and raises no error.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run build\nnode repro.js   # repro.js holds the script below, saved in the repository root\n```\n\n```js\nconst fs = require('fs');\nconst { Scene } = require('./dist/aspose/threed');\nconst { Mesh } = require('./dist/aspose/threed/entities');\nconst { Vector4 } = require('./dist/aspose/threed/utilities');\n\nfunction triangle() {\n  const mesh = new Mesh('tri');\n  mesh.controlPoints = [new Vector4(10, 20, 30, 1), new Vector4(11, 20, 30, 1), new Vector4(10, 21, 30, 1)];\n  mesh.createPolygon(0, 1, 2);\n  return mesh;\n}\n\nfs.writeFileSync('model.obj', '# exported by a tool\\no Tri\\nv 0 0 0\\nv 1 0 0\\nv 0 1 0\\nf 1 2 3\\n');\n\nconst scene = new Scene();\nscene.open('model.obj');\nconst node = scene.rootNode.childNodes[0];\nconsole.log(node.name, 'control points:', node.entity.controlPoints.length, 'polygons:', node.entity.polygonCount);\n```\n\n## Expected\n\nThe scene holds a mesh with 3 control points and 1 polygon, as it does when the same file starts with `v 0 0 0` or `mtllib x.mtl`.\n\n## Actual result\n\n```\nSTL_Node control points: 0 polygons: 0\n```\nNo exception is thrown.\n\n## Where in the repository\n\n- `src/aspose/threed/Scene.ts:161`: only the first 100 characters are examined\n- `src/aspose/threed/Scene.ts:172`: `content.includes('mtllib') || content.includes('usemtl') || content.match(/^v\\s+-?\\d/)` is the whole OBJ test\n- `src/aspose/threed/Scene.ts:216-221`: the fallback is `StlImporter`\n\n<!-- repository-presenter-defect: sha256:3c9023d5959c35c813a9198b17707c1d6e601f14ff27249d22ab1d2f60aae0b2 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

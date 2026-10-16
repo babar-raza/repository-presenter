@@ -1,0 +1,43 @@
+# 2026-10-16 node:22-slim (node v22.23.3, npm 10.9.9); the exact scripts of the issue bodies (repro.js in the repository root after npm install && npm run build), revision 66cb26df3b031f0bf6976d4e88dc89721983afa4
+=== stl
+solid Scene
+  facet normal 0 0 0
+    outer loop
+      vertex 0 1 2
+    endloop
+  endfacet
+endsolid Scene
+
+binary STL size: 50 bytes
+=== fbx
+[ '', 'o Node_0', 'v 10.000000 20.000000 30.000000' ]
+Unsupported format: FbxFormat
+Mesh control points: 0
+=== obj_export
+root.obj written: true
+child.obj written: false
+=== obj_open
+STL_Node control points: 0 polygons: 0
+=== glb
+out.gltf written: true
+node:internal/buffer:88
+  throw new ERR_OUT_OF_RANGE(type || 'offset',
+  ^
+
+RangeError [ERR_OUT_OF_RANGE]: The value of "offset" is out of range. It must be >= 0 and <= 632. Received 636
+    at boundsError (node:internal/buffer:88:9)
+    at checkBounds (node:internal/buffer:57:5)
+    at Buffer.writeFloatForwards [as writeFloatLE] (node:internal/buffer:934:3)
+=== transform
+TypeError: rotation[0].eulerAngles is not a function
+TypeError: rotation[0].eulerAngles is not a function
+=== main
+main: dist/index.js exists: false
+types: dist/index.d.ts exists: false
+Cannot find module '/w/dist/index.js'. Please verify that the package.json has a valid "main" entry
+=== zip (npm install --omit=dev in a copy holding package.json, dist and repro.js)
+added 1 package in 3s
+Error: Cannot find module 'adm-zip'
+=== npx jest tests/test_3mf_materials.test.ts
+    ENOENT: no such file or directory, open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'
+Tests:       1 failed, 1 total

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:81822f594b066a095069a208a0033c869ff8bde011db6a6aae3135f1e698bfd4",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "package.json",
+      "detail": "line 31: adm-zip under devDependencies; dependencies lists only xmldom"
+    },
+    {
+      "path": "src/aspose/threed/formats/threemf/ThreeMfExporter.ts",
+      "detail": "line 162: new (require('adm-zip'))()"
+    },
+    {
+      "path": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts",
+      "detail": "line 53: const AdmZip = require('adm-zip')"
+    },
+    {
+      "path": "docker node:22-slim: npm install --omit=dev, then node repro.js",
+      "detail": "2026-10-16: Error: Cannot find module 'adm-zip'"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, ThreeMfExporter and ThreeMfImporter require 'adm-zip' at runtime while package.json lists adm-zip under devDependencies, so a consumer install fails with 'Cannot find module adm-zip' on 3MF save and open.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: adm-zip is only a devDependency, so 3MF import and export fail in a normal install",
+  "suggested_issue_body": "## Summary\n\nThe 3MF exporter and importer load `adm-zip` with `require('adm-zip')`, but `package.json` lists it only under `devDependencies`. A consumer that installs the production dependencies (`xmldom` only) gets `Cannot find module 'adm-zip'` as soon as it saves or opens a 3MF file.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run build\nnode repro.js   # repro.js holds the script below, saved in the repository root\n```\n\nThen run the script in a directory that has only what a consumer installs (the production dependencies):\n\n```sh\nmkdir ../consumer && cp -r package.json dist repro.js ../consumer && cd ../consumer\nnpm install --omit=dev\nnode repro.js\n```\n\n```js\nconst fs = require('fs');\nconst { Scene } = require('./dist/aspose/threed');\nconst { Mesh } = require('./dist/aspose/threed/entities');\nconst { Vector4 } = require('./dist/aspose/threed/utilities');\n\nfunction triangle() {\n  const mesh = new Mesh('tri');\n  mesh.controlPoints = [new Vector4(10, 20, 30, 1), new Vector4(11, 20, 30, 1), new Vector4(10, 21, 30, 1)];\n  mesh.createPolygon(0, 1, 2);\n  return mesh;\n}\n\nconst scene = new Scene();\nscene.rootNode.createChildNode('n', triangle());\ntry { scene.save('t.3mf'); } catch (e) { console.log(e.constructor.name + ': ' + e.message.split('\\n')[0]); }\n```\n\n## Expected\n\n`adm-zip` is installed together with the library (listed under `dependencies`) and `t.3mf` is written.\n\n## Actual result\n\n```\nError: Cannot find module 'adm-zip'\n```\n\n## Where in the repository\n\n- `package.json:26,31` (`@types/adm-zip` and `adm-zip` under `devDependencies`; `dependencies` holds only `xmldom`)\n- `src/aspose/threed/formats/threemf/ThreeMfExporter.ts:162` and `src/aspose/threed/formats/threemf/ThreeMfImporter.ts:53`\n\n<!-- repository-presenter-defect: sha256:81822f594b066a095069a208a0033c869ff8bde011db6a6aae3135f1e698bfd4 -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

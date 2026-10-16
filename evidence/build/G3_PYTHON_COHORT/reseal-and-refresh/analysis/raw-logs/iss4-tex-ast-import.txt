@@ -1,0 +1,29 @@
+# 2026-10-16 Python Python 3.13.15; clone of aspose-tex-foss/Aspose.TeX-FOSS-for-Python at 181015d2eee3e19f8af3d84e4a932ac84ad47c7c (default branch main head, unchanged since 2026-09-02)
+## git log
+181015d Babar Raza 2026-09-02 Refresh README: verified examples and documentation links
+2f4bfab Vadym Kiprich 2026-06-02 Release 26.5
+311455e Andriy Kotlyarov 2026-05-19 Initial commit
+## ast.parse over every .py file (python -I ast_all.py .)
+FAILED/TOTAL 102 119
+{('(root)', 'bad'): 1, ('src', 'ok'): 10, ('src', 'bad'): 35, ('tests', 'ok'): 7, ('tests', 'bad'): 66}
+{'(root)': "run_hello.py line 66: IndentationError: expected an indented block after 'if' statement on line 65", 'src': "src/aspose_tex/_engine/box_builder.py line 63: IndentationError: expected an indented block after 'for' statement on line 62", 'tests': "tests/_verification/dvi_walker.py line 27: IndentationError: expected an indented block after 'if' statement on line 26"}
+## pip install -e . ; python -I -c 'import aspose_tex'
+  File "<clone>/src/aspose_tex/_input/catcode.py", line 66
+    table[c] = Catcode.LETTER
+    ^^^^^
+IndentationError: expected an indented block after 'for' statement on line 65
+## python run_hello.py
+    out_svg = out_base.with_suffix(".svg")
+    ^^^^^^^
+IndentationError: expected an indented block after 'if' statement on line 65
+## python -m pytest --collect-only -q
+!!!!!!!!!!!!!!!!!! Interrupted: 67 errors during collection !!!!!!!!!!!!!!!!!!!
+2 tests collected, 67 errors in 5.66s
+## indentation of the first failing block (catcode.py lines 64-66, cat -A)
+ table[32] = Catcode.SPACE # space$
+ for c in range(ord('a'), ord('z') + 1):$
+ table[c] = Catcode.LETTER$
+## same lines at the release commit 2f4bfab (the first commit that contains them)
+ table[32] = Catcode.SPACE # space$
+ for c in range(ord('a'), ord('z') + 1):$
+ table[c] = Catcode.LETTER$

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:427379f5f600296c11f24ab09dacdf9e304ea9c0f1197afb22d336d4fe19bb0e",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/aspose/threed/Transform.ts",
+      "detail": "line 160: rotation[0].eulerAngles() is called on the value Matrix4.decompose returned"
+    },
+    {
+      "path": "src/aspose/threed/utilities/Matrix4.ts",
+      "detail": "line 287: rotation[0] = { w, x, y, z } is a plain object without eulerAngles()"
+    },
+    {
+      "path": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts",
+      "detail": "line 289: node.transform.transformMatrix = transform runs for each build item"
+    },
+    {
+      "path": "docker node:22-slim: node repro.js (script in the issue body)",
+      "detail": "2026-10-16: both statements print 'TypeError: rotation[0].eulerAngles is not a function'"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, assigning a Matrix4 to Transform.transformMatrix throws 'TypeError: rotation[0].eulerAngles is not a function', and Scene.open of a 3MF file written by Scene.save throws the same error.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: setting Transform.transformMatrix throws TypeError, so opening a 3MF file fails",
+  "suggested_issue_body": "## Summary\n\nThe `Transform.transformMatrix` setter throws for every matrix, because it calls `eulerAngles()` on the plain object that `Matrix4.decompose` returns. `ThreeMfImporter` uses this setter for each build item, so `Scene.open` fails for every 3MF file that has a build item, including one written by `Scene.save` in the same session.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run build\nnode repro.js   # repro.js holds the script below, saved in the repository root\n```\n\n```js\nconst fs = require('fs');\nconst { Scene } = require('./dist/aspose/threed');\nconst { Mesh } = require('./dist/aspose/threed/entities');\nconst { Vector4 } = require('./dist/aspose/threed/utilities');\n\nfunction triangle() {\n  const mesh = new Mesh('tri');\n  mesh.controlPoints = [new Vector4(10, 20, 30, 1), new Vector4(11, 20, 30, 1), new Vector4(10, 21, 30, 1)];\n  mesh.createPolygon(0, 1, 2);\n  return mesh;\n}\n\nconst { Transform } = require('./dist/aspose/threed');\nconst { Matrix4 } = require('./dist/aspose/threed/utilities');\n\ntry { new Transform().transformMatrix = new Matrix4(); } catch (e) { console.log(e.constructor.name + ': ' + e.message); }\n\nconst scene = new Scene();\nscene.rootNode.createChildNode('n', triangle());\nscene.save('t.3mf');\ntry { new Scene().open('t.3mf'); } catch (e) { console.log(e.constructor.name + ': ' + e.message); }\n```\n\n## Expected\n\nThe matrix is applied to the transform, and the 3MF file is read back into a scene with one child node.\n\n## Actual result\n\n```\nTypeError: rotation[0].eulerAngles is not a function\nTypeError: rotation[0].eulerAngles is not a function\n```\nThe existing test `Test3MFRoundTrip > testRoundTripExportImport` fails with the same error.\n\n## Where in the repository\n\n- `src/aspose/threed/Transform.ts:160`: `this._eulerAngles = rotation[0].eulerAngles();`\n- `src/aspose/threed/utilities/Matrix4.ts:287`: `decompose` stores `rotation[0] = { w, x, y, z };`, a plain object rather than a `Quaternion`\n- `src/aspose/threed/formats/threemf/ThreeMfImporter.ts:289`: `node.transform.transformMatrix = transform;`\n\n<!-- repository-presenter-defect: sha256:427379f5f600296c11f24ab09dacdf9e304ea9c0f1197afb22d336d4fe19bb0e -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

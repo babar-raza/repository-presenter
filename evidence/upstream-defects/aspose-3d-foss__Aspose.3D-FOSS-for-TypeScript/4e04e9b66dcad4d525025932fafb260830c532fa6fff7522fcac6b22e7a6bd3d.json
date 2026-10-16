@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+  "source_revision": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
+  "defect_fingerprint": "sha256:4e04e9b66dcad4d525025932fafb260830c532fa6fff7522fcac6b22e7a6bd3d",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "src/aspose/threed/Scene.ts",
+      "detail": "save (lines 226-318) has no fbx extension branch and falls back to ObjFormat at 312-316; the exporter selection (348-361) has no FbxFormat and throws at line 360; openFromBuffer (145-223) has no FBX branch and falls through to StlImporter"
+    },
+    {
+      "path": "src/aspose/threed/formats/fbx/FbxExporter.ts",
+      "detail": "exists and writes FBX ASCII when called directly"
+    },
+    {
+      "path": "docker node:22-slim: node repro.js (script in the issue body)",
+      "detail": "2026-10-16: out.fbx begins with [ '', 'o Node_0', 'v 10.000000 20.000000 30.000000' ]; save with FbxFormat throws 'Unsupported format: FbxFormat'; open of an FbxExporter file gives 0 control points"
+    }
+  ],
+  "claim": "At revision 66cb26df3b031f0bf6976d4e88dc89721983afa4, Scene.save to a .fbx path writes OBJ text, Scene.save with FbxFormat throws 'Unsupported format: FbxFormat', and Scene.open of an FBX file returns an empty mesh without an error.",
+  "suggested_issue_title": "Aspose.3D FOSS for TypeScript: FBX is not wired into Scene.save or Scene.open (.fbx saves OBJ text, opens empty)",
+  "suggested_issue_body": "## Summary\n\nThe repository contains `FbxExporter` and `FbxImporter` (and `package.json` lists `fbx` as a keyword), but `Scene.save` and `Scene.open` never use them. Saving to a `.fbx` path writes Wavefront OBJ text; passing the FBX format object throws; opening an FBX file returns a mesh with no control points and raises no error.\n\n## Environment\n\n- Revision `66cb26df3b031f0bf6976d4e88dc89721983afa4` (default branch `master`)\n- Node.js v22.23.3 and npm 10.9.9 (Docker image `node:22-slim`, Linux); the same results on Windows with Node.js v22.11.0\n- `npm install` and `npm run build` complete without errors; verified on 2026-10-16\n\n## Steps to reproduce\n\n```sh\nnpm install\nnpm run build\nnode repro.js   # repro.js holds the script below, saved in the repository root\n```\n\n```js\nconst fs = require('fs');\nconst { Scene } = require('./dist/aspose/threed');\nconst { Mesh } = require('./dist/aspose/threed/entities');\nconst { Vector4 } = require('./dist/aspose/threed/utilities');\n\nfunction triangle() {\n  const mesh = new Mesh('tri');\n  mesh.controlPoints = [new Vector4(10, 20, 30, 1), new Vector4(11, 20, 30, 1), new Vector4(10, 21, 30, 1)];\n  mesh.createPolygon(0, 1, 2);\n  return mesh;\n}\n\nconst { FbxFormat, FbxExporter, FbxSaveOptions } = require('./dist/aspose/threed/formats/fbx');\n\nconst scene = new Scene();\nscene.rootNode.entity = triangle();\n\n// 1. Save by file extension\nscene.save('out.fbx');\nconsole.log(fs.readFileSync('out.fbx', 'utf8').split('\\n').slice(0, 3));\n\n// 2. Save with the FBX format object\ntry { scene.save('out2.fbx', FbxFormat.getInstance()); } catch (e) { console.log(e.message); }\n\n// 3. Open an FBX file (written here with the library's own FbxExporter)\nlet text = '';\nnew FbxExporter().export(scene, { write(d) { text += d; } }, new FbxSaveOptions());\nfs.writeFileSync('real.fbx', text);\nconst loaded = new Scene();\nloaded.open('real.fbx');\nconst mesh = loaded.rootNode.childNodes[0].entity;\nconsole.log(mesh.constructor.name, 'control points:', mesh.controlPoints.length);\n```\n\n## Expected\n\n1. `out.fbx` contains FBX text (the output of `FbxExporter`).\n2. `scene.save('out2.fbx', FbxFormat.getInstance())` saves the file.\n3. `loaded.rootNode.childNodes[0].entity` is a mesh with 3 control points.\n\n## Actual result\n\n```\n[ '', 'o Node_0', 'v 10.000000 20.000000 30.000000' ]\nUnsupported format: FbxFormat\nMesh control points: 0\n```\nWith the geometry on a child node (`createChildNode`), step 1 writes no file at all, because the OBJ exporter that handles the fallback skips child nodes.\n\n## Where in the repository\n\n- `src/aspose/threed/Scene.ts:226-318`: `save` maps the extensions `obj`, `stl`, `gltf`, `glb`, `dae` and `3mf` to a format; there is no `fbx` branch, and `:312-316` falls back to the OBJ format\n- `src/aspose/threed/Scene.ts:348-361`: the exporter is chosen from five format names; `FbxFormat` reaches `throw new Error(\"Unsupported format: ...\")` at `:360`\n- `src/aspose/threed/Scene.ts:145-223`: `openFromBuffer` detects glTF, 3MF, COLLADA and OBJ and otherwise uses `StlImporter` (`:221`); there is no FBX branch\n- `src/aspose/threed/formats/fbx/FbxExporter.ts`, `src/aspose/threed/formats/fbx/FbxImporter.ts`\n\n<!-- repository-presenter-defect: sha256:4e04e9b66dcad4d525025932fafb260830c532fa6fff7522fcac6b22e7a6bd3d -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null,
+  "defect_class": "BUILD_OR_TESTS_FAIL"
+}

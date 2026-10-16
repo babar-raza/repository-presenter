@@ -49,6 +49,7 @@
       "platform": "typescript",
       "ecosystem": "typescript",
       "mode": "dry_run",
+      "issues_mode": "file",
       "policy_profile": "aspose-3d-foss-typescript",
       "active": true,
       "provider_identity": {
@@ -585,6 +586,7 @@
       "platform": "python",
       "ecosystem": "python",
       "mode": "dry_run",
+      "issues_mode": "file",
       "policy_profile": "aspose-tex-foss-python",
       "active": true,
       "provider_identity": {
