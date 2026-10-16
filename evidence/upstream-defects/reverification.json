@@ -77,7 +77,7 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__cd25aa80234dbc4a77a6437bcd1a14fd72cbb9093603e934478ea627a68a465c",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
+      "verified_at": "2026-10-16T11:31:55Z",
       "evidence_digest": "sha256:9a2b66c1f82946e00a13b078ff8d0a095e1d85e8bf47c34ce67380db4ffcb2cb",
       "method": "git clone --depth 1 at the live head: git ls-files holds no file named licen[sc]e* or copying* anywhere in the tree; gh api repos/<r> --jq .license is null; package.json declares MIT; re-verified 2026-10-16 (lane iss4); raw log: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-license-tree.txt",
       "note": "Re-verified at the live head."
@@ -86,8 +86,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__ee780fd392f4a2ab4e130a137ed32f715e2224f8a77dd327a44aa67588754c00",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:6eeac5e857035a7f3378832ef3082927a0b753d8f21b59bd45398eb366d6a370",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:d62a24f1c61f1b7fff5c16cb951f570d2958f3a7056b2ffc21d76af4901c1ca8",
       "method": "docker node:22-slim: npm install then npx jest: 4 failed, 93 passed, 97 total; text narrowed 2026-10-16 to the one cause not reported elsewhere (fixture outside the repository, tests/test_3mf_materials.test.ts:14); re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -356,7 +356,7 @@
       "handoff_id": "aspose-tex-foss__Aspose.TeX-FOSS-for-Python__c00f9615a81bb9f3c77f45df5ded5036d8da0cce6d6dee01634a27b3f3659188",
       "verdict": "CONFIRMED",
       "live_head_sha": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
-      "verified_at": "2026-10-16T11:28:08Z",
+      "verified_at": "2026-10-16T11:31:55Z",
       "evidence_digest": "sha256:085fcb7e351f42e50d9d6b04fe002cef46eda71f0451af87172745ba5dda2a27",
       "method": "shallow clone at the live head 181015d2: ast.parse over every .py file (102 of 119 fail; src/aspose_tex 35 of 45; tests 66 of 73; run_hello.py), pip install -e . in a venv then import aspose_tex (IndentationError at _input/catcode.py line 66), pytest --collect-only (67 collection errors); the collapse is in the upstream release commit 2f4bfab; re-verified 2026-10-16 (lane iss4); raw log: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-tex-ast-import.txt",
       "note": "Re-measured 2026-10-10: 102 of 119 files fail (the earlier text said 35 of 45, only src/aspose_tex/); the package root cannot be imported. Text re-drafted for the issue-text quality gate."
@@ -374,8 +374,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__8f4d25e9df312ed7a2855bdce4e4f1117c1b6e4d98599eadc53ebf879cd9b3f9",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:04d2af5da64c96cdbcbd03ad9959cc3e03ab2f5dd2f8b2ebde021b40de248767",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:8471f6197bb031e4bfe41a43f016ab1e9650210841515e7c25601bf43d14e5dc",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -383,8 +383,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__4e04e9b66dcad4d525025932fafb260830c532fa6fff7522fcac6b22e7a6bd3d",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:4a5afd6e261da75595462bdb9943e154d2f721bb709a175f9aec74acec07097a",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:b540833504a8a83e40601b7f94e1e61388af1e0b6a22c1006fa13811e5da5281",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -392,8 +392,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__bc513039dfac4660cef156b0ccbf8ac8333227c0e9d1e3f2cf7407ca16077ad1",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:0c4c9579029bf4b8ef0cf527333194175ec4ca5d3b0a284858bbdf66b341e5b2",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:e804d99b405d33012c0f4ff169fbdd6f11162e816b86cffbd7039fe977b5ed66",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -401,8 +401,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__3c9023d5959c35c813a9198b17707c1d6e601f14ff27249d22ab1d2f60aae0b2",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:bc8adf9499035787d55dc352f2755a6f6d2c68d639cb04558c1ba0a77ce8048f",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:ce08125cf03f5d3ce557048355cf917d7c853c85af93172ae512e8def725faf9",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -410,8 +410,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__f8eb0ce4076bc7771765bd9c68d773ac263a64a664611710de1429fdd019ad05",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:b3c9ad9137d3b4fd78bd938496e46bf5eaf76d14fd53d34c2bcd2fca7afecffd",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:ffa083d03253465e93b6eb6e3eefd9ab2e4060d17cce6bdd8acdf1bb00a07c0e",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -419,8 +419,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__427379f5f600296c11f24ab09dacdf9e304ea9c0f1197afb22d336d4fe19bb0e",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:5f5bddb9ab3bb2ec0036ceca7ec6849b186cb548f13478d7fca4f6a14b3a3641",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:140a47914af45d0300293973209a8f00859d3bf11dbee46f642a030c31cc77db",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -428,8 +428,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__fd5dcefcad1a09bd72180162ae52110bbd08dba73504918d5be5cf7f651d9504",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:39fa9b156412ce205813a0261b15327c429399f1786a9248d4a890af31571661",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:12fd1b5af9d62e38a5ce39496e733d580bcaf5178e04a8fb8e3171f1f7f14a0f",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -437,8 +437,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__81822f594b066a095069a208a0033c869ff8bde011db6a6aae3135f1e698bfd4",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:5726ceb479bcb605ada9621157160700bf9609f9c09522e9544f039162f2044a",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:01428bd9e59da5dee483dd8daa97f60379f7fc7909b74a98d02b2f7039eb714d",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     },
@@ -446,8 +446,8 @@
       "handoff_id": "aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript__9647d373340a719a6e4ee4803b1d81d1a9fbcfd65c01aefcba692f2950b54bb0",
       "verdict": "CONFIRMED",
       "live_head_sha": "66cb26df3b031f0bf6976d4e88dc89721983afa4",
-      "verified_at": "2026-10-16T11:28:08Z",
-      "evidence_digest": "sha256:92d2a1e949b90fe5f63deee986a3e284476eb93b3abd747f34926fd81aa7a52e",
+      "verified_at": "2026-10-16T11:31:55Z",
+      "evidence_digest": "sha256:ecf690b19f18c3d8ff22ad6f2a6d4f317b238417d3a02038d61c1cd89c31157e",
       "method": "docker node:22-slim: the exact script of the issue body run in the repository root after npm install and npm run build; source lines read at the revision; re-verified 2026-10-16 (lane iss4); raw logs: evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-issue-repros.txt, evidence/build/G3_PYTHON_COHORT/reseal-and-refresh/analysis/raw-logs/iss4-threedts-linux-repro.txt",
       "note": "Reproduced by the lane at the live head; the hand-found defect shape (see ISSUES_PREP.md)."
     }
