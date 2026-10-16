@@ -1,0 +1,161 @@
+{
+  "confinement": {
+    "edits": 3,
+    "statement": "the corrected text with every edit's span removed equals the original with the same spans removed",
+    "verified": true
+  },
+  "corrected_sha256": "413e900b5cc0a436ebbb59f2ca35f5b2fda3565e0f3ec572ba3f644d20c37253",
+  "edits": [
+    {
+      "detector": "missing_sections",
+      "end": 1404,
+      "evidence": [
+        {
+          "fact_id": "dependency:none",
+          "kind": "dependency",
+          "status": "SUPPORTED",
+          "value": "none"
+        },
+        {
+          "fact_id": "package:cxx_standard",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "17"
+        },
+        {
+          "fact_id": "package:cmake_minimum",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "3.16"
+        },
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:18"
+        }
+      ],
+      "index": 0,
+      "kind": "MISSING_INFO",
+      "line": 18,
+      "original": "",
+      "rationale": "the README's contents list gains the Dependencies item beside line 18, so the inserted section is reachable from it",
+      "replacement": "- [Dependencies](#dependencies)\n",
+      "start": 1404
+    },
+    {
+      "detector": "at_a_glance_diagram",
+      "end": 2723,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:29"
+        }
+      ],
+      "index": 1,
+      "kind": "DIAGRAM_FIX",
+      "line": 29,
+      "original": "flowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing .xlsx workbook (file path or in-memory stream)\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for C++\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Create or load .xlsx workbooks\"]\n      c2[\"Read and write cell values and formulas\"]\n      c3[\"Apply cell styling: fonts, fills, borders, alignment\"]\n      c4[\"Merge cell ranges and format numbers\"]\n      c5[\"Control worksheet view and protection settings\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c6[\"Apply conditional formatting and data validation\"]\n      c7[\"Manage hyperlinks and defined names\"]\n      c8[\"Configure page setup and print settings\"]\n      c9[\"Read and write document properties\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\".xlsx workbook (file path or binary stream)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "rationale": "the At a Glance diagram on line 29 is drawn with CLIP_AUTO_WRAP, CLIP_HTML_LABELS, COLUMN_ORDER, GROUP_LAID_AS_ROW, ORDER_UNPINNED, ORIENTATION_VERTICAL; the same labels, titles and chain are redrawn left to right with SVG text labels; its content already exceeded 1 regeneration ceiling(s) and is kept as the maintainers wrote it",
+      "replacement": "%%{init: {\"htmlLabels\": false, \"flowchart\": {\"htmlLabels\": false, \"nodeSpacing\": 22, \"rankSpacing\": 26, \"padding\": 10, \"useMaxWidth\": true, \"wrappingWidth\": 400}}}%%\nflowchart LR\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing .xlsx<br/>workbook (file<br/>path or in-memory<br/>stream)\"]\n  end\n  PRODUCT[\"Aspose.Cells<br/>FOSS for C++\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    subgraph capr[\" \"]\n      direction TB\n      c6[\"Apply conditional<br/>formatting and<br/>data validation\"]\n      c7[\"Manage<br/>hyperlinks and<br/>defined names\"]\n      c8[\"Configure page<br/>setup and print<br/>settings\"]\n      c9[\"Read and write<br/>document<br/>properties\"]\n      c6 ~~~ c7 ~~~ c8 ~~~ c9\n    end\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Create or load<br/>.xlsx workbooks\"]\n      c2[\"Read and write<br/>cell values and<br/>formulas\"]\n      c3[\"Apply cell<br/>styling: fonts,<br/>fills, borders,<br/>alignment\"]\n      c4[\"Merge cell<br/>ranges and<br/>format numbers\"]\n      c5[\"Control worksheet<br/>view and<br/>protection settings\"]\n      c1 ~~~ c2 ~~~ c3 ~~~ c4 ~~~ c5\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\".xlsx workbook<br/>(file path or<br/>binary stream)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "start": 1725
+    },
+    {
+      "detector": "missing_sections",
+      "end": 6332,
+      "evidence": [
+        {
+          "fact_id": "dependency:none",
+          "kind": "dependency",
+          "status": "SUPPORTED",
+          "value": "none"
+        },
+        {
+          "fact_id": "package:cxx_standard",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "17"
+        },
+        {
+          "fact_id": "package:cmake_minimum",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "3.16"
+        }
+      ],
+      "index": 2,
+      "kind": "MISSING_SECTION",
+      "line": 125,
+      "original": "",
+      "rationale": "the README has no Dependencies section; the template's is rendered from the cited facts alone",
+      "replacement": "## Dependencies\n\n### Required Package Dependencies\n\nNo required third-party package dependencies.\n\n### Native and System Requirements\n\n- Requires C++ `17`.\n- Requires CMake 3.16 or later.\n\n",
+      "start": 6332
+    }
+  ],
+  "kind": "correction",
+  "original_sha256": "a811deaebdd5aab3faad8b95f3e83b9ce00d8045190443c2f3848cf54ebef5a2",
+  "readme_path": "README.md",
+  "render_check": {
+    "reason": "no renderer installed (RP_MERMAID_TOOLS, node)",
+    "status": "not_run"
+  },
+  "report_only": [],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "schema_version": 1,
+  "send": {
+    "hold_reason": null,
+    "no_push_reason": null,
+    "pr_order": 1
+  },
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "stability": {
+    "deterministic": true,
+    "idempotent": true,
+    "provider_calls": 0
+  },
+  "summary": {
+    "DIAGRAM_FIX": 1,
+    "MISSING_INFO": 1,
+    "MISSING_SECTION": 1
+  },
+  "unapplied_findings": [
+    {
+      "detector": "report_gaps",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection.iterator",
+        "public_symbol:aspose.cells_foss.autofiltersortconditioncollection.iterator",
+        "public_symbol:aspose.cells_foss.filtercolumncollection.iterator",
+        "public_symbol:aspose.cells_foss.iwarningcallback",
+        "public_symbol:aspose.cells_foss.packaging.ipackagereader",
+        "public_symbol:aspose.cells_foss.packaging.ipackagewriter"
+      ],
+      "line": 0,
+      "reason": "6 of 195 verified public types are named nowhere in the README; would fill API Reference: public_symbol:aspose.cells_foss.autofiltercustomfiltercollection.iterator, public_symbol:aspose.cells_foss.autofiltersortconditioncollection.iterator, public_symbol:aspose.cells_foss.filtercolumncollection.iterator, public_symbol:aspose.cells_foss.iwarningcallback, public_symbol:aspose.cells_foss.packaging.ipackagereader, public_symbol:aspose.cells_foss.packaging.ipackagewriter",
+      "text": ""
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:002"
+      ],
+      "line": 174,
+      "reason": "the example verifier recorded a failure for the example on lines 174-187: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+      "text": "#include \"aspose/cells_foss/Workbook.h\""
+    },
+    {
+      "detector": "claim_public_types",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.autofiltercolorfilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection",
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection.iterator"
+      ],
+      "line": 264,
+      "reason": "the README states 197 public types; the verified facts hold 195 SUPPORTED class and enum symbols (195 outside example and test code): its API tables are likely stale",
+      "text": "full public surface — 197 public types — is listed below, grouped exactly as"
+    }
+  ]
+}

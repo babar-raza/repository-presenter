@@ -1,0 +1,14 @@
+{
+  "approver": "babar-raza",
+  "base_branch": "main",
+  "branch": "repository-presenter/readme-update",
+  "candidate_hash": "413e900b5cc0a436ebbb59f2ca35f5b2fda3565e0f3ec572ba3f644d20c37253",
+  "expires_at": "2026-10-23T11:05:58Z",
+  "issued_at": "2026-10-16T11:05:58Z",
+  "policy_version": "1",
+  "pr_intent": "CREATE_OR_UPDATE_README_PROPOSAL",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "schema_version": 1,
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "supersedes_prs": []
+}

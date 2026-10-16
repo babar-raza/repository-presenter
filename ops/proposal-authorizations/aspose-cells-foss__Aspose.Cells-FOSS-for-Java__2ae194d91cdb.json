@@ -1,0 +1,14 @@
+{
+  "approver": "babar-raza",
+  "base_branch": "master",
+  "branch": "repository-presenter/readme-update",
+  "candidate_hash": "2ae194d91cdbdb9b1566764f4d7f3df964cf69ab9c9817dea90e7ab1efaa25a2",
+  "expires_at": "2026-10-23T11:06:05Z",
+  "issued_at": "2026-10-16T11:06:05Z",
+  "policy_version": "1",
+  "pr_intent": "CREATE_OR_UPDATE_README_PROPOSAL",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "schema_version": 1,
+  "source_revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+  "supersedes_prs": []
+}

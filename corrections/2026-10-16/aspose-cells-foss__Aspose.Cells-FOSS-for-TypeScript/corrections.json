@@ -1,0 +1,54 @@
+{
+  "confinement": {
+    "edits": 1,
+    "statement": "the corrected text with every edit's span removed equals the original with the same spans removed",
+    "verified": true
+  },
+  "corrected_sha256": "9344a37e29fe692ae5420bfb5647cadec54b19bb9b6ed1596617e0ea88fbaa26",
+  "edits": [
+    {
+      "detector": "at_a_glance_diagram",
+      "end": 2351,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:30"
+        }
+      ],
+      "index": 0,
+      "kind": "DIAGRAM_FIX",
+      "line": 30,
+      "original": "flowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing .xlsx workbook\"]\n    i2[\"An existing HTML document\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for TypeScript\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Cell values, formulas, and shared strings\"]\n      c2[\"Style formatting (font, fill, border, alignment, number formats)\"]\n      c3[\"Worksheet settings (column widths, row heights, merges, auto filter)\"]\n      c4[\"Data validation and conditional formatting\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Hyperlinks and defined names\"]\n      c6[\"Embedded pictures and shapes\"]\n      c7[\"HTML round-trip import and export\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"A workbook document\"]\n    o2[\"An HTML document\"]\n    o3[\"Plain text files\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "rationale": "the At a Glance diagram on line 30 is drawn with CLIP_AUTO_WRAP, CLIP_HTML_LABELS, COLUMN_ORDER, GROUP_LAID_AS_ROW, ORDER_UNPINNED, ORIENTATION_VERTICAL; the same labels, titles and chain are redrawn left to right with SVG text labels; its content already exceeded 1 regeneration ceiling(s) and is kept as the maintainers wrote it",
+      "replacement": "%%{init: {\"htmlLabels\": false, \"flowchart\": {\"htmlLabels\": false, \"nodeSpacing\": 22, \"rankSpacing\": 26, \"padding\": 10, \"useMaxWidth\": true, \"wrappingWidth\": 400}}}%%\nflowchart LR\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing<br/>.xlsx workbook\"]\n    i2[\"An existing<br/>HTML document\"]\n    i1 ~~~ i2\n  end\n  PRODUCT[\"Aspose.Cells FOSS<br/>for TypeScript\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Hyperlinks and<br/>defined names\"]\n      c6[\"Embedded<br/>pictures<br/>and shapes\"]\n      c7[\"HTML round-trip<br/>import and export\"]\n      c5 ~~~ c6 ~~~ c7\n    end\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Cell values,<br/>formulas, and<br/>shared strings\"]\n      c2[\"Style formatting<br/>(font, fill, border,<br/>alignment,<br/>number formats)\"]\n      c3[\"Worksheet<br/>settings (column<br/>widths, row<br/>heights, merges,<br/>auto filter)\"]\n      c4[\"Data validation<br/>and conditional<br/>formatting\"]\n      c1 ~~~ c2 ~~~ c3 ~~~ c4\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"A workbook<br/>document\"]\n    o2[\"An HTML<br/>document\"]\n    o3[\"Plain text files\"]\n    o1 ~~~ o2 ~~~ o3\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "start": 1393
+    }
+  ],
+  "kind": "correction",
+  "original_sha256": "6e92da3a04ae70dadbe600431c38b19f7b16b50af338417fb2e7f2baadd0826c",
+  "readme_path": "README.md",
+  "render_check": {
+    "reason": "no renderer installed (RP_MERMAID_TOOLS, node)",
+    "status": "not_run"
+  },
+  "report_only": [],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+  "schema_version": 1,
+  "send": {
+    "hold_reason": null,
+    "no_push_reason": null,
+    "pr_order": 2
+  },
+  "source_revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+  "stability": {
+    "deterministic": true,
+    "idempotent": true,
+    "provider_calls": 0
+  },
+  "summary": {
+    "DIAGRAM_FIX": 1
+  },
+  "unapplied_findings": []
+}

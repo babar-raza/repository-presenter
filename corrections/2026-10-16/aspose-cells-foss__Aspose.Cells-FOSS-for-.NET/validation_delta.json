@@ -1,0 +1,27 @@
+{
+  "allowed": [],
+  "corrected_failures": {
+    "BC-03": 9,
+    "BC-04": 131,
+    "BC-05": 94,
+    "BC-07": 13,
+    "BC-14": 1
+  },
+  "introduced": [],
+  "judge": "validate_candidate",
+  "live_failures": {
+    "BC-03": 9,
+    "BC-04": 131,
+    "BC-05": 94,
+    "BC-07": 14,
+    "BC-14": 1
+  },
+  "resolved": [
+    {
+      "check": "BC-07",
+      "fewer": 1
+    }
+  ],
+  "revealed": [],
+  "schema_version": 1
+}

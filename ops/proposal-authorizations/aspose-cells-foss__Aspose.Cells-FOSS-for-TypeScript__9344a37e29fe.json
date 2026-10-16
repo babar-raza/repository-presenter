@@ -1,0 +1,14 @@
+{
+  "approver": "babar-raza",
+  "base_branch": "master",
+  "branch": "repository-presenter/readme-update",
+  "candidate_hash": "9344a37e29fe692ae5420bfb5647cadec54b19bb9b6ed1596617e0ea88fbaa26",
+  "expires_at": "2026-10-23T11:06:09Z",
+  "issued_at": "2026-10-16T11:06:09Z",
+  "policy_version": "1",
+  "pr_intent": "CREATE_OR_UPDATE_README_PROPOSAL",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+  "schema_version": 1,
+  "source_revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+  "supersedes_prs": []
+}
