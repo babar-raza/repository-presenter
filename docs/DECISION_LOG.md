@@ -5995,3 +5995,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Measured on the 30 sealed bundles.** J1, J2, J3, J5 pass 30/30; J4 fails 29 (a kept heading, paragraph or list that the README does not print); J6 applies to 26 and fails 26 (live headings, code blocks or links dropped; 316 of 338 `OMIT_UNSUPPORTED` dispositions cite no fact, so they account for nothing). Authorizable 0 of 30; `status` prints 0/44 because all 30 are `UNVERIFIED` by recheck (no receipts).
   - **Left to the owner.** The 30-point profile's D14 still fires on 30 of 30 and still gates `propose`; the judge does not replace it.
   - **Reverse by:** revert the commit.
+
+- **2026-10-17 - C01 no longer fails on the sanctioned products.aspose.org banner (G7-W20).**
+  - **What.** Ported forward a fix originally written 2026-10-10 (owner ruling that day: the
+    renderer's own banner - an image under `products.aspose.org/media/` linking to
+    `products.aspose.org/{family}/{platform}/` - stays, and no other Aspose destination may
+    appear before the opening paragraph's explanation) that had been committed on a stale branch
+    and never landed. `text_checks.py::promotion_after_product` now strips exactly that one
+    banner shape (`_PRODUCT_BANNER`) before testing the H1-to-opening region for an Aspose
+    destination; a link to `aspose.com`, or any other `aspose.org` link, still fails C01.
+  - **Found.** Confirmed still live on `main` before this fix: `_PRODUCT_BANNER` did not exist,
+    so the sanctioned banner itself tripped a false C01 FAIL for every bundle carrying it - the
+    exact gap this project's own 2026-10-15 judge audit (this file, PR #308 entry) flagged but
+    did not fix.
+  - **Reverse by:** revert the commit.
