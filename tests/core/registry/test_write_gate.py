@@ -166,9 +166,11 @@ ISSUE_FILING_OPT_INS: dict[str, str] = {
 
 def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
     """Of the 44 shipped entries, only the owner-approved opt-ins set ``issues_mode``; every other
-    entry derives it from ``mode``. The README-side effects are permitted for exactly the 2
-    ``full`` entries, as before; issue_filing and issue_close for those 2 plus the opt-ins, and
-    an opt-in never arms a README pull request."""
+    entry derives it from ``mode``. The README-side effects are permitted for exactly the 5
+    ``full`` entries (3D-Java and Cells-Java as before, plus Cells-.NET, Cpp and TypeScript -
+    the 2026-10-16 Cells correction wave, G3-W09/G6-W03, each with its own merged
+    ops/proposal-authorizations/ record); issue_filing and issue_close for those 5 plus the
+    opt-ins, and an opt-in never arms a README pull request."""
     from support import REPO_ROOT
 
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
@@ -184,7 +186,7 @@ def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_bef
         return True
 
     full = {e.repository for e in registry.entries if e.mode == "full"}
-    assert len(full) == 2
+    assert len(full) == 5
     for effect in EFFECTS:
         allowed = {e.repository for e in registry.entries if permitted(e.repository, effect)}
         if effect in ("issue_filing", "issue_close"):
