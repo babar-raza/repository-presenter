@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "defect_fingerprint": "sha256:3ca95146a5761d749ecb3f4a93ff07d13296be9db6671d1068ebf3ce72b020fd",
+  "triggering_check": {
+    "id": "BC-02",
+    "version": "6",
+    "causal_stage": "EXTRACTING"
+  },
+  "evidence": [
+    {
+      "path": "setup.py",
+      "detail": "distribution name declared by the manifest"
+    },
+    {
+      "path": "https://pypi.org/pypi/aspose-3d-foss/json",
+      "detail": "package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository"
+    }
+  ],
+  "claim": "At revision 65b1f577c0f16d0d9112bb6c1153d3024543ac02, aspose-3d-foss/Aspose.3D-FOSS-for-Python's own install_command:pip is UNRESOLVED (package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository).",
+  "suggested_issue_title": "Aspose.3D FOSS for Python: the documented pip install route could not be verified",
+  "suggested_issue_body": "## Summary\n\nAt revision `65b1f577c0f16d0d9112bb6c1153d3024543ac02`, the documented `pip` install route for `aspose-3d-foss/Aspose.3D-FOSS-for-Python` could not be verified: package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository.\n\n## Environment\n\n- Repository: aspose-3d-foss/Aspose.3D-FOSS-for-Python\n- Revision: `65b1f577c0f16d0d9112bb6c1153d3024543ac02` (the upstream revision this report was verified against)\n\n## Steps to reproduce\n\n```\npip install aspose-3d-foss\ncurl -s -o /dev/null -w '%{http_code}' https://pypi.org/pypi/aspose-3d-foss/json\n```\n\n## Expected\n\nThe command above completes without error.\n\n## Actual\n\n- `setup.py`: distribution name declared by the manifest\n- `https://pypi.org/pypi/aspose-3d-foss/json`: package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository\n\n<!-- repository-presenter-defect: sha256:3ca95146a5761d749ecb3f4a93ff07d13296be9db6671d1068ebf3ce72b020fd -->\n",
+  "status": "HANDOFF_PENDING",
+  "issue_ref": null,
+  "close_reason": null
+}
