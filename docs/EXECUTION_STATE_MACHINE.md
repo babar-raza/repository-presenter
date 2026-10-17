@@ -327,7 +327,7 @@ governed version change never invalidates a candidate it did not touch (owner, 2
 
 ## G4 — Multi-Language Cohorts, Local
 
-Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 44/44
+Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 36/36
 dispositions through one shared surface extractor and six thin plugins, before hosted machinery; Lane L proves the live write path.
 
 | Ecosystem | Mandatory truth |
