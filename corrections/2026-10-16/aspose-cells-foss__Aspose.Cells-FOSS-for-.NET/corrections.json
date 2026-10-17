@@ -1,0 +1,164 @@
+{
+  "confinement": {
+    "edits": 3,
+    "statement": "the corrected text with every edit's span removed equals the original with the same spans removed",
+    "verified": true
+  },
+  "corrected_sha256": "fa4a4f68a6d620a0b323ca774a7d57fa6eb88cf210215d37f4f2d18f1658d4ad",
+  "edits": [
+    {
+      "detector": "missing_sections",
+      "end": 1459,
+      "evidence": [
+        {
+          "fact_id": "dependency:skiasharp",
+          "kind": "dependency",
+          "status": "SUPPORTED",
+          "value": "SkiaSharp 2.88.8"
+        },
+        {
+          "fact_id": "package:target_framework",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "netstandard2.0;net8.0"
+        },
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:14"
+        }
+      ],
+      "index": 0,
+      "kind": "MISSING_INFO",
+      "line": 14,
+      "original": "",
+      "rationale": "the README's contents list gains the Dependencies item beside line 14, so the inserted section is reachable from it",
+      "replacement": "- [Dependencies](#dependencies)\n",
+      "start": 1459
+    },
+    {
+      "detector": "at_a_glance_diagram",
+      "end": 2611,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:25"
+        }
+      ],
+      "index": 1,
+      "kind": "DIAGRAM_FIX",
+      "line": 25,
+      "original": "flowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction LR\n    i1[\"An existing XLSX workbook\"]\n    i2[\"A new workbook created in code\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for .NET\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Workbook, worksheet, and document lifecycle\"]\n      c2[\"Cell values and formulas\"]\n      c3[\"Cell styling and number formats\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c4[\"Validation, conditional formatting, filters, and names\"]\n      c5[\"Tables, pictures, shapes, charts, and comments\"]\n      c6[\"Save to XLSX or export to PDF\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"XLSX workbooks\"]\n    o2[\"PDF documents\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "rationale": "the At a Glance diagram on line 25 is drawn with CLIP_AUTO_WRAP, CLIP_HTML_LABELS, COLUMN_ORDER, GROUP_LAID_AS_ROW, ORDER_UNPINNED, ORIENTATION_VERTICAL; the same labels, titles and chain are redrawn left to right with SVG text labels",
+      "replacement": "%%{init: {\"htmlLabels\": false, \"flowchart\": {\"htmlLabels\": false, \"nodeSpacing\": 22, \"rankSpacing\": 26, \"padding\": 10, \"useMaxWidth\": true, \"wrappingWidth\": 400}}}%%\nflowchart LR\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing<br/>XLSX workbook\"]\n    i2[\"A new workbook<br/>created in code\"]\n    i1 ~~~ i2\n  end\n  PRODUCT[\"Aspose.Cells<br/>FOSS for .NET\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    subgraph capr[\" \"]\n      direction TB\n      c4[\"Validation,<br/>conditional<br/>formatting,<br/>filters, and names\"]\n      c5[\"Tables, pictures,<br/>shapes, charts,<br/>and comments\"]\n      c6[\"Save to XLSX or<br/>export to PDF\"]\n      c4 ~~~ c5 ~~~ c6\n    end\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Workbook,<br/>worksheet, and<br/>document lifecycle\"]\n      c2[\"Cell values<br/>and formulas\"]\n      c3[\"Cell styling and<br/>number formats\"]\n      c1 ~~~ c2 ~~~ c3\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"XLSX workbooks\"]\n    o2[\"PDF documents\"]\n    o1 ~~~ o2\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "start": 1780
+    },
+    {
+      "detector": "missing_sections",
+      "end": 5464,
+      "evidence": [
+        {
+          "fact_id": "dependency:skiasharp",
+          "kind": "dependency",
+          "status": "SUPPORTED",
+          "value": "SkiaSharp 2.88.8"
+        },
+        {
+          "fact_id": "package:target_framework",
+          "kind": "package",
+          "status": "SUPPORTED",
+          "value": "netstandard2.0;net8.0"
+        }
+      ],
+      "index": 2,
+      "kind": "MISSING_SECTION",
+      "line": 80,
+      "original": "",
+      "rationale": "the README has no Dependencies section; the template's is rendered from the cited facts alone",
+      "replacement": "## Dependencies\n\n### Required Package Dependencies\n\n- `SkiaSharp 2.88.8`\n\n### Native and System Requirements\n\n- Requires .NET `netstandard2.0;net8.0`.\n\n",
+      "start": 5464
+    }
+  ],
+  "kind": "correction",
+  "original_sha256": "2c6abdab5d0ed6d634563035e22f055d7e114ae219ef7d100fb8c29eb9cd0c30",
+  "readme_path": "README.md",
+  "render_check": {
+    "reason": "no renderer installed (RP_MERMAID_TOOLS, node)",
+    "status": "not_run"
+  },
+  "report_only": [
+    {
+      "candidate": "dotnet build Aspose.Cells_FOSS.sln",
+      "detector": "add_dev_commands",
+      "evidence": {
+        "fact_ids": [
+          "build_test_asset:build-command"
+        ],
+        "locators": []
+      },
+      "line": 0,
+      "re_enable": "",
+      "reason": "the README already shows `dotnet build Aspose.Cells_FOSS.sln` in some form; not added",
+      "report_only_reason": "ALREADY_SHOWN"
+    }
+  ],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "schema_version": 1,
+  "send": {
+    "hold_reason": null,
+    "no_push_reason": null,
+    "pr_order": 1
+  },
+  "source_revision": "941814fd138dc28cf47123d48194f329f283498d",
+  "stability": {
+    "deterministic": true,
+    "idempotent": true,
+    "provider_calls": 0
+  },
+  "summary": {
+    "DIAGRAM_FIX": 1,
+    "MISSING_INFO": 1,
+    "MISSING_SECTION": 1
+  },
+  "unapplied_findings": [
+    {
+      "detector": "report_gaps",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.fontsetting"
+      ],
+      "line": 0,
+      "reason": "1 of 98 verified public types are named nowhere in the README; would fill API Reference: public_symbol:aspose.cells_foss.fontsetting",
+      "text": ""
+    },
+    {
+      "detector": "report_gaps",
+      "fact_ids": [
+        "third_party_notices:file"
+      ],
+      "line": 0,
+      "reason": "the tree holds License/ThirdPartyNotices.txt and the README never mentions it (third_party_notices:file); not one of the ten sections, so never added",
+      "text": ""
+    },
+    {
+      "detector": "report_gaps",
+      "fact_ids": [
+        "dependency:skiasharp"
+      ],
+      "line": 7,
+      "reason": "the README says 'pure managed', but the facts list 1 required dependenc(ies): dependency:skiasharp",
+      "text": "Aspose.Cells FOSS for .NET is a free, open-source, MIT-licensed .NET library for creating, loading, editing, and saving "
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:008"
+      ],
+      "line": 241,
+      "reason": "the example verifier recorded a failure for the example on lines 241-257: example 8: FAILED; Program.cs(14,1): error CS0200: Property or indexer 'Chart.Name' cannot be assigned to -- it is read only",
+      "text": "var workbook = new Workbook();"
+    }
+  ]
+}

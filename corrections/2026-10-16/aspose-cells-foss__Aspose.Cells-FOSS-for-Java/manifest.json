@@ -1,0 +1,50 @@
+{
+  "corrected_sha256": "2ae194d91cdbdb9b1566764f4d7f3df964cf69ab9c9817dea90e7ab1efaa25a2",
+  "files": {
+    "README.md": {
+      "bytes": 30539,
+      "sha256": "2ae194d91cdbdb9b1566764f4d7f3df964cf69ab9c9817dea90e7ab1efaa25a2"
+    },
+    "README.original.md": {
+      "bytes": 30112,
+      "sha256": "5f2db3e78e54f3b88befeea5a66355ce6bf278f08edf6ff5518bd210cd0ec73c"
+    },
+    "README.patch": {
+      "bytes": 2706,
+      "sha256": "0c66d9845fd65d059a5b65892640f8b264c248ac82e5c80b11251840dac4e341"
+    },
+    "corrections.json": {
+      "bytes": 5478,
+      "sha256": "2c0b9a007a06b9a5864b5dbb94121e3470294d9a5c1108662609f60af9320713"
+    },
+    "facts.json": {
+      "bytes": 1707268,
+      "sha256": "ac5e280d231f7080ae3886e5455173a804cf327369354b2706d31097cda448df"
+    },
+    "tree.txt": {
+      "bytes": 20846,
+      "sha256": "2f9af5967e7adc5bb94fbcf652d6bfc3a639c11c61fb48d6440c6d8e3b9c5130"
+    },
+    "validation_delta.json": {
+      "bytes": 486,
+      "sha256": "444b24e852e616967cfe1ef62eee93058d646d05148649709b0a2c3d9cac704e"
+    }
+  },
+  "kind": "correction",
+  "no_op_proof": {
+    "byte_identical": true,
+    "idempotent_on_output": true,
+    "method": "deterministic re-run of the correction over the bundle's own inputs",
+    "provider_calls": 0,
+    "runs": 2
+  },
+  "original_sha256": "5f2db3e78e54f3b88befeea5a66355ce6bf278f08edf6ff5518bd210cd0ec73c",
+  "readme_path": "README.md",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+  "schema_version": 1,
+  "state": "CORRECTION_READY",
+  "summary": {
+    "DIAGRAM_FIX": 1
+  }
+}

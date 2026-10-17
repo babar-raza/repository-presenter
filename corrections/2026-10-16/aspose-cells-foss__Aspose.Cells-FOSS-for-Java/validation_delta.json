@@ -1,0 +1,31 @@
+{
+  "allowed": [],
+  "corrected_failures": {
+    "BC-02": 1,
+    "BC-03": 3,
+    "BC-04": 6,
+    "BC-05": 57,
+    "BC-07": 9,
+    "BC-07/visible": 1,
+    "BC-12": 1
+  },
+  "introduced": [],
+  "judge": "validate_candidate",
+  "live_failures": {
+    "BC-02": 1,
+    "BC-03": 3,
+    "BC-04": 6,
+    "BC-05": 57,
+    "BC-07": 10,
+    "BC-07/visible": 1,
+    "BC-12": 1
+  },
+  "resolved": [
+    {
+      "check": "BC-07",
+      "fewer": 1
+    }
+  ],
+  "revealed": [],
+  "schema_version": 1
+}
