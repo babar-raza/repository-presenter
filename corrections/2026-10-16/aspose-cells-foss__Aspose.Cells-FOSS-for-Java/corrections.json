@@ -1,0 +1,83 @@
+{
+  "confinement": {
+    "edits": 1,
+    "statement": "the corrected text with every edit's span removed equals the original with the same spans removed",
+    "verified": true
+  },
+  "corrected_sha256": "2ae194d91cdbdb9b1566764f4d7f3df964cf69ab9c9817dea90e7ab1efaa25a2",
+  "edits": [
+    {
+      "detector": "at_a_glance_diagram",
+      "end": 3006,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:33"
+        }
+      ],
+      "index": 0,
+      "kind": "DIAGRAM_FIX",
+      "line": 33,
+      "original": "flowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    i1[\"Existing .xlsx workbook (file path or stream)\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for Java\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Workbook and worksheet creation, loading, and saving\"]\n      c2[\"Cell values and formulas\"]\n      c3[\"Cell and range styling (fonts, borders, fills, alignment, number formats)\"]\n      c4[\"Row and column sizing, hiding, and outline grouping\"]\n      c5[\"Merged cells, defined names, and hyperlinks\"]\n      c6[\"Data validation\"]\n      c7[\"Conditional formatting\"]\n      c8[\"Auto filters with color, dynamic, top-10, and custom filter types\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c9[\"Page setup, freeze panes, and worksheet/workbook protection\"]\n      c10[\"Cell comments\"]\n      c11[\"Embedded pictures\"]\n      c12[\"Embedded charts\"]\n      c13[\"Drawing shapes\"]\n      c14[\"Excel tables (ListObjects)\"]\n      c15[\"Load diagnostics and repair reporting\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    o1[\".xlsx workbook (file path or binary stream)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "rationale": "the At a Glance diagram on line 33 is drawn with CLIP_AUTO_WRAP, CLIP_HTML_LABELS, COLUMN_ORDER, GROUP_LAID_AS_ROW, ORDER_UNPINNED, ORIENTATION_VERTICAL; the same labels, titles and chain are redrawn left to right with SVG text labels; its content already exceeded 3 regeneration ceiling(s) and is kept as the maintainers wrote it",
+      "replacement": "%%{init: {\"htmlLabels\": false, \"flowchart\": {\"htmlLabels\": false, \"nodeSpacing\": 22, \"rankSpacing\": 26, \"padding\": 10, \"useMaxWidth\": true, \"wrappingWidth\": 400}}}%%\nflowchart LR\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"Existing .xlsx<br/>workbook (file<br/>path or stream)\"]\n  end\n  PRODUCT[\"Aspose.Cells<br/>FOSS for Java\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    subgraph capr[\" \"]\n      direction TB\n      c9[\"Page setup, freeze<br/>panes, and<br/>worksheet/workbook<br/>protection\"]\n      c10[\"Cell comments\"]\n      c11[\"Embedded<br/>pictures\"]\n      c12[\"Embedded charts\"]\n      c13[\"Drawing shapes\"]\n      c14[\"Excel tables<br/>(ListObjects)\"]\n      c15[\"Load<br/>diagnostics and<br/>repair reporting\"]\n      c9 ~~~ c10 ~~~ c11 ~~~ c12 ~~~ c13 ~~~ c14 ~~~ c15\n    end\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Workbook and<br/>worksheet<br/>creation, loading,<br/>and saving\"]\n      c2[\"Cell values<br/>and formulas\"]\n      c3[\"Cell and range<br/>styling (fonts,<br/>borders, fills,<br/>alignment,<br/>number formats)\"]\n      c4[\"Row and column<br/>sizing, hiding, and<br/>outline grouping\"]\n      c5[\"Merged cells,<br/>defined names,<br/>and hyperlinks\"]\n      c6[\"Data validation\"]\n      c7[\"Conditional<br/>formatting\"]\n      c8[\"Auto filters with<br/>color, dynamic,<br/>top-10, and<br/>custom filter types\"]\n      c1 ~~~ c2 ~~~ c3 ~~~ c4 ~~~ c5 ~~~ c6 ~~~ c7 ~~~ c8\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\".xlsx workbook<br/>(file path or<br/>binary stream)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "start": 1803
+    }
+  ],
+  "kind": "correction",
+  "original_sha256": "5f2db3e78e54f3b88befeea5a66355ce6bf278f08edf6ff5518bd210cd0ec73c",
+  "readme_path": "README.md",
+  "render_check": {
+    "reason": "no renderer installed (RP_MERMAID_TOOLS, node)",
+    "status": "not_run"
+  },
+  "report_only": [
+    {
+      "candidate": "mvn package",
+      "detector": "add_dev_commands",
+      "evidence": {
+        "fact_ids": [
+          "build_test_asset:build-command"
+        ],
+        "locators": []
+      },
+      "line": 0,
+      "re_enable": "",
+      "reason": "the README already shows `mvn package` in some form; not added",
+      "report_only_reason": "ALREADY_SHOWN"
+    },
+    {
+      "candidate": "mvn test",
+      "detector": "add_dev_commands",
+      "evidence": {
+        "fact_ids": [
+          "build_test_asset:test-command"
+        ],
+        "locators": []
+      },
+      "line": 0,
+      "re_enable": "",
+      "reason": "the README already shows `mvn test` in some form; not added",
+      "report_only_reason": "ALREADY_SHOWN"
+    }
+  ],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "schema_version": 1,
+  "send": {
+    "hold_reason": null,
+    "no_push_reason": null,
+    "pr_order": 2
+  },
+  "source_revision": "c65329e7257b1311abb9686d7e4957a8cc002955",
+  "stability": {
+    "deterministic": true,
+    "idempotent": true,
+    "provider_calls": 0
+  },
+  "summary": {
+    "DIAGRAM_FIX": 1
+  },
+  "unapplied_findings": []
+}

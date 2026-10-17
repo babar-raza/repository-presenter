@@ -1,0 +1,4 @@
+aspose-cells-foss/Aspose.Cells-FOSS-for-.NET
+aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp
+aspose-cells-foss/Aspose.Cells-FOSS-for-Java
+aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript
