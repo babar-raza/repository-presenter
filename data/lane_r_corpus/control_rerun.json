@@ -1,0 +1,1773 @@
+{
+  "bundles": 30,
+  "bundles_failing_now": 30,
+  "bundles_newly_failing": 30,
+  "control_revision": "4a7baf11926a6ee8707f41b8c6a525367c5f8fcd",
+  "newly_failing": {
+    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET": [
+      "BC-04",
+      "BC-06",
+      "BC-07",
+      "BC-12"
+    ],
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Java": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Go": [
+      "BC-04",
+      "BC-05",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-email-foss__Aspose.Email-FOSS-for-.Net": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-email-foss__Aspose.Email-FOSS-for-Cpp": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-email-foss__Aspose.Email-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-font-foss__Aspose.Font-FOSS-for-Python": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-html-foss__Aspose.HTML-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-note-foss__Aspose.Note-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-page-foss__Aspose.Page-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07",
+      "BC-12"
+    ],
+    "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-07",
+      "BC-12"
+    ],
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java": [
+      "BC-04",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07",
+      "BC-12"
+    ],
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07",
+      "BC-12"
+    ],
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Java": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-07"
+    ],
+    "aspose-words-foss__Aspose.Words-FOSS-for-.NET": [
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07"
+    ],
+    "aspose-words-foss__Aspose.Words-FOSS-for-Python": [
+      "BC-04",
+      "BC-05",
+      "BC-07"
+    ]
+  },
+  "rows": [
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07",
+        "BC-12"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 7,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "15"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 9,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 8,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "15"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 7,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 8,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "7"
+    },
+    {
+      "directory": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 9,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "6"
+    },
+    {
+      "directory": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 9,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 11,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 9,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 7,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07",
+        "BC-12"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 12,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07",
+        "BC-12"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 13,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 7,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 6,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 11,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 5,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 14,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07",
+        "BC-12"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "4"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 8,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07",
+        "BC-12"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "4"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 10,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 1,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 13,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 14,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 4,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 8,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-06",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    },
+    {
+      "directory": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+      "now": {
+        "BC-01": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-02": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-03": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-04": {
+          "failures": 3,
+          "verdict": "FAIL"
+        },
+        "BC-05": {
+          "failures": 10,
+          "verdict": "FAIL"
+        },
+        "BC-06": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-07": {
+          "failures": 2,
+          "verdict": "FAIL"
+        },
+        "BC-08": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-12": {
+          "failures": 0,
+          "verdict": "PASS"
+        },
+        "BC-14": {
+          "failures": 0,
+          "verdict": "PASS"
+        }
+      },
+      "now_failed": [
+        "BC-04",
+        "BC-05",
+        "BC-07"
+      ],
+      "sealed_failed": [],
+      "sealed_validator_version": "3"
+    }
+  ],
+  "schema_version": 1,
+  "sealed_validator_versions": {
+    "15": 2,
+    "3": 24,
+    "4": 2,
+    "6": 1,
+    "7": 1
+  },
+  "validator_version_now": "23"
+}

@@ -1,0 +1,273 @@
+path,lines,reach,src_importers,tests_importing,lane,disposition,owner_card,note
+repository_presenter/__init__.py,3,static,1,20,shared,REUSE,-,"entry point, config, package glue"
+repository_presenter/__main__.py,8,static,0,0,shared,REUSE,-,"entry point, config, package glue"
+repository_presenter/cli.py,4794,static,1,20,shared,REUSE,-,"entry point, config, package glue"
+repository_presenter/components/__init__.py,1,static,0,4,shared,REUSE,-,"entry point, config, package glue"
+repository_presenter/components/candidates_publish/__init__.py,3,static,1,0,effects,REUSE,-,publishes sealed candidates
+repository_presenter/components/candidates_publish/effect.py,373,static,1,2,effects,REUSE,-,publishes sealed candidates
+repository_presenter/components/candidates_publish/git_ops.py,161,static,1,1,effects,REUSE,-,publishes sealed candidates
+repository_presenter/components/issues/__init__.py,55,static,4,4,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/approval.py,294,static,6,6,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/batch.py,131,static,1,1,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/classes.py,878,static,3,2,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/close_approval.py,215,static,2,2,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/draft.py,387,static,1,3,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/file.py,783,static,1,5,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/funnel.py,163,static,1,1,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/ledger.py,110,static,4,5,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/lifecycle.py,196,static,2,2,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/model.py,210,static,13,19,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/quality.py,404,static,3,4,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/readiness.py,509,static,1,2,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/redetect.py,843,static,5,10,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/registry_evidence.py,176,static,1,1,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/issues/source_parse.py,114,static,1,1,issues,REUSE,-,issue ledger + filing pathway (1 filed)
+repository_presenter/components/metadata/__init__.py,13,static,0,0,shared,REUSE,-,description/topics observer
+repository_presenter/components/metadata/apply.py,285,static,1,3,shared,REUSE,-,description/topics observer
+repository_presenter/components/metadata/capture.py,50,static,1,1,shared,REUSE,-,description/topics observer
+repository_presenter/components/metadata/preservation.py,291,static,2,1,shared,REUSE,-,description/topics observer
+repository_presenter/components/metadata/proposal.py,384,static,2,3,shared,REUSE,-,description/topics observer
+repository_presenter/components/monitor/__init__.py,12,static,0,2,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/discovery.py,775,static,1,2,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/drift.py,435,static,1,7,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/freshness.py,126,static,1,1,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/install_state.py,246,static,1,1,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/org_listing.py,162,static,2,4,shared,REUSE,-,upstream head observer
+repository_presenter/components/monitor/relevance.py,269,static,2,1,shared,REUSE,-,upstream head observer
+repository_presenter/components/propose/__init__.py,17,static,0,0,effects,REUSE,-,"one stable presenter branch/PR, source recheck"
+repository_presenter/components/propose/effect.py,462,static,2,7,effects,REUSE,-,"one stable presenter branch/PR, source recheck"
+repository_presenter/components/propose/pull_request.py,297,static,4,4,effects,REUSE,-,"one stable presenter branch/PR, source recheck"
+repository_presenter/components/propose/wave.py,709,static,1,1,effects,REUSE,-,"one stable presenter branch/PR, source recheck"
+repository_presenter/components/readme/__init__.py,1,static,0,2,shared,REUSE,-,"entry point, config, package glue"
+repository_presenter/components/readme/acceptance/__init__.py,1,static,0,1,R,REUSE,-,the computed judge; frozen for the pilot
+repository_presenter/components/readme/acceptance/judge.py,740,static,1,2,R,REUSE,-,the computed judge; frozen for the pilot
+repository_presenter/components/readme/bundle/__init__.py,1,static,0,2,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/dry_run.py,216,static,2,2,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/evaluation.py,219,static,3,2,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/invalidation.py,270,static,5,2,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/portfolio.py,557,static,1,2,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/recheck.py,1005,static,3,1,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/reproducibility.py,119,static,2,1,shared,REUSE,-,"bundle format, recheck (scoped invalidation, G7-W25)"
+repository_presenter/components/readme/bundle/seal.py,1203,static,1,10,R,ADAPT,G3-W13,head re-resolution at seal
+repository_presenter/components/readme/composition/__init__.py,1,static,0,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/audience.py,272,static,3,2,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/authoring.py,2957,static,13,13,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/authoring_retry.py,349,static,2,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/coherence.py,848,static,1,5,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/__init__.py,1,static,0,0,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/ecosystems.py,43,static,2,0,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/glance.py,73,static,3,2,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/identity.py,168,static,5,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/shell.py,239,static,12,7,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/components/terminology.py,245,static,3,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/coverage.py,377,static,4,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/link_budget.py,291,static,4,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/list_coverage.py,191,static,5,2,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/output_bounds.py,52,static,3,2,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/placement.py,778,static,5,6,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/planning.py,1509,static,5,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/policy.py,51,static,7,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/references.py,264,static,2,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/renderer.py,1547,static,12,16,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/source_topics.py,127,static,4,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/text_hygiene.py,118,static,1,1,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/composition/type_fallback.py,144,static,1,3,R,REPLACE,G3-W15/16,legacy rewrite renderer: not imported as production-ready; replaced by patch engine (live README) and fact-rendered sections; kept only as the from-scratch route
+repository_presenter/components/readme/evidence/__init__.py,1,static,0,0,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/__init__.py,1,static,1,8,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/assets.py,358,static,6,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/commands.py,894,static,9,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/extract.py,468,static,1,4,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/formats.py,135,static,1,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/inherited.py,387,static,4,3,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/license.py,175,static,3,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/links.py,410,static,9,9,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/product_pages.py,251,static,6,3,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/published_version.py,99,static,1,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/registry_lag.py,108,static,3,2,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/repository_files.py,129,static,1,1,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/facts/unpublished.py,249,static,2,2,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/evidence/processability.py,69,static,1,2,facts,REUSE,G3-W13,fact model; published_version.py is new work
+repository_presenter/components/readme/extractors/__init__.py,1,static,0,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/examples/__init__.py,1,static,0,0,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/examples/selection.py,84,static,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/examples/verify.py,72,static,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/__init__.py,1,static,0,29,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/cpp.py,730,registry-loaded,0,4,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/cpp_examples.py,631,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/go.py,447,registry-loaded,0,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/go_examples.py,369,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/java.py,631,registry-loaded,0,5,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/java_examples.py,544,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/net.py,423,registry-loaded,0,3,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/net_examples.py,378,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/nodejs.py,226,registry-loaded,0,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/nodejs_examples.py,332,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python.py,461,registry-loaded,0,10,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_examples.py,733,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_format_declarations.py,233,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_formats.py,149,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_registry.py,139,registry-loaded,1,9,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_setup_py.py,200,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/python_surface.py,534,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/registry.py,119,static,9,18,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/registry_observers.py,65,registry-loaded,0,0,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/rust.py,498,registry-loaded,0,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/rust_examples.py,331,registry-loaded,1,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/typescript.py,210,registry-loaded,0,3,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/typescript_barrel.py,43,registry-loaded,2,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/platforms/typescript_examples.py,446,registry-loaded,1,2,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/__init__.py,1,static,3,4,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/__init__.py,7,static,4,1,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/api_surface.py,3777,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/__init__.py,151,static,3,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/cpp.py,105,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/csharp.py,184,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/go.py,124,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/java.py,103,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/python.py,209,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/rust.py,191,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/typescript.py,569,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_manifest.py,420,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/__init__.py,116,static,7,1,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/cargo.py,82,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/go.py,65,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/npm.py,85,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/nuget.py,97,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/pypi.py,88,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_root.py,170,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/publication_probe.py,267,static,1,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/tree_helpers.py,1032,static,8,0,facts,REUSE,-,vendored aspose_extraction; provenance in migration/reuse-manifest.yaml
+repository_presenter/components/readme/extractors/surface/doc_text.py,388,static,2,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/extractor.py,360,static,8,4,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/manifest.py,81,static,7,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/npm_build.py,175,registry-loaded,2,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/npm_package.py,738,registry-loaded,6,1,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/extractors/surface/registry.py,542,static,12,17,facts,REUSE,G3-W13,ecosystem extraction behind registries; EXTRACTOR_VERSION moves only for published_version fact
+repository_presenter/components/readme/investigation/__init__.py,1,static,0,1,R,ADAPT,G3-W15,LLM interpretation stage; feeds live-anchored planning
+repository_presenter/components/readme/investigation/dossier.py,173,static,3,4,R,ADAPT,G3-W15,LLM interpretation stage; feeds live-anchored planning
+repository_presenter/components/readme/reconciliation/__init__.py,1,static,0,4,R,ADAPT,G3-W14,ledger honours KEEP; omission needs CONTRADICTED evidence
+repository_presenter/components/readme/reconciliation/destinations.py,273,static,2,2,R,ADAPT,G3-W14,ledger honours KEEP; omission needs CONTRADICTED evidence
+repository_presenter/components/readme/reconciliation/dispositions.py,2859,static,4,13,R,ADAPT,G3-W14,ledger honours KEEP; omission needs CONTRADICTED evidence
+repository_presenter/components/readme/reconciliation/patch.py,259,static,1,1,R,ADAPT,G3-W14,ledger honours KEEP; omission needs CONTRADICTED evidence
+repository_presenter/components/readme/repair/__init__.py,1,static,0,4,R,ADAPT,G3-W15,repair rounds re-author sections; becomes targeted operation repair
+repository_presenter/components/readme/repair/rounds.py,1187,static,1,3,R,ADAPT,G3-W15,repair rounds re-author sections; becomes targeted operation repair
+repository_presenter/components/readme/repair/targeted.py,1010,static,2,7,R,ADAPT,G3-W15,repair rounds re-author sections; becomes targeted operation repair
+repository_presenter/components/readme/review/__init__.py,1,static,0,0,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/__init__.py,1,static,0,2,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/profile.py,536,static,2,3,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/scorer.py,317,static,3,4,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/sealed.py,142,static,1,1,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/template_check.py,183,static,2,2,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/acceptance/text_checks.py,394,static,3,1,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/independent/__init__.py,1,static,0,4,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/review/independent/review.py,2996,static,4,7,R,ADAPT,G3-W17,reviewer REJECT currently overruled by the fold stack (F3)
+repository_presenter/components/readme/validation/__init__.py,1,static,3,5,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/claims.py,690,static,3,2,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/content_presence.py,134,static,1,1,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/deferrals.py,905,static,2,9,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/links/__init__.py,1,static,0,0,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/links/rules.py,133,static,1,1,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme/validation/registry.py,2731,static,8,14,R,ADAPT,G3-W13,BC-04/BC-14 are citation checks (F2); extend to entailment of tokens
+repository_presenter/components/readme_correction/__init__.py,7,static,1,14,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/apply.py,87,static,2,8,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/augment.py,37,registry-loaded,2,0,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/bundle.py,206,static,4,7,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/chain.py,361,static,4,5,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/check.py,276,static,1,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/commands.py,194,static,2,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/committed.py,159,static,1,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/__init__.py,34,static,11,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/_layout.py,263,static,3,0,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/additions.py,812,registry-loaded,1,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/claims.py,191,registry-loaded,0,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/diagram.py,154,registry-loaded,0,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/examples.py,65,registry-loaded,0,2,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/gaps.py,147,registry-loaded,0,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/links.py,119,registry-loaded,0,2,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/sections.py,415,registry-loaded,0,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/stale.py,161,registry-loaded,1,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/statements.py,277,registry-loaded,0,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/detectors/structure.py,113,registry-loaded,0,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/docs.py,92,static,2,2,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/engine.py,124,static,4,8,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/enrich.py,112,static,2,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/gate.py,210,static,1,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/model.py,246,static,23,12,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/pull_request.py,1192,static,2,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/receipts.py,190,static,2,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/render.py,71,static,1,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/run.py,155,static,1,4,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/send.py,81,static,2,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/settle.py,82,static,3,6,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/text_gate.py,50,static,3,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_correction/verify.py,497,static,1,1,L,REUSE,-,Lane L: confined line-fragment corrections; its Edit type cannot express Lane R operations (G3-W15)
+repository_presenter/components/readme_diagram/__init__.py,44,static,4,11,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/__main__.py,128,module-entry,0,1,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/build.py,175,static,6,4,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/contract.py,157,static,2,1,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/geometry.py,206,static,5,4,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/lint.py,198,static,5,3,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/model.py,88,static,11,2,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/parse.py,257,static,8,2,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/rebuild.py,118,static,3,2,shared,REUSE,-,deterministic diagram topology
+repository_presenter/components/readme_diagram/render_check.py,340,static,2,3,shared,REUSE,-,deterministic diagram topology
+repository_presenter/core/__init__.py,1,static,0,14,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/authorization/__init__.py,9,static,0,0,effects,REUSE,-,exact-payload authorization binding
+repository_presenter/core/authorization/proposal.py,238,static,5,10,effects,REUSE,-,exact-payload authorization binding
+repository_presenter/core/authorization/record_provenance.py,106,static,2,1,effects,REUSE,-,exact-payload authorization binding
+repository_presenter/core/authorization/refusals.py,64,static,10,20,effects,REUSE,-,exact-payload authorization binding
+repository_presenter/core/candidates.py,646,static,14,9,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/config.py,80,static,7,14,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/ecosystems.py,387,static,20,11,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/errors.py,67,static,46,44,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/examples.py,267,static,31,22,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/execution.py,162,static,11,10,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/facts.py,349,static,71,83,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/git_safety/__init__.py,1,static,0,2,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/clone.py,251,static,4,11,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/git.py,85,static,9,15,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/hooks.py,33,static,2,3,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/neuter.py,17,static,2,3,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/process.py,91,static,4,2,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/git_safety/verify.py,64,static,1,3,effects,REUSE,-,push-disabled verified clones
+repository_presenter/core/github/__init__.py,19,static,0,2,effects,REUSE,-,"GitHub effect pathway: App token, PR/issue writes, reconciliation"
+repository_presenter/core/github/client.py,923,static,9,15,effects,REUSE,-,"GitHub effect pathway: App token, PR/issue writes, reconciliation"
+repository_presenter/core/github/read_client.py,220,static,6,17,effects,REUSE,-,"GitHub effect pathway: App token, PR/issue writes, reconciliation"
+repository_presenter/core/github/token_provenance.py,133,static,4,10,effects,REUSE,-,"GitHub effect pathway: App token, PR/issue writes, reconciliation"
+repository_presenter/core/grammars.py,60,static,9,5,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/hashing.py,14,static,7,10,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/llm/__init__.py,1,static,1,6,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/binding.py,329,static,4,4,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/fallback.py,167,static,3,1,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/jobs.py,969,static,4,13,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/ledger.py,248,static,8,13,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/narrowing.py,51,static,3,0,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/prompts.py,214,static,15,34,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/llm/transport.py,207,static,3,5,shared,REUSE,-,"gateway client, call store, accounting"
+repository_presenter/core/long_paths.py,76,static,3,2,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/noop_proof.py,523,static,3,3,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/package_registry.py,227,static,18,10,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/preflight.py,124,static,1,2,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/probes.py,39,static,14,2,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/registry/__init__.py,1,static,0,0,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/registry/loader.py,66,static,8,23,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/registry/models.py,121,static,32,38,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/registry/naming.py,61,static,1,1,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/registry/sandbox.py,107,static,1,3,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/registry/write_gate.py,78,static,4,6,registry,REUSE,-,"registry safety: hard allow-list, admission"
+repository_presenter/core/retry.py,95,static,10,5,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/sealing_plan.py,538,static,3,6,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/secrets.py,164,static,13,3,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/snapshot/__init__.py,1,static,0,0,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/snapshot/capture.py,167,static,5,6,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/snapshot/inventory.py,182,static,2,1,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/__init__.py,8,static,0,0,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/cas.py,306,static,4,6,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/git_backend.py,351,static,1,4,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/health.py,196,static,1,1,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/present_transaction.py,456,static,1,2,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/recovery.py,230,static,1,1,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/schema.py,345,static,6,7,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/state/trigger.py,236,static,2,2,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/core/toolchains.py,399,static,11,8,shared,REUSE,-,"snapshot, facts, hashing, state, retry, secrets"
+repository_presenter/cursor.py,87,static,1,1,shared,REUSE,-,"entry point, config, package glue"

@@ -1,0 +1,50 @@
+{
+  "control_revision": "4a7baf11926a6ee8707f41b8c6a525367c5f8fcd",
+  "corpus_seed": 20261019,
+  "metrics": {
+    "M1": 0.470111,
+    "M2": 318,
+    "M3": 680,
+    "M4": 881,
+    "M5": 44,
+    "M6d": {
+      "per_class_test": {
+        "count": {
+          "cases": 5,
+          "caught": 0
+        },
+        "formatting": {
+          "cases": 6,
+          "caught": 5
+        },
+        "invented_capability": {
+          "cases": 8,
+          "caught": 1
+        },
+        "polarity_contradiction": {
+          "cases": 5,
+          "caught": 0
+        },
+        "scraped_text": {
+          "cases": 11,
+          "caught": 3
+        },
+        "symbol_prose": {
+          "cases": 6,
+          "caught": 0
+        },
+        "version": {
+          "cases": 6,
+          "caught": 1
+        }
+      },
+      "real_defects": {
+        "cases": 20,
+        "caught": 0
+      }
+    },
+    "M9": 0
+  },
+  "schema_version": 1,
+  "waivers": []
+}

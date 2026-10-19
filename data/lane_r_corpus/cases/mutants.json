@@ -1,0 +1,3456 @@
+[
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "cited": [
+   "identity:repository",
+   "identity:revision",
+   "identity:family",
+   "identity:platform",
+   "identity:ecosystem",
+   "package:name",
+   "package:version",
+   "package:python_requires",
+   "package:license",
+   "license:spdx",
+   "format:input.pdf",
+   "format:output.html",
+   "format:output.md",
+   "format:output.png",
+   "format:output.svg",
+   "public_symbol:aspose_pdf.document",
+   "public_symbol:aspose_pdf.document.load_from",
+   "public_symbol:aspose_pdf.pdfextractor",
+   "public_symbol:aspose_pdf.pdfextractor.extract_text",
+   "public_symbol:aspose_pdf.document.replace_text",
+   "public_symbol:aspose_pdf.document.redact_text",
+   "public_symbol:aspose_pdf.document.save_page_as_image",
+   "public_symbol:aspose_pdf.document.save_as_svg",
+   "public_symbol:aspose_pdf.page.save_as_image",
+   "public_symbol:aspose_pdf.page.save_as_svg",
+   "public_symbol:aspose_pdf.document.validate_pdfa",
+   "public_symbol:aspose_pdf.document.validate_pdfua",
+   "public_symbol:aspose_pdf.document.auto_tag",
+   "public_symbol:aspose_pdf.document.sign",
+   "public_symbol:aspose_pdf.form",
+   "public_symbol:aspose_pdf.page.add_text",
+   "public_symbol:aspose_pdf.form.add_text_field",
+   "public_symbol:aspose_pdf.annotationcollection.add",
+   "public_symbol:aspose_pdf.pdfextractor.get_text",
+   "public_symbol:aspose_pdf.form.add_checkbox",
+   "public_symbol:aspose_pdf.annotation.generate_appearance",
+   "public_symbol:aspose_pdf.document.encrypt",
+   "public_symbol:aspose_pdf.document.decrypt",
+   "public_symbol:aspose_pdf.pdfsignature.validate",
+   "public_symbol:aspose_pdf.document.font_substitution",
+   "public_symbol:aspose_pdf.fontsubstitutionoptions.system",
+   "public_symbol:aspose_pdf.fontrepository.add_source",
+   "public_symbol:aspose_pdf.fontrepository.find_font",
+   "public_symbol:aspose_pdf.document.optimize",
+   "public_symbol:aspose_pdf.document.merge",
+   "public_symbol:aspose_pdf.pdffileeditor.concatenate"
+  ],
+  "class": "version",
+  "clean": "Aspose PDF FOSS for Python is a Python library for processing PDF documents, supporting operations such as loading, converting, extracting text, redacting, signing, and optimizing .pdf files. It enables developers to read page counts and metadata, convert pages to .png or .svg, export to .html or .md, validate compliance with PDF/A and PDF/UA standards, and add interactive elements like text fields and checkboxes. Users include developers building document automation, compliance, and content extraction workflows in Python 3.11 and later. The library is distributed under the MIT license and is version 0.1.0.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "format:input.pdf": {
+    "kind": "format",
+    "value": ".pdf"
+   },
+   "format:output.html": {
+    "kind": "format",
+    "value": ".html"
+   },
+   "format:output.md": {
+    "kind": "format",
+    "value": ".md"
+   },
+   "format:output.png": {
+    "kind": "format",
+    "value": ".png"
+   },
+   "format:output.svg": {
+    "kind": "format",
+    "value": ".svg"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "pdf"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167"
+   },
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-pdf-foss-for-python"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.11"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   },
+   "public_symbol:aspose_pdf.annotation.generate_appearance": {
+    "attributes": {
+     "defined_at": "aspose_pdf.annotations.Annotation.generate_appearance",
+     "docstring": "Synthesise a normal appearance stream (``/AP /N``) for this annotation.",
+     "signature": "def generate_appearance(self, *, force: bool=False) -> bool",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Annotation.generate_appearance"
+   },
+   "public_symbol:aspose_pdf.annotationcollection.add": {
+    "attributes": {
+     "defined_at": "aspose_pdf.annotations.AnnotationCollection.add",
+     "signature": "def add(self, subtype: str, rect: tuple[float, float, float, float], contents: str, *, title: str | None=None, appearance_normal: bytes | bytearray | None=None, properties: dict[str, Any] | None=None) -> Annotation",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.AnnotationCollection.add"
+   },
+   "public_symbol:aspose_pdf.document": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document",
+     "docstring": "Pythonic wrapper for PDF document lifecycle and core operations.",
+     "public_paths": "aspose_pdf.document.Document, aspose_pdf.generated.document.Document",
+     "signature": "class Document",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document"
+   },
+   "public_symbol:aspose_pdf.document.auto_tag": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.auto_tag",
+     "docstring": "Heuristically tag existing page content into the structure tree.",
+     "signature": "def auto_tag(self, image_alt: str | Callable[[str], str] | None='Image') -> int",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.auto_tag"
+   },
+   "public_symbol:aspose_pdf.document.decrypt": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.decrypt",
+     "docstring": "Remove the document's password protection.",
+     "signature": "def decrypt(self, password: str) -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.decrypt"
+   },
+   "public_symbol:aspose_pdf.document.encrypt": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.encrypt",
+     "docstring": "Encrypt the PDF document with the standard security handler.",
+     "signature": "def encrypt(self, user_password: str, owner_password: str | None=None, *, permissions: int=-4, algorithm: str='AES-256') -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.encrypt"
+   },
+   "public_symbol:aspose_pdf.document.font_substitution": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.font_substitution",
+     "docstring": "Font sources the renderer may substitute non-embedded fonts from.",
+     "signature": "def font_substitution(self) -> FontSubstitutionOptions | None",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.font_substitution"
+   },
+   "public_symbol:aspose_pdf.document.load_from": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.load_from",
+     "docstring": "Load a PDF from a file path, raw bytes, or a binary stream.",
+     "signature": "def load_from(self, source: str | bytes | bytearray | Path | BinaryIO, *, password: str | None=None, certificate: Any=None, private_key: Any=None, key_encryption_key: bytes | bytearray | None=None, limits: PdfLoadLimits | None=None) -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.load_from"
+   },
+   "public_symbol:aspose_pdf.document.merge": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.merge",
+     "docstring": "Merge the supplied documents into this one.",
+     "signature": "def merge(self, *documents: Document) -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.merge"
+   },
+   "public_symbol:aspose_pdf.document.optimize": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.optimize",
+     "docstring": "Process the document and remove unused resources.",
+     "signature": "def optimize(self, options: OptimizationOptions | None=None, *, compress_streams: bool=True) -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.optimize"
+   },
+   "public_symbol:aspose_pdf.document.redact_text": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.redact_text",
+     "docstring": "Remove existing text from simple page-content text-showing operands.",
+     "signature": "def redact_text(self, search: str, *, page_index: int | None=None, case_sensitive: bool=True, max_count: int=0, overlay: bool=False, overlay_color: Sequence[float]=(0.0, 0.0, 0.0)) -> int",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.redact_text"
+   },
+   "public_symbol:aspose_pdf.document.replace_text": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.replace_text",
+     "docstring": "Replace existing text in simple page-content text-showing operands.",
+     "signature": "def replace_text(self, search: str, replacement: str, *, page_index: int | None=None, case_sensitive: bool=True, max_count: int=0, font: FontDescriptor | bytes | bytearray | str | Path | None=None, layout: TextLayoutOptions | None=None) -> int",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.replace_text"
+   },
+   "public_symbol:aspose_pdf.document.save_as_svg": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.save_as_svg",
+     "docstring": "Write pages as SVG and return the files written.",
+     "signature": "def save_as_svg(self, destination: str | Path, *, pages: Sequence[int] | None=None, background: tuple[int, int, int] | None=(255, 255, 255), draw_annotations: bool=True, font_substitution: FontSubstitutionOptions | None=None, precision: int=3, overwrite: bool=True) -> list[Path]",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.save_as_svg"
+   },
+   "public_symbol:aspose_pdf.document.save_page_as_image": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.save_page_as_image",
+     "docstring": "Render one page and save it as PNG, TIFF or JPEG.",
+     "signature": "def save_page_as_image(self, page_index: int, destination: str | Path, *, dpi: float=72.0, scale: float=1.0, background: tuple[int, int, int]=(255, 255, 255), antialias: bool | int=True, mode: str='rgb', compression: str='deflate', quality: int=85, threshold: int=128) -> Path",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.save_page_as_image"
+   },
+   "public_symbol:aspose_pdf.document.sign": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.sign",
+     "docstring": "Sign the document when it is next saved.",
+     "signature": "def sign(self, field: str | None=None, *, certificate: Any, private_key: Any, extra_certificates: Sequence[Any]=(), reason: str | None=None, location: str | None=None, contact: str | None=None, signer_name: str | None=None, pades: bool=False, timestamp_url: str | None=None, timestamp_authority: tuple[Any, Any] | None=None, timestamp_timeout: float=10.0, certify: CertificationLevel | int | None=None) -> Document",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.sign"
+   },
+   "public_symbol:aspose_pdf.document.validate_pdfa": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.validate_pdfa",
+     "docstring": "Validate the document against PDF/A standards (heuristic checks).",
+     "signature": "def validate_pdfa(self, level: str='1b') -> PdfAValidationResult",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.validate_pdfa"
+   },
+   "public_symbol:aspose_pdf.document.validate_pdfua": {
+    "attributes": {
+     "defined_at": "aspose_pdf.document.Document.validate_pdfua",
+     "docstring": "Validate catalog-level PDF/UA prerequisites (heuristic).",
+     "signature": "def validate_pdfua(self, part: int=1) -> PdfUaValidationResult",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Document.validate_pdfua"
+   },
+   "public_symbol:aspose_pdf.fontrepository.add_source": {
+    "attributes": {
+     "defined_at": "aspose_pdf.font_repository.FontRepository.add_source",
+     "docstring": "Register *source*; sources are queried highest-priority first.",
+     "signature": "def add_source(cls, source: FontSource) -> None",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.FontRepository.add_source"
+   },
+   "public_symbol:aspose_pdf.fontrepository.find_font": {
+    "attributes": {
+     "defined_at": "aspose_pdf.font_repository.FontRepository.find_font",
+     "docstring": "Resolve *font_name* against registered sources, then standards.",
+     "signature": "def find_font(cls, font_name: str) -> FontDescriptor | None",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.FontRepository.find_font"
+   },
+   "public_symbol:aspose_pdf.fontsubstitutionoptions.system": {
+    "attributes": {
+     "defined_at": "aspose_pdf.font_substitution.FontSubstitutionOptions.system",
+     "docstring": "Options that use the platform's installed fonts.",
+     "signature": "def system(cls) -> FontSubstitutionOptions",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.FontSubstitutionOptions.system"
+   },
+   "public_symbol:aspose_pdf.form": {
+    "attributes": {
+     "defined_at": "aspose_pdf.forms.Form",
+     "docstring": "Represents an interactive form (AcroForm) within a PDF document.",
+     "public_paths": "aspose_pdf.forms.Form",
+     "signature": "class Form",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Form"
+   },
+   "public_symbol:aspose_pdf.form.add_checkbox": {
+    "attributes": {
+     "defined_at": "aspose_pdf.forms.Form.add_checkbox",
+     "docstring": "Add a check box with generated Off/on appearances.",
+     "signature": "def add_checkbox(self, name: str, page: Any, rect: Sequence[float], *, checked: bool=False, on_value: str='Yes', read_only: bool=False, required: bool=False) -> Field",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Form.add_checkbox"
+   },
+   "public_symbol:aspose_pdf.form.add_text_field": {
+    "attributes": {
+     "defined_at": "aspose_pdf.forms.Form.add_text_field",
+     "docstring": "Add an editable text field and return it.",
+     "signature": "def add_text_field(self, name: str, page: Any, rect: Sequence[float], *, value: str='', font_size: float=12, font: Any=None, multiline: bool=False, alignment: str | int='left', read_only: bool=False, required: bool=False) -> Field",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Form.add_text_field"
+   },
+   "public_symbol:aspose_pdf.page.add_text": {
+    "attributes": {
+     "defined_at": "aspose_pdf.pages.Page.add_text",
+     "docstring": "Append positioned text to this page.",
+     "signature": "def add_text(self, text: str, x: float, y: float, *, font_size: float=12.0, font_name: str | None=None, font: FontDescriptor | bytes | bytearray | str | Path | None=None, color: Sequence[float]=(0.0, 0.0, 0.0), tag: str | None=None, actual_text: str | None=None, layout: TextLayoutOptions | None=None) -> Page",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Page.add_text"
+   },
+   "public_symbol:aspose_pdf.page.save_as_image": {
+    "attributes": {
+     "defined_at": "aspose_pdf.pages.Page.save_as_image",
+     "docstring": "Render this page and save it as PNG, TIFF or JPEG.",
+     "signature": "def save_as_image(self, path: str | Path, *, dpi: float=72.0, scale: float=1.0, background: tuple[int, int, int]=(255, 255, 255), antialias: bool | int=True, mode: str='rgb', compression: str='deflate', quality: int=85, threshold: int=128) -> Path",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Page.save_as_image"
+   },
+   "public_symbol:aspose_pdf.page.save_as_svg": {
+    "attributes": {
+     "defined_at": "aspose_pdf.pages.Page.save_as_svg",
+     "docstring": "Write this page to *path* as SVG and return the path.",
+     "signature": "def save_as_svg(self, path: str | Path, *, background: tuple[int, int, int] | None=(255, 255, 255), draw_annotations: bool=True, font_substitution: Any=None, precision: int=3) -> Path",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.Page.save_as_svg"
+   },
+   "public_symbol:aspose_pdf.pdfextractor": {
+    "attributes": {
+     "defined_at": "aspose_pdf.facades.PdfExtractor",
+     "docstring": "Simple PDF text and image extractor.",
+     "public_paths": "aspose_pdf.facades.PdfExtractor",
+     "signature": "class PdfExtractor",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.PdfExtractor"
+   },
+   "public_symbol:aspose_pdf.pdfextractor.extract_text": {
+    "attributes": {
+     "defined_at": "aspose_pdf.facades.PdfExtractor.extract_text",
+     "docstring": "Extract text from the bound document's pages.",
+     "signature": "def extract_text(self) -> None",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.PdfExtractor.extract_text"
+   },
+   "public_symbol:aspose_pdf.pdfextractor.get_text": {
+    "attributes": {
+     "defined_at": "aspose_pdf.facades.PdfExtractor.get_text",
+     "docstring": "Return all extracted text concatenated.",
+     "signature": "def get_text(self) -> str",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.PdfExtractor.get_text"
+   },
+   "public_symbol:aspose_pdf.pdffileeditor.concatenate": {
+    "attributes": {
+     "defined_at": "aspose_pdf.facades.PdfFileEditor.concatenate",
+     "docstring": "Concatenate multiple PDF files into one.",
+     "signature": "def concatenate(self, inputs: list[str], output: str) -> bool",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.PdfFileEditor.concatenate"
+   },
+   "public_symbol:aspose_pdf.pdfsignature.validate": {
+    "attributes": {
+     "defined_at": "aspose_pdf.signature.PdfSignature.validate",
+     "docstring": "Validate the signature with configurable options.",
+     "signature": "def validate(self, options: ValidationOptions | None=None) -> ValidationResult",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_pdf.PdfSignature.validate"
+   }
+  },
+  "id": "mutant-version-01",
+  "injected": "Aspose PDF FOSS for Python is a Python library for processing PDF documents, supporting operations such as loading, converting, extracting text, redacting, signing, and optimizing .pdf files. It enables developers to read page counts and metadata, convert pages to .png or .svg, export to .html or .md, validate compliance with PDF/A and PDF/UA standards, and add interactive elements like text fields and checkboxes. Users include developers building document automation, compliance, and content extraction workflows in Python 3.13 and later. The library is distributed under the MIT license and is version 0.1.0.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "section": "opening",
+  "slot": "opening",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: content_units opening/opening"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:106.heading",
+   "inherited_unit:108.list",
+   "package:cmake_minimum",
+   "package:cxx_standard",
+   "package:name",
+   "package:version"
+  ],
+  "class": "version",
+  "clean": "Aspose.PDF FOSS for Cpp 1.0.0 is a C++20 library for creating and manipulating PDF documents on Linux and Windows using CMake 3.20 or later; it supports text, tables, vector graphics, annotations, form fields, outlines, and digital signatures, and can convert PDFs to TIFF images.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "pdf"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "888700a8e361d32df21d0810c2eb939345e0603e"
+   },
+   "package:cmake_minimum": {
+    "kind": "package",
+    "value": "3.20"
+   },
+   "package:cxx_standard": {
+    "kind": "package",
+    "value": "20"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "Aspose_PDF_FOSS"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "1.0.0"
+   }
+  },
+  "id": "mutant-version-02",
+  "injected": "Aspose.PDF FOSS for Cpp 1.0.0 is a C++20 library for creating and manipulating PDF documents on Linux and Windows using CMake 4.0 or later; it supports text, tables, vector graphics, annotations, form fields, outlines, and digital signatures, and can convert PDFs to TIFF images.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp@888700a8: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "identity:platform",
+   "package:python_requires",
+   "package:name",
+   "package:version",
+   "package:license",
+   "build_test_asset:tests",
+   "inherited_unit:068.paragraph"
+  ],
+  "class": "version",
+  "clean": "The toolchain requires Python 3.10 or later and uses the aspose-font package version 1.0.0 under the MIT license. Test suites in the tests/ directory validate font loading, instance instantiation, and web bundle generation, ensuring compatibility and correctness across variable font axes. These verification flows also refresh the generated demo site content.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "build_test_asset:tests": {
+    "kind": "build_test_asset",
+    "value": "tests/"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-font"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "1.0.0"
+   }
+  },
+  "id": "mutant-version-03",
+  "injected": "The toolchain requires Python 4.0 or later and uses the aspose-font package version 1.0.0 under the MIT license. Test suites in the tests/ directory validate font loading, instance instantiation, and web bundle generation, ensuring compatibility and correctness across variable font axes. These verification flows also refresh the generated demo site content.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "development_testing",
+  "slot": "summary",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units development_testing/summary"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "cited": [
+   "dependency:optional.pdf.reportlab-3.6",
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:017.heading",
+   "inherited_unit:082.heading",
+   "inherited_unit:083.list",
+   "package:license",
+   "package:name",
+   "package:python_requires",
+   "package:version",
+   "public_symbol:aspose.note.saveformat"
+  ],
+  "class": "version",
+  "clean": "Aspose.Note FOSS for Python reads Microsoft OneNote .one files and exports them to PDF using the aspose.note.SaveFormat.Pdf option, supporting Python 3.10 and later.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "dependency:optional.pdf.reportlab-3.6": {
+    "kind": "dependency",
+    "value": "reportlab>=3.6"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "note"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-note-foss/Aspose.Note-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "LicenseRef-Aspose-Split"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-note"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.3.2"
+   },
+   "public_symbol:aspose.note.saveformat": {
+    "attributes": {
+     "defined_at": "aspose.note.enums.SaveFormat",
+     "public_paths": "aspose.note.enums.SaveFormat",
+     "signature": "class SaveFormat(Enum)",
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.note.SaveFormat"
+   }
+  },
+  "id": "mutant-version-04",
+  "injected": "Aspose.Note FOSS for Python reads Microsoft OneNote .one files and exports them to PDF using the aspose.note.SaveFormat.Pdf option, supporting Python 4.0 and later.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:067.list",
+   "package:name",
+   "package:python_requires",
+   "package:python_versions",
+   "package:version"
+  ],
+  "class": "version",
+  "clean": "Aspose.3D FOSS for Python version 26.1.0 supports loading and saving common 3D formats such as OBJ, STL, glTF, and COLLADA, and provides basic scene and entity inspection capabilities through the Scene, Node, and Mesh APIs.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "3d"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-3d-foss"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.7"
+   },
+   "package:python_versions": {
+    "kind": "package",
+    "value": "3.7,3.8,3.9,3.10,3.11,3.12"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.1.0"
+   }
+  },
+  "id": "mutant-version-05",
+  "injected": "Aspose.3D FOSS for Python version 26.2.0 supports loading and saving common 3D formats such as OBJ, STL, glTF, and COLLADA, and provides basic scene and entity inspection capabilities through the Scene, Node, and Mesh APIs.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:cmake_minimum",
+   "package:cxx_standard",
+   "package:name",
+   "package:version",
+   "public_symbol:aspose.slides.foss",
+   "dependency:pugixml",
+   "dependency:development.miniz"
+  ],
+  "class": "version",
+  "clean": "Aspose.Slides FOSS for Cpp version 26.9.0 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the Aspose.Slides.Foss public symbol and depends on pugixml and miniz.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "dependency:development.miniz": {
+    "kind": "dependency",
+    "value": "miniz"
+   },
+   "dependency:pugixml": {
+    "kind": "dependency",
+    "value": "pugixml"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "slides"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "c41f8dddc499fb0058fc9557cb364d70fbd3cef1"
+   },
+   "package:cmake_minimum": {
+    "kind": "package",
+    "value": "3.20"
+   },
+   "package:cxx_standard": {
+    "kind": "package",
+    "value": "20"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "AsposeSlidesFoss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.9.0"
+   },
+   "public_symbol:aspose.slides.foss": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Slides.Foss"
+   }
+  },
+  "id": "mutant-version-06",
+  "injected": "Aspose.Slides FOSS for Cpp version 26.9.3 is a C++ library for creating and manipulating PowerPoint presentations, supporting C++20 and requiring CMake 3.20 or later. It is distributed under the MIT license and targets the C++ ecosystem with the repository aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp at revision c41f8dddc499fb0058fc9557cb364d70fbd3cef1. The library exposes the Aspose.Slides.Foss public symbol and depends on pugixml and miniz.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+  "cited": [
+   "identity:repository",
+   "identity:revision",
+   "identity:family",
+   "identity:platform",
+   "identity:ecosystem",
+   "package:name",
+   "package:version",
+   "package:cxx_standard",
+   "package:cmake_minimum",
+   "dependency:none"
+  ],
+  "class": "version",
+  "clean": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats. It solves the problem of programmatic email handling in C++ applications by providing a straightforward API to create, inspect, and save messages without external dependencies. Developers building desktop or server applications that need to process email content, such as parsing incoming messages or generating outgoing reports, use this library. The library is version 0.1.0, targets C++17, and requires CMake 3.26 or later.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "dependency:none": {
+    "kind": "dependency",
+    "value": "none"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "email"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "c844a467cf7f2503819b655f4d6ceaef91056c40"
+   },
+   "package:cmake_minimum": {
+    "kind": "package",
+    "value": "3.26"
+   },
+   "package:cxx_standard": {
+    "kind": "package",
+    "value": "17"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "AsposeEmailFoss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   }
+  },
+  "id": "mutant-version-07",
+  "injected": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats. It solves the problem of programmatic email handling in C++ applications by providing a straightforward API to create, inspect, and save messages without external dependencies. Developers building desktop or server applications that need to process email content, such as parsing incoming messages or generating outgoing reports, use this library. The library is version 0.1.0, targets C++17, and requires CMake 3.28 or later.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "section": "opening",
+  "slot": "opening",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp@c844a467: content_units opening/opening"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:cmake_minimum",
+   "package:cxx_standard",
+   "package:name"
+  ],
+  "class": "version",
+  "clean": "Aspose.Cells FOSS for Cpp provides C++ developers with a free, open-source library to read, write, and convert spreadsheet files using the aspose_cells_foss_cpp package, requiring C++17 and CMake 3.16 or later.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "cells"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
+   },
+   "package:cmake_minimum": {
+    "kind": "package",
+    "value": "3.16"
+   },
+   "package:cxx_standard": {
+    "kind": "package",
+    "value": "17"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose_cells_foss_cpp"
+   }
+  },
+  "id": "mutant-version-08",
+  "injected": "Aspose.Cells FOSS for Cpp provides C++ developers with a free, open-source library to read, write, and convert spreadsheet files using the aspose_cells_foss_cpp package, requiring C++17 and CMake 6.0 or later.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:052.list",
+   "install_command:pip",
+   "package:license",
+   "package:name",
+   "package:python_requires",
+   "package:version",
+   "public_symbol:aspose_barcode_foss.barcode.to_pdf",
+   "public_symbol:aspose_barcode_foss.encodeoptions",
+   "public_symbol:aspose_barcode_foss.pdfrenderer"
+  ],
+  "class": "version",
+  "clean": "Aspose.BarCode FOSS for Python is a Python library for generating (encoding) barcodes in PNG and SVG formats across all supported symbologies, targeting Python 3.12 and later under the MIT license.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "barcode"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151"
+   },
+   "install_command:pip": {
+    "attributes": {
+     "install_kind": "source"
+    },
+    "kind": "install_command",
+    "value": "git clone https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git\ncd Aspose.BarCode-FOSS-for-Python\npip install ."
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-barcode-foss"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.12"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   },
+   "public_symbol:aspose_barcode_foss.barcode.to_pdf": {
+    "attributes": {
+     "defined_at": "aspose_barcode_foss.result.Barcode.to_pdf",
+     "docstring": "Render the barcode as PDF when the backend is available.",
+     "signature": "def to_pdf(self, *, options: RenderOptions | None=None) -> bytes",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.Barcode.to_pdf"
+   },
+   "public_symbol:aspose_barcode_foss.encodeoptions": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.EncodeOptions"
+   },
+   "public_symbol:aspose_barcode_foss.pdfrenderer": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.PdfRenderer"
+   }
+  },
+  "id": "mutant-version-09",
+  "injected": "Aspose.BarCode FOSS for Python is a Python library for generating (encoding) barcodes in PNG and SVG formats across all supported symbologies, targeting Python 3.15 and later under the MIT license.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python@06eca5c0: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+  "cited": [
+   "identity:repository",
+   "identity:revision",
+   "identity:family",
+   "identity:platform",
+   "identity:ecosystem",
+   "package:name",
+   "package:version",
+   "package:java_release",
+   "license:spdx",
+   "dependency:none",
+   "example:001",
+   "example:002",
+   "example:003",
+   "example:004",
+   "example:005",
+   "example:006",
+   "example:007",
+   "example:008",
+   "example:009"
+  ],
+  "class": "version",
+  "clean": "Aspose.PDF FOSS for Java is a Java library that enables developers to create, read, and manipulate PDF documents without requiring external dependencies. It supports tasks such as adding text, images, form fields, and annotations to PDFs, as well as extracting content from existing files. Developers working in Java 11 or newer can integrate it using the org.aspose:aspose-pdf-foss package at version 26.8.0 under the MIT license. The library serves teams building applications that need reliable, self-contained PDF processing capabilities.",
+  "excerpt": "seeded mutation (version) of a clean unit",
+  "facts": {
+   "dependency:none": {
+    "kind": "dependency",
+    "value": "none"
+   },
+   "example:001": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.Page;\nimport org.aspose.pdf.Rectangle;\nimport org.aspose.pdf.Color;\nimport org.aspose.pdf.annotations.WidgetAnnotation;\n\ntry (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n    widget.getCharacteristics().setBorder(Color.fromRgb(1, 0, 0));\n\n    Color border = widget.getCharacteristics().getBorder();\n    System.out.println(border.getR() + \", \" + border.getG() + \", \" + border.getB());\n}\n"
+   },
+   "example:002": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.Page;\nimport org.aspose.pdf.Cell;\nimport org.aspose.pdf.Rectangle;\nimport org.aspose.pdf.forms.RadioButtonOptionField;\nimport org.aspose.pdf.text.TextFragment;\n\ntry (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    Cell cell = new Cell();\n\n    cell.add(new TextFragment(\"Choose:\"));\n\n    RadioButtonOptionField red = new RadioButtonOptionField(page, new Rectangle(0, 0, 10, 10));\n    red.setOptionName(\"Red\");\n    cell.add(red);\n\n    System.out.println(cell.getParagraphs().size() + \" paragraphs in the cell\");\n}\n"
+   },
+   "example:003": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.text.TextAbsorber;\n\ntry (Document doc = new Document(\"input.pdf\")) {\n    TextAbsorber absorber = new TextAbsorber();\n    doc.getPages().accept(absorber);\n    String text = absorber.getText();\n    System.out.println(text);\n}\n"
+   },
+   "example:004": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.XImage;\n\ntry (Document doc = new Document(\"input.pdf\")) {\n    int pageIndex = 1;\n    int imageIndex = 1;\n    for (XImage image : doc.getPages().get(pageIndex).getResources().getImages()) {\n        try (java.io.FileOutputStream out = new java.io.FileOutputStream(\"image-\" + imageIndex + \".png\")) {\n            image.save(out);\n        }\n        imageIndex++;\n    }\n}\n"
+   },
+   "example:005": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.Page;\nimport org.aspose.pdf.text.TextFragment;\n\ntry (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    TextFragment fragment = new TextFragment(\"Hello, PDF world!\");\n    page.getParagraphs().add(fragment);\n    doc.save(\"output.pdf\");\n}\n"
+   },
+   "example:006": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.forms.Form;\nimport org.aspose.pdf.forms.TextBoxField;\n\ntry (Document doc = new Document(\"form.pdf\")) {\n    Form form = doc.getForm();\n    TextBoxField nameField = (TextBoxField) form.get(\"name\");\n    nameField.setValue(\"Jane Doe\");\n\n    // Iterate all fields\n    for (org.aspose.pdf.forms.Field field : form.getFields()) {\n        System.out.println(field.getPartialName() + \" = \" + field.getValue());\n    }\n\n    doc.save(\"form-filled.pdf\");\n}\n"
+   },
+   "example:007": {
+    "kind": "example",
+    "value": "try (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    Cell cell = new Cell();\n\n    RadioButtonOptionField red = new RadioButtonOptionField(page, new Rectangle(0, 0, 10, 10));\n    red.setOptionName(\"Red\");\n    RadioButtonOptionField green = new RadioButtonOptionField(page, new Rectangle(0, 0, 10, 10));\n    green.setOptionName(\"Green\");\n\n    cell.add(red);\n    cell.add(green);\n    // Fields keep insertion order: cell.getParagraphs().get(0) is red, get(1) is green.\n}\n"
+   },
+   "example:008": {
+    "kind": "example",
+    "value": "try (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n\n    widget.getCharacteristics().setBackground(Color.fromRgb(0, 0.5, 0.5));\n    Color background = widget.getCharacteristics().getBackground();\n}\n"
+   },
+   "example:009": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.annotations.Border;\nimport org.aspose.pdf.annotations.BorderStyle;\nimport org.aspose.pdf.forms.RadioButtonOptionField;\n\nRadioButtonOptionField option = new RadioButtonOptionField();\nBorder border = new Border(option);\nborder.setStyle(BorderStyle.Dashed);\n\nBorder roundTrip = option.getBorder();\nSystem.out.println(roundTrip.getWidth());\n"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "pdf"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "db2d3f0622f035825419c6d46727022064f39f15"
+   },
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   },
+   "package:java_release": {
+    "attributes": {
+     "floor_declaration": "maven.compiler.target"
+    },
+    "kind": "package",
+    "value": "11"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "org.aspose:aspose-pdf-foss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.8.0"
+   }
+  },
+  "id": "mutant-version-10",
+  "injected": "Aspose.PDF FOSS for Java is a Java library that enables developers to create, read, and manipulate PDF documents without requiring external dependencies. It supports tasks such as adding text, images, form fields, and annotations to PDFs, as well as extracting content from existing files. Developers working in Java 11 or newer can integrate it using the org.aspose:aspose-pdf-foss package at version 26.8.2 under the MIT license. The library serves teams building applications that need reliable, self-contained PDF processing capabilities.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+  "section": "opening",
+  "slot": "opening",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java@db2d3f06: content_units opening/opening"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+  "cited": [
+   "inherited_unit:088.list",
+   "install_command:maven"
+  ],
+  "class": "wrong_identifier",
+  "clean": "Installation requires Maven and the explicit artifact coordinate org.aspose:aspose-slides-foss:26.8.0; no other build tools or installation methods are provided.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "install_command:maven": {
+    "kind": "install_command",
+    "value": "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.8.0"
+   }
+  },
+  "id": "mutant-wrong_identifier-01",
+  "injected": "Installation requires Maven and the explicit artifact coordinate org.aspose:aspose-slides:26.8.0; no other build tools or installation methods are provided.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "section": "scope_limitations",
+  "slot": "limitation:1",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java@620a2614: content_units scope_limitations/limitation:1"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:127.heading",
+   "inherited_unit:128.paragraph",
+   "inherited_unit:129.list",
+   "inherited_unit:130.paragraph",
+   "inherited_unit:131.list",
+   "inherited_unit:132.paragraph",
+   "install_command:maven",
+   "package:java_release",
+   "package:name",
+   "package:version"
+  ],
+  "class": "wrong_identifier",
+  "clean": "Aspose.PDF FOSS for Java version 26.8.0 provides a Java library for creating, editing, and converting PDF documents, targeting Java 11 and above, and is distributed under the package name org.aspose:aspose-pdf-foss.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "pdf"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "db2d3f0622f035825419c6d46727022064f39f15"
+   },
+   "install_command:maven": {
+    "kind": "install_command",
+    "value": "mvn dependency:get -Dartifact=org.aspose:aspose-pdf-foss:26.8.0"
+   },
+   "package:java_release": {
+    "attributes": {
+     "floor_declaration": "maven.compiler.target"
+    },
+    "kind": "package",
+    "value": "11"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "org.aspose:aspose-pdf-foss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.8.0"
+   }
+  },
+  "id": "mutant-wrong_identifier-02",
+  "injected": "Aspose.PDF FOSS for Java version 26.8.0 provides a Java library for creating, editing, and converting PDF documents, targeting Java 11 and above, and is distributed under the package name org.aspose:aspose-pdf.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java@db2d3f06: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+  "cited": [
+   "link_target:020",
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:license",
+   "package:name",
+   "package:python_requires",
+   "package:version"
+  ],
+  "class": "wrong_identifier",
+  "clean": "The how-to guides and FAQ provide task-focused answers for common HTML, DOM, and CSS-processing questions when using aspose-html-foss.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "html"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-html-foss/Aspose.HTML-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11"
+   },
+   "link_target:020": {
+    "kind": "link_target",
+    "value": "https://kb.aspose.org/html/python/"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-html-foss"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   }
+  },
+  "id": "mutant-wrong_identifier-03",
+  "injected": "The how-to guides and FAQ provide task-focused answers for common HTML, DOM, and CSS-processing questions when using aspose-html.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "section": "documentation_resources",
+  "slot": "link:link_target:020",
+  "source": "aspose-html-foss__Aspose.HTML-FOSS-for-Python@bf0f1e7a: content_units documentation_resources/link:link_target:020"
+ },
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "link_target:027",
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:name",
+   "package:python_requires"
+  ],
+  "class": "wrong_identifier",
+  "clean": "The full API reference documents every public class, method, and property available in the aspose-page-foss package for Python developers.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "page"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-page-foss/Aspose.Page-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+   },
+   "link_target:027": {
+    "kind": "link_target",
+    "value": "https://reference.aspose.org/page/python/"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-page-foss"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   }
+  },
+  "id": "mutant-wrong_identifier-04",
+  "injected": "The full API reference documents every public class, method, and property available in the aspose-page package for Python developers.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "documentation_resources",
+  "slot": "link:link_target:027",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: content_units documentation_resources/link:link_target:027"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+  "cited": [
+   "link_target:026",
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:name",
+   "package:rust_edition",
+   "package:version"
+  ],
+  "class": "wrong_identifier",
+  "clean": "The issue tracker allows users to report bugs or submit feature requests for aspose-cells-foss-rust on GitHub.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "rust"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "cells"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "rust"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "1a6004af47b1ef15385f9d36d381a8172428cc7e"
+   },
+   "link_target:026": {
+    "kind": "link_target",
+    "value": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust/issues"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-cells-foss-rust"
+   },
+   "package:rust_edition": {
+    "kind": "package",
+    "value": "2021"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.7.0"
+   }
+  },
+  "id": "mutant-wrong_identifier-05",
+  "injected": "The issue tracker allows users to report bugs or submit feature requests for aspose-cells-rust on GitHub.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "section": "documentation_resources",
+  "slot": "link:link_target:026",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust@1a6004af: content_units documentation_resources/link:link_target:026"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+  "cited": [
+   "inherited_unit:048.list",
+   "install_command:maven"
+  ],
+  "class": "wrong_identifier",
+  "clean": "Saving workbooks is currently limited to the .xlsx file format, and the artifact can be installed using the Maven command that retrieves org.aspose:aspose-cells-foss version 26.7.0.",
+  "excerpt": "seeded mutation (wrong_identifier) of a clean unit",
+  "facts": {
+   "install_command:maven": {
+    "kind": "install_command",
+    "value": "mvn dependency:get -Dartifact=org.aspose:aspose-cells-foss:26.7.0"
+   }
+  },
+  "id": "mutant-wrong_identifier-06",
+  "injected": "Saving workbooks is currently limited to the .xlsx file format, and the artifact can be installed using the Maven command that retrieves org.aspose:aspose-cells version 26.7.0.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "section": "scope_limitations",
+  "slot": "limitation:1",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java@c65329e7: content_units scope_limitations/limitation:1"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.slides.foss.textframe"
+  ],
+  "class": "count",
+  "clean": "TextFrame contains text content and provides access to its formatting and layout in Aspose.Slides FOSS for Cpp.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.slides.foss.textframe": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Slides.Foss.TextFrame"
+   }
+  },
+  "id": "mutant-count-01",
+  "injected": "TextFrame contains text content and provides access to its formatting and layout in Aspose.Slides FOSS for Cpp. The public surface exposes 263 documented classes.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.slides.foss.textframe",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: content_units api_reference/type:public_symbol:aspose.slides.foss.textframe"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_font.fontexception"
+  ],
+  "class": "count",
+  "clean": "FontException is the base class for font-related errors.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_font.fontexception": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_font.FontException"
+   }
+  },
+  "id": "mutant-count-02",
+  "injected": "FontException is the base class for font-related errors. The public surface exposes 370 documented classes.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_font.fontexception",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units api_reference/type:public_symbol:aspose_font.fontexception"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+  "cited": [
+   "inherited_unit:066.list"
+  ],
+  "class": "count",
+  "clean": "There is no dedicated calendar or appointment API; calendar-specific MAPI properties can only be accessed generically using set_property and get_property_value methods.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "id": "mutant-count-03",
+  "injected": "There is no dedicated calendar or appointment API; calendar-specific MAPI properties can only be accessed generically using set_property and get_property_value methods. The public surface exposes 259 documented classes.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "limitation:3",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Python@10a906b4: content_units scope_limitations/limitation:3"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.cells_foss.worksheetcollection"
+  ],
+  "class": "count",
+  "clean": "Aspose.Cells_FOSS.WorksheetCollection manages the ordered list of worksheets contained in a workbook.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.cells_foss.worksheetcollection": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.WorksheetCollection"
+   }
+  },
+  "id": "mutant-count-04",
+  "injected": "Aspose.Cells_FOSS.WorksheetCollection manages the ordered list of worksheets contained in a workbook. More than 139 examples are included in the repository.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.cells_foss.worksheetcollection",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units api_reference/type:public_symbol:aspose.cells_foss.worksheetcollection"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose",
+   "public_symbol:aspose.email",
+   "public_symbol:aspose.email.foss"
+  ],
+  "class": "count",
+  "clean": "The aspose namespace serves as the top-level container for the Aspose.Email FOSS for Cpp library, grouping the aspose.email and aspose.email.foss sub-namespaces that provide the core email processing functionality.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "aspose"
+   },
+   "public_symbol:aspose.email": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.email"
+   },
+   "public_symbol:aspose.email.foss": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.email.foss"
+   }
+  },
+  "id": "mutant-count-05",
+  "injected": "The aspose namespace serves as the top-level container for the Aspose.Email FOSS for Cpp library, grouping the aspose.email and aspose.email.foss sub-namespaces that provide the core email processing functionality. The public surface exposes 141 documented classes.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "hub:public_symbol:aspose",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp@c844a467: content_units api_reference/hub:public_symbol:aspose"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.threed.shading.lambertmaterial"
+  ],
+  "class": "count",
+  "clean": "LambertMaterial defines a simple shading model with ambient, diffuse, emissive, and transparency properties.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.threed.shading.lambertmaterial": {
+    "attributes": {
+     "defined_at": "aspose.threed.shading.LambertMaterial.LambertMaterial",
+     "public_paths": "aspose.threed.shading.LambertMaterial.LambertMaterial",
+     "signature": "class LambertMaterial(Material)",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.threed.shading.LambertMaterial"
+   }
+  },
+  "id": "mutant-count-06",
+  "injected": "LambertMaterial defines a simple shading model with ambient, diffuse, emissive, and transparency properties. More than 307 examples are included in the repository.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.threed.shading.lambertmaterial",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: content_units api_reference/type:public_symbol:aspose.threed.shading.lambertmaterial"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "cited": [
+   "build_test_asset:tests",
+   "build_test_asset:ci"
+  ],
+  "class": "count",
+  "clean": "Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "build_test_asset:ci": {
+    "kind": "build_test_asset",
+    "value": ".github/workflows/"
+   },
+   "build_test_asset:tests": {
+    "kind": "build_test_asset",
+    "value": "tests/"
+   }
+  },
+  "id": "mutant-count-07",
+  "injected": "Build and test the aspose-pdf-foss-for-python package by running tests from the tests/ directory using the CI workflow defined in .github/workflows/. The public surface exposes 140 documented classes.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "section": "development_testing",
+  "slot": "summary",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: content_units development_testing/summary"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.pdf.text.fontsubstitutioncollection"
+  ],
+  "class": "count",
+  "clean": "FontSubstitutionCollection manages a collection of font substitution rules, supporting operations such as adding, removing, and checking for specific substitutions via its Add, Remove, Contains, and other collection methods.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.pdf.text.fontsubstitutioncollection": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Pdf.Text.FontSubstitutionCollection"
+   }
+  },
+  "id": "mutant-count-08",
+  "injected": "FontSubstitutionCollection manages a collection of font substitution rules, supporting operations such as adding, removing, and checking for specific substitutions via its Add, Remove, Contains, and other collection methods. The suite runs 346 automated checks on every commit.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.pdf.text.fontsubstitutioncollection",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET@d10e2c82: content_units api_reference/type:public_symbol:aspose.pdf.text.fontsubstitutioncollection"
+ },
+ {
+  "bundle": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_html.dom.nomodificationallowederror"
+  ],
+  "class": "count",
+  "clean": "The NoModificationAllowedError class represents an error thrown when an attempt is made to modify an object that does not allow modifications.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_html.dom.nomodificationallowederror": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_html.dom.NoModificationAllowedError"
+   }
+  },
+  "id": "mutant-count-09",
+  "injected": "The NoModificationAllowedError class represents an error thrown when an attempt is made to modify an object that does not allow modifications. The suite runs 128 automated checks on every commit.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_html.dom.nomodificationallowederror",
+  "source": "aspose-html-foss__Aspose.HTML-FOSS-for-Python@bf0f1e7a: content_units api_reference/type:public_symbol:aspose_html.dom.nomodificationallowederror"
+ },
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.page.ps.objects.pspattern"
+  ],
+  "class": "count",
+  "clean": "PsPattern defines a reusable pattern used for filling or stroking in PostScript graphics.",
+  "excerpt": "seeded mutation (count) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.page.ps.objects.pspattern": {
+    "attributes": {
+     "signature": "class PsPattern",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.page.ps.objects.PsPattern"
+   }
+  },
+  "id": "mutant-count-10",
+  "injected": "PsPattern defines a reusable pattern used for filling or stroking in PostScript graphics. The suite runs 283 automated checks on every commit.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.page.ps.objects.pspattern",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: content_units api_reference/type:public_symbol:aspose.page.ps.objects.pspattern"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.email.foss.msg.mapi_recipient"
+  ],
+  "class": "invented_capability",
+  "clean": "The mapi_recipient class represents a recipient in a MAPI message, including name, email address, and recipient type.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.email.foss.msg.mapi_recipient": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.email.foss.msg.mapi_recipient"
+   }
+  },
+  "id": "mutant-invented_capability-01",
+  "injected": "The mapi_recipient class represents a recipient in a MAPI message, including name, email address, and recipient type. The library provides ODT conversion out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.email.foss.msg.mapi_recipient",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp@c844a467: content_units api_reference/type:public_symbol:aspose.email.foss.msg.mapi_recipient"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.threed.formats.obj.objformatdetector"
+  ],
+  "class": "invented_capability",
+  "clean": "ObjFormatDetector identifies OBJ files by examining their content in Aspose.3D FOSS for Python.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.threed.formats.obj.objformatdetector": {
+    "attributes": {
+     "defined_at": "aspose.threed.formats.obj.ObjFormatDetector.ObjFormatDetector",
+     "public_paths": "aspose.threed.formats.obj.ObjFormatDetector.ObjFormatDetector",
+     "signature": "class ObjFormatDetector(FormatDetector)",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.threed.formats.obj.ObjFormatDetector"
+   }
+  },
+  "id": "mutant-invented_capability-02",
+  "injected": "ObjFormatDetector identifies OBJ files by examining their content in Aspose.3D FOSS for Python. It also supports PSD import and export.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.threed.formats.obj.objformatdetector",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: content_units api_reference/type:public_symbol:aspose.threed.formats.obj.objformatdetector"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.pdf.metadata"
+  ],
+  "class": "invented_capability",
+  "clean": "Aspose.Pdf.Metadata stores and manages document metadata properties and namespace registrations.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.pdf.metadata": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Pdf.Metadata"
+   }
+  },
+  "id": "mutant-invented_capability-03",
+  "injected": "Aspose.Pdf.Metadata stores and manages document metadata properties and namespace registrations. Batch processing of ODT files is included.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.pdf.metadata",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp@888700a8: content_units api_reference/type:public_symbol:aspose.pdf.metadata"
+ },
+ {
+  "bundle": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_html.dom.htmlhtmlelement"
+  ],
+  "class": "invented_capability",
+  "clean": "The HTMLHtmlElement class represents the root HTML element of a document, serving as the container for all other HTML elements.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_html.dom.htmlhtmlelement": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_html.dom.HTMLHtmlElement"
+   }
+  },
+  "id": "mutant-invented_capability-04",
+  "injected": "The HTMLHtmlElement class represents the root HTML element of a document, serving as the container for all other HTML elements. The library provides JPEG 2000 conversion out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_html.dom.htmlhtmlelement",
+  "source": "aspose-html-foss__Aspose.HTML-FOSS-for-Python@bf0f1e7a: content_units api_reference/type:public_symbol:aspose_html.dom.htmlhtmlelement"
+ },
+ {
+  "bundle": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.imaging.foss"
+  ],
+  "class": "invented_capability",
+  "clean": "Allows new image formats to be integrated through custom loaders and savers, enabling the library to adapt to emerging standards without core modifications.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.imaging.foss": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Imaging.Foss"
+   }
+  },
+  "id": "mutant-invented_capability-05",
+  "injected": "Allows new image formats to be integrated through custom loaders and savers, enabling the library to adapt to emerging standards without core modifications. The library provides WebP conversion out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "capability:6",
+  "source": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET@a7c7314b: content_units key_capabilities/capability:6"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator"
+  ],
+  "class": "invented_capability",
+  "clean": "Validates the structure and content of a workbook and reports issues via callback.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.InternalValidation.WorkbookValidator"
+   }
+  },
+  "id": "mutant-invented_capability-06",
+  "injected": "Validates the structure and content of a workbook and reports issues via callback. Batch processing of JPEG 2000 files is included.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units api_reference/type:public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_font.localizationcoverage"
+  ],
+  "class": "invented_capability",
+  "clean": "LocalizationCoverage indicates which languages are covered, requested, matched, or missing for a font.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_font.localizationcoverage": {
+    "attributes": {
+     "defined_at": "aspose_font.variation.LocalizationCoverage",
+     "public_paths": "aspose_font.variation.LocalizationCoverage",
+     "signature": "class LocalizationCoverage",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_font.LocalizationCoverage"
+   }
+  },
+  "id": "mutant-invented_capability-07",
+  "injected": "LocalizationCoverage indicates which languages are covered, requested, matched, or missing for a font. Batch processing of ODT files is included.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_font.localizationcoverage",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units api_reference/type:public_symbol:aspose_font.localizationcoverage"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+  "cited": [
+   "public_symbol:aspose.email.foss.msg.msgstorage"
+  ],
+  "class": "invented_capability",
+  "clean": "MsgStorage represents a storage node in a MSG format document, enabling addition and enumeration of child storages and streams.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.email.foss.msg.msgstorage": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Email.Foss.Msg.MsgStorage"
+   }
+  },
+  "id": "mutant-invented_capability-08",
+  "injected": "MsgStorage represents a storage node in a MSG format document, enabling addition and enumeration of child storages and streams. The library provides DOCX export conversion out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.email.foss.msg.msgstorage",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-.Net@59125b47: content_units api_reference/type:public_symbol:aspose.email.foss.msg.msgstorage"
+ },
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.page.ps.clipper.intrect"
+  ],
+  "class": "invented_capability",
+  "clean": "IntRect defines a rectangle using integer coordinates for clipping calculations.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.page.ps.clipper.intrect": {
+    "attributes": {
+     "signature": "class IntRect",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.page.ps.clipper.IntRect"
+   }
+  },
+  "id": "mutant-invented_capability-09",
+  "injected": "IntRect defines a rectangle using integer coordinates for clipping calculations. Batch processing of ODT files is included.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.page.ps.clipper.intrect",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: content_units api_reference/type:public_symbol:aspose.page.ps.clipper.intrect"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+  "cited": [
+   "public_symbol:border",
+   "public_symbol:cellstyle",
+   "public_symbol:fill",
+   "public_symbol:font",
+   "public_symbol:numberformat",
+   "public_symbol:styleflag"
+  ],
+  "class": "invented_capability",
+  "clean": "Apply cell styling through CellStyle with Font, Fill, Border, and NumberFormat settings, and apply targeted updates using StyleFlag to modify only specific style attributes.",
+  "excerpt": "seeded mutation (invented_capability) of a clean unit",
+  "facts": {
+   "public_symbol:border": {
+    "attributes": {
+     "docstring": "Represents border.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Border"
+   },
+   "public_symbol:cellstyle": {
+    "attributes": {
+     "docstring": "Represents a mutable cell style facade that can be applied to one or more cells.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "CellStyle"
+   },
+   "public_symbol:fill": {
+    "attributes": {
+     "docstring": "Represents a mutable cell style facade that can be applied to one or more cells.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Fill"
+   },
+   "public_symbol:font": {
+    "attributes": {
+     "docstring": "Represents font.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Font"
+   },
+   "public_symbol:numberformat": {
+    "attributes": {
+     "docstring": "Provides number format operations.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "NumberFormat"
+   },
+   "public_symbol:styleflag": {
+    "attributes": {
+     "docstring": "Represents flags which indicate applied formatting properties.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "StyleFlag"
+   }
+  },
+  "id": "mutant-invented_capability-10",
+  "injected": "Apply cell styling through CellStyle with Font, Fill, Border, and NumberFormat settings, and apply targeted updates using StyleFlag to modify only specific style attributes. The library provides WebP conversion out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "section": "key_capabilities",
+  "slot": "capability:4",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust@1a6004af: content_units key_capabilities/capability:4"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.cells_foss.autofiltersortstate"
+  ],
+  "class": "formatting",
+  "clean": "Aspose.Cells_FOSS.AutoFilterSortState holds the overall sort configuration for an auto-filtered range.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.cells_foss.autofiltersortstate": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.AutoFilterSortState"
+   }
+  },
+  "id": "mutant-formatting-01",
+  "injected": "Aspose.Cells_FOSS.AutoFilterSortState holds the overall sort configuration for an auto-filtered range.\n\n![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.cells_foss.autofiltersortstate",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units api_reference/type:public_symbol:aspose.cells_foss.autofiltersortstate"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.pdf.annotations.activationevent"
+  ],
+  "class": "formatting",
+  "clean": "ActivationEvent represents an event that occurs when an annotation is activated in a PDF document.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.pdf.annotations.activationevent": {
+    "attributes": {
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Pdf.Annotations.ActivationEvent"
+   }
+  },
+  "id": "mutant-formatting-02",
+  "injected": "ActivationEvent represents an event that occurs when an annotation is activated in a PDF document.\n\n- `<145`\n- `numpy>=1.24`",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.pdf.annotations.activationevent",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET@d10e2c82: content_units api_reference/type:public_symbol:aspose.pdf.annotations.activationevent"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "cited": [
+   "inherited_unit:101.list",
+   "public_symbol:aspose.words_foss.saving.ooxmlcompliance"
+  ],
+  "class": "formatting",
+  "clean": "Saving DOCX files with OoxmlCompliance.ISO29500_2008_STRICT raises NotImplementedError because the writer does not implement strict compliance, and users must choose an alternative compliance level instead.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.words_foss.saving.ooxmlcompliance": {
+    "attributes": {
+     "docstring": "OOXML standards compliance level.",
+     "signature": "class OoxmlCompliance(IntEnum)",
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.words_foss.saving.OoxmlCompliance"
+   }
+  },
+  "id": "mutant-formatting-03",
+  "injected": "Saving DOCX files with OoxmlCompliance.ISO29500_2008_STRICT raises NotImplementedError because the writer does not implement strict compliance, and users must choose an alternative compliance level instead.\n\n![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "limitation:2",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: content_units scope_limitations/limitation:2"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+  "cited": [
+   "link_target:025"
+  ],
+  "class": "formatting",
+  "clean": "provides installation instructions, step-by-step walkthroughs, and feature guides for Aspose.Words.FOSS on netstandard2.0",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "link_target:025": {
+    "kind": "link_target",
+    "value": "https://docs.aspose.org/words/net/"
+   }
+  },
+  "id": "mutant-formatting-04",
+  "injected": "provides installation instructions, step-by-step walkthroughs, and feature guides for Aspose.Words.FOSS on netstandard2.0 Run the test suite:",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "section": "documentation_resources",
+  "slot": "link:link_target:025",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-.NET@0d3f1add: content_units documentation_resources/link:link_target:025"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.slides.foss.numberedbulletstyle"
+  ],
+  "class": "formatting",
+  "clean": "NumberedBulletStyle specifies the style of numbered bullets in a list.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.slides.foss.numberedbulletstyle": {
+    "attributes": {
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Slides.Foss.NumberedBulletStyle"
+   }
+  },
+  "id": "mutant-formatting-05",
+  "injected": "NumberedBulletStyle specifies the style of numbered bullets in a list.\n\n- `<145`\n- `numpy>=1.24`",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.slides.foss.numberedbulletstyle",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: content_units api_reference/type:public_symbol:aspose.slides.foss.numberedbulletstyle"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+  "cited": [
+   "identity:repository",
+   "identity:revision",
+   "identity:family",
+   "identity:platform",
+   "identity:ecosystem",
+   "package:name",
+   "package:version",
+   "package:cxx_standard",
+   "package:cmake_minimum",
+   "dependency:none"
+  ],
+  "class": "formatting",
+  "clean": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats. It solves the problem of programmatic email handling in C++ applications by providing a straightforward API to create, inspect, and save messages without external dependencies. Developers building desktop or server applications that need to process email content, such as parsing incoming messages or generating outgoing reports, use this library. The library is version 0.1.0, targets C++17, and requires CMake 3.26 or later.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "dependency:none": {
+    "kind": "dependency",
+    "value": "none"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "email"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "cpp"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "c844a467cf7f2503819b655f4d6ceaef91056c40"
+   },
+   "package:cmake_minimum": {
+    "kind": "package",
+    "value": "3.26"
+   },
+   "package:cxx_standard": {
+    "kind": "package",
+    "value": "17"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "AsposeEmailFoss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   }
+  },
+  "id": "mutant-formatting-06",
+  "injected": "Aspose.Email FOSS for Cpp is a C++ library that enables reading and writing email messages in MSG and EML formats. It solves the problem of programmatic email handling in C++ applications by providing a straightforward API to create, inspect, and save messages without external dependencies. Developers building desktop or server applications that need to process email content, such as parsing incoming messages or generating outgoing reports, use this library. The library is version 0.1.0, targets C++17, and requires CMake 3.26 or later.\n\n![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "section": "opening",
+  "slot": "opening",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp@c844a467: content_units opening/opening"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_font.fontparseexception"
+  ],
+  "class": "formatting",
+  "clean": "FontParseException is raised when a font file cannot be parsed correctly.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_font.fontparseexception": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_font.FontParseException"
+   }
+  },
+  "id": "mutant-formatting-07",
+  "injected": "FontParseException is raised when a font file cannot be parsed correctly. Run the test suite:",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_font.fontparseexception",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units api_reference/type:public_symbol:aspose_font.fontparseexception"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.threed.fileformat",
+   "public_symbol:aspose.threed.node",
+   "public_symbol:aspose.threed.scene"
+  ],
+  "class": "formatting",
+  "clean": "The Aspose.ThreeD.Scene class represents a complete 3D scene and provides methods to load scenes from files or streams, manage root nodes, access animation clips, and save the scene to various supported formats.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.threed.fileformat": {
+    "attributes": {
+     "docstring": "File format definition",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.ThreeD.FileFormat"
+   },
+   "public_symbol:aspose.threed.node": {
+    "attributes": {
+     "docstring": "Represents an element in the scene graph.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.ThreeD.Node"
+   },
+   "public_symbol:aspose.threed.scene": {
+    "attributes": {
+     "docstring": "A scene is a top-level object that contains the nodes, geometries, materials, textures, animation, poses, sub-scenes and etc.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.ThreeD.Scene"
+   }
+  },
+  "id": "mutant-formatting-08",
+  "injected": "The Aspose.ThreeD.Scene class represents a complete 3D scene and provides methods to load scenes from files or streams, manage root nodes, access animation clips, and save the scene to various supported formats.\n\n![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "section": "api_reference",
+  "slot": "hub:public_symbol:aspose.threed.scene",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET@52b0f00e: content_units api_reference/hub:public_symbol:aspose.threed.scene"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:java_release",
+   "package:name",
+   "package:version"
+  ],
+  "class": "formatting",
+  "clean": "This FOSS package provides core 3D file format support for Java applications, while Aspose.3D for Java — commercial edition adds advanced features such as scene graph manipulation, material editing, and export to additional formats including OBJ, A3DW, and U3D.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "3d"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-3d-foss/Aspose.3D-FOSS-for-Java"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3"
+   },
+   "package:java_release": {
+    "attributes": {
+     "floor_declaration": "maven.compiler.target"
+    },
+    "kind": "package",
+    "value": "21"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "org.aspose:aspose-3d-foss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.5.0"
+   }
+  },
+  "id": "mutant-formatting-09",
+  "injected": "This FOSS package provides core 3D file format support for Java applications, while Aspose.3D for Java — commercial edition adds advanced features such as scene graph manipulation, material editing, and export to additional formats including OBJ, A3DW, and U3D.\n\n- `<145`\n- `numpy>=1.24`",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+  "section": "enterprise_relationship",
+  "slot": "context",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Java@3d2ed6be: content_units enterprise_relationship/context"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "cited": [
+   "link_target:026"
+  ],
+  "class": "formatting",
+  "clean": "The changelog lists all notable changes between versions of Aspose PDF FOSS for Python.",
+  "excerpt": "seeded mutation (formatting) of a clean unit",
+  "facts": {
+   "link_target:026": {
+    "kind": "link_target",
+    "value": "CHANGELOG.md"
+   }
+  },
+  "id": "mutant-formatting-10",
+  "injected": "The changelog lists all notable changes between versions of Aspose PDF FOSS for Python.\n\n![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "section": "documentation_resources",
+  "slot": "link:link_target:026",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: content_units documentation_resources/link:link_target:026"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.words_foss.md_import.listitemblock"
+  ],
+  "class": "scraped_text",
+  "clean": "Represents a list item block in a Markdown document, forming part of an unordered or ordered list.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.words_foss.md_import.listitemblock": {
+    "attributes": {
+     "defined_at": "aspose.words_foss.md_import.blocks.ListItemBlock",
+     "public_paths": "aspose.words_foss.md_import.blocks.ListItemBlock",
+     "signature": "class ListItemBlock(Block)",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.words_foss.md_import.ListItemBlock"
+   }
+  },
+  "id": "mutant-scraped_text-01",
+  "injected": "Represents a list item block in a Markdown document, forming part of an unordered or ordered list. A  curve consists of a set of points in the edge of the shape.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.words_foss.md_import.listitemblock",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: content_units api_reference/type:public_symbol:aspose.words_foss.md_import.listitemblock"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.cells_foss.xmldocument"
+  ],
+  "class": "scraped_text",
+  "clean": "Aspose.Cells_FOSS.XmlDocument represents an XML document used in the workbook's internal XML processing.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.cells_foss.xmldocument": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.XmlDocument"
+   }
+  },
+  "id": "mutant-scraped_text-02",
+  "injected": "Aspose.Cells_FOSS.XmlDocument represents an XML document used in the workbook's internal XML processing.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.cells_foss.xmldocument",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units api_reference/type:public_symbol:aspose.cells_foss.xmldocument"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+  "cited": [
+   "public_symbol:org.aspose.cells_foss"
+  ],
+  "class": "scraped_text",
+  "clean": "Embed images into worksheets using Picture and attach comments to individual cells using CommentCollection to enrich workbook content with visual elements and annotations.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:org.aspose.cells_foss": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "org.aspose.cells_foss"
+   }
+  },
+  "id": "mutant-scraped_text-03",
+  "injected": "Embed images into worksheets using Picture and attach comments to individual cells using CommentCollection to enrich workbook content with visual elements and annotations.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "section": "key_capabilities",
+  "slot": "capability:5",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java@c65329e7: content_units key_capabilities/capability:5"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "cited": [
+   "link_target:025"
+  ],
+  "class": "scraped_text",
+  "clean": "The security policy describes how to report vulnerabilities and how the project handles security issues.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "link_target:025": {
+    "kind": "link_target",
+    "value": "SECURITY.md"
+   }
+  },
+  "id": "mutant-scraped_text-04",
+  "injected": "The security policy describes how to report vulnerabilities and how the project handles security issues.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "section": "documentation_resources",
+  "slot": "link:link_target:025",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: content_units documentation_resources/link:link_target:025"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+  "cited": [
+   "example:001",
+   "example:013",
+   "inherited_unit:088.list"
+  ],
+  "class": "scraped_text",
+  "clean": "The API omits support for charts, SmartArt, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size configuration, rendering, conversion, VBA macros, digital signatures, and encryption.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "example:001": {
+    "kind": "example",
+    "value": "import org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.ShapeType;\nimport org.aspose.slides.foss.FillType;\nimport org.aspose.slides.foss.IAutoShape;\nimport org.aspose.slides.foss.ISlide;\nimport org.aspose.slides.foss.drawing.Color;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation()) {\n    ISlide slide = pres.getSlides().get(0);\n    slide.getShapes().clear();\n\n    IAutoShape shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);\n    shape.getFillFormat().setFillType(FillType.SOLID);\n    shape.getFillFormat().getSolidFillColor().setColor(Color.fromArgb(255, 0, 128, 255));\n\n    pres.save(\"hello.pptx\", SaveFormat.PPTX);\n}\n"
+   },
+   "example:013": {
+    "kind": "example",
+    "value": "import org.aspose.slides.foss.Presentation;\nimport org.aspose.slides.foss.export.SaveFormat;\n\ntry (Presentation pres = new Presentation(\"deck.pptx\")) {\n    pres.save(\"first-and-third.pptx\", new int[]{0, 2}, SaveFormat.PPTX);\n}\n"
+   }
+  },
+  "id": "mutant-scraped_text-05",
+  "injected": "The API omits support for charts, SmartArt, OLE objects, video, audio, animations, slide transitions, group shapes, hyperlinks, sections, slide backgrounds, themes, slide size configuration, rendering, conversion, VBA macros, digital signatures, and encryption.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "section": "scope_limitations",
+  "slot": "limitation:2",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java@620a2614: content_units scope_limitations/limitation:2"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose_font.cff.privatedict"
+  ],
+  "class": "scraped_text",
+  "clean": "PrivateDict stores private dictionary entries for a Compact Font Format table.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:aspose_font.cff.privatedict": {
+    "attributes": {
+     "defined_at": "aspose_font.cff.dict_.PrivateDict",
+     "public_paths": "aspose_font.cff.dict_.PrivateDict",
+     "signature": "class PrivateDict",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_font.cff.PrivateDict"
+   }
+  },
+  "id": "mutant-scraped_text-06",
+  "injected": "PrivateDict stores private dictionary entries for a Compact Font Format table.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose_font.cff.privatedict",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units api_reference/type:public_symbol:aspose_font.cff.privatedict"
+ },
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.page.ps.clipper.endtype"
+  ],
+  "class": "scraped_text",
+  "clean": "EndType defines how polygon boundaries are terminated in the clipping process.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.page.ps.clipper.endtype": {
+    "attributes": {
+     "signature": "class EndType",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.page.ps.clipper.EndType"
+   }
+  },
+  "id": "mutant-scraped_text-07",
+  "injected": "EndType defines how polygon boundaries are terminated in the clipping process.\n\n- `width`: Defined as `: number`.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.page.ps.clipper.endtype",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: content_units api_reference/type:public_symbol:aspose.page.ps.clipper.endtype"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "public_symbol:aspose.threed.entities.patch"
+  ],
+  "class": "scraped_text",
+  "clean": "The Patch class represents a parametric surface patch used in NURBS and other surface representations.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.threed.entities.patch": {
+    "attributes": {
+     "defined_at": "aspose.threed.entities.Patch.Patch",
+     "public_paths": "aspose.threed.entities.Patch.Patch",
+     "signature": "class Patch(Geometry)",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.threed.entities.Patch"
+   }
+  },
+  "id": "mutant-scraped_text-08",
+  "injected": "The Patch class represents a parametric surface patch used in NURBS and other surface representations. The  contains the transformation matrix for a node.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "api_reference",
+  "slot": "type:public_symbol:aspose.threed.entities.patch",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: content_units api_reference/type:public_symbol:aspose.threed.entities.patch"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+  "cited": [
+   "public_symbol:numberformatvalue"
+  ],
+  "class": "scraped_text",
+  "clean": "NumberFormatValue specifies the format used to display numeric values in a cell.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "public_symbol:numberformatvalue": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "NumberFormatValue"
+   }
+  },
+  "id": "mutant-scraped_text-09",
+  "injected": "NumberFormatValue specifies the format used to display numeric values in a cell. A  curve consists of a set of points in the edge of the shape.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "section": "api_reference",
+  "slot": "type:public_symbol:numberformatvalue",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust@1a6004af: content_units api_reference/type:public_symbol:numberformatvalue"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:go_version",
+   "package:name",
+   "public_symbol:annotation",
+   "public_symbol:annotationcollection",
+   "public_symbol:redactannotation",
+   "public_symbol:stampannotation"
+  ],
+  "class": "scraped_text",
+  "clean": "The Annotation class provides annotation support, with AnnotationCollection managing collections of annotations, and specialized types including StampAnnotation and RedactAnnotation for specific use cases.",
+  "excerpt": "seeded mutation (scraped_text) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "go"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "pdf"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "go"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "286484d235196d65c9a458c5eff3d3d6539216dc"
+   },
+   "package:go_version": {
+    "kind": "package",
+    "value": "1.24"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+   },
+   "public_symbol:annotation": {
+    "attributes": {
+     "docstring": "Annotation is the common interface implemented by every concrete annotation type.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Annotation"
+   },
+   "public_symbol:annotationcollection": {
+    "attributes": {
+     "docstring": "AnnotationCollection is the live, ordered set of annotations attached to a single page.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "AnnotationCollection"
+   },
+   "public_symbol:redactannotation": {
+    "attributes": {
+     "docstring": "RedactAnnotation marks regions for redaction.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "RedactAnnotation"
+   },
+   "public_symbol:stampannotation": {
+    "attributes": {
+     "docstring": "StampAnnotation is a rubber-stamp annotation.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "StampAnnotation"
+   }
+  },
+  "id": "mutant-scraped_text-10",
+  "injected": "The Annotation class provides annotation support, with AnnotationCollection managing collections of annotations, and specialized types including StampAnnotation and RedactAnnotation for specific use cases. The  contains the transformation matrix for a node.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "section": "api_reference",
+  "slot": "hub:public_symbol:annotation",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go@286484d2: content_units api_reference/hub:public_symbol:annotation"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+  "cited": [
+   "link_target:031"
+  ],
+  "class": "symbol_prose",
+  "clean": "The security and encryption documentation covers encrypting and decrypting PDFs with RC4, AES-128, or AES-256, managing document permissions, and applying digital signatures using PKCS#7.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "link_target:031": {
+    "kind": "link_target",
+    "value": "docs/security-and-encryption.md"
+   }
+  },
+  "id": "mutant-symbol_prose-01",
+  "injected": "The security and encryption documentation covers encrypting and decrypting PDFs with RC4, AES-128, or AES-256, managing document permissions, and applying digital signatures using PKCS#7. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+  "section": "documentation_resources",
+  "slot": "link:link_target:031",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET@d10e2c82: content_units documentation_resources/link:link_target:031"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+  "cited": [
+   "example:001"
+  ],
+  "class": "symbol_prose",
+  "clean": "This example creates a new workbook, writes several typed cell values and a formula with a cached result, saves the file as XLSX, and then loads it back to verify the content.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "example:001": {
+    "kind": "example",
+    "value": "use aspose_cells_foss_rust::{CellValue, Workbook};\nuse std::error::Error;\n\nfn main() -> Result<(), Box<dyn Error>> {\n    // Create a new workbook (starts with one sheet, \"Sheet1\").\n    let mut workbook = Workbook::new();\n    {\n        let mut worksheets = workbook.get_worksheets_mut();\n        let sheet = worksheets.get(0)?;\n        let mut cells = sheet.get_cells_mut();\n\n        cells.get(\"A1\")?.put_value_string(\"Hello\")?;\n        cells.get(\"B1\")?.put_value_i32(123)?;\n        cells.get(\"C1\")?.put_value_bool(true)?;\n        cells.get(\"D1\")?.put_value_decimal(12.5)?;\n        cells.get(\"F1\")?.put_value_i32(10)?;\n        cells.get(\"G1\")?\n            .put_formula_with_cached_value(\"=F1*2\", CellValue::Number(20.0))?;\n    }\n    workbook.save(\"hello.xlsx\")?;\n\n    // Load it back.\n    let loaded = Workbook::load_xlsx(\"hello.xlsx\")?;\n    let sheet = loaded.worksheet(\"Sheet1\")?;\n    let cells = sheet.get_cells();\n    println!(\"A1 = {}\", cells.get(\"A1\")?.display_string_value());\n\n    Ok(())\n}\n"
+   }
+  },
+  "id": "mutant-symbol_prose-02",
+  "injected": "This example creates a new workbook, writes several typed cell values and a formula with a cached result, saves the file as XLSX, and then loads it back to verify the content. Tests exercise member Open, member Close, member Save and member Load.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "section": "quick_start",
+  "slot": "lead_in",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust@1a6004af: content_units quick_start/lead_in"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+  "cited": [
+   "inherited_unit:108.list"
+  ],
+  "class": "symbol_prose",
+  "clean": "Incremental-update metadata writing fails for new documents because it attempts to patch a non-existent /Info object, so setting metadata and saving a from-scratch document raises an error.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "id": "mutant-symbol_prose-03",
+  "injected": "Incremental-update metadata writing fails for new documents because it attempts to patch a non-existent /Info object, so setting metadata and saving a from-scratch document raises an error. Tests exercise member Open, member Close, member Save and member Load.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "section": "scope_limitations",
+  "slot": "limitation:3",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp@888700a8: content_units scope_limitations/limitation:3"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python",
+  "cited": [
+   "example:013",
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:license",
+   "package:name",
+   "package:python_requires",
+   "package:version"
+  ],
+  "class": "symbol_prose",
+  "clean": "Configure circle transition with click and time advance.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "example:013": {
+    "kind": "example",
+    "value": "from aspose.slides_foss.slideshow import TransitionType\nimport aspose.slides_foss as slides\nfrom aspose.slides_foss.export import SaveFormat\n\nwith slides.Presentation() as prs:\n    slide = prs.slides[0]\n    slide.slide_show_transition.type = TransitionType.CIRCLE\n    slide.slide_show_transition.advance_on_click = True\n    slide.slide_show_transition.advance_after_time = 3000  # ms\n    prs.save(\"transition.pptx\", SaveFormat.PPTX)\n"
+   },
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "slides"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "becd199a776682785768c60c778558d975b0c2f9"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-slides-foss"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.8.0"
+   }
+  },
+  "id": "mutant-symbol_prose-04",
+  "injected": "Configure circle transition with click and time advance. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+  "section": "additional_examples",
+  "slot": "workflow:example:013",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python@becd199a: content_units additional_examples/workflow:example:013"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "inherited_unit:056.heading",
+   "inherited_unit:057.list",
+   "package:name",
+   "package:target_framework",
+   "package:version"
+  ],
+  "class": "symbol_prose",
+  "clean": "Aspose.Email FOSS for .Net is a .NET 8.0 library for reading and writing email-related file formats locally, including MSG, EML, MHTML, and OST files, without connecting to mail servers or providing high-level abstractions for calendar or transport-neutral formats.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "net"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "email"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "net"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-email-foss/Aspose.Email-FOSS-for-.Net"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "59125b4732df0eedbc4d4c2ab978698ed4348eb7"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "Aspose.Email.Foss"
+   },
+   "package:target_framework": {
+    "kind": "package",
+    "value": "net8.0"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   }
+  },
+  "id": "mutant-symbol_prose-05",
+  "injected": "Aspose.Email FOSS for .Net is a .NET 8.0 library for reading and writing email-related file formats locally, including MSG, EML, MHTML, and OST files, without connecting to mail servers or providing high-level abstractions for calendar or transport-neutral formats. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-.Net@59125b47: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+  "cited": [
+   "example:004",
+   "public_symbol:calculateformula",
+   "public_symbol:cell.getformula",
+   "public_symbol:cell.setformula"
+  ],
+  "class": "symbol_prose",
+  "clean": "Formulas are stored on cells with Cell.SetFormula, retrieved with Cell.GetFormula, and evaluated by the built-in CalculateFormula engine supporting SUM, AVERAGE, MAX, and MIN over single cells or A1-style ranges.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "example:004": {
+    "kind": "example",
+    "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\t// ---- Populate sales data ----\n\tdata := []float64{1200, 850, 1400, 960, 1780}\n\theaders := []string{\"Month\", \"Sales\"}\n\n\tws.Cells().Set(\"A1\", headers[0])\n\tws.Cells().Set(\"B1\", headers[1])\n\n\tmonths := []string{\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\"}\n\tfor i, m := range months {\n\t\trow := i + 2\n\t\tws.Cells().Set(fmt.Sprintf(\"A%d\", row), m)\n\t\tws.Cells().Set(fmt.Sprintf(\"B%d\", row), data[i])\n\t}\n\n\t// ---- Add formula cells ----\n\tlastDataRow := len(data) + 1\n\ttotalRef := fmt.Sprintf(\"B2:B%d\", lastDataRow)\n\n\t// SUM formula.\n\tws.Cells().Set(\"B7\", nil)\n\tsumCell, _ := ws.Cells().Get(\"B7\")\n\tsumCell.SetFormula(fmt.Sprintf(\"SUM(%s)\", totalRef))\n\n\t// AVERAGE formula.\n\tws.Cells().Set(\"B8\", nil)\n\tavgCell, _ := ws.Cells().Get(\"B8\")\n\tavgCell.SetFormula(fmt.Sprintf(\"AVERAGE(%s)\", totalRef))\n\n\t// Labels.\n\tws.Cells().Set(\"A7\", \"TOTAL\")\n\tws.Cells().Set(\"A8\", \"AVERAGE\")\n\n\t// ---- Evaluate formulas with the engine ----\n\tfor _, row := range []int{7, 8} {\n\t\tcell, _ := ws.Cells().Get(fmt.Sprintf(\"B%d\", row))\n\t\tformula := cell.GetFormula()\n\t\tresult, err := cells_foss.CalculateFormula(formula, ws)\n\t\tif err != nil {\n\t\t\tfmt.Printf(\"  %s = ERROR: %v\\n\", formula, err)\n\t\t} else {\n\t\t\tfmt.Printf(\"  %s = %v\\n\", formula, result)\n\t\t}\n\t}\n\n\twb.Save(\"outputfiles/formula.xlsx\")\n}\n"
+   },
+   "public_symbol:calculateformula": {
+    "attributes": {
+     "docstring": "CalculateFormula evaluates a formula expression against the data in ws and returns the computed result.",
+     "symbol_kind": "function"
+    },
+    "kind": "public_symbol",
+    "value": "CalculateFormula"
+   },
+   "public_symbol:cell.getformula": {
+    "attributes": {
+     "docstring": "GetFormula returns the formula expression stored in this cell, or an empty string when the cell contains no formula.",
+     "signature": "string GetFormula()",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Cell.GetFormula"
+   },
+   "public_symbol:cell.setformula": {
+    "attributes": {
+     "docstring": "SetFormula stores a formula expression in this cell and marks the owning Workbook as modified.",
+     "signature": "SetFormula(string formula)",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Cell.SetFormula"
+   }
+  },
+  "id": "mutant-symbol_prose-06",
+  "injected": "Formulas are stored on cells with Cell.SetFormula, retrieved with Cell.GetFormula, and evaluated by the built-in CalculateFormula engine supporting SUM, AVERAGE, MAX, and MIN over single cells or A1-style ranges. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "section": "key_capabilities",
+  "slot": "capability:3",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go@fa4e890e: content_units key_capabilities/capability:3"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "link_target:023"
+  ],
+  "class": "symbol_prose",
+  "clean": "The full API reference documents all public classes, methods, and types available in the aspose_cells_foss_cpp library for C++ developers.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "link_target:023": {
+    "kind": "link_target",
+    "value": "https://reference.aspose.org/cells/cpp/"
+   }
+  },
+  "id": "mutant-symbol_prose-07",
+  "injected": "The full API reference documents all public classes, methods, and types available in the aspose_cells_foss_cpp library for C++ developers. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "documentation_resources",
+  "slot": "link:link_target:023",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units documentation_resources/link:link_target:023"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "cited": [
+   "install_command:cmake"
+  ],
+  "class": "symbol_prose",
+  "clean": "Installation requires cloning the repository and running CMake with a minimum version of 3.20.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "install_command:cmake": {
+    "attributes": {
+     "install_kind": "source"
+    },
+    "kind": "install_command",
+    "value": "git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git\ncd Aspose.Slides-FOSS-for-Cpp\ncmake -S . -B build"
+   }
+  },
+  "id": "mutant-symbol_prose-08",
+  "injected": "Installation requires cloning the repository and running CMake with a minimum version of 3.20. The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "section": "scope_limitations",
+  "slot": "limitation:1",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: content_units scope_limitations/limitation:1"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+  "cited": [
+   "example:001",
+   "example:008",
+   "example:009"
+  ],
+  "class": "symbol_prose",
+  "clean": "Configure annotations and widget characteristics by creating WidgetAnnotation instances with specific rectangles, then customizing visual properties such as border color via getCharacteristics().setBorder() and background color via getCharacteristics().setBackground().",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "example:001": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.Page;\nimport org.aspose.pdf.Rectangle;\nimport org.aspose.pdf.Color;\nimport org.aspose.pdf.annotations.WidgetAnnotation;\n\ntry (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n    widget.getCharacteristics().setBorder(Color.fromRgb(1, 0, 0));\n\n    Color border = widget.getCharacteristics().getBorder();\n    System.out.println(border.getR() + \", \" + border.getG() + \", \" + border.getB());\n}\n"
+   },
+   "example:008": {
+    "kind": "example",
+    "value": "try (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n\n    widget.getCharacteristics().setBackground(Color.fromRgb(0, 0.5, 0.5));\n    Color background = widget.getCharacteristics().getBackground();\n}\n"
+   },
+   "example:009": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.annotations.Border;\nimport org.aspose.pdf.annotations.BorderStyle;\nimport org.aspose.pdf.forms.RadioButtonOptionField;\n\nRadioButtonOptionField option = new RadioButtonOptionField();\nBorder border = new Border(option);\nborder.setStyle(BorderStyle.Dashed);\n\nBorder roundTrip = option.getBorder();\nSystem.out.println(roundTrip.getWidth());\n"
+   }
+  },
+  "id": "mutant-symbol_prose-09",
+  "injected": "Configure annotations and widget characteristics by creating WidgetAnnotation instances with specific rectangles, then customizing visual properties such as border color via getCharacteristics().setBorder() and background color via getCharacteristics().setBackground(). The examples demonstrate member AUTO, member H, member data and member render.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+  "section": "key_capabilities",
+  "slot": "capability:4",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java@db2d3f06: content_units key_capabilities/capability:4"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:license",
+   "package:name",
+   "package:python_requires",
+   "package:version"
+  ],
+  "class": "symbol_prose",
+  "clean": "The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows.",
+  "excerpt": "seeded mutation (symbol_prose) of a clean unit",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "font"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-font-foss/Aspose.Font-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "c520e3ebed3c36a56850cffb2b067afb29c5e2e9"
+   },
+   "package:license": {
+    "kind": "package",
+    "value": "MIT"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-font"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "1.0.0"
+   }
+  },
+  "id": "mutant-symbol_prose-10",
+  "injected": "The commercial Aspose.Font — commercial edition extends this open-source offering with additional capabilities for variable font manipulation and web optimization workflows. Tests exercise member Open, member Close, member Save and member Load.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "enterprise_relationship",
+  "slot": "context",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: content_units enterprise_relationship/context"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "package:python_requires",
+   "package:python_versions"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "No external dependencies are required because the package supports Python versions 3.7 through 3.12 with a minimum requirement of >=3.7.",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.7"
+   },
+   "package:python_versions": {
+    "kind": "package",
+    "value": "3.7,3.8,3.9,3.10,3.11,3.12"
+   }
+  },
+  "id": "mutant-polarity_contradiction-01",
+  "inherited": {
+   "inherited_unit:067.list": "- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5,\n  A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`,\n  and similar option classes exist as public types, but `Scene.open()`/`Scene.save()` cannot\n  detect or dispatch any of these extensions, and raise a `RuntimeError` if you try.\n- FBX support is experimental. `FbxImporter` has a real, working ASCII/binary tokenizer and\n  parser, but no bundled test opens a real `.fbx` fixture through it — the only FBX tests\n  exercise the tokenizer directly against hand-written snippets — so treat FBX import as\n  lightly verified rather than production-hardened. `FbxExporter.save()`/`save_to_stream()`\n  both raise `NotImplementedError` outright, so FBX is import-only at best.\n- COLLADA import works, but COLLADA export is not reachable through `Scene.save()`:\n  `IOService`'s exporter lookup walks its registered exporters in order and reaches\n  `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before\n  it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working\n  `ColladaExporter` is ever consulted — reproduced directly against this build.\n- Always import a format's load/save options class from its own format submodule (as every\n  example in this README does), never from the shared top-level `aspose.threed.formats`\n  package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves\n  to a broken duplicate with no working base class, which format detection silently rejects.\n  3MF and FBX are unaffected. Import COLLADA classes by their exact file path\n  (`aspose.threed.formats.collada.ColladaLoadOptions`, and so on) — that submodule has no\n  package-init re-export, so the shorter package-style import used for other formats resolves\n  to a module object instead of the class you want.\n- `Scene.render()` and the entire `aspose.threed.render` module (`Renderer`, `RenderFactory`,\n  `Viewport`, and related classes) raise `NotImplementedError` — this library does not render\n  scenes to images.\n- `Texture` and `TextureBase` raise `NotImplementedError` on construction, so an image-backed\n  texture cannot be created; material color and factor properties (`diffuse_color`,\n  `albedo`, `metallic_factor`, and similar) work independently of texture assignment.\n- `Watermark.encode_watermark()`/`decode_watermark()` and every `TransformBuilder` method raise\n  `NotImplementedError` — build node transforms through `Transform`'s own translation,\n  rotation, and scaling properties instead of the fluent `TransformBuilder` chain.\n- `Mesh.do_boolean()`, `union()`, `difference()`, and `intersect()` raise `NotImplementedError`\n  — Boolean/CSG mesh operations are not implemented, even though `BooleanOperator` and\n  `BooleanOperand` exist as configuration holders.\n- `NurbsCurve.evaluate()`/`evaluate_at()` and `NurbsSurface.to_mesh()` raise\n  `NotImplementedError` — NURBS curves and surfaces can be configured but not sampled or\n  converted to a `Mesh`.\n- `PointCloud.from_geometry()`/`from_geometry_with_density()` raise `NotImplementedError`, and\n  `AxisSystem` raises `NotImplementedError` on every method, including construction."
+  },
+  "injected": "No external dependencies are required because the package supports Python versions 3.7 through 3.12 with a minimum requirement of >=3.7. It supports BooleanOperator out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "capability:6",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: content_units key_capabilities/capability:6"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+  "cited": [
+   "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+   "public_symbol:aspose.cells_foss.formatcondition",
+   "public_symbol:aspose.cells_foss.validation",
+   "public_symbol:aspose.cells_foss.validationcollection"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "Enforce data quality and visual cues by adding conditional formatting rules through ConditionalFormattingCollection and FormatCondition to highlight cells based on values, and by attaching Validation rules via ValidationCollection and Validation to restrict user input to specific types and ranges.",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "public_symbol:aspose.cells_foss.conditionalformattingcollection": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.ConditionalFormattingCollection"
+   },
+   "public_symbol:aspose.cells_foss.formatcondition": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.FormatCondition"
+   },
+   "public_symbol:aspose.cells_foss.validation": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.Validation"
+   },
+   "public_symbol:aspose.cells_foss.validationcollection": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Cells_FOSS.ValidationCollection"
+   }
+  },
+  "id": "mutant-polarity_contradiction-02",
+  "inherited": {
+   "inherited_unit:056.list": "- **Only `.xlsx` (OOXML) is supported for load and save.** `LoadFormat` and `SaveFormat` each\n  declare a single `Xlsx` member; saving to any other format throws\n  `UnsupportedFeatureException(\"Only XLSX save is supported.\")`. There is no `.xls`, `.xlsb`,\n  `.ods`, or `.csv` read/write support.\n- **Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented.** The mapper\n  classes for it (`WorkbookXmlMapper`, `WorksheetXmlMapper`, `StylesheetXmlMapper`,\n  `SharedStringTableXmlMapper`) exist in source but their read/write methods unconditionally\n  throw `UnsupportedFeatureException`.\n- **Cell-level comments/notes are not modeled as a distinct object.** The only `Comment` field in\n  the public API belongs to `DefinedName` — a description string on a named range, not an Excel\n  cell note or threaded comment.\n- **Some advanced conditional-formatting rule types are recognized on load but not preserved.**\n  An unsupported rule type is dropped with a `WarningInfo` diagnostic rather than failing the\n  load outright.\n- **AutoFilter date-group filters using certain patterns are rejected as unsupported during\n  load** rather than approximated."
+  },
+  "injected": "Enforce data quality and visual cues by adding conditional formatting rules through ConditionalFormattingCollection and FormatCondition to highlight cells based on values, and by attaching Validation rules via ValidationCollection and Validation to restrict user input to specific types and ranges. It supports WorksheetXmlMapper out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "section": "key_capabilities",
+  "slot": "capability:5",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp@9f852d0f: content_units key_capabilities/capability:5"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+  "cited": [
+   "example:002",
+   "public_symbol:flow",
+   "public_symbol:flow.addlist",
+   "public_symbol:flow.addparagraph",
+   "public_symbol:flow.addtable",
+   "public_symbol:flow.render"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "Create structured content using Flow layout by adding paragraphs, lists, and tables, then render the flow into pages for the document.",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "example:002": {
+    "kind": "example",
+    "value": "doc := pdf.NewDocumentFromFormat(pdf.PageFormatA4)\nflow := doc.NewFlow(pdf.FlowOptions{})\nflow.AddHeading(1, \"Quarterly Report\", pdf.TextStyle{})\nflow.AddParagraph(\"Revenue grew in every region this quarter.\", pdf.TextStyle{Size: 11})\nflow.AddList([]string{\"North: +12%\", \"South: +8%\"}, false, pdf.TextStyle{Size: 11})\n\npages, err := flow.Render()\nif err != nil {\n\tlog.Fatal(err)\n}\nfmt.Println(\"pages:\", pages)\n"
+   },
+   "public_symbol:flow": {
+    "attributes": {
+     "docstring": "Flow is a document generator that lays content out top-to-bottom and paginates automatically — the \"flow\" counterpart to the Rectangle-based drawing API.",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Flow"
+   },
+   "public_symbol:flow.addlist": {
+    "attributes": {
+     "docstring": "AddList appends a bulleted (ordered=false) or numbered list.",
+     "signature": "*Flow AddList([]string items, bool ordered, TextStyle style)",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Flow.AddList"
+   },
+   "public_symbol:flow.addparagraph": {
+    "attributes": {
+     "docstring": "AddParagraph appends a paragraph of flowing text (wraps and splits across pages).",
+     "signature": "*Flow AddParagraph(string text, TextStyle style)",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Flow.AddParagraph"
+   },
+   "public_symbol:flow.addtable": {
+    "attributes": {
+     "docstring": "AddTable appends a table (paginated when taller than a page).",
+     "signature": "*Flow AddTable(*Table t)",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Flow.AddTable"
+   },
+   "public_symbol:flow.render": {
+    "attributes": {
+     "docstring": "Render lays out the queued elements into the document and returns the number of pages the flow occupies.",
+     "signature": "(int, error) Render()",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "Flow.Render"
+   }
+  },
+  "id": "mutant-polarity_contradiction-03",
+  "inherited": {
+   "inherited_unit:062.list": "- `AddSVG`/`AddSVGFromStream` render a parsed SVG onto a page: basic shapes, the full SVG 1.1\n  path syntax, transforms, `viewBox`/`preserveAspectRatio`, 147 CSS named colors, linear/radial\n  gradients (`gradientUnits`/`gradientTransform`), `<text>`/`<tspan>` with font styling and a\n  pluggable `SVGFontResolver` for non-Latin text, `<image>` (data URIs), `<defs>`/`<use>`/\n  `<symbol>`, `<clipPath>` (clipping paths compile to PDF `W`/`W*` operators), `<mask>` (soft\n  masks via a PDF Form XObject transparency group + ExtGState `/SMask`, honoring\n  `maskUnits`/`maskContentUnits`), CSS `<style>` blocks, `<filter feDropShadow>`, and `<marker>`\n  (`marker-start`/`marker-mid`/`marker-end` rotate via `orient=auto` along the path tangent, using\n  `refX`/`refY` anchors). Unsupported and skipped silently: `<textPath>`, vertical writing\n  modes, external `<image href>`, real Gaussian blur, and em/ex/% length units."
+  },
+  "injected": "Create structured content using Flow layout by adding paragraphs, lists, and tables, then render the flow into pages for the document. It supports textPath out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "section": "key_capabilities",
+  "slot": "capability:3",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go@286484d2: content_units key_capabilities/capability:3"
+ },
+ {
+  "bundle": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+  "cited": [
+   "example:001",
+   "example:005",
+   "public_symbol:aspose_barcode_foss.barcode.to_png",
+   "public_symbol:aspose_barcode_foss.barcode.to_svg",
+   "public_symbol:aspose_barcode_foss.renderoptions"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "The to_svg and to_png methods render barcodes to SVG and PNG formats, with rendering control via RenderOptions for scale, DPI, module dimensions, colors, and text display.",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "example:001": {
+    "kind": "example",
+    "value": "from aspose_barcode_foss import code128\n\nbarcode = code128(\"Hello-World\")\nsvg = barcode.to_svg()   # -> str\npng = barcode.to_png()   # -> bytes\n"
+   },
+   "example:005": {
+    "kind": "example",
+    "value": "from aspose_barcode_foss import code128, RenderOptions\n\nbarcode = code128(\"Hello-World\")\nsvg = barcode.to_svg(options=RenderOptions(scale=2.0, show_text=True))\npng = barcode.to_png(options=RenderOptions(dpi=300, module_width=3.0))\n"
+   },
+   "public_symbol:aspose_barcode_foss.barcode.to_png": {
+    "attributes": {
+     "defined_at": "aspose_barcode_foss.result.Barcode.to_png",
+     "docstring": "Render the barcode as PNG.",
+     "signature": "def to_png(self, *, options: RenderOptions | None=None) -> bytes",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.Barcode.to_png"
+   },
+   "public_symbol:aspose_barcode_foss.barcode.to_svg": {
+    "attributes": {
+     "defined_at": "aspose_barcode_foss.result.Barcode.to_svg",
+     "docstring": "Render the barcode as SVG.",
+     "signature": "def to_svg(self, *, options: RenderOptions | None=None) -> str",
+     "symbol_kind": "method"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.Barcode.to_svg"
+   },
+   "public_symbol:aspose_barcode_foss.renderoptions": {
+    "attributes": {
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose_barcode_foss.RenderOptions"
+   }
+  },
+  "id": "mutant-polarity_contradiction-04",
+  "inherited": {
+   "inherited_unit:052.list": "- This library only generates (encodes) barcodes — it does not read or decode existing barcode\n  images for any symbology.\n- PDF rendering is not implemented — `Barcode.to_pdf()` and `PdfRenderer.render()` both raise\n  `NotImplementedError`. SVG and PNG rendering are implemented for every symbology.\n- ECI (Extended Channel Interpretation) normalization and validation (`EciHelper.normalize`/\n  `.validate`) are not implemented in this FOSS build, even though `EncodeOptions` exposes an\n  `eci_assignment_number` field on every symbology's options type.\n- GS1 data parsing and validation (`Gs1Helper.parse`/`.validate`) are not implemented in this FOSS\n  build, even though `EncodeOptions` exposes a `gs1_enabled` field on every symbology's options\n  type."
+  },
+  "injected": "The to_svg and to_png methods render barcodes to SVG and PNG formats, with rendering control via RenderOptions for scale, DPI, module dimensions, colors, and text display. It supports PdfRenderer out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "capability:3",
+  "source": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python@06eca5c0: content_units key_capabilities/capability:3"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+  "cited": [
+   "example:001",
+   "example:008",
+   "example:009"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "Configure annotations and widget characteristics by creating WidgetAnnotation instances with specific rectangles, then customizing visual properties such as border color via getCharacteristics().setBorder() and background color via getCharacteristics().setBackground().",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "example:001": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.Document;\nimport org.aspose.pdf.Page;\nimport org.aspose.pdf.Rectangle;\nimport org.aspose.pdf.Color;\nimport org.aspose.pdf.annotations.WidgetAnnotation;\n\ntry (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n    widget.getCharacteristics().setBorder(Color.fromRgb(1, 0, 0));\n\n    Color border = widget.getCharacteristics().getBorder();\n    System.out.println(border.getR() + \", \" + border.getG() + \", \" + border.getB());\n}\n"
+   },
+   "example:008": {
+    "kind": "example",
+    "value": "try (Document doc = new Document()) {\n    Page page = doc.getPages().add();\n    WidgetAnnotation widget = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));\n\n    widget.getCharacteristics().setBackground(Color.fromRgb(0, 0.5, 0.5));\n    Color background = widget.getCharacteristics().getBackground();\n}\n"
+   },
+   "example:009": {
+    "kind": "example",
+    "value": "import org.aspose.pdf.annotations.Border;\nimport org.aspose.pdf.annotations.BorderStyle;\nimport org.aspose.pdf.forms.RadioButtonOptionField;\n\nRadioButtonOptionField option = new RadioButtonOptionField();\nBorder border = new Border(option);\nborder.setStyle(BorderStyle.Dashed);\n\nBorder roundTrip = option.getBorder();\nSystem.out.println(roundTrip.getWidth());\n"
+   }
+  },
+  "id": "mutant-polarity_contradiction-05",
+  "inherited": {
+   "inherited_unit:129.list": "- **OCR** — recognition of text in scanned images; use a dedicated OCR library instead.\n- **Conversion to non-PDF formats** other than HTML/XML — DOCX, XLSX, PPTX, EPUB, MOBI, Markdown,\n  LaTeX, and similar are not supported; this edition is PDF in, PDF (or HTML/XML/raster) out.\n- **Conversion from non-PDF formats** other than HTML — DOC, DOCX, XLSX, PPTX, XPS, PCL,\n  PostScript, EPS, and SVG as input are not supported.\n- **Full XFA form rendering** — XFA data is exposed and can be flattened to AcroForm, but the\n  dynamic XFA layout/rendering layer itself is not reproduced.\n- **3D annotations and PRC/U3D streams** are out of scope.",
+   "inherited_unit:131.list": "- **`PdfFileSecurity.setAllowExceptions`** throws `UnsupportedOperationException` — the legacy\n  `AllowExceptions=false` toolkit-key-size path is not implemented.\n- **Text replacement** with non-Latin scripts (CJK, Arabic, Hebrew) — basic cases work; complex\n  bidi reordering and shaping edge cases may differ from a reference renderer.\n- **Resource optimization** — basic stream recompression works; advanced strategies (image\n  downsampling profiles, font merging across resources) are limited.\n- **Tagged PDF / logical structure** — readable, and programmatic construction of structure trees\n  is supported, but coverage for building fully well-formed structure trees is partial.\n- **PDF/X validation and conversion** — `PdfFormat.PDF_X_1A`, `PDF_X_1A_2001`, and `PDF_X_3` are\n  supported through the same `Document.validate`/`Document.convert` API used for PDF/A (ISO\n  15930-1/-3 checks: info dictionary, output intents, the `/Trapped` key, embedded fonts), but\n  this path has no dedicated test coverage yet.\n- **Public-key-encrypted PDFs** are supported through the `ICustomSecurityHandler` interface, but\n  no out-of-the-box helper for the common cases is provided yet."
+  },
+  "injected": "Configure annotations and widget characteristics by creating WidgetAnnotation instances with specific rectangles, then customizing visual properties such as border color via getCharacteristics().setBorder() and background color via getCharacteristics().setBackground(). It supports LaTeX out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+  "section": "key_capabilities",
+  "slot": "capability:4",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java@db2d3f06: content_units key_capabilities/capability:4"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "cited": [
+   "example:012",
+   "public_symbol:aspose.note.numberlist"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "Detect list formatting by reading NumberList properties on OutlineElement nodes, including format patterns, numbering schemes, and restart behavior.",
+  "excerpt": "seeded mutation (polarity_contradiction) of a clean unit",
+  "facts": {
+   "example:012": {
+    "kind": "example",
+    "value": "from aspose.note import Document, OutlineElement\n\ndoc = Document(\"NumberedListWithTags.one\")\nfor oe in doc.GetChildNodes(OutlineElement):\n    nl = oe.NumberList\n    if nl is None:\n        continue\n    print(\"format=\", nl.Format, \"number_format=\", nl.NumberFormat, \"restart=\", nl.Restart)\n"
+   },
+   "public_symbol:aspose.note.numberlist": {
+    "attributes": {
+     "defined_at": "aspose.note.model.NumberList",
+     "public_paths": "aspose.note.model.NumberList",
+     "signature": "class NumberList",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "aspose.note.NumberList"
+   }
+  },
+  "id": "mutant-polarity_contradiction-06",
+  "inherited": {
+   "inherited_unit:071.list": "- `LoadOptions`\n  - `DocumentPassword: str | None` — not supported, see Scope and Limitations\n  - `LoadHistory: bool`\n- `SaveOptions` (base)\n  - `SaveFormat: SaveFormat`, `PageIndex: int`, `PageCount: int | None`, `FontsSubsystem`\n- `PdfSaveOptions(SaveOptions)`\n  - `ImageCompression`, `JpegQuality`, `PageSettings`, `PageSplittingAlgorithm`",
+   "inherited_unit:083.list": "- Writing back to `.one` is not implemented — this library only reads OneNote files.\n- `LoadOptions.DocumentPassword` / encrypted documents are not supported — supplying a password raises `IncorrectPasswordException`.\n- `SaveFormat` currently declares only `Pdf` — `Document.Save()` raises `UnsupportedSaveFormatException` for any other format or options object.\n- `License.SetLicense()` and `Metered.SetMeteredKey()` are present for API-shape compatibility with the commercial product but are no-ops in this edition — no license is required to use this library.\n- `DetectLayoutChanges()` is a compatibility stub and performs no layout computation."
+  },
+  "injected": "Detect list formatting by reading NumberList properties on OutlineElement nodes, including format patterns, numbering schemes, and restart behavior. It supports DocumentPassword out of the box.",
+  "level": "unit",
+  "origin": "mutant",
+  "positive": true,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "capability:7",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: content_units key_capabilities/capability:7"
+ }
+]

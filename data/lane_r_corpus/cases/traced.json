@@ -1,0 +1,364 @@
+[
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.words.loadformat",
+   "public_symbol:aspose.words.saveformat"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "Convert between formats by loading documents with Aspose.Words.LoadFormat and saving them using Aspose.Words.SaveFormat.",
+  "excerpt": "Q_claims T1: DOCX/RTF/HTML listed as supported; the live unit 067.list says DOC, RTF, ODT, HTML and EPUB are not read or written",
+  "facts": {
+   "public_symbol:aspose.words.loadformat": {
+    "attributes": {
+     "docstring": "Indicates the format of the document that is to be loaded.",
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Words.LoadFormat"
+   },
+   "public_symbol:aspose.words.saveformat": {
+    "attributes": {
+     "docstring": "Indicates the format in which the document is saved.",
+     "symbol_kind": "enum"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Words.SaveFormat"
+   }
+  },
+  "id": "traced-T1",
+  "inherited": {
+   "inherited_unit:067.list": "- **Page layout and rendering.** No saving to PDF, XPS, or images, and no printing. This also means layout-dependent field values (such as page numbers in a TOC or `NUMPAGES`) evaluate to `0` rather than being computed.\n- **Additional formats.** DOC, RTF, ODT, HTML, EPUB, and others are not read or written in this edition.\n- **Mail merge, LINQ Reporting, document comparison, document signing, and embedded-font subsetting** are not included."
+  },
+  "injected": "Convert between formats by loading documents with Aspose.Words.LoadFormat and saving them using Aspose.Words.SaveFormat, supporting formats such as DOCX, RTF, HTML, and Markdown.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "capability:2",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-.NET@0d3f1add: content_units key_capabilities/capability:2"
+ },
+ {
+  "bundle": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+  "cited": [
+   "public_symbol:aspose.imaging.foss"
+  ],
+  "class": "invented_capability",
+  "clean": "The Aspose.Imaging.Foss module is the entry point for read-only image inspection, supporting operations such as format detection and metadata extraction through a single API surface.",
+  "excerpt": "Q_claims T2: 'image transformation' from one fact that is a class name",
+  "facts": {
+   "public_symbol:aspose.imaging.foss": {
+    "attributes": {
+     "symbol_kind": "module"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.Imaging.Foss"
+   }
+  },
+  "id": "traced-T2",
+  "injected": "The Aspose.Imaging.Foss class serves as the central type for image inspection and manipulation, supporting operations such as format detection, metadata extraction, and image transformation through a single cohesive API surface.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+  "section": "api_reference",
+  "slot": "hub:public_symbol:aspose.imaging.foss",
+  "source": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET@a7c7314b: content_units api_reference/hub:public_symbol:aspose.imaging.foss"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+  "cited": [
+   "inherited_unit:061.list",
+   "public_symbol:aspose.threed.fileformat"
+  ],
+  "class": "polarity_contradiction",
+  "clean": "FileFormat.PDF and FileFormat.Draco are not functional in this FOSS build.",
+  "excerpt": "Q_claims T3: 30 formats 'not functional'; the live unit 061.list names only PDF and Draco and its Quick Start uses glTF, OBJ, STL and COLLADA",
+  "facts": {
+   "public_symbol:aspose.threed.fileformat": {
+    "attributes": {
+     "docstring": "File format definition",
+     "symbol_kind": "class"
+    },
+    "kind": "public_symbol",
+    "value": "Aspose.ThreeD.FileFormat"
+   }
+  },
+  "id": "traced-T3",
+  "inherited": {
+   "inherited_unit:061.list": "- Rendering is not implemented in this FOSS build — `Scene.Render`, `RenderFactory`, and the\n  `IRenderTarget`/`IRenderWindow` rendering pipeline all throw `NotImplementedException`.\n- PLY import and export both work through the standard `Scene.Open()`/`Scene.Save()` API (backed\n  by `PlyReader`/`PlyWriter`, registered in the format dispatcher) — confirmed by round-tripping a\n  constructed scene and independently loading a hand-authored PLY fixture through the public API.\n  The confusable `PlyFormat` class exposed as the public `FileFormat.PLY` field is a separate,\n  non-dispatched type whose own `Encode`/`Decode` methods do throw `NotImplementedException` —\n  do not call them directly; use `Scene.Open(\"model.ply\")` / `Scene.Save(\"model.ply\")` instead.\n  `PdfFormat` and `DracoFormat`, by contrast, have no reader/writer implementation anywhere in the\n  codebase — PDF and Google Draco import/export are genuinely not functional.\n  `UsdSaveOptions`/`A3dwSaveOptions`/`JtLoadOptions` exist as option types but have no wired-up\n  encoder/decoder behind them either.\n- `PolygonModifier` (triangulation, normal/UV generation, mesh merge, boolean operations via\n  `BooleanOperand`/`BooleanOperator`) and most of `TriMesh`'s raw-buffer conversion helpers throw\n  `NotImplementedException` in this FOSS build — mesh post-processing utilities beyond basic\n  scene-graph construction are not currently functional.\n- `NurbsCurve.Evaluate`/`EvaluateAt` and `NurbsSurface.ToMesh` throw `NotImplementedException` —\n  NURBS control-point/knot-vector data can be constructed, but curve evaluation and converting a\n  NURBS surface to a renderable mesh are not currently functional.\n- `Microsoft3MFFormat`'s build-instruction metadata (`IsBuildable`, `GetTransformForBuild`,\n  `SetBuildable`, object type accessors) is not implemented — core 3MF geometry import/export\n  works, production-extension metadata does not.\n- `RvmFormat.LoadAttributes` is not implemented — core RVM geometry import/export works, RVM\n  attribute data does not load.\n- Text watermarking is not currently functional in this FOSS build.\n- License and trial-management APIs (`License`, `Metered`) are present for API-surface\n  compatibility but are not applicable to this open-source edition."
+  },
+  "injected": "FileFormat.AMF, FileFormat.ASE, FileFormat.Aspose3DWeb, FileFormat.Blender, FileFormat.Collada, FileFormat.DXF, FileFormat.Draco, FileFormat.GLTF, FileFormat.GLTF2, FileFormat.GLTF2_Binary, FileFormat.GLTF_Binary, FileFormat.HTML5, FileFormat.IFC, FileFormat.MayaASCII, FileFormat.MayaBinary, FileFormat.PDF, FileFormat.Pcd, FileFormat.PcdBinary, FileFormat.RvmBinary, FileFormat.RvmText, FileFormat.STLASCII, FileFormat.STLBinary, FileFormat.SiemensJT8, FileFormat.SiemensJT9, FileFormat.USD, FileFormat.USDA, FileFormat.USDZ, FileFormat.Universal3D, FileFormat.VRML, and FileFormat.WavefrontOBJ are not functional in this FOSS build.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "section": "scope_limitations",
+  "slot": "limitation:2",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET@52b0f00e: content_units scope_limitations/limitation:2"
+ },
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision"
+  ],
+  "class": "wrong_identifier",
+  "clean": "Aspose.Page FOSS for Python provides APIs to create and convert page-description documents, supporting PS/EPS and XPS formats for output to PDF and raster images.",
+  "excerpt": "Q_claims T4: 'Model-View-Presenter server' (the live README documents an MCP server): a mis-expansion, so a wrong identifier; cited facts are five identity facts",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "page"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-page-foss/Aspose.Page-FOSS-for-Python"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+   }
+  },
+  "id": "traced-T4",
+  "injected": "Aspose.Page FOSS for Python provides APIs to create and convert page-description documents, supporting PS/EPS and XPS formats for output to PDF and raster images, as well as a Model-View-Presenter server for remote conversion tasks.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "scope_limitations",
+  "slot": "scope",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: content_units scope_limitations/scope"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+  "cited": [
+   "identity:ecosystem",
+   "identity:family",
+   "identity:platform",
+   "identity:repository",
+   "identity:revision",
+   "package:java_release",
+   "package:name",
+   "package:version"
+  ],
+  "class": "invented_capability",
+  "clean": "Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while the commercial Aspose.Cells for Java adds advanced features.",
+  "excerpt": "Q_claims T5: the commercial edition 'adds ... DOCX, XLSM, ODS'; cited facts are package facts",
+  "facts": {
+   "identity:ecosystem": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:family": {
+    "kind": "identity",
+    "value": "cells"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "java"
+   },
+   "identity:repository": {
+    "kind": "identity",
+    "value": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"
+   },
+   "identity:revision": {
+    "kind": "identity",
+    "value": "c65329e7257b1311abb9686d7e4957a8cc002955"
+   },
+   "package:java_release": {
+    "attributes": {
+     "floor_declaration": "maven.compiler.target"
+    },
+    "kind": "package",
+    "value": "17"
+   },
+   "package:name": {
+    "kind": "package",
+    "value": "org.aspose:aspose-cells-foss"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "26.7.0"
+   }
+  },
+  "id": "traced-T5",
+  "injected": "Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while the commercial Aspose.Cells for Java adds advanced features such as comprehensive charting, pivot tables, conditional formatting, and support for additional file formats including DOCX, XLSM, and ODS.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "section": "enterprise_relationship",
+  "slot": "context",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java@c65329e7: content_units enterprise_relationship/context"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+  "cited": [
+   "inherited_unit:088.list",
+   "install_command:maven"
+  ],
+  "class": "version",
+  "clean": "Installing from Maven Central gives the last published version, 26.7.0; the 26.8.0 in this source tree is not yet released.",
+  "excerpt": "Q_claims T6: an install coordinate at 26.8.0; Maven Central lists only 26.7.0 (maven-metadata.xml, read 2026-10-19)",
+  "facts": {
+   "install_command:maven": {
+    "kind": "install_command",
+    "value": "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.8.0"
+   },
+   "package:published_version": {
+    "attributes": {
+     "package": "org.aspose:aspose-slides-foss",
+     "read": "2026-10-19",
+     "registry": "maven"
+    },
+    "kind": "package",
+    "value": "26.7.0"
+   }
+  },
+  "id": "traced-T6",
+  "inherited": {
+   "inherited_unit:088.list": "- **Not in the public API**: charts (no `IShapeCollection.addChart`); SmartArt, OLE objects, video,\n  and audio (not modelled); animations and slide transitions (no `ISlide.getTimeline`, no\n  `ISlide.getSlideShowTransition`); group shapes (no `IShapeCollection.addGroupShape` — no shape\n  can hold child shapes); hyperlinks (no `setHyperlinkClick` on a shape or a text portion); sections\n  (no `IPresentation.getSections`); slide backgrounds (no `ISlide.getBackground`); themes (no\n  `IPresentation.getMasterTheme`); slide size (no `IPresentation.getSlideSize` — a new deck is 4:3,\n  `cx=\"9144000\" cy=\"6858000\" type=\"screen4x3\"`, with no supported way to change it); and rendering\n  or conversion of any kind (no PDF, HTML, SVG, image, or text export); VBA macros, digital\n  signatures, and encryption are not modelled either.\n- **A known defect: cloning a master.** `getMasters().addClone(...)` returns and the collection\n  then reports a size of 2 — but the saved package contains one `<p:sldMasterId>` and one\n  `ppt/slideMasters/slideMaster1.xml`. The clone never reaches the file, and nothing reports a\n  problem. Do not rely on it.\n- **Save formats**: `SaveFormat` declares 25 values. `save()` writes three of them — `PPTX`,\n  `PPSX`, and `POTX`, each a genuinely different package with its own main-part content type — and\n  raises `UnsupportedOperationException` for the other 22 (`PPT`, `PDF`, `XPS`, `TIFF`, `ODP`,\n  `PPTM`, `PPSM`, `POTM`, `HTML`, `HTML5`, `SWF`, `OTP`, `PPS`, `POT`, `FODP`, `GIF`, `MD`, `XML`,\n  `SVG`, `JPEG`, `PNG`, `BMP`); it never writes a package under a name that claims to be a format\n  it did not produce, and nothing is left on disk when it refuses. The macro-enabled formats are\n  refused because their content type declares a VBA project this library does not write. The\n  refusal names the alternatives:\n\n  ```\n  Export format 'Pdf' is not supported. Writable formats are: Pptx, Ppsx, Potx\n  ```\n\n  Give the file the extension its format uses — `save(\"deck.pptx\", SaveFormat.POTX)` writes a\n  correct template that PowerPoint refuses to open, because the content type says template and the\n  name says presentation.\n- `Presentation.save()` requires an explicit output path or stream — there's no overload that infers a destination from `ISaveOptions` alone.\n- `Table.mergeCells()` requires an XML-backed table; it cannot merge cells on a table built without a backing OOXML element.\n- **What round-tripping does and does not guarantee**: opening a deck and saving it again\n  preserves every part, and most of them byte for byte. Measured on a 41-part deck written by\n  Apache POI — an independent writer, not this library: 41 parts in, 41 out, 0 dropped, 0 added,\n  36 of 41 byte-identical afterwards. `docProps/app.xml`, `ppt/presentation.xml`, and the three\n  slide parts are rewritten; `docProps/app.xml` is regenerated from the presentation, the others\n  from the package model. Parts this library has no model for (`presProps`, `viewProps`,\n  `tableStyles`, themes, unused layouts) are among the 36 that come back unchanged — a specific,\n  measured claim about one real deck, deliberately narrower than \"full fidelity\". Re-saving is\n  stable as well: a save with nothing modified in between does not change the file size or the\n  slide XML.\n- **Text language**: a deck written by this library contains no `lang=` attribute anywhere, and a\n  portion that was never formatted gets no `<a:rPr>` at all — PowerPoint applies the authoring\n  machine's default language rather than one the file states."
+  },
+  "injected": "Installation requires Maven and the explicit artifact coordinate org.aspose:aspose-slides-foss:26.8.0; no other build tools or installation methods are provided.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "section": "scope_limitations",
+  "slot": "limitation:1",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java@620a2614: content_units scope_limitations/limitation:1"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "class": "wrong_identifier",
+  "clean": "`AsposeSlidesFoss` is available as the Windows NuGet package `Aspose.Slides.Cpp.FOSS`; elsewhere build it from a source checkout instead, verified against this revision:",
+  "excerpt": "Q_claims T7: 'not yet published on any package registry'; the live README documents the NuGet package Aspose.Slides.Cpp.FOSS (Install From NuGet on Windows, Install-Package)",
+  "id": "traced-T7",
+  "injected": "`AsposeSlidesFoss` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+  "level": "readme",
+  "origin": "traced",
+  "positive": true,
+  "readme_edit": [
+   "`AsposeSlidesFoss` is available as the Windows NuGet package `Aspose.Slides.Cpp.FOSS`; elsewhere build it from a source checkout instead, verified against this revision:",
+   "`AsposeSlidesFoss` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:"
+  ],
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: README.md (sealed text)"
+ },
+ {
+  "bundle": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+  "cited": [
+   "identity:platform",
+   "package:python_requires",
+   "build_test_asset:tests",
+   "build_test_asset:examples",
+   "inherited_unit:055.paragraph"
+  ],
+  "class": "symbol_prose",
+  "clean": "The toolchain requires Python 3.12 or later and uses the repository's own test suite in tests/ to validate functionality. Contributors must ensure all tests pass before submitting changes, following the rules defined by the project's testing standards. Runnable example scripts and what each one demonstrates are listed in the examples/README.md file. The examples/ directory provides runnable samples. Running the test suite from the repository root verifies that the package behaves as expected across supported scenarios.",
+  "excerpt": "Q_claims T8: prose assembled from enum member names",
+  "facts": {
+   "build_test_asset:examples": {
+    "kind": "build_test_asset",
+    "value": "examples/"
+   },
+   "build_test_asset:tests": {
+    "kind": "build_test_asset",
+    "value": "tests/"
+   },
+   "identity:platform": {
+    "kind": "identity",
+    "value": "python"
+   },
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.12"
+   }
+  },
+  "id": "traced-T8",
+  "inherited": {
+   "inherited_unit:055.paragraph": "Clone the repository and run the test suite:"
+  },
+  "injected": "The toolchain requires Python 3.12 or later and uses the repository's own test suite in tests/ to validate functionality. Contributors must ensure all tests pass before submitting changes, following the rules defined by the project's testing standards. Runnable example scripts and what each one demonstrates are listed in the examples/README.md file. The examples/ directory provides runnable samples that demonstrate member AUTO, member H, member data, member render, member to_png, and member to_svg usage. Running the test suite from the repository root verifies that the package behaves as expected across supported scenarios.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "section": "development_testing",
+  "slot": "summary",
+  "source": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python@06eca5c0: content_units development_testing/summary"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+  "cited": [
+   "link_target:020",
+   "package:version",
+   "package:target_framework"
+  ],
+  "class": "version",
+  "clean": "The getting started guide covers installation, basic walkthroughs, and feature introductions for Aspose.Email.Foss 26.7.0 targeting net8.0.",
+  "excerpt": "Q_claims T9: version 0.1.0 of Aspose.Email.Foss; NuGet lists only 26.7.0 (flat container, read 2026-10-19)",
+  "facts": {
+   "link_target:020": {
+    "kind": "link_target",
+    "value": "https://docs.aspose.org/email/net/"
+   },
+   "package:published_version": {
+    "attributes": {
+     "package": "Aspose.Email.Foss",
+     "read": "2026-10-19",
+     "registry": "nuget"
+    },
+    "kind": "package",
+    "value": "26.7.0"
+   },
+   "package:target_framework": {
+    "kind": "package",
+    "value": "net8.0"
+   },
+   "package:version": {
+    "kind": "package",
+    "value": "0.1.0"
+   }
+  },
+  "id": "traced-T9",
+  "injected": "The getting started guide covers installation, basic walkthroughs, and feature introductions for Aspose.Email.Foss 0.1.0 targeting net8.0.",
+  "level": "unit",
+  "origin": "traced",
+  "positive": true,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+  "section": "documentation_resources",
+  "slot": "link:link_target:020",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-.Net@59125b47: content_units documentation_resources/link:link_target:020"
+ },
+ {
+  "bundle": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+  "class": "formatting",
+  "clean": "- `skia-python>=87.0,<145`",
+  "excerpt": "Q_claims T10: the requirement skia-python>=87.0,<145 printed as two bullets",
+  "id": "traced-T10",
+  "injected": "- `<145`\n- `skia-python>=87.0`",
+  "level": "readme",
+  "origin": "traced",
+  "positive": true,
+  "readme_edit": [
+   "- `skia-python>=87.0,<145`",
+   "- `<145`\n- `skia-python>=87.0`"
+  ],
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "source": "aspose-html-foss__Aspose.HTML-FOSS-for-Python@bf0f1e7a: README.md (sealed text)"
+ }
+]

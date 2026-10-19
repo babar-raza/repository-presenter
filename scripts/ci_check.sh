@@ -214,13 +214,17 @@ PY
   )
 }
 
+# tests/test_lane_r_ratchet.py and tests/test_governed_bump_entry.py read origin/main and fail, never skip,
+# without it (ci.yml fetches it beside the pinned control revision); a failed fetch is reported, not a step.
+git fetch --no-tags origin main || echo "warning: could not fetch origin main; the ratchet tests will fail"
+
 # Step names match ci.yml's Summary step exactly.
 run_step "lockdrift" with_tools bash scripts/check_lock_drift.sh
 run_step "sbom" sbom_step
 run_step "lint" "$PY" -m ruff check .
 run_step "format" "$PY" -m ruff format --check .
 run_step "typecheck" "$PY" -m mypy src
-run_step "pytest" "$PY" -m pytest
+run_step "pytest" "$PY" -m pytest -n auto --maxprocesses=12 --dist worksteal
 run_step "entrypoint" bash -c 'repository-presenter --version && repository-presenter status'
 
 echo "===== Summary ====="

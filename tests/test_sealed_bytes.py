@@ -134,10 +134,13 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # re-dated in a reviewed commit with the blocker re-checked - it can no longer age silently.
 # Re-checked 2026-10-05 against the current sealed bundles: all three still render different
 # bytes than they sealed with, so the blocker still holds.
+# Re-dated 2026-10-20 (the three entries lapsed on 2026-10-19 and turned every run red): re-checked
+# against the current sealed bundles, all three still render different bytes than they sealed with.
+# Expiry 2026-11-02, inside the 60-day bound; the repayment is a real re-seal through `present`.
 KNOWN_BLOCKED_STALE = {
     "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET": {
         "since": "2026-09-11",
-        "expires": "2026-10-19",
+        "expires": "2026-11-02",
         "reason": (
             "G4-W17 item 65's placement fix drops the orphaned lead-in 'Load a workbook with "
             "recovery diagnostics:' (inherited_unit:018.paragraph, sealed README line 155) whose "
@@ -194,7 +197,7 @@ KNOWN_BLOCKED_STALE = {
     # XPASS(strict) forever, the same signal this file's own docstring says to act on.
     "aspose-3d-foss__Aspose.3D-FOSS-for-Python": {
         "since": "2026-09-16",
-        "expires": "2026-10-19",
+        "expires": "2026-11-02",
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `NotImplementedError` (four "
             "occurrences, scope_limitations, citing an inherited limitations list that spells "
@@ -226,7 +229,7 @@ KNOWN_BLOCKED_STALE = {
     # since `sealed_bundles()` now follows CURRENT to the new revision.
     "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": {
         "since": "2026-09-16",
-        "expires": "2026-10-19",
+        "expires": "2026-11-02",
         "reason": (
             "item 69's cited_inherited_identifiers now wraps `PowerPoint`, `ValueError`, "
             "`SmartArt`, and `AttributeError` (scope_limitations scope, citing eight inherited "
