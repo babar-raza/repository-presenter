@@ -1,0 +1,68 @@
+# 2026-10-16 node:22-slim (node v22.23.3, npm 10.9.9); clone of aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript at 66cb26df3b031f0bf6976d4e88dc89721983afa4
+## npm ci (the repository has no package-lock.json; this is not claimed as a defect)
+npm error code EUSAGE
+npm error
+## npm install
+added 383 packages in 18s
+## npm run build
+> tsc
+
+## repro stl
+solid Scene
+  facet normal 0 0 0
+    outer loop
+      vertex 0 1 2
+    endloop
+  endfacet
+endsolid Scene
+
+binary STL size: 50 bytes
+## repro fbx
+[ '', 'o Node_0', 'v 10.000000 20.000000 30.000000' ]
+Unsupported format: FbxFormat
+Mesh control points: 0
+## repro obj
+root.obj written: true
+child.obj written: false
+## repro glb
+out.gltf written: true
+node:internal/buffer:88
+  throw new ERR_OUT_OF_RANGE(type || 'offset',
+  ^
+
+RangeError [ERR_OUT_OF_RANGE]: The value of "offset" is out of range. It must be >= 0 and <= 632. Received 636
+    at boundsError (node:internal/buffer:88:9)
+    at checkBounds (node:internal/buffer:57:5)
+    at Buffer.writeFloatForwards [as writeFloatLE] (node:internal/buffer:934:3)
+    at GltfExporter._writeGlb (/w/dist/aspose/threed/formats/gltf/GltfExporter.js:319:27)
+    at GltfExporter.export (/w/dist/aspose/threed/formats/gltf/GltfExporter.js:76:18)
+    at Scene.save (/w/dist/aspose/threed/Scene.js:364:24)
+## repro transform
+TypeError: rotation[0].eulerAngles is not a function
+TypeError: rotation[0].eulerAngles is not a function
+## repro main
+main: dist/index.js exists: false
+types: dist/index.d.ts exists: false
+Cannot find module '/w/dist/index.js'. Please verify that the package.json has a valid "main" entry
+## repro zip: consumer install (npm install --omit=dev)
+added 1 package in 2s
+Error: Cannot find module 'adm-zip'
+## npm run lint
+> @aspose/3d@24.12.0 lint
+> eslint 'src/**/*.ts'
+Oops! Something went wrong! :(
+ESLint: 8.57.1
+ESLint couldn't find a configuration file. To set up a configuration file for this project, please run:
+    npm init @eslint/config
+## npx jest
+    ENOENT: no such file or directory, open '../foss.3d.python/examples/3mf/dodeca_chain_loop_color.3mf'
+    Expected: 1
+    RangeError: The value of "offset" is out of range. It must be >= 0 and <= 636. Received 640
+    Received: 0
+    TypeError: rotation[0].eulerAngles is not a function
+  ● Test3MFMaterialImport › testMaterialImport
+  ● Test3MFRoundTrip › testRoundTripExportImport
+  ● TestGltfExporter › testSimpleTriangleBinary
+  ● TestSceneSaveSTL › testRoundtripFile
+Test Suites: 4 failed, 28 passed, 32 total
+Tests:       4 failed, 93 passed, 97 total

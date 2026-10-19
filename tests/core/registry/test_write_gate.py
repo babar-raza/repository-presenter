@@ -155,8 +155,12 @@ def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
 
 # The shipped entries that set ``issues_mode`` explicitly, each with the owner approval that
 # admitted it. Any other entry setting the field fails this test: a flip is an owner act
-# (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing).
+# (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing;
+# 2026-10-16, lane iss4: the owner asked for the Aspose.3D TypeScript and Aspose.TeX Python
+# handoffs to be prepared for filing).
 ISSUE_FILING_OPT_INS: dict[str, str] = {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "file",
+    "aspose-tex-foss/Aspose.TeX-FOSS-for-Python": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-Python": "file",
