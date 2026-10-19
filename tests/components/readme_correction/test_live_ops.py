@@ -655,7 +655,9 @@ def test_a_glance_word_a_supported_fact_value_states_is_supported(build: Build) 
     )
 
 
-def test_a_glance_ordering_defect_is_tolerated_and_recorded_not_hidden(build: Build) -> None:
+def test_a_glance_ordering_defect_is_refused_not_tolerated(build: Build) -> None:
+    """The project's own lint is the bar: a drawing with its columns out of order is refused (the
+    builder redraws it conforming, so the fix is to carry the builder's drawing)."""
     six = Glance(
         product=GLANCE.product,
         starting_points=("OBJ files",),
@@ -666,12 +668,10 @@ def test_a_glance_ordering_defect_is_tolerated_and_recorded_not_hidden(build: Bu
         outputs=("STL files",),
     )
     canonical = build_body(six)
-    assert lo.glance_notes(canonical) == []
+    assert codes(build(), [glance_op(canonical)]) == set()
     swapped = canonical.replace("capr", "TMP").replace("capl", "capr").replace("TMP", "capl")
-    notes = lo.glance_notes(swapped)
-    assert {n["code"] for n in notes} == {"COLUMN_ORDER", "CONTRACT_COMPOSING"}
-    assert codes(build(), [glance_op(swapped)]) == set()
-    assert {"COLUMN_ORDER", "NOT_CANONICAL"} == lo.GLANCE_TOLERATED_DEFECTS
+    assert lo.GLANCE_LINT in codes(build(), [glance_op(swapped)])
+    assert frozenset() == lo.GLANCE_TOLERATED_DEFECTS
 
 
 def test_a_glance_with_too_few_capabilities_fails_the_content_contract(build: Build) -> None:

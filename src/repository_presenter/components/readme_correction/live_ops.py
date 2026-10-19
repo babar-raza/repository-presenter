@@ -112,7 +112,7 @@ STALE_REVISION = "STALE_REVISION"
 
 #: Lint defects of a drawn At a Glance diagram that are about ordering and canonical form, not
 #: about a reader seeing clipped, stacked or lost text; they are recorded, never silently passed.
-GLANCE_TOLERATED_DEFECTS: frozenset[str] = frozenset({"COLUMN_ORDER", "NOT_CANONICAL"})
+GLANCE_TOLERATED_DEFECTS: frozenset[str] = frozenset()
 #: The H2 sections an INSERT_BEFORE may open, each with its own verification.
 SECTION_NAVIGATION = "Navigation"
 SECTION_DEPENDENCIES = "Dependencies"
