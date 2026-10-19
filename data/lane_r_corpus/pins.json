@@ -1,0 +1,217 @@
+{
+  "bundles": [
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+      "live_readme_sha256": "33f661e6ab08486896169f7a1a27c6a4c318600b4a7efdd3eaa13d8b411062c1",
+      "manifest_sha256": "d593626371dfbc11d71f874f7c47774c7bfceeff43f67d6870e2e1c120319987",
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+      "revision": "52b0f00ebf28a0b4173921725ff170685ec2c502"
+    },
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+      "live_readme_sha256": "105243c34b3a3996904b9477d4bc1bb01dacd80122294c487d7041d5841ae64b",
+      "manifest_sha256": "8060ecf7c2ab791f95a3192d708852ba746c514294159b2d4559521e9a12996b",
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+      "revision": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3"
+    },
+    {
+      "directory": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+      "live_readme_sha256": "68511527d2414b51fba25c60146587000b7a18ae339962c19fac4b1250b12ac2",
+      "manifest_sha256": "e3f79c853de2d000b339283897dabcb3ce8163ee51dde99fccf784306c04a603",
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+      "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+    },
+    {
+      "directory": "aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python",
+      "live_readme_sha256": "4e311891fdb4ba0324606b78c594c0d6dd4ea912aa0034ea9cfff6bb45105c17",
+      "manifest_sha256": "7699b13a21e7c82576183897bbe2d5102e39302a15696c112ae587c06c155e87",
+      "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+      "revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET",
+      "live_readme_sha256": "2c6abdab5d0ed6d634563035e22f055d7e114ae219ef7d100fb8c29eb9cd0c30",
+      "manifest_sha256": "9ae8e5729268b9a308e7a433f0a57eeaccc7f78d885774c789d1f5b464bf0d59",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+      "revision": "941814fd138dc28cf47123d48194f329f283498d"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp",
+      "live_readme_sha256": "a811deaebdd5aab3faad8b95f3e83b9ce00d8045190443c2f3848cf54ebef5a2",
+      "manifest_sha256": "716fba8a3d2a49ca2115be9816b980117398071d32569a261ab002875943c37c",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+      "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+      "live_readme_sha256": "efa31e55d8290f9022380e31aa909f2da386487bf2c28364ad9f3959226f77c1",
+      "manifest_sha256": "20c2fde8a376478fcc35a51196768e2b3681786748eca24e3334f003a5bb91dc",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+      "revision": "fa4e890e46c509efd22d09b97411202c2b0b8a67"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+      "live_readme_sha256": "5f2db3e78e54f3b88befeea5a66355ce6bf278f08edf6ff5518bd210cd0ec73c",
+      "manifest_sha256": "4af0119caaa37345c384e0aa66db9ce569d809bc6adacc8d022716f6b0c4105a",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "c65329e7257b1311abb9686d7e4957a8cc002955"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+      "live_readme_sha256": "910dfd88f81860d94b093d03ce821450ff4f3a1cd7b982dca172e2b424be23f9",
+      "manifest_sha256": "1fd908ee4c6bba7544b344961cf9af7a706f981318ff272347b460092171ad12",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+      "revision": "4f6768a7b349a1309644f456eb43bc35f70c16d7"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+      "live_readme_sha256": "71de1b2fe224df2ec332c6f4b2ee0c181afb659e5c6b01ad4703d9d3ecd8e436",
+      "manifest_sha256": "d4cfefcae63f4be806b1bfd35cc9a1e89bd3a119d04605d2624b980c880add85",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+      "revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e"
+    },
+    {
+      "directory": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+      "live_readme_sha256": "6e92da3a04ae70dadbe600431c38b19f7b16b50af338417fb2e7f2baadd0826c",
+      "manifest_sha256": "ac3c971b6e672a17154237e4c22e87ea3f26af3b101dd5099df99c189d2ac601",
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+      "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-.Net",
+      "live_readme_sha256": "3e9bc7ea033ec50db9575949952894b9ca9f09005a64aa2ff26970f3ae987bac",
+      "manifest_sha256": "3408abe191d09f55df2610de5507b2433933fa92009372784fe11ce18c16e72a",
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+      "revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+      "live_readme_sha256": "22f67406a341178188eba01b4ce6fe7e83c57d4c02f9a8d646b2376127f4add1",
+      "manifest_sha256": "59c2074fd4f34fa1c2505fbd94c5a5141a4dc79605e9138cd7836df929ab6cf6",
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40"
+    },
+    {
+      "directory": "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+      "live_readme_sha256": "5c81ffa6954ec89f6b6872dd6d6429e13dbe45aafe1b8717eda332629ad7dfad",
+      "manifest_sha256": "127688e945f33c16bcec6b341a15e3ea93cb63caa2cd537468a72e72ffe2f602",
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+      "revision": "10a906b48c0c11005c4d93b524e4431901c9717c"
+    },
+    {
+      "directory": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+      "live_readme_sha256": "3de44e203b62696c90a3e09aa95587feb78c1fbd2a51c16b8cdd0183f47522cf",
+      "manifest_sha256": "74ed180c40a35904af969c7e1d751874143223633e5113690dc010982d6c15fd",
+      "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+      "revision": "c520e3ebed3c36a56850cffb2b067afb29c5e2e9"
+    },
+    {
+      "directory": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+      "live_readme_sha256": "a5faac70e76cbeac20a4c110a1ce7a692411639a7c44ef2ab2679e4657144f00",
+      "manifest_sha256": "4273a8e3cdc4eb1e4c68cc23afce5930326ac43b16dc717caddcd075b23d0083",
+      "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+      "revision": "bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11"
+    },
+    {
+      "directory": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+      "live_readme_sha256": "f50a693b72f453a3f10ad2ca40c908d59349233ebc336f9eea3574c34d2ae5b8",
+      "manifest_sha256": "6a1728cf7fe19715b45b6fe4151a4a858b05dd61c0b003a9a0366b68aaa83dc0",
+      "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+      "revision": "a7c7314b18e1a5bd209fab38c15e72574337366f"
+    },
+    {
+      "directory": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+      "live_readme_sha256": "fd47d03c4579d88d906bf927cbf6002e5e99e44af15708e64268dbd0482fdb71",
+      "manifest_sha256": "ef316ac433b3e23bc80db8a552fb0d1cef67ae2fac89d13d662f70e8d56392c5",
+      "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+      "revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676"
+    },
+    {
+      "directory": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+      "live_readme_sha256": "2018a53f745f96370b49ac41f56afd062c07834693623dafe0997c47875bb81e",
+      "manifest_sha256": "87f0b6a715deead11ef1646af72d27bf34efcb364c320762a6d651d81879fd84",
+      "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+      "revision": "43cef367cd0b2cf00cc03064ca9d29d1ff507967"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+      "live_readme_sha256": "f60bf7221f4c03296cd90643fbc9d014674dad4ca795aa47a9f342329253199d",
+      "manifest_sha256": "815b78fc6ed4b76a6b8057d97a82dc35d77bbb5dcfd7ef58ff4a4ef23a6dd182",
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "revision": "286484d235196d65c9a458c5eff3d3d6539216dc"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+      "live_readme_sha256": "6a248cd2b78bdde933ef3844c803fc3993e88d72682a1c4d4ff5e2ff4f511141",
+      "manifest_sha256": "bb73cfa4301c783983ca63e3caf046f233ea1bb13e5b1cfc38f4b92574c9e531",
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+      "revision": "580935ba0ffc558b9146ebd46ddbc6a37b7cf167"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+      "live_readme_sha256": "cb2efecb3deec6c770f1f3cbb9b7b6f4bbec7e37913e06f57fa751a63804e807",
+      "manifest_sha256": "4dadee62138d0e4f1d9704c664fba50c526190714219425c791be4f5b46a6066",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+      "revision": "d10e2c829e1e41d3a9529057ad2ea7c7f53b1095"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+      "live_readme_sha256": "5a715f09f511f66fc128c4ae10c7022871a9e4958bc6910c1c3d9fcf3b22502c",
+      "manifest_sha256": "326d35a652c1e77abe0417cd909056039a9f8c730e3bcc3ee12bb95e621e2c2f",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e"
+    },
+    {
+      "directory": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+      "live_readme_sha256": "e0f0940594cfe27ac1da6b7c90b508a643213572e17ba4ea6e772b1a9bf667d3",
+      "manifest_sha256": "b2a9ef522311791d58b85303b7cf5b3e1fa65e9f1a2e9171aadea6b026312a39",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+      "revision": "db2d3f0622f035825419c6d46727022064f39f15"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+      "live_readme_sha256": "520e9a21b541f1aff3e6b9c42f189caedb79b5b0c63dfffaeb6255f314dad660",
+      "manifest_sha256": "e2ca5ede9b950211ef9b2da19eae73f6837894e9b5db5fa39a2be94fc5091970",
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+      "revision": "86c441b5d81e707f2ea9e01b197dbb6ff7a3859b"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+      "live_readme_sha256": "cbfd5ca5a0f581aad8b66380510df91e2e7d52f8c11dacc2ce3efc0162258a52",
+      "manifest_sha256": "3187bc4d031c42e8980862f43b4c469ccd1f54d615a2fc9c58fda3a574790bb8",
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+      "revision": "c41f8dddc499fb0058fc9557cb364d70fbd3cef1"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Java",
+      "live_readme_sha256": "3214273b7d93fba58606e85e8a43238508e0c593d509dc161080a43a3fc9da81",
+      "manifest_sha256": "18162bea93a57fe7c3e9275bf40bcc43bd07cd9add32a5ea59740e353f54c11b",
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+      "revision": "620a2614418854b4a18966a361e6907ddc88c7cb"
+    },
+    {
+      "directory": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python",
+      "live_readme_sha256": "774f2f3be704d2c4ba859ac921af3978437df7bdce3edba2e7fc8fca14dcb11a",
+      "manifest_sha256": "1b67bb8e9c9ddff2a02362917f088ce37bdf3069f90882b6b2391bb6636b6d4f",
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+      "revision": "becd199a776682785768c60c778558d975b0c2f9"
+    },
+    {
+      "directory": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+      "live_readme_sha256": "71e9ae0ccc61c46882e694d7be52f41f557103b61dd78b80ec5a8bf626f52867",
+      "manifest_sha256": "9311a5991bb5fbf732ea7642355343cab713f2c880cb3c7e2be51fe1c024895f",
+      "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+      "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c"
+    },
+    {
+      "directory": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+      "live_readme_sha256": "9ef65e92ae664d9bf8cac9c98aa002fec48938cd547af00708e4f5536aeef1c0",
+      "manifest_sha256": "2f81922c6ada231330f9f1e8b6fa00cf1ca20fafecf1579471cdbf7108e66caf",
+      "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+      "revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784"
+    }
+  ],
+  "control_revision": "4a7baf11926a6ee8707f41b8c6a525367c5f8fcd",
+  "schema_version": 1,
+  "survey_sha256": "1810f1959b7a815191ee8db40a61de94b994103acf11f32cb44cd45ce0dd0833"
+}

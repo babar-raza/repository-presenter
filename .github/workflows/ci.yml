@@ -23,6 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # tools/lane_r_audit reads the 30 sealed bundles as git blobs at one pinned commit and never falls
+      # back (pinned.py); this checkout is depth 1, so fetch just that commit (it is reachable from main).
+      - name: Fetch the pinned control revision for tools/lane_r_audit
+        run: git fetch --no-tags --depth=1 origin 4a7baf11926a6ee8707f41b8c6a525367c5f8fcd
+
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}

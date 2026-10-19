@@ -155,8 +155,12 @@ def test_an_inactive_entry_is_refused_issue_effects_even_with_issues_mode_file(
 
 # The shipped entries that set ``issues_mode`` explicitly, each with the owner approval that
 # admitted it. Any other entry setting the field fails this test: a flip is an owner act
-# (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing).
+# (docs/DECISION_LOG.md 2026-10-14, "reset to shipping": Cells-Cpp opts into issue filing;
+# 2026-10-16, lane iss4: the owner asked for the Aspose.3D TypeScript and Aspose.TeX Python
+# handoffs to be prepared for filing).
 ISSUE_FILING_OPT_INS: dict[str, str] = {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "file",
+    "aspose-tex-foss/Aspose.TeX-FOSS-for-Python": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp": "file",
     "aspose-cells-foss/Aspose.Cells-FOSS-for-Python": "file",
@@ -165,16 +169,18 @@ ISSUE_FILING_OPT_INS: dict[str, str] = {
 
 
 def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
-    """Of the 44 shipped entries, only the owner-approved opt-ins set ``issues_mode``; every other
-    entry derives it from ``mode``. The README-side effects are permitted for exactly the 5
-    ``full`` entries (3D-Java and Cells-Java as before, plus Cells-.NET, Cpp and TypeScript -
-    the 2026-10-16 Cells correction wave, G3-W09/G6-W03, each with its own merged
-    ops/proposal-authorizations/ record); issue_filing and issue_close for those 5 plus the
-    opt-ins, and an opt-in never arms a README pull request."""
+    """Of the 36 shipped entries (44 before aspose-jmap-foss was excluded from the registry
+    2026-10-17, owner ruling, docs/DECISION_LOG.md, this date), only the owner-approved opt-ins
+    set ``issues_mode``; every other entry derives it from ``mode``. The README-side effects are
+    permitted for exactly the 6 ``full`` entries (3D-Java and Cells-Java as before, plus
+    Cells-.NET, Cpp and TypeScript - the 2026-10-16 Cells correction wave, G3-W09/G6-W03 - and
+    Cells-Go, the 2026-10-19 run, each with its own merged ops/proposal-authorizations/ record);
+    issue_filing and issue_close for those 6 plus the opt-ins, and an opt-in never arms a README
+    pull request."""
     from support import REPO_ROOT
 
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
-    assert len(registry.entries) == 44
+    assert len(registry.entries) == 36
     explicit = {e.repository: e.issues_mode for e in registry.entries if e.issues_mode is not None}
     assert explicit == ISSUE_FILING_OPT_INS
 
@@ -186,7 +192,7 @@ def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_bef
         return True
 
     full = {e.repository for e in registry.entries if e.mode == "full"}
-    assert len(full) == 5
+    assert len(full) == 6
     for effect in EFFECTS:
         allowed = {e.repository for e in registry.entries if permitted(e.repository, effect)}
         if effect in ("issue_filing", "issue_close"):

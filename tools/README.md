@@ -8,8 +8,7 @@ messaging — is reusable and versioned instead of living in a session-local scr
 when the session ends (as it did for most of 2026-09-05/06 before this directory existed).
 
 **Boundary, stated plainly** (mirrored in `docs/REPOSITORY_LAYOUT.md`, `project/loop-prompt.md`, and
-`project/loop-prompt-lane.md`): the loop and every lane never read, write, or import anything under
-`tools/`. The owner/reviewer never writes to `src/`, `tests/`, `prompts/`, or `schemas/`. Two
+`project/loop-prompt-lane.md`): the loop and every lane never read, write, or import anything under `tools/` (the one exception, G3-W12 card C1, plan of 2026-10-16: `tools/lane_r_audit/`, written by the loop, importing `src/` read-only, the source of the G3-W12 exit numbers). The owner/reviewer never writes to `src/`, `tests/`, `prompts/`, or `schemas/`. Two
 governance tracks, two directories, no overlap.
 
 ## Layout

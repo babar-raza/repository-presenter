@@ -329,14 +329,15 @@ def test_a_candidate_below_the_full_score_does_not_pass_even_with_nothing_disqua
     assert record["outcome"] == FAIL
 
 
-def test_a_banner_link_to_an_aspose_destination_above_the_opening_fails_c01_for_two_points() -> (
-    None
-):
+def test_the_products_aspose_org_banner_keeps_c01_met_but_an_aspose_com_link_fails_it() -> None:
+    # Owner ruling 2026-10-10: the banner linking to products.aspose.org stays; no aspose.com link.
     banner = "[![Aspose.Demo](https://products.aspose.org/media/demo/banner.png)](https://products.aspose.org/demo/python/)\n\n"
-    readme = CLEAN_README.replace(
+    ok = CLEAN_README.replace(
         "Aspose.Demo FOSS for Python reads", banner + "Aspose.Demo FOSS for Python reads", 1
     )
-    record = _production(readme, template=_template(UNRELATED))
+    assert _row(_production(ok, template=_template(UNRELATED)), "C01")["status"] == MET
+    bad = ok.replace("products.aspose.org/demo/python/", "products.aspose.com/demo/python/")
+    record = _production(bad, template=_template(UNRELATED))
     assert _row(record, "C01")["status"] == NOT_MET
     assert record["points_earned"] == 28
     assert record["outcome"] == FAIL

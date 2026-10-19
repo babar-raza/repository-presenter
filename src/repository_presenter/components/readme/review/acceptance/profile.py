@@ -115,8 +115,9 @@ class Profile:
 
 CRITERIA: tuple[Criterion, ...] = (
     # idea.md L37-43 ("product should come first") and L78-79 ("the opening explains the FOSS
-    # product before any Aspose promotional destination"). Strict reading, for owner ratification:
-    # a banner link to an Aspose destination above the opening paragraph counts as a destination.
+    # product before any Aspose promotional destination"). Owner ruling 2026-10-10: the banner's
+    # link to products.aspose.org stays and is not a destination; a link to aspose.com (or any
+    # other Aspose destination) above the opening paragraph still counts as one and fails C01.
     Criterion(
         id="C01",
         title="Product explained before promotion",

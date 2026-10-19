@@ -1,0 +1,254 @@
+{
+  "confinement": {
+    "edits": 3,
+    "statement": "the corrected text with every edit's span removed equals the original with the same spans removed",
+    "verified": true
+  },
+  "corrected_sha256": "6fd1d9e7fe5f89e0548581ef11acc48007b5b2d2d2052ff5a641816c14319ad3",
+  "edits": [
+    {
+      "detector": "at_a_glance_diagram",
+      "end": 3454,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:46"
+        }
+      ],
+      "index": 0,
+      "kind": "DIAGRAM_FIX",
+      "line": 46,
+      "original": "flowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction LR\n    i1[\"An existing XLSX workbook (including password-protected)\"]\n    i2[\"CSV files\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for Go\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Cell read and write (A1-style references)\"]\n      c2[\"Font, fill, alignment, and border styling\"]\n      c3[\"Formulas with a built-in SUM/AVERAGE/MAX/MIN engine\"]\n      c4[\"Data validation, tables, and picture embedding\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"CSV import and export\"]\n      c6[\"Streaming row-by-row reading\"]\n      c7[\"Password protection and encryption\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"XLSX workbooks (including password-protected)\"]\n    o2[\"CSV files\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "rationale": "the At a Glance diagram on line 46 is drawn with CLIP_AUTO_WRAP, CLIP_HTML_LABELS, COLUMN_ORDER, GROUP_LAID_AS_ROW, ORDER_UNPINNED, ORIENTATION_VERTICAL; the same labels, titles and chain are redrawn left to right with SVG text labels; its content already exceeded 3 regeneration ceiling(s) and is kept as the maintainers wrote it",
+      "replacement": "%%{init: {\"htmlLabels\": false, \"flowchart\": {\"htmlLabels\": false, \"nodeSpacing\": 22, \"rankSpacing\": 26, \"padding\": 10, \"useMaxWidth\": true, \"wrappingWidth\": 400}}}%%\nflowchart LR\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing XLSX<br/>workbook<br/>(including<br/>password-protected)\"]\n    i2[\"CSV files\"]\n    i1 ~~~ i2\n  end\n  PRODUCT[\"Aspose.Cells<br/>FOSS for Go\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"CSV import<br/>and export\"]\n      c6[\"Streaming<br/>row-by-row<br/>reading\"]\n      c7[\"Password<br/>protection and<br/>encryption\"]\n      c5 ~~~ c6 ~~~ c7\n    end\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Cell read and<br/>write (A1-style<br/>references)\"]\n      c2[\"Font, fill,<br/>alignment, and<br/>border styling\"]\n      c3[\"Formulas with a<br/>built-in<br/>SUM/AVERAGE/MAX/MIN<br/>engine\"]\n      c4[\"Data validation,<br/>tables, and<br/>picture embedding\"]\n      c1 ~~~ c2 ~~~ c3 ~~~ c4\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"XLSX workbooks<br/>(including<br/>password-protected)\"]\n    o2[\"CSV files\"]\n    o1 ~~~ o2\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n",
+      "start": 2540
+    },
+    {
+      "detector": "second_h1",
+      "end": 5217,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:105"
+        }
+      ],
+      "index": 1,
+      "kind": "STRUCTURE_FIX",
+      "line": 105,
+      "original": "#",
+      "rationale": "line 105 is a second H1 ('# Requires **Go 1.24.5+** (see `go.mod`). Depends only on th'); the template has exactly one, the product title on line 1",
+      "replacement": "##",
+      "start": 5216
+    },
+    {
+      "detector": "unclosed_details",
+      "end": 19824,
+      "evidence": [
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:501"
+        },
+        {
+          "fact_id": null,
+          "kind": "readme_structure",
+          "status": "README_TEXT",
+          "value": "README.md:529"
+        }
+      ],
+      "index": 2,
+      "kind": "STRUCTURE_FIX",
+      "line": 529,
+      "original": "",
+      "rationale": "the <details> opened on line 501 is never closed, so everything after it renders collapsed; it ends before the next H2, line 529",
+      "replacement": "</details>\n\n",
+      "start": 19824
+    }
+  ],
+  "kind": "correction",
+  "original_sha256": "e55fbe1ea0e5efde4ec73bd268e73ec2a6f1fa51e4c6ad99d7aa245a611f1975",
+  "readme_path": "README.md",
+  "render_check": {
+    "browser": "Chrome/155.0.8059.81",
+    "diagrams": [
+      {
+        "clipped_fonts": 0,
+        "horizontal": true,
+        "problems": 0,
+        "word_splits": 0
+      }
+    ],
+    "fonts": 6,
+    "releases": [
+      "11.17.2",
+      "11.4.1",
+      "11.12.0",
+      "12.1.0"
+    ],
+    "status": "verified"
+  },
+  "report_only": [
+    {
+      "candidate": "go test ./...",
+      "detector": "add_dev_commands",
+      "evidence": {
+        "fact_ids": [
+          "build_test_asset:test-command"
+        ],
+        "locators": []
+      },
+      "line": 0,
+      "re_enable": "",
+      "reason": "the README already shows `go test ./...` in some form; not added",
+      "report_only_reason": "ALREADY_SHOWN"
+    },
+    {
+      "candidate": "\nTo build from a clone, run:\n\n```bash\ngo build ./...\n```\n",
+      "detector": "add_dev_commands",
+      "evidence": {
+        "fact_ids": [
+          "build_test_asset:build-command"
+        ],
+        "locators": []
+      },
+      "line": 500,
+      "re_enable": "the commands are ONE chain - ONE CI job's contiguous steps (the job's install and configure steps, then its build and test; a job of the primary non-sanitizer non-release kind) or the build and test of one project file - and a build receipt shows the chain, run on a clean clone with the project's own toolchains, exiting 0 at every step: the command facts carry command_chain (and ci_job_contiguous=true for a CI job) and build_receipt",
+      "reason": "'Development and Testing' could take the clone's build and test information; not applied: the chain has not been run on a clean clone",
+      "report_only_reason": "NO_BUILD_RECEIPT"
+    }
+  ],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "schema_version": 1,
+  "send": {
+    "hold_reason": null,
+    "no_push_reason": null,
+    "pr_order": 1
+  },
+  "source_revision": "99c789e9175f2b12ad82bafeeba148ddcc1367fb",
+  "stability": {
+    "deterministic": true,
+    "idempotent": true,
+    "provider_calls": 0
+  },
+  "summary": {
+    "DIAGRAM_FIX": 1,
+    "STRUCTURE_FIX": 2
+  },
+  "unapplied_findings": [
+    {
+      "detector": "report_gaps",
+      "fact_ids": [
+        "public_symbol:cellnotfounderror",
+        "public_symbol:chart",
+        "public_symbol:chartanchor",
+        "public_symbol:chartseries",
+        "public_symbol:charttype",
+        "public_symbol:conditionalformatting",
+        "public_symbol:conditionalformattingrule",
+        "public_symbol:formulaerror"
+      ],
+      "line": 0,
+      "reason": "14 of 28 verified public types are named nowhere in the README; would fill API Reference: public_symbol:cellnotfounderror, public_symbol:chart, public_symbol:chartanchor, public_symbol:chartseries, public_symbol:charttype, public_symbol:conditionalformatting, public_symbol:conditionalformattingrule, public_symbol:formulaerror (+6 more)",
+      "text": ""
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:002"
+      ],
+      "line": 129,
+      "reason": "the example verifier recorded a failure for the example on lines 129-146: example 2: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "package main"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:003"
+      ],
+      "line": 152,
+      "reason": "the example verifier recorded a failure for the example on lines 152-161: example 3: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "wb, _ := cells_foss.LoadWorkbook(\"input.xlsx\")"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:004"
+      ],
+      "line": 170,
+      "reason": "the example verifier recorded a failure for the example on lines 170-221: example 4: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:005"
+      ],
+      "line": 228,
+      "reason": "the example verifier recorded a failure for the example on lines 228-255: example 5: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:006"
+      ],
+      "line": 259,
+      "reason": "the example verifier recorded a failure for the example on lines 259-280: example 6: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:007"
+      ],
+      "line": 284,
+      "reason": "the example verifier recorded a failure for the example on lines 284-305: example 7: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:008"
+      ],
+      "line": 309,
+      "reason": "the example verifier recorded a failure for the example on lines 309-336: example 8: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:009"
+      ],
+      "line": 340,
+      "reason": "the example verifier recorded a failure for the example on lines 340-359: example 9: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "failing_example",
+      "fact_ids": [
+        "example:010"
+      ],
+      "line": 363,
+      "reason": "the example verifier recorded a failure for the example on lines 363-378: example 10: FAILED; the build failed without naming a diagnostic (no compiler diagnostic: the toolchain or environment may be at fault)",
+      "text": "func main() {"
+    },
+    {
+      "detector": "claim_public_types",
+      "fact_ids": [
+        "public_symbol:alignment",
+        "public_symbol:border",
+        "public_symbol:cell",
+        "public_symbol:cellnotfounderror",
+        "public_symbol:cells"
+      ],
+      "line": 467,
+      "reason": "the README states 14 public types; the verified facts hold 28 SUPPORTED class and enum symbols (28 outside example and test code): its API tables are likely stale",
+      "text": "  reference for all 14 public types (the [API reference](#api-reference) section above covers the"
+    }
+  ]
+}

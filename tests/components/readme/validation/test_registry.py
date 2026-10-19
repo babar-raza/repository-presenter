@@ -3232,11 +3232,89 @@ def _unpub_fact(raw: dict[str, Any]) -> Fact:
     )
 
 
+# See tests/components/readme/evidence/facts/test_unpublished.py for why this is frozen rather
+# than read live: the aspose-jmap-foss rows this module's fixture uses were removed from
+# data/registry.json 2026-10-17 (owner ruling, docs/DECISION_LOG.md, this date).
+_RETIRED_JMAP_ENTRIES: dict[str, dict[str, Any]] = {
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp",
+        "family": "jmap",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-cpp",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233504,
+            "node_id": "R_kgDOUs4FYA",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Go": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Go",
+        "family": "jmap",
+        "platform": "go",
+        "ecosystem": "go",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-go",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233108,
+            "node_id": "R_kgDOUs4D1A",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Java": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Java",
+        "family": "jmap",
+        "platform": "java",
+        "ecosystem": "java",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-java",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233642,
+            "node_id": "R_kgDOUs4F6g",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Python": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Python",
+        "family": "jmap",
+        "platform": "python",
+        "ecosystem": "python",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-python",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389232730,
+            "node_id": "R_kgDOUs4CWg",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust",
+        "family": "jmap",
+        "platform": "rust",
+        "ecosystem": "rust",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-rust",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233264,
+            "node_id": "R_kgDOUs4EcA",
+        },
+    },
+}
+
+
 def _unpub_entry(name: str) -> RegistryEntry:
+    repository = _UNPUBLISHED_ROWS[name]["repository"]
     registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text("utf-8"))
-    raw = next(
-        e for e in registry["entries"] if e["repository"] == _UNPUBLISHED_ROWS[name]["repository"]
-    )
+    raw = next((e for e in registry["entries"] if e["repository"] == repository), None)
+    if raw is None:
+        raw = _RETIRED_JMAP_ENTRIES[repository]
     return RegistryEntry.model_validate(raw)
 
 

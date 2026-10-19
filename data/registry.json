@@ -49,6 +49,7 @@
       "platform": "typescript",
       "ecosystem": "typescript",
       "mode": "dry_run",
+      "issues_mode": "file",
       "policy_profile": "aspose-3d-foss-typescript",
       "active": true,
       "provider_identity": {
@@ -106,7 +107,7 @@
       "family": "cells",
       "platform": "go",
       "ecosystem": "go",
-      "mode": "dry_run",
+      "mode": "full",
       "policy_profile": "aspose-cells-foss-go",
       "active": true,
       "provider_identity": {
@@ -213,118 +214,6 @@
         "provider": "github",
         "repository_id": 1183488768,
         "node_id": "R_kgDORoqbAA"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-.NET",
-      "family": "jmap",
-      "platform": "net",
-      "ecosystem": "net",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-net",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389233379,
-        "node_id": "R_kgDOUs4E4w"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp",
-      "family": "jmap",
-      "platform": "cpp",
-      "ecosystem": "cpp",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-cpp",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389233504,
-        "node_id": "R_kgDOUs4FYA"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Go",
-      "family": "jmap",
-      "platform": "go",
-      "ecosystem": "go",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-go",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389233108,
-        "node_id": "R_kgDOUs4D1A"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Java",
-      "family": "jmap",
-      "platform": "java",
-      "ecosystem": "java",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-java",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389233642,
-        "node_id": "R_kgDOUs4F6g"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js",
-      "family": "jmap",
-      "platform": "nodejs",
-      "ecosystem": "nodejs",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-nodejs",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389232832,
-        "node_id": "R_kgDOUs4CwA"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Python",
-      "family": "jmap",
-      "platform": "python",
-      "ecosystem": "python",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-python",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389232730,
-        "node_id": "R_kgDOUs4CWg"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust",
-      "family": "jmap",
-      "platform": "rust",
-      "ecosystem": "rust",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-rust",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389233264,
-        "node_id": "R_kgDOUs4EcA"
-      }
-    },
-    {
-      "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript",
-      "family": "jmap",
-      "platform": "typescript",
-      "ecosystem": "typescript",
-      "mode": "dry_run",
-      "policy_profile": "aspose-email-foss-jmap-typescript",
-      "active": true,
-      "provider_identity": {
-        "provider": "github",
-        "repository_id": 1389232963,
-        "node_id": "R_kgDOUs4DQw"
       }
     },
     {
@@ -585,6 +474,7 @@
       "platform": "python",
       "ecosystem": "python",
       "mode": "dry_run",
+      "issues_mode": "file",
       "policy_profile": "aspose-tex-foss-python",
       "active": true,
       "provider_identity": {

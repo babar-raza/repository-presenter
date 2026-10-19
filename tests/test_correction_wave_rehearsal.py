@@ -81,8 +81,12 @@ import scenarios  # noqa: E402
 WORKFLOW = yaml.safe_load(
     (REPO_ROOT / ".github" / "workflows" / "propose.yml").read_text(encoding="utf-8")
 )
-A = "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
-B = "aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+# A and B only ever needed to be two real registry entries that are still at dry_run, so the wave's
+# flip is visible; Cells-Go left that set when its own correction wave (2026-10-19) flipped it.
+# aspose-jmap-foss was excluded from the registry 2026-10-17 (owner ruling, docs/DECISION_LOG.md,
+# this date); B only ever needed to be some other real registry entry distinct from A.
+A = "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+B = "aspose-font-foss/Aspose.Font-FOSS-for-Python"
 RUN_ID = "2026-10-12"
 BRANCH = presenter_branch_name()
 APPROVER = "babar-raza"
@@ -526,7 +530,8 @@ def test_assembly_commits_exactly_the_bundles_files_and_nothing_internal(ready: 
     for repository in (A, B):
         directory = ready.bundle(repository)
         assert {p.name for p in directory.iterdir()} == COMMITTED_FILES | {SUMS_NAME}
-    assert [p.name for p in (ready.control / "corrections" / RUN_ID).iterdir()] == sorted(
+    # iterdir() order is the filesystem's (NTFS sorts, ext4 does not): sort what is listed.
+    assert sorted(p.name for p in (ready.control / "corrections" / RUN_ID).iterdir()) == sorted(
         slug(r) for r in (A, B)
     )  # no run-level file, and the repository with only a status.json was never named
     committed = _git(["ls-files", "corrections"], ready.control).splitlines()

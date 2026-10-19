@@ -201,6 +201,12 @@
       "sha256": "347cba131f091e1377a8b0dfc00fce2a63f079c248b7597c86afdaaa1a7e45ff"
     }
   },
+  "invalidated": {
+    "causal_stage": "EXTRACTING",
+    "check": "BC-02",
+    "detail": "install_command:pip is UNRESOLVED: package registry: a distribution of this name exists, but ownership not confirmed: the registry's project URLs point at another repository",
+    "recorded_at": "2026-10-15T10:22:21Z"
+  },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
@@ -212,5 +218,5 @@
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
   "sealed_at": "2026-09-09T18:46:59Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "INVALIDATED"
 }

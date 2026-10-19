@@ -1339,25 +1339,21 @@ defect_classes:
     detector: {kind: existing, ref: "snapshot: default branch has no README; processability gate"}
     correction: Author the standard skeleton from verified facts only if the tree carries a real public surface; otherwise insufficient_evidence.
     rules: [PRC-07]
+  # DEF-27's only instance (aspose-email-foss/Aspose.JMAP-FOSS-for-Java) and DEF-28's eight
+  # instances (the whole aspose-jmap-foss family) were removed from the registry 2026-10-17
+  # (owner ruling, docs/DECISION_LOG.md, this date; aspose-jmap-foss excluded from scope).
+  # Both definitions are kept, with an empty repositories list, for traceability; neither
+  # currently matches anything.
   - id: DEF-27
     name: Dependencies section points at the manifest instead of listing it
-    repositories:
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
+    repositories: []
     detector: {kind: new, ref: "a dependency bucket that defers to the manifest file and names no dependency"}
     correction: List the manifest's dependencies with their versions in the bucket and keep the pointer as one sentence.
     preserves: the pointer sentence
     rules: [STR-11, DET-02]
   - id: DEF-28
     name: API Reference without a listing
-    repositories:
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-.NET
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Go
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Java
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Python
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-Rust
-      - aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript
+    repositories: []
     detector: {kind: new, ref: "API Reference holds prose only: no table rows and no member bullets", measure: api_rows, where: {standard_h2_present.API Reference: true, api_rows: 0, api_top_level_bullets: 0}}
     correction: Keep the intro paragraph and add the collapsed Class | Description listing built from the verified public symbols, with the verified count; leave an undocumented type undescribed.
     preserves: the intro paragraph and its error-handling description
