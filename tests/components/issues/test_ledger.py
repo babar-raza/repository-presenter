@@ -74,10 +74,12 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # 2026-10-11 (lane iss3b, G6-W01): two package-metadata handoffs from the cut-2 work, then
     # sixteen more, each re-verified by command at the live head (seven library, build, install or
     # test findings and nine found by the defect-class detectors).
+    # 2026-10-19: one more, the 3D-Python pip-ownership handoff recorded with the candidate's invalidation
+    # (BC-02, status HANDOFF_PENDING).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
-    assert len(paths) == 42
+    assert len(paths) == 43
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)
-    assert len(ledger) == 42
+    assert len(ledger) == 43
     html = lookup(
         ledger,
         "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
