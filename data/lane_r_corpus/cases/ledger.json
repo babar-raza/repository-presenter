@@ -1,0 +1,462 @@
+[
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n- [Installation](#installation)\n- [Dependencies](#dependencies)\n- [Quick Start](#quick-start)\n- [Additional Examples](#additional-examples)\n- [API Reference](#api-reference)\n- [Documentation & Resources](#documentation--resources)\n- [Scope and Limitations](#scope-and-limitations)\n- [Development and Testing](#development-and-testing)\n- [License](#license)",
+  "excerpt": "inherited_unit:006.list: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-01",
+  "injected": "- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n- [Installation](#installation)\n- [Dependencies](#dependencies)\n- [Quick Start](#quick-start)\n- [Additional Examples](#additional-examples)\n- [API Reference](#api-reference)\n- [Documentation & Resources](#documentation--resources)\n- [Scope and Limitations](#scope-and-limitations)\n- [Development and Testing](#development-and-testing)\n- [License](#license)",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:006.list"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: dispositions.json inherited_unit:006.list"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+  "class": "dropped_content",
+  "clean": "The engine underneath already knows how to handle far more (see [the story](#the-story-behind-this-code) below), and more formats may be opened over time. If you need a format that is not in the table, you have two options: [open an issue](../../issues) to request it, and we will consider open-sourcing it, or get it right away in the commercial [Aspose.Words for .NET](https://products.aspose.com/words/net/), which reads and writes all of them today.",
+  "excerpt": "inherited_unit:013.paragraph: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-02",
+  "injected": "The engine underneath already knows how to handle far more (see [the story](#the-story-behind-this-code) below), and more formats may be opened over time. If you need a format that is not in the table, you have two options: [open an issue](../../issues) to request it, and we will consider open-sourcing it, or get it right away in the commercial [Aspose.Words for .NET](https://products.aspose.com/words/net/), which reads and writes all of them today.",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:013.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-.NET@0d3f1add: dispositions.json inherited_unit:013.paragraph"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET",
+  "class": "dropped_content",
+  "clean": "```csharp\nvar workbook = new Workbook();\nvar sheet = workbook.Worksheets[0];\n\nsheet.Cells[\"A1\"].PutValue(\"Open\");\n\nvar listValidationIndex = sheet.Validations.Add(CellArea.CreateCellArea(\"A1\", \"A3\"));\nvar listValidation = sheet.Validations[listValidationIndex];\nlistValidation.Type = ValidationType.List;\nlistValidation.Formula1 = \"\\\"Open,Closed\\\"\";\nlistValidation.InCellDropDown = true;\nlistValidation.ShowError = true;\nlistValidation.ErrorTitle = \"Invalid\";\nlistValidation.ErrorMessage = \"Choose from the list\";\n\nworkbook.Save(\"validations-sample.xlsx\");\n```",
+  "excerpt": "inherited_unit:028.code_block: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-03",
+  "injected": "```csharp\nvar workbook = new Workbook();\nvar sheet = workbook.Worksheets[0];\n\nsheet.Cells[\"A1\"].PutValue(\"Open\");\n\nvar listValidationIndex = sheet.Validations.Add(CellArea.CreateCellArea(\"A1\", \"A3\"));\nvar listValidation = sheet.Validations[listValidationIndex];\nlistValidation.Type = ValidationType.List;\nlistValidation.Formula1 = \"\\\"Open,Closed\\\"\";\nlistValidation.InCellDropDown = true;\nlistValidation.ShowError = true;\nlistValidation.ErrorTitle = \"Invalid\";\nlistValidation.ErrorMessage = \"Choose from the list\";\n\nworkbook.Save(\"validations-sample.xlsx\");\n```",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:028.code_block"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET@941814fd: dispositions.json inherited_unit:028.code_block"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET",
+  "class": "dropped_content",
+  "clean": "Assign a PBR material converted from an existing Lambert material:",
+  "excerpt": "inherited_unit:034.paragraph: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-04",
+  "injected": "Assign a PBR material converted from an existing Lambert material:",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:034.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-.NET@52b0f00e: dispositions.json inherited_unit:034.paragraph"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "class": "dropped_content",
+  "clean": "`presentation.h` is not enough on its own — it forward-declares the types its collections return,\nso reaching through `slides()[0].shapes()` needs `slide.h` and `shape_collection.h` as well, and\nusing what a factory hands back needs that type's header too. Every example on this page lists\nexactly what it needs; a missing one shows up as *use of undefined type* rather than as a missing\nfunction.",
+  "excerpt": "inherited_unit:049.paragraph: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-05",
+  "injected": "`presentation.h` is not enough on its own — it forward-declares the types its collections return,\nso reaching through `slides()[0].shapes()` needs `slide.h` and `shape_collection.h` as well, and\nusing what a factory hands back needs that type's header too. Every example on this page lists\nexactly what it needs; a missing one shows up as *use of undefined type* rather than as a missing\nfunction.",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:049.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: dispositions.json inherited_unit:049.paragraph"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "### Exceptions",
+  "excerpt": "inherited_unit:076.heading: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-06",
+  "injected": "### Exceptions",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:076.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: dispositions.json inherited_unit:076.heading"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+  "class": "dropped_content",
+  "clean": "The diagram is an overview, not a contract. Each box is expanded, with the XML it produces, under\n[What it can do](#what-it-can-do); the boundaries are under\n[What it cannot do](#what-it-cannot-do).",
+  "excerpt": "inherited_unit:007.paragraph: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-07",
+  "injected": "The diagram is an overview, not a contract. Each box is expanded, with the XML it produces, under\n[What it can do](#what-it-can-do); the boundaries are under\n[What it cannot do](#what-it-cannot-do).",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:007.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET@86c441b5: dispositions.json inherited_unit:007.paragraph"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "### QA Report Package",
+  "excerpt": "inherited_unit:027.heading: OMIT_UNSUPPORTED, not accounted",
+  "id": "ledger-omit_unsupported-08",
+  "injected": "### QA Report Package",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "OMIT_UNSUPPORTED",
+   "printed": false,
+   "unit_id": "inherited_unit:027.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: dispositions.json inherited_unit:027.heading"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+  "class": "dropped_content",
+  "clean": "`CryptoAlgorithm` covers `RC4x40`, `RC4x128`, `AESx128`, and `AESx256`. `Permissions` is a\n`[Flags]` enum (ISO 32000-1 §7.6.3.2 Table 22) — compose with `|`. Permissions are enforced by\nviewers; the library itself is not a DRM mechanism.",
+  "excerpt": "inherited_unit:044.paragraph: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-09",
+  "injected": "`CryptoAlgorithm` covers `RC4x40`, `RC4x128`, `AESx128`, and `AESx256`. `Permissions` is a\n`[Flags]` enum (ISO 32000-1 §7.6.3.2 Table 22) — compose with `|`. Permissions are enforced by\nviewers; the library itself is not a DRM mechanism.",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.2414,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:044.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp@888700a8: dispositions.json inherited_unit:044.paragraph"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp",
+  "class": "dropped_content",
+  "clean": "### Format Text and Apply a Fill Effect",
+  "excerpt": "inherited_unit:053.heading: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-10",
+  "injected": "### Format Text and Apply a Fill Effect",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:053.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Cpp@c41f8ddd: dispositions.json inherited_unit:053.heading"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java",
+  "class": "dropped_content",
+  "clean": "- Saving is currently limited to `.xlsx`.\n- ChartEx types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot\n  be created programmatically; charts of these types loaded from an existing workbook are\n  preserved verbatim across load and save.\n- Formulas are stored and round-tripped, but the library is not a full spreadsheet calculation\n  engine.\n- A handful of public XML-mapper classes are unimplemented skeleton code carried over from an\n  early scaffold — their own class-level Javadoc discloses this, and the library's real save/load\n  path never calls them.\n- Some APIs exist mainly to preserve OOXML metadata and package fidelity rather than to provide\n  full Excel feature parity.",
+  "excerpt": "inherited_unit:048.list: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-11",
+  "injected": "- Saving is currently limited to `.xlsx`.\n- ChartEx types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot\n  be created programmatically; charts of these types loaded from an existing workbook are\n  preserved verbatim across load and save.\n- Formulas are stored and round-tripped, but the library is not a full spreadsheet calculation\n  engine.\n- A handful of public XML-mapper classes are unimplemented skeleton code carried over from an\n  early scaffold — their own class-level Javadoc discloses this, and the library's real save/load\n  path never calls them.\n- Some APIs exist mainly to preserve OOXML metadata and package fidelity rather than to provide\n  full Excel feature parity.",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.7111,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:048.list"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Java@c65329e7: dispositions.json inherited_unit:048.list"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "### Set DOCX Compression Level",
+  "excerpt": "inherited_unit:050.heading: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-12",
+  "injected": "### Set DOCX Compression Level",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:050.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: dispositions.json inherited_unit:050.heading"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "`Document(source, password=..., limits=...)` is equivalent to `Document().load_from(source, ...)`\n— a missing file, non-PDF data, or a missing password raises rather than handing back a silently\nempty document.",
+  "excerpt": "inherited_unit:031.paragraph: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-13",
+  "injected": "`Document(source, password=..., limits=...)` is equivalent to `Document().load_from(source, ...)`\n— a missing file, non-PDF data, or a missing password raises rather than handing back a silently\nempty document.",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.2083,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:031.paragraph"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: dispositions.json inherited_unit:031.paragraph"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "```bash\npython tools/regenerate_pdf_goldens.py --case formatted_richtext --case simple_table\n```",
+  "excerpt": "inherited_unit:097.code_block: SUPERSEDE_REDUNDANT, not accounted",
+  "id": "ledger-supersede_redundant-14",
+  "injected": "```bash\npython tools/regenerate_pdf_goldens.py --case formatted_richtext --case simple_table\n```",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.3333,
+   "disposition": "SUPERSEDE_REDUNDANT",
+   "printed": false,
+   "unit_id": "inherited_unit:097.code_block"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: dispositions.json inherited_unit:097.code_block"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "- `DocumentFormatReader` — the `Protocol` all four readers implement",
+  "excerpt": "inherited_unit:086.005.list: VERIFIED_MOVE, not accounted",
+  "id": "ledger-kept-15",
+  "injected": "- `DocumentFormatReader` — the `Protocol` all four readers implement",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_MOVE",
+   "printed": false,
+   "unit_id": "inherited_unit:086.005.list"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: dispositions.json inherited_unit:086.005.list"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "### Extract All Text",
+  "excerpt": "inherited_unit:045.heading: VERIFIED_PRESERVE, not accounted",
+  "id": "ledger-kept-16",
+  "injected": "### Extract All Text",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_PRESERVE",
+   "printed": false,
+   "unit_id": "inherited_unit:045.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: dispositions.json inherited_unit:045.heading"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+  "class": "dropped_content",
+  "clean": "## Additional Examples",
+  "excerpt": "inherited_unit:032.heading: VERIFIED_PRESERVE, not accounted",
+  "id": "ledger-kept-17",
+  "injected": "## Additional Examples",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_PRESERVE",
+   "printed": false,
+   "unit_id": "inherited_unit:032.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-.NET@0d3f1add: dispositions.json inherited_unit:032.heading"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go",
+  "class": "dropped_content",
+  "clean": "### Structured Tables",
+  "excerpt": "inherited_unit:039.heading: VERIFIED_PRESERVE, not accounted",
+  "id": "ledger-kept-18",
+  "injected": "### Structured Tables",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_PRESERVE",
+   "printed": false,
+   "unit_id": "inherited_unit:039.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Go@fa4e890e: dispositions.json inherited_unit:039.heading"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "class": "dropped_content",
+  "clean": "### Annotations",
+  "excerpt": "inherited_unit:065.heading: VERIFIED_PRESERVE, not accounted",
+  "id": "ledger-kept-19",
+  "injected": "### Annotations",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_PRESERVE",
+   "printed": false,
+   "unit_id": "inherited_unit:065.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: dispositions.json inherited_unit:065.heading"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+  "class": "dropped_content",
+  "clean": "### Vector Graphics and SVG Import",
+  "excerpt": "inherited_unit:061.heading: VERIFIED_PRESERVE, not accounted",
+  "id": "ledger-kept-20",
+  "injected": "### Vector Graphics and SVG Import",
+  "ledger": {
+   "clean": {
+    "printed": true
+   },
+   "contradicted": false,
+   "coverage": 0.0,
+   "disposition": "VERIFIED_PRESERVE",
+   "printed": false,
+   "unit_id": "inherited_unit:061.heading"
+  },
+  "level": "ledger",
+  "origin": "ledger",
+  "positive": true,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go@286484d2: dispositions.json inherited_unit:061.heading"
+ }
+]

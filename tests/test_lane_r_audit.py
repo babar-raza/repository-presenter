@@ -400,3 +400,105 @@ def test_m4_and_m5_baselines_are_in_the_v2_file_and_m7_regression_is_recorded() 
     assert baseline["m4"]["value"] > 0 and baseline["m4"]["units"] == 3066
     assert baseline["m5"]["value"] == sum(baseline["m5"]["by_rule"].values())
     assert baseline["m7_regression"] == {"J5_pass": 30, "inputs": 30}
+
+
+# --- stage 4: the labeled corpus ------------------------------------------------------------------
+
+from tools.lane_r_audit import build_corpus  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def cases() -> list[corpus.Case]:
+    return corpus.load_cases()
+
+
+def test_the_committed_corpus_is_exactly_the_builders_output(
+    bundles: list[pinned.PinnedBundle],
+) -> None:
+    files = build_corpus.documents(build_corpus.build_all(bundles))
+    assert build_corpus.differences(corpus.CORPUS_DIR, files) == []
+
+
+def test_the_corpus_meets_its_composition_floors(cases: list[corpus.Case]) -> None:
+    assert len(cases) >= 60
+    by_origin = build_corpus.count_by(cases, "origin")
+    assert by_origin["traced"] == 10  # T1 to T10; two halves are documented in NOT_REPRODUCED
+    assert by_origin["hand_found"] >= 10
+    assert by_origin["ledger"] >= 20
+    assert by_origin["mutant"] >= 20
+    assert by_origin["clean_negative"] >= 20
+    positives = [c for c in cases if c.positive]
+    for cls in detectors.FLOORS:  # every class that carries a bar
+        assert sum(1 for c in positives if c.cls == cls) >= 8, cls
+        assert sum(1 for c in positives if c.cls == cls and c.split == "test") >= 5, cls
+
+
+def test_every_case_has_a_distinct_twin_and_negatives_are_their_own(
+    cases: list[corpus.Case],
+) -> None:
+    assert len({c.id for c in cases}) == len(cases)
+    for case in cases:
+        if case.positive and case.level != "ledger":
+            assert case.injected != case.clean, case.id
+        if not case.positive:
+            assert case.injected == case.clean, case.id
+        assert case.excerpt and case.source, case.id
+
+
+def test_the_split_file_is_the_hash_rule_and_covers_every_repository(
+    cases: list[corpus.Case], pins: pinned.Pins
+) -> None:
+    document = json.loads(corpus.SPLIT_PATH.read_text(encoding="utf-8"))
+    halves = document["halves"]
+    assert set(halves) >= {p.repository for p in pins.bundles} | {c.repository for c in cases}
+    assert all(half == corpus.split_of(repository) for repository, half in halves.items())
+    assert {"dev", "test"} == set(halves.values())
+
+
+def test_real_cases_are_the_sealed_bytes(
+    cases: list[corpus.Case], bundles: list[pinned.PinnedBundle]
+) -> None:
+    """A traced or hand-found case is grounded: its injected text is in the pinned bundle."""
+    by_directory = {b.pin.directory: b for b in bundles}
+    checked = 0
+    for case in cases:
+        if case.origin not in ("traced", "hand_found"):
+            continue
+        bundle = by_directory[case.bundle]
+        if case.level == "readme":
+            assert case.injected in bundle.readme, case.id
+        else:
+            texts = [
+                u["text"]
+                for u in (bundle.content_units or {}).get("units", [])
+                if (u["section"], u["slot"]) == (case.section, case.slot)
+            ]
+            assert texts == [case.injected], case.id
+        assert case.source.startswith(f"{case.bundle}@{bundle.pin.revision[:8]}"), case.id
+        checked += 1
+    assert checked == 20
+
+
+def test_no_reference_detector_fires_on_a_clean_negative(cases: list[corpus.Case]) -> None:
+    for case in cases:
+        if not case.positive:
+            outcomes = corpus.evaluate(case)
+            assert not corpus.false_positive(case, outcomes), (case.id, outcomes)
+
+
+def test_the_reference_detectors_catch_every_real_lint_case(cases: list[corpus.Case]) -> None:
+    for case in cases:
+        if case.origin == "hand_found":
+            assert corpus.reference_caught(case, corpus.evaluate(case)), case.id
+
+
+def test_a_mutant_is_clean_under_the_detectors_of_its_class_before_injection(
+    cases: list[corpus.Case],
+) -> None:
+    """Catch is differential: a twin the detectors already fire on would measure nothing."""
+    for case in cases:
+        if case.origin == "mutant":
+            twin = case.subject("clean")
+            for detector in detectors.reference_detectors():
+                if case.cls in detector.classes:
+                    assert not detector.run(twin), (case.id, detector.id)

@@ -25,8 +25,10 @@ jobs:
 
       # tools/lane_r_audit reads the 30 sealed bundles as git blobs at one pinned commit and never falls
       # back (pinned.py); this checkout is depth 1, so fetch just that commit (it is reachable from main).
-      - name: Fetch the pinned control revision for tools/lane_r_audit
-        run: git fetch --no-tags --depth=1 origin 4a7baf11926a6ee8707f41b8c6a525367c5f8fcd
+      # tests/test_lane_r_ratchet.py and tests/test_governed_bump_entry.py read origin/main with `git show`
+      # and fail, never skip, when it is absent, so main is fetched beside the control revision.
+      - name: Fetch main and the pinned control revision for tools/lane_r_audit
+        run: git fetch --no-tags --depth=1 origin main 4a7baf11926a6ee8707f41b8c6a525367c5f8fcd
 
       - uses: actions/setup-python@v6
         with:

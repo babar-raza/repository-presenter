@@ -14,6 +14,10 @@ call, no network call and no GitHub write. `python -m tools.lane_r_audit pin|mea
 | `baseline_gates.py` | BC-04 and BC-14 run on a pinned bundle (the only module importing `validation/`). |
 | `corpus.py` | cases, the dev/test split (a fixed hash of the repository name), differential catch, exact binomial lower bounds. |
 | `mutator.py` | the seeded mutator that writes the synthetic mutants. |
+| `build_corpus.py` | the hand specs (traced T1 to T10, hand-found) and the builders (ledger, mutants, clean negatives); `corpus build` writes and `corpus check` proves `data/lane_r_corpus/cases/` is its output. |
+| `corpus_report.py` | corpus catch rates per class and half; the gate half (BC-04, BC-14) runs in worker processes. |
+| `ratchet.py` | the best value of M1 to M5, M6d, M9 (`data/lane_r_corpus/ratchet.json`), regressions, waivers (at most 14 days). |
+| `control_rerun.py` | today's S9 blocking checks over the 30 pinned bundles, beside the validator version each was sealed under (`control-rerun`). |
 | `sampler.py` | the M8 claim sampler with its committed seed. |
 
 `ledger.py`, `claims_ref.py` and `lint.py` import nothing from `validation/`, `reconciliation/` or

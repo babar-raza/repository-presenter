@@ -12,6 +12,7 @@ clean twin does not, because the sealed bundles already fail several checks unmo
 from __future__ import annotations
 
 import copy
+import hashlib
 from collections.abc import Mapping
 from functools import lru_cache
 from typing import Any
@@ -89,14 +90,30 @@ def gate_failures(candidate: validation.Candidate) -> dict[str, list[str]]:
     }
 
 
-def with_unit_text(bundle: PinnedBundle, section: str, slot: str, text: str) -> dict[str, Any]:
-    """The bundle's content units with one unit's text replaced (a deep copy)."""
+def with_unit_text(
+    bundle: PinnedBundle, section: str, slot: str, text: str, *, isolate: bool = False
+) -> dict[str, Any]:
+    """The bundle's content units with one unit's text replaced (a deep copy).
+
+    ``isolate`` keeps only that unit: BC-04 then costs one unit instead of a hundred, and the
+    slot-set failures the missing units cause are identical for the clean and injected twin, so the
+    differential cancels them.
+    """
     units = copy.deepcopy(bundle.content_units or {})
     for unit in units.get("units", []):
         if unit.get("section") == section and unit.get("slot") == slot:
             unit["text"] = text
+            if isolate:
+                units["units"] = [unit]
             return units
     raise LookupError(f"{bundle.repository} has no unit {section}/{slot}")
+
+
+_CLEAN_CACHE: dict[tuple[str, str, str, str, str], dict[str, list[str]]] = {}
+
+
+def _digest(text: str | None) -> str:
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()[:16]
 
 
 def differential(
@@ -107,24 +124,37 @@ def differential(
     clean_text: str,
     injected_text: str,
     readme_edit: tuple[str, str] | None = None,
+    base_readme: str | None = None,
 ) -> dict[str, list[str]]:
     """Per gate, the failure details the injected text adds over the clean twin.
 
-    ``readme_edit`` is (snippet of the sealed README, its injected form): BC-14 reads the README,
+    ``readme_edit`` is (snippet of the base README, its injected form): BC-14 reads the README,
     BC-04 the content unit (``section`` and ``slot`` None: a README-level case, units untouched).
-    The clean twin is the sealed README with the clean unit text.
+    The base README is the sealed one unless ``base_readme`` is given (a real defect already in the
+    sealed text: the base is the sealed README with the defect repaired). The clean twin is the
+    base README with the clean unit text.
     """
-    injected_readme = bundle.readme
+    base = base_readme if base_readme is not None else bundle.readme
+    injected_readme = base
     if readme_edit is not None:
         old, new = readme_edit
-        if old not in bundle.readme:
+        if old not in base:
             raise LookupError(f"{bundle.repository}: the README does not contain {old[:60]!r}")
-        injected_readme = bundle.readme.replace(old, new, 1)
+        injected_readme = base.replace(old, new, 1)
     clean_units = injected_units = None
     if section is not None and slot is not None:
-        clean_units = with_unit_text(bundle, section, slot, clean_text)
-        injected_units = with_unit_text(bundle, section, slot, injected_text)
-    clean = gate_failures(candidate_for(bundle, units=clean_units))
+        clean_units = with_unit_text(bundle, section, slot, clean_text, isolate=True)
+        injected_units = with_unit_text(bundle, section, slot, injected_text, isolate=True)
+    key = (
+        bundle.pin.directory,
+        _digest(base),
+        section or "",
+        slot or "",
+        _digest(clean_text if section is not None else None),
+    )
+    if key not in _CLEAN_CACHE:
+        _CLEAN_CACHE[key] = gate_failures(candidate_for(bundle, readme=base, units=clean_units))
+    clean = _CLEAN_CACHE[key]
     injected = gate_failures(candidate_for(bundle, readme=injected_readme, units=injected_units))
     return {gate: [d for d in injected[gate] if d not in clean[gate]] for gate in injected}
 
@@ -146,7 +176,12 @@ def gate_outcomes(case: Case, bundle: PinnedBundle) -> dict[str, Outcome]:
     if case.level == "ledger":
         return {}
     readme_edit = case.readme_edit
-    if readme_edit is None and case.level == "unit" and case.clean in bundle.readme:
+    base_readme: str | None = None
+    if case.injected and case.injected in bundle.readme and case.clean not in bundle.readme:
+        # a real defect: the sealed README carries the injected text; repair it for the twin
+        base_readme = bundle.readme.replace(case.injected, case.clean, 1)
+        readme_edit = (case.clean, case.injected)
+    elif readme_edit is None and case.level == "unit" and case.clean in bundle.readme:
         readme_edit = (case.clean, case.injected)
     unit = case.level == "unit"
     added = differential(
@@ -156,5 +191,6 @@ def gate_outcomes(case: Case, bundle: PinnedBundle) -> dict[str, Outcome]:
         clean_text=case.clean,
         injected_text=case.injected,
         readme_edit=readme_edit,
+        base_readme=base_readme,
     )
     return {gate: Outcome(bool(found), False, tuple(found[:2])) for gate, found in added.items()}

@@ -1,0 +1,530 @@
+[
+ {
+  "bundle": "aspose-page-foss__Aspose.Page-FOSS-for-Python",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `aspose-page-foss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-page-foss"
+   }
+  },
+  "id": "negative-01",
+  "injected": "The package is published as `aspose-page-foss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-page-foss__Aspose.Page-FOSS-for-Python@43cef367: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-font-foss__Aspose.Font-FOSS-for-Python",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-02",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-font-foss__Aspose.Font-FOSS-for-Python@c520e3eb: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-Python",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `aspose-words-foss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-words-foss"
+   }
+  },
+  "id": "negative-03",
+  "injected": "The package is published as `aspose-words-foss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-Python@2d2efee2: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-note-foss__Aspose.Note-FOSS-for-Python",
+  "cited": [
+   "install_command:pip"
+  ],
+  "class": "clean",
+  "clean": "Install it with `pip install aspose-note`.",
+  "excerpt": "restates install_command:pip verbatim",
+  "facts": {
+   "install_command:pip": {
+    "kind": "install_command",
+    "value": "pip install aspose-note"
+   }
+  },
+  "id": "negative-04",
+  "injected": "Install it with `pip install aspose-note`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-note-foss__Aspose.Note-FOSS-for-Python@41de2e8a: constructed from install_command:pip"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Java",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-05",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Java@3d2ed6be: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `AsposeEmailFoss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "AsposeEmailFoss"
+   }
+  },
+  "id": "negative-06",
+  "injected": "The package is published as `AsposeEmailFoss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Cpp@c844a467: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `Aspose.Slides.FOSS`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "Aspose.Slides.FOSS"
+   }
+  },
+  "id": "negative-07",
+  "injected": "The package is published as `Aspose.Slides.FOSS`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-.NET@86c441b5: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-html-foss__Aspose.HTML-FOSS-for-Python",
+  "cited": [
+   "package:python_requires"
+  ],
+  "class": "clean",
+  "clean": "The package requires Python >=3.10.",
+  "excerpt": "restates package:python_requires verbatim",
+  "facts": {
+   "package:python_requires": {
+    "kind": "package",
+    "value": ">=3.10"
+   }
+  },
+  "id": "negative-08",
+  "injected": "The package requires Python >=3.10.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-html-foss__Aspose.HTML-FOSS-for-Python@bf0f1e7a: constructed from package:python_requires"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET",
+  "cited": [
+   "package:version"
+  ],
+  "class": "clean",
+  "clean": "The current release is version 26.9.0.0.",
+  "excerpt": "restates package:version verbatim",
+  "facts": {
+   "package:version": {
+    "kind": "package",
+    "value": "26.9.0.0"
+   }
+  },
+  "id": "negative-09",
+  "injected": "The current release is version 26.9.0.0.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET@941814fd: constructed from package:version"
+ },
+ {
+  "bundle": "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-10",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-3d-foss__Aspose.3D-FOSS-for-Python@65b1f577: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-11",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET@d10e2c82: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-12",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-slides-foss__Aspose.Slides-FOSS-for-Python@becd199a: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-email-foss__Aspose.Email-FOSS-for-Python",
+  "cited": [
+   "package:version"
+  ],
+  "class": "clean",
+  "clean": "The current release is version 26.3.",
+  "excerpt": "restates package:version verbatim",
+  "facts": {
+   "package:version": {
+    "kind": "package",
+    "value": "26.3"
+   }
+  },
+  "id": "negative-13",
+  "injected": "The current release is version 26.3.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-email-foss__Aspose.Email-FOSS-for-Python@10a906b4: constructed from package:version"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-14",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript@fc186507: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Python",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `aspose-cells-foss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-cells-foss"
+   }
+  },
+  "id": "negative-15",
+  "injected": "The package is published as `aspose-cells-foss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Python@4f6768a7: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-16",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-cells-foss__Aspose.Cells-FOSS-for-Rust@1a6004af: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp",
+  "cited": [
+   "license:spdx"
+  ],
+  "class": "clean",
+  "clean": "The library is released under the MIT license.",
+  "excerpt": "restates license:spdx verbatim",
+  "facts": {
+   "license:spdx": {
+    "kind": "license",
+    "value": "MIT"
+   }
+  },
+  "id": "negative-17",
+  "injected": "The library is released under the MIT license.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp@888700a8: constructed from license:spdx"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `aspose-pdf-foss-for-python`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "aspose-pdf-foss-for-python"
+   }
+  },
+  "id": "negative-18",
+  "injected": "The package is published as `aspose-pdf-foss-for-python`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Python@580935ba: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+   }
+  },
+  "id": "negative-19",
+  "injected": "The package is published as `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-pdf-foss__Aspose-PDF-FOSS-for-Go@286484d2: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `Aspose.Imaging.Foss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "Aspose.Imaging.Foss"
+   }
+  },
+  "id": "negative-20",
+  "injected": "The package is published as `Aspose.Imaging.Foss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-imaging-foss__Aspose.Imaging-FOSS-for-.NET@a7c7314b: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java",
+  "cited": [
+   "package:name"
+  ],
+  "class": "clean",
+  "clean": "The package is published as `org.aspose:aspose-pdf-foss`.",
+  "excerpt": "restates package:name verbatim",
+  "facts": {
+   "package:name": {
+    "kind": "package",
+    "value": "org.aspose:aspose-pdf-foss"
+   }
+  },
+  "id": "negative-21",
+  "injected": "The package is published as `org.aspose:aspose-pdf-foss`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java@db2d3f06: constructed from package:name"
+ },
+ {
+  "bundle": "aspose-words-foss__Aspose.Words-FOSS-for-.NET",
+  "cited": [
+   "install_command:dotnet"
+  ],
+  "class": "clean",
+  "clean": "Install it with `dotnet add package Aspose.Words.FOSS`.",
+  "excerpt": "restates install_command:dotnet verbatim",
+  "facts": {
+   "install_command:dotnet": {
+    "kind": "install_command",
+    "value": "dotnet add package Aspose.Words.FOSS"
+   }
+  },
+  "id": "negative-22",
+  "injected": "Install it with `dotnet add package Aspose.Words.FOSS`.",
+  "level": "unit",
+  "origin": "clean_negative",
+  "positive": false,
+  "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+  "section": "key_capabilities",
+  "slot": "constructed",
+  "source": "aspose-words-foss__Aspose.Words-FOSS-for-.NET@0d3f1add: constructed from install_command:dotnet"
+ }
+]
