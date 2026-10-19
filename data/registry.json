@@ -106,7 +106,7 @@
       "family": "cells",
       "platform": "go",
       "ecosystem": "go",
-      "mode": "dry_run",
+      "mode": "full",
       "policy_profile": "aspose-cells-foss-go",
       "active": true,
       "provider_identity": {

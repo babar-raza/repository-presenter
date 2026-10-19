@@ -1,0 +1,14 @@
+{
+  "approver": "babar-raza",
+  "base_branch": "main",
+  "branch": "repository-presenter/readme-update",
+  "candidate_hash": "6fd1d9e7fe5f89e0548581ef11acc48007b5b2d2d2052ff5a641816c14319ad3",
+  "expires_at": "2026-10-26T06:35:57Z",
+  "issued_at": "2026-10-19T06:35:57Z",
+  "policy_version": "1",
+  "pr_intent": "CREATE_OR_UPDATE_README_PROPOSAL",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "schema_version": 1,
+  "source_revision": "99c789e9175f2b12ad82bafeeba148ddcc1367fb",
+  "supersedes_prs": []
+}

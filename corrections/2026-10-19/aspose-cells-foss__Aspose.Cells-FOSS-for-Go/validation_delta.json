@@ -1,0 +1,42 @@
+{
+  "allowed": [],
+  "corrected_failures": {
+    "BC-02": 1,
+    "BC-03": 10,
+    "BC-04": 23,
+    "BC-05": 75,
+    "BC-07": 15,
+    "BC-07/visible": 1,
+    "BC-12": 2
+  },
+  "introduced": [],
+  "judge": "validate_candidate",
+  "live_failures": {
+    "BC-02": 1,
+    "BC-03": 10,
+    "BC-04": 22,
+    "BC-05": 75,
+    "BC-07": 16,
+    "BC-07/visible": 1,
+    "BC-12": 2
+  },
+  "resolved": [
+    {
+      "check": "BC-07",
+      "fewer": 1
+    }
+  ],
+  "revealed": [
+    {
+      "caused_by": [
+        "second_h1"
+      ],
+      "check": "BC-04",
+      "details": [
+        "code span 'v26' is not a fact value"
+      ],
+      "extra": 1
+    }
+  ],
+  "schema_version": 1
+}

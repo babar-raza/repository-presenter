@@ -81,8 +81,12 @@ import scenarios  # noqa: E402
 WORKFLOW = yaml.safe_load(
     (REPO_ROOT / ".github" / "workflows" / "propose.yml").read_text(encoding="utf-8")
 )
-A = "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
-B = "aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+# A and B only ever needed to be two real registry entries that are still at dry_run, so the wave's
+# flip is visible; Cells-Go left that set when its own correction wave (2026-10-19) flipped it.
+# aspose-jmap-foss was excluded from the registry 2026-10-17 (owner ruling, docs/DECISION_LOG.md,
+# this date); B only ever needed to be some other real registry entry distinct from A.
+A = "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+B = "aspose-font-foss/Aspose.Font-FOSS-for-Python"
 RUN_ID = "2026-10-12"
 BRANCH = presenter_branch_name()
 APPROVER = "babar-raza"

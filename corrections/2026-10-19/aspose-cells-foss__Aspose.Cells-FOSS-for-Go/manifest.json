@@ -1,0 +1,51 @@
+{
+  "corrected_sha256": "6fd1d9e7fe5f89e0548581ef11acc48007b5b2d2d2052ff5a641816c14319ad3",
+  "files": {
+    "README.md": {
+      "bytes": 21245,
+      "sha256": "6fd1d9e7fe5f89e0548581ef11acc48007b5b2d2d2052ff5a641816c14319ad3"
+    },
+    "README.original.md": {
+      "bytes": 20905,
+      "sha256": "e55fbe1ea0e5efde4ec73bd268e73ec2a6f1fa51e4c6ad99d7aa245a611f1975"
+    },
+    "README.patch": {
+      "bytes": 2786,
+      "sha256": "83d20666e3670099ac73a1b1851a7a530a167aa1cbf95d782d220c503c0117c5"
+    },
+    "corrections.json": {
+      "bytes": 11648,
+      "sha256": "3a4bd1d75399757f1229a163863e5ed12b7c99a89628a699cdfd9b036a06673a"
+    },
+    "facts.json": {
+      "bytes": 201961,
+      "sha256": "51c353f5f0c69a6e78a0af08f68fb6fae26702b0ab25eb6c1ed45a23dd5f6af6"
+    },
+    "tree.txt": {
+      "bytes": 1870,
+      "sha256": "f9c2b924cef5c6b93f59fd64c7b8141b9164fa59c908f603ed316fe6b603d66f"
+    },
+    "validation_delta.json": {
+      "bytes": 671,
+      "sha256": "0db0056f42b0f806bd861172dbfc4ec5ccdb5e0f939608750c6ebafdde0a750c"
+    }
+  },
+  "kind": "correction",
+  "no_op_proof": {
+    "byte_identical": true,
+    "idempotent_on_output": true,
+    "method": "deterministic re-run of the correction over the bundle's own inputs",
+    "provider_calls": 0,
+    "runs": 2
+  },
+  "original_sha256": "e55fbe1ea0e5efde4ec73bd268e73ec2a6f1fa51e4c6ad99d7aa245a611f1975",
+  "readme_path": "README.md",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "revision": "99c789e9175f2b12ad82bafeeba148ddcc1367fb",
+  "schema_version": 1,
+  "state": "CORRECTION_READY",
+  "summary": {
+    "DIAGRAM_FIX": 1,
+    "STRUCTURE_FIX": 2
+  }
+}

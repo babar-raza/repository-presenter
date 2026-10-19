@@ -1,0 +1,75 @@
+--- a/README.md
++++ b/README.md
+@@ -43,33 +43,38 @@
+ ## At a Glance
+ 
+ ```mermaid
+-flowchart TD
++%%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false, "nodeSpacing": 22, "rankSpacing": 26, "padding": 10, "useMaxWidth": true, "wrappingWidth": 400}}}%%
++flowchart LR
+   subgraph StartingPoints["Starting Points"]
+-    direction LR
+-    i1["An existing XLSX workbook (including password-protected)"]
++    direction TB
++    i1["An existing XLSX<br/>workbook<br/>(including<br/>password-protected)"]
+     i2["CSV files"]
++    i1 ~~~ i2
+   end
+-  PRODUCT["Aspose.Cells FOSS for Go"]
++  PRODUCT["Aspose.Cells<br/>FOSS for Go"]
+   subgraph Capabilities["Core Capabilities"]
+-    direction LR
++    direction TB
++    subgraph capr[" "]
++      direction TB
++      c5["CSV import<br/>and export"]
++      c6["Streaming<br/>row-by-row<br/>reading"]
++      c7["Password<br/>protection and<br/>encryption"]
++      c5 ~~~ c6 ~~~ c7
++    end
+     subgraph capl[" "]
+       direction TB
+-      c1["Cell read and write (A1-style references)"]
+-      c2["Font, fill, alignment, and border styling"]
+-      c3["Formulas with a built-in SUM/AVERAGE/MAX/MIN engine"]
+-      c4["Data validation, tables, and picture embedding"]
+-    end
+-    subgraph capr[" "]
+-      direction TB
+-      c5["CSV import and export"]
+-      c6["Streaming row-by-row reading"]
+-      c7["Password protection and encryption"]
++      c1["Cell read and<br/>write (A1-style<br/>references)"]
++      c2["Font, fill,<br/>alignment, and<br/>border styling"]
++      c3["Formulas with a<br/>built-in<br/>SUM/AVERAGE/MAX/MIN<br/>engine"]
++      c4["Data validation,<br/>tables, and<br/>picture embedding"]
++      c1 ~~~ c2 ~~~ c3 ~~~ c4
+     end
+   end
+   subgraph Outputs["Outputs"]
+     direction TB
+-    o1["XLSX workbooks (including password-protected)"]
++    o1["XLSX workbooks<br/>(including<br/>password-protected)"]
+     o2["CSV files"]
++    o1 ~~~ o2
+   end
+   StartingPoints --> PRODUCT --> Capabilities --> Outputs
+ ```
+@@ -102,7 +107,7 @@
+ go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss
+ ```
+ 
+-# Requires **Go 1.24.5+** (see `go.mod`). Depends only on the Go standard library — no third-party modules.
++## Requires **Go 1.24.5+** (see `go.mod`). Depends only on the Go standard library — no third-party modules.
+ 
+ The module supports Go 1.24.5 or later and has zero third-party dependencies — encryption and
+ everything else builds on the Go standard library alone. Because the package name (`cells_foss`)
+@@ -526,6 +531,8 @@
+ For a complete usage walkthrough beyond this README, see the repository's own
+ [docs/usage.md](docs/usage.md).
+ 
++</details>
++
+ ## Detailed Documentation
+ 
+ For the complete API reference and usage guide, see **[docs/usage.md](docs/usage.md)**.
