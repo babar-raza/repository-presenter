@@ -25,7 +25,10 @@ LLM gateway), then optionally publishes the sealed candidates into this reposito
 (`propose.yml`). `issues-scheduled.yml` re-verifies harvested upstream defects and files approved
 issues. `liveness.yml` is the out-of-band dead-man for the supervision itself. `ci.yml` is the
 required check on this repository. `audit-app-installations.yml` and `verify-app-installation.yml`
-are manual GitHub App checks. `mirror-gitlab.yml` mirrors `main` to GitLab.
+are manual GitHub App checks; the audit reads one representative repository per organization, so it does
+not prove that an installation's repository selection includes every registry target of that organization
+or which write permissions it holds (that needs the target's own token step, a dry run of `propose.yml`).
+`mirror-gitlab.yml` mirrors `main` to GitLab.
 
 Nothing is written to an upstream repository unless every gate holds: registry mode `full`, an
 authorization record reviewed and merged before the trigger commit, the owner variable set to

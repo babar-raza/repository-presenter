@@ -23,7 +23,8 @@ value and are never in `SECRET_VARIABLES`. `GITLAB_TOKEN` (used by `.github/work
 is a real GitHub Actions secret on this repository but is not one of this project's own runtime
 credentials (`mirror-gitlab.yml` is infrastructure, not `src/`); it is still caught by
 `SECRET_SUFFIXES`' `_TOKEN` match if it is ever read into this project's own process environment, but
-it has no rotation procedure here - it is GitLab's own credential, rotated on GitLab's own schedule.
+it has no rotation procedure here - it is GitLab's own credential, rotated on GitLab's own schedule. It must
+be a project access token scoped to `write_repository` only, with an expiry; never a group or admin token.
 
 Every credential below is read only from the process environment, never from a file
 (`.env.example`, `core/config.py`); every one is masked by `core/secrets.py::redact()` before any
