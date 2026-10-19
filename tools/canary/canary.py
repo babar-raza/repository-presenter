@@ -83,10 +83,9 @@ from repository_presenter.core.github.client import (
     default_fetch,
     find_pull_requests,
     get_contents,
-    get_pull_request_app_id,
     get_ref,
 )
-from repository_presenter.core.github.token_provenance import EXPECTED_APP_ID
+from repository_presenter.core.github.token_provenance import EXPECTED_APP_ID, verify_pull_request_app
 from repository_presenter.core.hashing import sha256_text
 from repository_presenter.core.registry.sandbox import (
     SANDBOX_REGISTRY_RELATIVE_PATH,
@@ -470,8 +469,11 @@ def verify(
     if len(opened) != 1:
         return lines
     pr = opened[0]
-    app = get_pull_request_app_id(owner, name, pr.number, token=token, fetch=fetch)
-    add(Line(OK if app == EXPECTED_APP_ID else MISSING, "performed by the App", f"app id {app}, expected {EXPECTED_APP_ID}"))
+    # GitHub leaves performed_via_github_app null on an App-created PR, so the App is attested by the
+    # PR's author (the App's bot) and the public App's id - the same check the write effect makes.
+    attribution = verify_pull_request_app(owner, name, pr.number, token=token, fetch=fetch)
+    add(Line(OK if attribution.ok else MISSING, "performed by the App",
+             f"authored by the App (id {EXPECTED_APP_ID})" if attribution.ok else attribution.reason))
     code, pull = _json(fetch, f"/repos/{SANDBOX}/pulls/{pr.number}", token)
     pull = pull if code == 200 and isinstance(pull, dict) else {}
     head_repo = ((pull.get("head") or {}).get("repo") or {}).get("full_name")

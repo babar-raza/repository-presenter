@@ -808,7 +808,8 @@ def test_p1_the_write_opens_exactly_one_pull_request_the_app_performed(ready: Wo
     rest = ready.rests[A]
     (pull,) = pulls(ready, A)
     assert pull["state"] == "open" and "kind: correction" in pull["body"]
-    assert pull["performed_via_github_app"]["id"] == EXPECTED_APP_ID
+    assert pull["user"] == {"login": "repository-presenter[bot]", "type": "Bot"}
+    assert pull["performed_via_github_app"] is None  # GitHub's real shape; see run 38883943550
     corrected = (ready.bundle(A) / "README.md").read_text(encoding="utf-8")
     assert rest.file(A, BRANCH, "README.md") == corrected
     assert rest.file(A, "main", "README.md") == README  # the base branch is untouched

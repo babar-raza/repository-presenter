@@ -546,6 +546,6 @@ jobs:
             status=$?
           fi
           if [ "$status" -eq 3 ]; then
-            echo "::error::proposal refused (exit 3): the command refused the write for a typed reason, printed above; nothing was written"
+            echo "::error::proposal refused (exit 3): the command refused for a typed reason, printed above; a refusal after the write (token_app_mismatch) can leave a branch, commit and pull request behind - read the commit_written/pr_created line above before assuming nothing was written"
           fi
           exit "$status"
