@@ -1048,13 +1048,40 @@
     "threshold_status": "provisional; frozen here until an owner decision in DECISION_LOG",
     "tokeniser": "m3-tokens-v1"
   },
+  "m4": {
+    "by_class": {
+      "format": 234,
+      "identifier": 530,
+      "number": 81,
+      "package": 14,
+      "version": 22
+    },
+    "strict_reading": 4826,
+    "units": 3066,
+    "units_flagged": 433,
+    "value": 881
+  },
+  "m5": {
+    "by_rule": {
+      "BADGE_SYNTAX": 1,
+      "DANGLING_COLON": 4,
+      "SPLIT_SPEC": 1,
+      "XML_DOC_FRAGMENT": 38
+    },
+    "live_readme_hits": 0,
+    "value": 44
+  },
+  "m7_regression": {
+    "J5_pass": 30,
+    "inputs": 30
+  },
   "m9": {
     "authorizable": 0,
     "inputs": 30
   },
   "pins_file": "data/lane_r_corpus/pins.json",
   "schema_version": 2,
-  "survey_sha256": "1ad6cf8464828b4eb180e3aef930589693c5b792534a5438e72a5c5068d14b9a",
+  "survey_sha256": "1810f1959b7a815191ee8db40a61de94b994103acf11f32cb44cd45ce0dd0833",
   "unaccounted_by_disposition": {
     "CORRECT_WITH_EVIDENCE": 1,
     "DEFER_UNRESOLVED": 85,

@@ -241,3 +241,146 @@ def test_a_dropped_unit_lowers_m1_on_a_real_bundle(bundles: list[pinned.PinnedBu
     after = ledger.ledger_metrics(ledger.unit_accounts(mutated))
     assert after.accounted < before.accounted
     assert after.m1 < before.m1
+
+
+# --- stage 2: M4, M5, the detector registry, the sampler ----------------------------------------
+
+import ast  # noqa: E402
+from tools.lane_r_audit import claims_ref, corpus, detectors, lint, sampler  # noqa: E402
+
+FACTS: dict[str, dict[str, Any]] = {
+    "identity:repository": {"kind": "identity", "value": "'x/y'", "attributes": None},
+    "package:name": {"kind": "package", "value": "aspose-note-foss", "attributes": None},
+    "package:version": {"kind": "package", "value": "26.9.0", "attributes": None},
+    "format:pdf": {"kind": "format", "value": "PDF", "attributes": None},
+    "public_symbol:a.scene": {
+        "kind": "public_symbol",
+        "value": "Aspose.Note.Scene",
+        "attributes": {"docstring": "A scene holds nodes.", "symbol_kind": "class"},
+    },
+}
+
+
+def _escapes(text: str, cited: list[str], strict: bool = False) -> set[tuple[str, str]]:
+    return {(e.cls, e.token) for e in claims_ref.escapes(text, cited, FACTS, strict=strict)}
+
+
+def test_m4_passes_text_every_token_of_which_a_cited_fact_supports() -> None:
+    text = "Version 26.9.0 of `aspose-note-foss` reads PDF and the Aspose.Note.Scene class."
+    assert _escapes(text, ["package:name", "package:version", "format:pdf", "public_symbol:a.scene"]) == set()
+
+
+def test_m4_flags_each_class_when_the_cited_facts_do_not_say_it() -> None:
+    cited = ["package:name", "package:version"]
+    assert ("version", "26.8.0") in _escapes("Release 26.8.0 is on the registry.", cited)
+    assert ("number", "48") in _escapes("The suite has 48 test files.", cited)
+    assert ("format", "DOCX") in _escapes("It writes DOCX and PDF output.", cited)
+    assert ("package", "aspose-note") in _escapes("Run pip install aspose-note to begin.", cited)
+    assert ("identifier", "RootNode") in _escapes("It exposes a RootNode property.", cited)
+
+
+def test_m4_identity_facts_support_nothing_and_the_strict_reading_drops_symbols() -> None:
+    assert ("version", "26.9.0") in _escapes("Version 26.9.0 ships.", ["identity:repository"])
+    prose = "The Aspose.Note.Scene class holds nodes."
+    assert _escapes(prose, ["public_symbol:a.scene"]) == set()
+    assert ("identifier", "Aspose.Note.Scene") in _escapes(
+        prose, ["public_symbol:a.scene"], strict=True
+    )
+
+
+def test_m4_ignores_brands_file_names_and_plain_words() -> None:
+    assert _escapes("See README.md on GitHub for e.g. the 3D samples.", ["package:name"]) == set()
+
+
+def test_m5_each_rule_fires_on_its_defect_and_not_on_the_twin() -> None:
+    pairs = {
+        lint.DANGLING_COLON: ("Run the tests:\n\n## Next\n", "Run the tests:\n\n```sh\npytest\n```\n"),
+        lint.SPLIT_SPEC: ("- `skia>=87.0`\n- `<145`\n", "- `skia>=87.0,<145`\n"),
+        lint.XML_DOC_FRAGMENT: ("| `Node` | The  contains items. |\n", "| `Node` | A tree node. |\n"),
+        lint.BADGE_SYNTAX: (
+            "![py](https://img.shields.io/badge/python-3.10%2C%3C3.13-blue)\n",
+            "![py](https://img.shields.io/badge/python-3.10-blue)\n",
+        ),
+    }
+    assert set(pairs) == set(lint.RULES)
+    for rule, (bad, good) in pairs.items():
+        assert rule in {hit.rule for hit in lint.lint(bad)}, rule
+        assert lint.lint(good) == [], rule
+
+
+def test_m5_leaves_alone_a_lead_in_before_a_fence_and_html_details() -> None:
+    text = "Verify the install:\n```sh\npip list\n```\n<details><summary>More</summary>\n</details>\n"
+    assert lint.lint(text) == []
+
+
+def test_the_reference_modules_import_no_gate_logic() -> None:
+    """A gate must not grade itself: M1 to M5 never import validation, reconciliation or
+    composition (directly; the judge's readers are the only src modules they cite)."""
+    banned = ("validation", "reconciliation", "composition")
+    for name in ("ledger", "claims_ref", "lint"):
+        tree = ast.parse((REPO_ROOT / "tools" / "lane_r_audit" / f"{name}.py").read_text("utf-8"))
+        for node in ast.walk(tree):
+            modules = []
+            if isinstance(node, ast.ImportFrom) and node.module:
+                modules = [node.module]
+            elif isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            for module in modules:
+                assert not any(part in banned for part in module.split(".")), (name, module)
+
+
+def test_the_registry_lists_reference_detectors_gates_and_the_live_reviewer() -> None:
+    from tools.lane_r_audit import baseline_gates  # noqa: F401  (registers the gates)
+
+    registry = detectors.REGISTRY
+    assert {"BC-04", "BC-14", "reviewer"} <= set(registry)
+    assert not registry["reviewer"].deterministic
+    assert registry["BC-04"].gate and not registry["ref_version"].gate
+    assert all(d.classes for d in registry.values())
+    assert {d.id for d in detectors.reference_detectors()}.isdisjoint({"BC-04", "BC-14", "reviewer"})
+    with pytest.raises(ValueError, match="already registered"):
+        detectors.register(registry["ref_version"])
+
+
+def test_every_class_with_a_floor_has_a_reference_detector() -> None:
+    covered = {cls for d in detectors.reference_detectors() for cls in d.classes}
+    assert set(detectors.FLOORS) <= covered
+
+
+def test_lower_bound_is_the_exact_one_sided_bound() -> None:
+    assert corpus.lower_bound(0, 0) == 0.0
+    assert corpus.lower_bound(10, 10) == pytest.approx(0.05 ** (1 / 10))
+    low = corpus.lower_bound(9, 10)
+    # Exact one-sided 95 percent lower bound for 9 of 10 (the binomial tail at p is 0.05): 0.605837.
+    # (The two-sided 95 percent interval's lower end, 0.555, is the 97.5 percent one-sided bound.)
+    assert low == pytest.approx(0.605837, abs=1e-6)
+    assert corpus.lower_bound(95, 100) < 0.95 < corpus.lower_bound(100, 100) + 1e-9
+
+
+def test_the_split_is_a_fixed_hash_of_the_repository_name() -> None:
+    assert corpus.split_of("aspose-words-foss/Aspose.Words-FOSS-for-.NET") == corpus.split_of(
+        "aspose-words-foss/Aspose.Words-FOSS-for-.NET"
+    )
+    halves = {corpus.split_of(pin.repository) for pin in pinned.load_pins().bundles}
+    assert halves == {"dev", "test"}
+
+
+def test_the_sampler_is_reproducible_and_blind(bundles: list[pinned.PinnedBundle]) -> None:
+    universe = sampler.claim_universe(bundles)
+    assert len(universe) > 1000
+    first = sampler.draw(universe, sampler.SEED, 200)
+    assert first == sampler.draw(universe, sampler.SEED, 200)
+    assert first != sampler.draw(universe, sampler.SEED + 1, 200)
+    assert len({claim.key for claim in first}) == 200
+    form = sampler.blind_form(first)
+    assert len(form) == 200 and all(set(row) == {"n", "claim", "cited_values", "verdict"} for row in form)
+    assert not any("|" in row["claim"] and "Aspose." in str(row.get("bundle")) for row in form)
+    with pytest.raises(ValueError):
+        sampler.draw(universe[:10], 1, 200)
+
+
+def test_m4_and_m5_baselines_are_in_the_v2_file_and_m7_regression_is_recorded() -> None:
+    baseline = json.loads(measure.BASELINE_V2_PATH.read_text(encoding="utf-8"))
+    assert baseline["m4"]["value"] > 0 and baseline["m4"]["units"] == 3066
+    assert baseline["m5"]["value"] == sum(baseline["m5"]["by_rule"].values())
+    assert baseline["m7_regression"] == {"J5_pass": 30, "inputs": 30}

@@ -35,6 +35,7 @@ BUNDLE_FILES: tuple[str, ...] = (
     "dispositions.json",
     "content_units.json",
     "plan.json",
+    "investigation.json",
 )
 
 
@@ -159,6 +160,7 @@ class PinnedBundle:
     sealed: judge._Bundle
     content_units: dict[str, Any] | None
     plan: dict[str, Any] | None
+    investigation: dict[str, Any] | None
     readme: str
     live: str | None
     facts_by_id: dict[str, dict[str, Any]] = field(default_factory=dict, compare=False, repr=False)
@@ -233,6 +235,7 @@ def read_bundles(pins: Pins, repo_root: Path = REPO_ROOT) -> list[PinnedBundle]:
                 sealed,
                 _object(files["content_units.json"]),
                 _object(files["plan.json"]),
+                _object(files["investigation.json"]),
                 sealed.readme,
                 live,
                 facts,
