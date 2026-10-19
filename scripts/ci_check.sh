@@ -224,7 +224,7 @@ run_step "sbom" sbom_step
 run_step "lint" "$PY" -m ruff check .
 run_step "format" "$PY" -m ruff format --check .
 run_step "typecheck" "$PY" -m mypy src
-run_step "pytest" "$PY" -m pytest
+run_step "pytest" "$PY" -m pytest -n auto --maxprocesses=12 --dist worksteal
 run_step "entrypoint" bash -c 'repository-presenter --version && repository-presenter status'
 
 echo "===== Summary ====="

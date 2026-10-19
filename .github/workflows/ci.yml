@@ -127,7 +127,7 @@ jobs:
       - name: Unit tests, schema validation, canary, and path budget
         id: pytest
         continue-on-error: true
-        run: pytest
+        run: pytest -n auto --dist worksteal
 
       - name: Official entry point
         id: entrypoint
