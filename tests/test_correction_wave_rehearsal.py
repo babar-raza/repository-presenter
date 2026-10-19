@@ -530,7 +530,8 @@ def test_assembly_commits_exactly_the_bundles_files_and_nothing_internal(ready: 
     for repository in (A, B):
         directory = ready.bundle(repository)
         assert {p.name for p in directory.iterdir()} == COMMITTED_FILES | {SUMS_NAME}
-    assert [p.name for p in (ready.control / "corrections" / RUN_ID).iterdir()] == sorted(
+    # iterdir() order is the filesystem's (NTFS sorts, ext4 does not): sort what is listed.
+    assert sorted(p.name for p in (ready.control / "corrections" / RUN_ID).iterdir()) == sorted(
         slug(r) for r in (A, B)
     )  # no run-level file, and the repository with only a status.json was never named
     committed = _git(["ls-files", "corrections"], ready.control).splitlines()
