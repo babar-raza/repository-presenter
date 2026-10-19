@@ -77,8 +77,8 @@ def test_discover_and_load_the_real_backfilled_artifacts() -> None:
     # 2026-10-16 (lane iss4): nine hand-found Aspose.3D-FOSS-for-TypeScript library, packaging and
     # tooling defects, each reproduced by the issue body's own script at the live head (the tenth
     # handoff of that run re-states the existing test-suite one in place).
-    # 2026-10-19: one more, the 3D-Python pip-ownership handoff recorded with the candidate's invalidation
-    # (BC-02, status HANDOFF_PENDING).
+    # 2026-10-19: one more, the 3D-Python pip-ownership handoff recorded with the candidate's
+    # invalidation (BC-02, status HANDOFF_PENDING).
     paths = discover_handoff_paths(REAL_UPSTREAM_DEFECTS)
     assert len(paths) == 52
     ledger = load_ledger(REAL_UPSTREAM_DEFECTS)

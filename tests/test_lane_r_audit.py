@@ -246,6 +246,7 @@ def test_a_dropped_unit_lowers_m1_on_a_real_bundle(bundles: list[pinned.PinnedBu
 # --- stage 2: M4, M5, the detector registry, the sampler ----------------------------------------
 
 import ast  # noqa: E402
+
 from tools.lane_r_audit import claims_ref, corpus, detectors, lint, sampler  # noqa: E402
 
 FACTS: dict[str, dict[str, Any]] = {
@@ -267,7 +268,10 @@ def _escapes(text: str, cited: list[str], strict: bool = False) -> set[tuple[str
 
 def test_m4_passes_text_every_token_of_which_a_cited_fact_supports() -> None:
     text = "Version 26.9.0 of `aspose-note-foss` reads PDF and the Aspose.Note.Scene class."
-    assert _escapes(text, ["package:name", "package:version", "format:pdf", "public_symbol:a.scene"]) == set()
+    assert (
+        _escapes(text, ["package:name", "package:version", "format:pdf", "public_symbol:a.scene"])
+        == set()
+    )
 
 
 def test_m4_flags_each_class_when_the_cited_facts_do_not_say_it() -> None:
@@ -294,9 +298,15 @@ def test_m4_ignores_brands_file_names_and_plain_words() -> None:
 
 def test_m5_each_rule_fires_on_its_defect_and_not_on_the_twin() -> None:
     pairs = {
-        lint.DANGLING_COLON: ("Run the tests:\n\n## Next\n", "Run the tests:\n\n```sh\npytest\n```\n"),
+        lint.DANGLING_COLON: (
+            "Run the tests:\n\n## Next\n",
+            "Run the tests:\n\n```sh\npytest\n```\n",
+        ),
         lint.SPLIT_SPEC: ("- `skia>=87.0`\n- `<145`\n", "- `skia>=87.0,<145`\n"),
-        lint.XML_DOC_FRAGMENT: ("| `Node` | The  contains items. |\n", "| `Node` | A tree node. |\n"),
+        lint.XML_DOC_FRAGMENT: (
+            "| `Node` | The  contains items. |\n",
+            "| `Node` | A tree node. |\n",
+        ),
         lint.BADGE_SYNTAX: (
             "![py](https://img.shields.io/badge/python-3.10%2C%3C3.13-blue)\n",
             "![py](https://img.shields.io/badge/python-3.10-blue)\n",
@@ -309,7 +319,9 @@ def test_m5_each_rule_fires_on_its_defect_and_not_on_the_twin() -> None:
 
 
 def test_m5_leaves_alone_a_lead_in_before_a_fence_and_html_details() -> None:
-    text = "Verify the install:\n```sh\npip list\n```\n<details><summary>More</summary>\n</details>\n"
+    text = (
+        "Verify the install:\n```sh\npip list\n```\n<details><summary>More</summary>\n</details>\n"
+    )
     assert lint.lint(text) == []
 
 
@@ -337,7 +349,9 @@ def test_the_registry_lists_reference_detectors_gates_and_the_live_reviewer() ->
     assert not registry["reviewer"].deterministic
     assert registry["BC-04"].gate and not registry["ref_version"].gate
     assert all(d.classes for d in registry.values())
-    assert {d.id for d in detectors.reference_detectors()}.isdisjoint({"BC-04", "BC-14", "reviewer"})
+    assert {d.id for d in detectors.reference_detectors()}.isdisjoint(
+        {"BC-04", "BC-14", "reviewer"}
+    )
     with pytest.raises(ValueError, match="already registered"):
         detectors.register(registry["ref_version"])
 
@@ -373,7 +387,9 @@ def test_the_sampler_is_reproducible_and_blind(bundles: list[pinned.PinnedBundle
     assert first != sampler.draw(universe, sampler.SEED + 1, 200)
     assert len({claim.key for claim in first}) == 200
     form = sampler.blind_form(first)
-    assert len(form) == 200 and all(set(row) == {"n", "claim", "cited_values", "verdict"} for row in form)
+    assert len(form) == 200 and all(
+        set(row) == {"n", "claim", "cited_values", "verdict"} for row in form
+    )
     assert not any("|" in row["claim"] and "Aspose." in str(row.get("bundle")) for row in form)
     with pytest.raises(ValueError):
         sampler.draw(universe[:10], 1, 200)
