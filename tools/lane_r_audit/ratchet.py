@@ -79,9 +79,13 @@ def flatten(values: Mapping[str, Any]) -> dict[str, float]:
     flat: dict[str, float] = {}
     for key, value in values.items():
         if key == "M6d":
-            for cls, row in value["per_class_test"].items():
-                flat[f"M6d.{cls}"] = _rate(row)
-            flat["M6d.real"] = _rate(value["real_defects"])
+            rows = {**value["per_class_test"], "real": value["real_defects"]}
+            for name, row in rows.items():
+                # the rate, and the counts under it: a cell that shrinks (fewer cases) or catches
+                # fewer cannot hide behind an unchanged or rising rate
+                flat[f"M6d.{name}"] = _rate(row)
+                flat[f"M6d.{name}.caught"] = float(row["caught"])
+                flat[f"M6d.{name}.cases"] = float(row["cases"])
         else:
             flat[key] = float(value)
     return flat

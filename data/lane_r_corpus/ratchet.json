@@ -22,7 +22,7 @@
           "caught": 1
         },
         "polarity_contradiction": {
-          "cases": 8,
+          "cases": 5,
           "caught": 0
         },
         "scraped_text": {

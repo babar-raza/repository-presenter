@@ -26,15 +26,20 @@ from repository_presenter.core.git_safety.git import run_git
 from support import REPO_ROOT
 
 
-def _main_ratchet() -> dict[str, Any] | None:
+def _on_main(path: str) -> str | None:
     probe = run_git(["rev-parse", "--verify", "--quiet", "origin/main^{commit}"], cwd=REPO_ROOT)
     if probe.returncode != 0:
         pytest.fail(
             "origin/main is not fetched: the ratchet never skips (git fetch origin main; hosted CI "
             "needs fetch-depth 0 or an explicit fetch)"
         )
-    shown = run_git(["show", f"origin/main:{ratchet.RATCHET_REL}"], cwd=REPO_ROOT)
-    return json.loads(shown.stdout) if shown.returncode == 0 else None
+    shown = run_git(["show", f"origin/main:{path}"], cwd=REPO_ROOT)
+    return shown.stdout if shown.returncode == 0 else None
+
+
+def _main_ratchet() -> dict[str, Any] | None:
+    text = _on_main(ratchet.RATCHET_REL)
+    return json.loads(text) if text is not None else None
 
 
 @pytest.fixture(scope="module")
@@ -65,12 +70,22 @@ def test_the_committed_ratchet_is_no_worse_than_origin_main(committed: dict[str,
     on_main = _main_ratchet()
     if on_main is None:  # the commit that introduces the file: nothing to be worse than
         return
+    # only a waiver already on main excuses a lowered value: a branch cannot grant itself one
     problems = ratchet.regressions(
         ratchet.flatten(on_main["metrics"]),
         ratchet.flatten(committed["metrics"]),
-        ratchet.parse_waivers(committed),
+        ratchet.parse_waivers(on_main),
     )
     assert not problems, "\n".join(problems)
+
+
+def test_the_pins_are_the_pins_on_origin_main() -> None:
+    """A branch that shrinks pins.json lowers M2 to M5 without lowering a ratchet value."""
+    on_main = _on_main("data/lane_r_corpus/pins.json")
+    if on_main is None:
+        return
+    here = (REPO_ROOT / "data" / "lane_r_corpus" / "pins.json").read_text(encoding="utf-8")
+    assert here == on_main, "pins.json differs from origin/main: re-pinning is an owner decision"
 
 
 # --- the metrics themselves ----------------------------------------------------------------------
@@ -82,16 +97,14 @@ def test_ledger_tier_is_no_worse_than_the_ratchet_and_reproducible(
     first = ratchet.ledger_values()
     assert first == ratchet.ledger_values()  # two runs give identical M1 to M5 and M9
     best = ratchet.flatten({k: v for k, v in committed["metrics"].items() if k != "M6d"})
-    problems = ratchet.regressions(best, ratchet.flatten(first), ratchet.parse_waivers(committed))
+    problems = ratchet.regressions(best, ratchet.flatten(first), [])
     assert not problems, "\n".join(problems)
 
 
 def test_gate_tier_is_no_worse_than_the_ratchet(committed: dict[str, Any]) -> None:
     now = ratchet.gate_values()
     best = ratchet.flatten({"M6d": committed["metrics"]["M6d"]})
-    problems = ratchet.regressions(
-        best, ratchet.flatten({"M6d": now}), ratchet.parse_waivers(committed)
-    )
+    problems = ratchet.regressions(best, ratchet.flatten({"M6d": now}), [])
     assert not problems, "\n".join(problems)
 
 
@@ -179,3 +192,41 @@ def test_a_waiver_missing_a_field_is_rejected() -> None:
                 ]
             }
         )
+
+
+def test_a_waiver_written_in_the_branch_file_does_not_excuse_a_lowered_value() -> None:
+    main_doc: dict[str, Any] = {"metrics": {"M1": 0.5}, "waivers": []}
+    branch_doc: dict[str, Any] = {
+        "metrics": {"M1": 0.3},
+        "waivers": [
+            {
+                "metric": "M1",
+                "old": 0.5,
+                "new": 0.3,
+                "owner_item": "OWNER-FAKE",
+                "granted": "2026-10-19",
+                "expires": "2026-10-30",
+            }
+        ],
+    }
+    problems = ratchet.regressions(
+        ratchet.flatten(main_doc["metrics"]),
+        ratchet.flatten(branch_doc["metrics"]),
+        ratchet.parse_waivers(main_doc),  # what the real test reads: main's waivers only
+        date(2026, 10, 20),
+    )
+    assert problems
+
+
+def _m6d(caught: int, cases: int) -> dict[str, Any]:
+    return {
+        "M6d": {
+            "per_class_test": {"version": {"caught": caught, "cases": cases}},
+            "real_defects": {"caught": 0, "cases": 20},
+        }
+    }
+
+
+def test_a_shrunk_cell_cannot_hide_behind_a_higher_rate() -> None:
+    problems = ratchet.regressions(ratchet.flatten(_m6d(1, 8)), ratchet.flatten(_m6d(1, 1)), [])
+    assert any("version.cases" in p for p in problems)

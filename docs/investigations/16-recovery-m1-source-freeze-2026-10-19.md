@@ -89,6 +89,9 @@ cursor, which `AGENTS.md` forbids, and any `tools/` change needs a work item tha
 
 Provider usage this session: one `preflight` (gateway catalog and two schema-valid chat probes), zero
 `present` calls. Repeat work avoided: the facts-only run is call-free and the C1 harness replays pinned
-bundles offline. Actual blocker for M3: C1 is unfinished (the labeled corpus, split and ratchet are
-missing), so C2, the claim gate that must precede any proposed Lane R candidate, may not start
-(G3-W13 prerequisite "C1 ACCEPTED"). That is internal and owned, not external.
+bundles offline. Actual blocker for M3: C1 (G3-W12) is implemented and independently reviewed (ACCEPT WITH FIXES;
+the blocker-level findings are fixed, the rest are listed in its decision-log entry) but not yet
+accepted or merged, and C2, the claim gate that must precede any proposed Lane R candidate, may not
+start until C1 is ACCEPTED (G3-W13 prerequisite). That is internal and owned, not external. The
+measured baseline C1 produced: the existing gates BC-04 and BC-14 caught 0 of 20 real defects found
+in sealed bundles, and today's validator (version 23) fails all 30 sealed bundles on re-run.

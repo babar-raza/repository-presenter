@@ -5,7 +5,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `aspose-page-foss`.",
+  "clean": "The package is named `aspose-page-foss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -14,7 +14,7 @@
    }
   },
   "id": "negative-01",
-  "injected": "The package is published as `aspose-page-foss`.",
+  "injected": "The package is named `aspose-page-foss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -53,7 +53,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `aspose-words-foss`.",
+  "clean": "The package is named `aspose-words-foss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -62,7 +62,7 @@
    }
   },
   "id": "negative-03",
-  "injected": "The package is published as `aspose-words-foss`.",
+  "injected": "The package is named `aspose-words-foss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -77,7 +77,7 @@
    "install_command:pip"
   ],
   "class": "clean",
-  "clean": "Install it with `pip install aspose-note`.",
+  "clean": "The install command recorded for the package is `pip install aspose-note`.",
   "excerpt": "restates install_command:pip verbatim",
   "facts": {
    "install_command:pip": {
@@ -86,7 +86,7 @@
    }
   },
   "id": "negative-04",
-  "injected": "Install it with `pip install aspose-note`.",
+  "injected": "The install command recorded for the package is `pip install aspose-note`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -125,7 +125,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `AsposeEmailFoss`.",
+  "clean": "The package is named `AsposeEmailFoss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -134,7 +134,7 @@
    }
   },
   "id": "negative-06",
-  "injected": "The package is published as `AsposeEmailFoss`.",
+  "injected": "The package is named `AsposeEmailFoss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -149,7 +149,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `Aspose.Slides.FOSS`.",
+  "clean": "The package is named `Aspose.Slides.FOSS`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -158,7 +158,7 @@
    }
   },
   "id": "negative-07",
-  "injected": "The package is published as `Aspose.Slides.FOSS`.",
+  "injected": "The package is named `Aspose.Slides.FOSS`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -197,7 +197,7 @@
    "package:version"
   ],
   "class": "clean",
-  "clean": "The current release is version 26.9.0.0.",
+  "clean": "The manifest declares version 26.9.0.0.",
   "excerpt": "restates package:version verbatim",
   "facts": {
    "package:version": {
@@ -206,7 +206,7 @@
    }
   },
   "id": "negative-09",
-  "injected": "The current release is version 26.9.0.0.",
+  "injected": "The manifest declares version 26.9.0.0.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -293,7 +293,7 @@
    "package:version"
   ],
   "class": "clean",
-  "clean": "The current release is version 26.3.",
+  "clean": "The manifest declares version 26.3.",
   "excerpt": "restates package:version verbatim",
   "facts": {
    "package:version": {
@@ -302,7 +302,7 @@
    }
   },
   "id": "negative-13",
-  "injected": "The current release is version 26.3.",
+  "injected": "The manifest declares version 26.3.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -341,7 +341,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `aspose-cells-foss`.",
+  "clean": "The package is named `aspose-cells-foss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -350,7 +350,7 @@
    }
   },
   "id": "negative-15",
-  "injected": "The package is published as `aspose-cells-foss`.",
+  "injected": "The package is named `aspose-cells-foss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -413,7 +413,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `aspose-pdf-foss-for-python`.",
+  "clean": "The package is named `aspose-pdf-foss-for-python`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -422,7 +422,7 @@
    }
   },
   "id": "negative-18",
-  "injected": "The package is published as `aspose-pdf-foss-for-python`.",
+  "injected": "The package is named `aspose-pdf-foss-for-python`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -437,7 +437,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
+  "clean": "The package is named `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -446,7 +446,7 @@
    }
   },
   "id": "negative-19",
-  "injected": "The package is published as `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
+  "injected": "The package is named `github.com/aspose-pdf-foss/aspose-pdf-foss-for-go`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -461,7 +461,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `Aspose.Imaging.Foss`.",
+  "clean": "The package is named `Aspose.Imaging.Foss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -470,7 +470,7 @@
    }
   },
   "id": "negative-20",
-  "injected": "The package is published as `Aspose.Imaging.Foss`.",
+  "injected": "The package is named `Aspose.Imaging.Foss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -485,7 +485,7 @@
    "package:name"
   ],
   "class": "clean",
-  "clean": "The package is published as `org.aspose:aspose-pdf-foss`.",
+  "clean": "The package is named `org.aspose:aspose-pdf-foss`.",
   "excerpt": "restates package:name verbatim",
   "facts": {
    "package:name": {
@@ -494,7 +494,7 @@
    }
   },
   "id": "negative-21",
-  "injected": "The package is published as `org.aspose:aspose-pdf-foss`.",
+  "injected": "The package is named `org.aspose:aspose-pdf-foss`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,
@@ -509,7 +509,7 @@
    "install_command:dotnet"
   ],
   "class": "clean",
-  "clean": "Install it with `dotnet add package Aspose.Words.FOSS`.",
+  "clean": "The install command recorded for the package is `dotnet add package Aspose.Words.FOSS`.",
   "excerpt": "restates install_command:dotnet verbatim",
   "facts": {
    "install_command:dotnet": {
@@ -518,7 +518,7 @@
    }
   },
   "id": "negative-22",
-  "injected": "Install it with `dotnet add package Aspose.Words.FOSS`.",
+  "injected": "The install command recorded for the package is `dotnet add package Aspose.Words.FOSS`.",
   "level": "unit",
   "origin": "clean_negative",
   "positive": false,

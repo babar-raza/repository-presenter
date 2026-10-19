@@ -45,7 +45,7 @@
    "public_symbol:aspose.imaging.foss"
   ],
   "class": "invented_capability",
-  "clean": "The Aspose.Imaging.Foss class serves as the central type for image inspection and manipulation, supporting operations such as format detection and metadata extraction through a single cohesive API surface.",
+  "clean": "The Aspose.Imaging.Foss module is the entry point for read-only image inspection, supporting operations such as format detection and metadata extraction through a single API surface.",
   "excerpt": "Q_claims T2: 'image transformation' from one fact that is a class name",
   "facts": {
    "public_symbol:aspose.imaging.foss": {
@@ -107,9 +107,9 @@
    "identity:repository",
    "identity:revision"
   ],
-  "class": "invented_capability",
+  "class": "wrong_identifier",
   "clean": "Aspose.Page FOSS for Python provides APIs to create and convert page-description documents, supporting PS/EPS and XPS formats for output to PDF and raster images.",
-  "excerpt": "Q_claims T4: 'Model-View-Presenter server', cited facts are five identity facts",
+  "excerpt": "Q_claims T4: 'Model-View-Presenter server' (the live README documents an MCP server): a mis-expansion, so a wrong identifier; cited facts are five identity facts",
   "facts": {
    "identity:ecosystem": {
     "kind": "identity",
@@ -211,7 +211,7 @@
    "install_command:maven"
   ],
   "class": "version",
-  "clean": "Installation requires Maven and the explicit artifact coordinate org.aspose:aspose-slides-foss:26.7.0; no other build tools or installation methods are provided.",
+  "clean": "Installing from Maven Central gives the last published version, 26.7.0; the 26.8.0 in this source tree is not yet released.",
   "excerpt": "Q_claims T6: an install coordinate at 26.8.0; Maven Central lists only 26.7.0 (maven-metadata.xml, read 2026-10-19)",
   "facts": {
    "install_command:maven": {

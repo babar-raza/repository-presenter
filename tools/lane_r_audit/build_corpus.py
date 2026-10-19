@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,7 +46,7 @@ from .pinned import PinnedBundle, load_pins, read_bundles
 
 SEED = 20261019
 MUTANTS_PER_CLASS = 10
-MUTANTS_BY_CLASS = {"wrong_identifier": 6}  # a class with no floor needs only enough to measure
+MUTANTS_BY_CLASS = {"wrong_identifier": 6, "polarity_contradiction": 6}  # a class with no floor needs only enough to measure
 NEGATIVES = 22
 LEDGER_CASES = {"OMIT_UNSUPPORTED": 8, "SUPERSEDE_REDUNDANT": 6, "KEPT": 6}
 READING_DATE = "2026-10-19"
@@ -97,8 +98,9 @@ HAND: tuple[Spec, ...] = (
         "Q_claims T2: 'image transformation' from one fact that is a class name",
         "api_reference",
         "hub:public_symbol:aspose.imaging.foss",
-        old="format detection, metadata extraction, and image transformation through",
-        new="format detection and metadata extraction through",
+        clean_text="The Aspose.Imaging.Foss module is the entry point for read-only image "
+        "inspection, supporting operations such as format detection and metadata extraction "
+        "through a single API surface.",
         absent_from_live=("image transformation",),
     ),
     Spec(
@@ -116,9 +118,10 @@ HAND: tuple[Spec, ...] = (
     Spec(
         "traced-T4",
         "traced",
-        detectors.INVENTED_CAPABILITY,
+        detectors.IDENTIFIER,
         "Aspose.Page-FOSS-for-Python",
-        "Q_claims T4: 'Model-View-Presenter server', cited facts are five identity facts",
+        "Q_claims T4: 'Model-View-Presenter server' (the live README documents an MCP server): a "
+        "mis-expansion, so a wrong identifier; cited facts are five identity facts",
         "scope_limitations",
         "scope",
         old=", as well as a Model-View-Presenter server for remote conversion tasks",
@@ -146,8 +149,8 @@ HAND: tuple[Spec, ...] = (
         f"(maven-metadata.xml, read {READING_DATE})",
         "scope_limitations",
         "limitation:1",
-        old="aspose-slides-foss:26.8.0",
-        new="aspose-slides-foss:26.7.0",
+        clean_text="Installing from Maven Central gives the last published version, 26.7.0; the "
+        "26.8.0 in this source tree is not yet released.",
         registry={
             "package:published_version": {
                 "kind": "package",
@@ -260,7 +263,7 @@ HAND: tuple[Spec, ...] = (
         "Aspose.Words-FOSS-for-Python",
         "a badge whose URL carries an encoded comma where the version range was cut",
         readme_snippet="![Python](https://img.shields.io/badge/python-3.10%2C%3C3.13%2B-blue.svg)",
-        clean_text="![Python](https://img.shields.io/badge/python-3.10--3.13-blue.svg)",
+        clean_text="![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue.svg)",
     ),
     Spec(
         "hand-scraped-ts-borderid",
@@ -434,13 +437,40 @@ def _silent_on_twin(cls: str, subject: Subject) -> bool:
     )
 
 
+_SENTENCE_BREAK = r"(?<=[.!?])\s+|\n\s*[-*] |\n\n"
+_NEGATION_SENTENCE = re.compile(
+    r"(?i)\b(?:not (?:supported|implemented|functional|available)|unsupported)\b"
+)
+
+
+# Identifiers a live README says are not supported or not implemented, each read by hand in the
+# sentence quoted beside it (the pinned live unit is the evidence; asserting the identifier as
+# supported contradicts that sentence). A heuristic over negation sentences picked tokens from code
+# blocks, error names and enum lists, so the polarity class is curated, not generated.
+POLARITY_TOKENS: dict[str, str] = {
+    "BooleanOperator": "Boolean/CSG mesh operations are not implemented",
+    "PdfRenderer": "PDF rendering is not implemented - Barcode.to_pdf() and PdfRenderer.render()",
+    "EciHelper": "ECI normalization and validation (EciHelper.normalize/.validate) are not implemented",
+    "LaTeX": "Conversion to non-PDF formats ... LaTeX ... are not supported",
+    "DocumentPassword": "LoadOptions.DocumentPassword / encrypted documents are not supported",
+    "textPath": "Unsupported and skipped silently: <textPath>",
+    "WorksheetXmlMapper": "Legacy SpreadsheetML ... is not implemented; the mapper classes for it",
+    "AllowExceptions": "the legacy AllowExceptions=false toolkit-key-size path is not implemented",
+}
+
+
 def _negated_tokens(bundle: PinnedBundle) -> tuple[dict[str, str], list[str]]:
-    """The live units of a bundle that say 'not supported', and the identifiers they name."""
+    """The live prose or list units of a bundle that say one of ``POLARITY_TOKENS`` is not
+    supported, and those tokens (only a token named in a negation sentence of that unit)."""
     negative: dict[str, str] = {}
     tokens: set[str] = set()
     for uid, text in (bundle.sealed.inherited_units() or {}).items():
-        if detectors._NEGATIVE.search(text):
-            named = {m.group(0) for m in detectors._NAMED.finditer(text)}
+        if not uid.endswith((".paragraph", ".list")):
+            continue
+        for sentence in re.split(_SENTENCE_BREAK, text):
+            if not _NEGATION_SENTENCE.search(sentence):
+                continue
+            named = {t for t in POLARITY_TOKENS if t in sentence}
             if named:
                 negative[uid] = text
                 tokens |= named
@@ -518,8 +548,8 @@ def mutants(bundles: list[PinnedBundle], seed: int = SEED) -> list[Case]:
 # --- clean negatives -----------------------------------------------------------------------------
 
 _NEGATIVE_TEMPLATES: dict[str, tuple[str, str]] = {
-    "package:version": ("package", "The current release is version {value}."),
-    "package:name": ("package", "The package is published as `{value}`."),
+    "package:version": ("package", "The manifest declares version {value}."),
+    "package:name": ("package", "The package is named `{value}`."),
     "package:python_requires": ("package", "The package requires Python {value}."),
     "license:spdx": ("license", "The library is released under the {value} license."),
 }
@@ -544,7 +574,7 @@ def negatives(bundles: list[PinnedBundle], seed: int = SEED) -> list[Case]:
             if f["kind"] == "install_command" and isinstance(f.get("value"), str)
         ]
         if install:
-            picks.append((str(install[0]["id"]), "Install it with `{value}`."))
+            picks.append((str(install[0]["id"]), "The install command recorded for the package is `{value}`."))
         if not picks:
             continue
         pick_rng = random.Random(f"{seed}:neg:{bundle.pin.directory}")

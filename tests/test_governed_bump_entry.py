@@ -69,6 +69,8 @@ def missing_entries(log: str, found: list[tuple[str, str, str | None, str | None
         for marker in MARKERS:
             if marker not in entry:
                 problems.append(f"{path}: the bump entry for {name} lacks '{marker}'")
+            elif not re.search(re.escape(marker) + r"[ \t]*[^\s*][^\n]{3,}", entry):
+                problems.append(f"{path}: the bump entry for {name} has an empty '{marker}'")
     return problems
 
 
@@ -116,7 +118,7 @@ def test_a_move_without_an_entry_is_a_problem() -> None:
 
 
 def test_an_entry_missing_a_marker_is_a_problem() -> None:
-    log = "**Bump entry: RENDERER_VERSION 1 -> 2.**\nMetric: M4\nCases: a, b\n"
+    log = "**Bump entry: RENDERER_VERSION 1 -> 2.**\nMetric: M4 claim escapes\nCases: traced-T6\n"
     problems = missing_entries(log, [("x.py", "RENDERER_VERSION", "1", "2")])
     assert problems == ["x.py: the bump entry for RENDERER_VERSION lacks 'No ungoverned fix:'"]
 
@@ -132,3 +134,9 @@ def test_a_complete_entry_for_the_exact_move_passes() -> None:
 def test_an_entry_for_another_move_does_not_cover_this_one() -> None:
     log = "**Bump entry: RENDERER_VERSION 1 -> 3.**\nMetric: M4\nCases: t\nNo ungoverned fix: x\n"
     assert missing_entries(log, [("x.py", "RENDERER_VERSION", "1", "2")])
+
+
+def test_an_entry_with_empty_markers_is_a_problem() -> None:
+    log = "**Bump entry: RENDERER_VERSION 1 -> 2.**\nMetric:\nCases:\nNo ungoverned fix:\n"
+    problems = missing_entries(log, [("x.py", "RENDERER_VERSION", "1", "2")])
+    assert len(problems) == 3 and all("empty" in p for p in problems)
