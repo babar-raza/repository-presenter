@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -160,3 +161,64 @@ def execute(
         timed_out=result.returncode == TIMEOUT_EXIT_CODE,
         environment_names=tuple(sorted(environment)),
     )
+
+
+# A line a tool wrote about its own failure, as opposed to progress or a banner: a diagnostic
+# first, and only without one a line that merely says something failed.
+_DIAGNOSTIC_LINE = re.compile(
+    r"\b(?:error|errors|fatal|cannot|can't|could not|unable|not recognized|no such file|"
+    r"not found|denied|refused|exception)\b",
+    re.IGNORECASE,
+)
+_FAILED_LINE = re.compile(r"\b(?:failed|failure)\b", re.IGNORECASE)
+# An absolute path of this machine: a drive-letter path, or a conventional POSIX home or temp root.
+_MACHINE_PATH = re.compile(
+    r"(?<![A-Za-z])[A-Za-z]:[\\/][^\s'\"<>|\])]*"
+    r"|(?<![\w.])/(?:home|Users|tmp|var|runner|root|opt|mnt)/[^\s'\"<>|\])]*"
+)
+_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+# MSBuild closes a diagnostic with the project that raised it in brackets.
+_TRAILING_PROJECT = re.compile(r"\s*\[[^\]]*(?:proj|\.sln|<path>)[^\]]*\]\s*$")
+_EXCERPT_LINES = 3
+_EXCERPT_CHARS = 360
+
+
+def error_excerpt(
+    *outputs: str,
+    bases: Iterable[Path] = (),
+    lines: int = _EXCERPT_LINES,
+    chars: int = _EXCERPT_CHARS,
+) -> str:
+    """The first lines a failed tool said about its failure, safe to put in a receipt.
+
+    A receipt that says only "failed" cannot be told from a harness fault, which is how a missing
+    ``node`` on ``PATH`` read as an upstream defect (2026-10-19). ``outputs`` are searched in the
+    order given (pass stderr first): lines that read as a failure win, and when none do the first
+    non-empty lines are used. A receipt becomes a fact's evidence and a fact is published, so every
+    ``bases`` directory and every other absolute path of this machine is removed - a path that
+    differs per machine would also move a sealed candidate's bytes for a reason that is not the
+    repository. Returns "" when the tool said nothing.
+    """
+    roots = {path for base in bases for path in (base, base.resolve())}
+    cleaned: list[str] = []
+    for output in outputs:
+        text = output
+        for base in roots:
+            for rendered in (str(base), base.as_posix()):
+                text = text.replace(rendered + "\\", "").replace(rendered + "/", "")
+                text = text.replace(rendered, "")
+        for raw in text.splitlines():
+            line = _ANSI.sub("", raw).strip()
+            line = _MACHINE_PATH.sub("<path>", line)
+            line = _TRAILING_PROJECT.sub("", line).strip()
+            if line and line not in cleaned:
+                cleaned.append(line)
+    anchors = (
+        [index for index, line in enumerate(cleaned) if _DIAGNOSTIC_LINE.search(line)]
+        or [index for index, line in enumerate(cleaned) if _FAILED_LINE.search(line)]
+        or list(range(len(cleaned)))
+    )
+    # CMake (`CMake Error at ...:`) and others put the message on the line after the anchor, so
+    # the line that follows an anchor is kept with it.
+    picked = sorted({i for index in anchors for i in (index, index + 1) if i < len(cleaned)})
+    return " | ".join(cleaned[index] for index in picked[:lines])[:chars]

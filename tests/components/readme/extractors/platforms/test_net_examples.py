@@ -9,6 +9,7 @@ from typing import Any
 import pytest
 
 from repository_presenter.components.readme.extractors.platforms import net_examples
+from repository_presenter.core import lfs
 from repository_presenter.core.examples import ExampleCandidate
 from repository_presenter.core.execution import ExecutionResult
 from repository_presenter.core.long_paths import exceeds_max_path, long_path
@@ -369,3 +370,250 @@ def test_a_workspace_that_can_never_be_cleaned_is_blocked_not_crashed(
     )
     assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
     assert "BLOCKED_TOOLCHAIN" in (receipts[0].detail or "")
+
+
+def _repo_with_project(tmp_path: Path) -> tuple[Path, Path]:
+    root = tmp_path / "repo"
+    (root / "src").mkdir(parents=True)
+    project = root / "src" / "Widget.csproj"
+    project.write_text('<Project Sdk="Microsoft.NET.Sdk" />', encoding="utf-8")
+    return root, project
+
+
+NU1903 = (
+    "src/Widget.csproj : error NU1903: Package 'Foo' 1.0.0 has a known high severity "
+    "vulnerability, https://github.com/advisories/GHSA-x [src/Widget.csproj]"
+)
+
+
+def _no_lfs(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(net_examples, "fetch_lfs_build_inputs", lambda *args: lfs.NOT_ATTEMPTED)
+
+
+def test_a_build_that_fails_only_on_a_nuget_advisory_is_repeated_with_the_audit_off(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PDF-.NET, 2026-10-19: TreatWarningsAsErrors turned advisories dated 2026-10-13 (NU1902,
+    NU1903) into errors. The verification build repeats once with the audit off and says so."""
+    root, project = _repo_with_project(tmp_path)
+    _no_lfs(monkeypatch)
+    calls: list[list[str]] = []
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        calls.append(list(argv))
+        return _result(0) if "-p:NuGetAudit=false" in argv else _result(1, stdout=NU1903)
+
+    monkeypatch.setattr(net_examples, "execute", fake)
+    measured = net_examples.build_product(root, project, tmp_path / "ws", "dotnet", 60.0)
+    assert measured.verified
+    # The advertised command is still the one the README gives; the flag is the environment's.
+    assert measured.command == "dotnet build src/Widget.csproj"
+    assert "NuGet audit disabled (-p:NuGetAudit=false) by this verification environment" in (
+        measured.summary
+    )
+    assert measured.summary.startswith("succeeded (`dotnet build src/Widget.csproj` exited 0")
+    assert [("-p:NuGetAudit=false" in call) for call in calls] == [False, True]
+
+
+def test_a_build_that_fails_for_any_other_reason_is_not_retried_and_records_the_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    _no_lfs(monkeypatch)
+    calls: list[list[str]] = []
+    broken = "src/Widget.cs(3,5): error CS0103: The name 'x' does not exist [src/Widget.csproj]"
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        calls.append(list(argv))
+        return _result(1, stdout=broken)
+
+    monkeypatch.setattr(net_examples, "execute", fake)
+    measured = net_examples.build_product(root, project, tmp_path / "ws", "dotnet", 60.0)
+    assert not measured.verified and measured.command == ""
+    assert len(calls) == 1
+    assert "exited 1" in measured.summary and "error CS0103" in measured.summary
+    assert "NuGet audit" not in measured.summary
+
+
+def test_an_advisory_failure_that_is_not_the_only_failure_still_fails_with_its_stderr(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    _no_lfs(monkeypatch)
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if "-p:NuGetAudit=false" in argv:
+            return _result(1, stderr="Widget.cs(1,1): error CS1002: ; expected")
+        return _result(1, stdout=NU1903)
+
+    monkeypatch.setattr(net_examples, "execute", fake)
+    measured = net_examples.build_product(root, project, tmp_path / "ws", "dotnet", 60.0)
+    assert not measured.verified
+    assert "with NuGet audit disabled" in measured.summary
+    assert "error CS1002" in measured.summary
+
+
+def test_the_lfs_step_runs_before_the_build_and_its_note_reaches_the_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    order: list[str] = []
+
+    def fake_lfs(root_: Path, copy: Path, workspace: Path, timeout: float) -> Any:
+        order.append("lfs")
+        assert (copy / "src" / "Widget.csproj").is_file()  # the copy exists, the build has not run
+        return lfs.LfsFetch(
+            True, True, "; 2 Git LFS build input(s) were fetched into the build copy"
+        )
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        order.append("build")
+        return _result(0)
+
+    monkeypatch.setattr(net_examples, "fetch_lfs_build_inputs", fake_lfs)
+    monkeypatch.setattr(net_examples, "execute", fake)
+    measured = net_examples.build_product(root, project, tmp_path / "ws", "dotnet", 60.0)
+    assert order == ["lfs", "build"]
+    assert measured.verified and "2 Git LFS build input(s)" in measured.summary
+
+
+def test_a_build_with_no_lfs_and_no_audit_error_keeps_its_exact_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The unchanged case: nothing about a repository that already builds moves."""
+    root, project = _repo_with_project(tmp_path)
+    _no_lfs(monkeypatch)
+    monkeypatch.setattr(net_examples, "execute", lambda argv, **kwargs: _result(0))
+    measured = net_examples.build_product(root, project, tmp_path / "ws", "dotnet", 60.0)
+    assert measured.verified
+    assert measured.summary == "succeeded (`dotnet build src/Widget.csproj` exited 0)"
+
+
+def _lfs_repo(tmp_path: Path) -> tuple[Path, Path]:
+    root, project = _repo_with_project(tmp_path)
+    (root / ".git").mkdir()
+    (root / ".gitattributes").write_text("*.dll filter=lfs -text\n", encoding="utf-8", newline="\n")
+    (root / "packages").mkdir()
+    (root / "packages" / "Lib.dll").write_bytes(lfs.POINTER_PREFIX + b"\noid sha256:aa\nsize 9\n")
+    return root, project
+
+
+def _example_runs(monkeypatch: pytest.MonkeyPatch, references: list[str]) -> None:
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        text = (Path(kwargs["workspace"]) / "Example.csproj").read_text(encoding="utf-8")
+        references.append(text)
+        return _result(0)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+
+
+def test_examples_reference_an_lfs_resolved_copy_and_never_write_the_clone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Words-.NET, 2026-10-19: every example failed on the product's own pointer-file dlls."""
+    root, project = _lfs_repo(tmp_path)
+    references: list[str] = []
+    _example_runs(monkeypatch, references)
+
+    def resolve(root_: Path, copy: Path, workspace: Path, timeout: float) -> Any:
+        (copy / "packages" / "Lib.dll").write_bytes(b"MZ" + b"\0" * 4000)
+        return lfs.LfsFetch(True, True, "")
+
+    monkeypatch.setattr(net_examples, "fetch_lfs_build_inputs", resolve)
+    receipts = net_examples.verify_net_examples(
+        root, project, [_candidate(1, "var x = 1;")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    assert "rp_product_lfs" in references[0]
+    assert (root / "packages" / "Lib.dll").read_bytes().startswith(lfs.POINTER_PREFIX)
+
+
+def test_examples_keep_the_clones_project_when_the_lfs_fetch_clears_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _lfs_repo(tmp_path)
+    references: list[str] = []
+    _example_runs(monkeypatch, references)
+    monkeypatch.setattr(net_examples, "fetch_lfs_build_inputs", lambda *args: lfs.NOT_ATTEMPTED)
+    net_examples.verify_net_examples(root, project, [_candidate(1, "var x = 1;")], tmp_path / "run")
+    assert "rp_product_lfs" not in references[0]
+    assert project.resolve().as_posix() in references[0]
+
+
+def test_a_repository_without_lfs_never_copies_its_product(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    references: list[str] = []
+    _example_runs(monkeypatch, references)
+    net_examples.verify_net_examples(root, project, [_candidate(1, "var x = 1;")], tmp_path / "run")
+    assert project.resolve().as_posix() in references[0]
+    assert not (tmp_path / "run" / "rp_product_lfs").exists()
+
+
+def test_a_failed_example_carries_no_path_of_the_clone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(1, stdout=f"{root}\\src\\A.cs(7,14): error CS0234: no such namespace")
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        root, project, [_candidate(1, "var x = 1;")], tmp_path / "run"
+    )
+    assert receipts[0].outcome == "FAILED"
+    assert str(root) not in (receipts[0].detail or "")
+    assert "error CS0234" in (receipts[0].detail or "")
+
+
+def test_an_example_build_that_fails_only_on_a_nuget_advisory_is_repeated_with_audit_off(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    calls: list[list[str]] = []
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        calls.append(list(argv))
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(0) if "-p:NuGetAudit=false" in argv else _result(1, stdout=NU1903)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        root, project, [_candidate(1, "var x = 1;")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    assert "NuGet audit disabled (-p:NuGetAudit=false) by this verification environment" in (
+        receipts[0].detail or ""
+    )
+    assert sum("-p:NuGetAudit=false" in call for call in calls) == 1
+
+
+def test_an_example_that_fails_to_compile_is_not_retried_with_audit_off(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, project = _repo_with_project(tmp_path)
+    calls: list[list[str]] = []
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        calls.append(list(argv))
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(1, stdout="Program.cs(1,1): error CS0103: The name 'x' does not exist")
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        root, project, [_candidate(1, "x();")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["FAILED"]
+    assert not any("-p:NuGetAudit=false" in call for call in calls)

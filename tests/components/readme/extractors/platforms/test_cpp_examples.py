@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from repository_presenter.components.readme.extractors.platforms import cpp_examples
+from repository_presenter.core import toolchains
 from repository_presenter.core.examples import ExampleCandidate
 from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS, ExecutionResult
 
@@ -408,8 +409,11 @@ def test_a_configure_that_genuinely_failed_says_so_and_keeps_its_fetches(
     product, fetched = cpp_examples.build_product(
         tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
     )
-    assert product == "configure failed"
-    assert product != "succeeded"
+    # What the step printed is carried in the phrase (a bare "configure failed" cannot be told
+    # from a harness fault), and it is still never a success.
+    assert product.startswith("configure failed")
+    assert "pugixml: fetched v1.14" in product
+    assert not product.startswith("succeeded")
     assert len(fetched) == 1
 
 
@@ -491,7 +495,8 @@ def test_no_msvc_recorded_on_this_machine_still_reports_failed_cleanly(
         tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
     )
 
-    assert product == "failed"
+    assert product.startswith("failed")
+    assert "no second toolchain on this machine to try" in product
 
 
 def test_msvc_configure_failure_also_reports_failed_not_a_guessed_success(
@@ -515,7 +520,9 @@ def test_msvc_configure_failure_also_reports_failed_not_a_guessed_success(
         tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
     )
 
-    assert product == "failed"
+    assert product.startswith("failed")
+    assert "MSVC configure failed" in product
+    assert not product.startswith("succeeded")
 
 
 def test_msvc_build_failure_also_reports_failed(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -536,7 +543,9 @@ def test_msvc_build_failure_also_reports_failed(tmp_path: Path, monkeypatch) -> 
         tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
     )
 
-    assert product == "failed"
+    assert product.startswith("failed")
+    assert "MSVC build also failed" in product
+    assert not product.startswith("succeeded")
 
 
 def test_a_primary_build_that_already_succeeds_never_consults_msvc_at_all(
@@ -573,6 +582,9 @@ def test_msvc_toolchain_is_none_without_a_recorded_vcvarsall(tmp_path: Path, mon
     registry = tmp_path / "empty_registry.txt"
     registry.write_text("", encoding="utf-8", newline="\n")
     monkeypatch.setenv(cpp_examples._REGISTRY_VARIABLE, str(registry))
+    # And no Visual Studio under any conventional install root either: this machine's own
+    # installation is found by `vcvarsall_path`, so the test names a root with none.
+    monkeypatch.setattr(toolchains, "_visual_studio_roots", lambda: (tmp_path / "no-vs",))
     assert cpp_examples.msvc_toolchain(tmp_path / "ws") is None
 
 
@@ -644,3 +656,54 @@ def test_msvc_fallback_builds_the_real_trigraph_shape_that_defeats_gcc_and_clang
     )
 
     assert product.startswith("succeeded (MSVC")
+
+
+def test_a_failed_configure_and_a_failed_build_record_what_the_tools_said(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """`configure failed` alone cannot be told from a harness fault (2026-10-19: a CMake with no
+    certificate bundle). Each failed step now carries its first error lines, without paths."""
+    source = tmp_path / "src"
+    source.mkdir()
+
+    def configure_fails(argv, workspace, timeout_seconds, extra_environment):  # type: ignore[no-untyped-def]
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1,
+            stdout="",
+            stderr=(
+                f"CMake Error at {source}/CMakeLists.txt:3 (FetchContent_MakeAvailable):\n"
+                "  SSL certificate verification failed: certificate signer not trusted\n"
+            ),
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(cpp_examples, "execute", configure_fails)
+    product, _fetched = cpp_examples.build_product(
+        source, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+    assert product.startswith("configure failed: ")
+    assert "certificate signer not trusted" in product
+    assert str(source) not in product
+
+    def build_fails(argv, workspace, timeout_seconds, extra_environment):  # type: ignore[no-untyped-def]
+        failed = "--build" in argv
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1 if failed else 0,
+            stdout=(
+                f"FAILED: [code=1] x.obj\n{source}/a.cpp:30:17: error: trigraph '??/' ignored\n"
+                if failed
+                else ""
+            ),
+            stderr="",
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(cpp_examples, "execute", build_fails)
+    monkeypatch.setattr(cpp_examples, "msvc_toolchain", lambda workspace: None)
+    product, _fetched = cpp_examples.build_product(
+        source, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+    assert product.startswith("failed: ") and "trigraph '??/' ignored" in product
+    assert not product.startswith("succeeded")

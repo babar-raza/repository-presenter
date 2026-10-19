@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -233,3 +234,48 @@ def test_a_toolchain_that_reports_no_version_is_blocked(
     )
     assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
     assert "did not report a version" in (receipts[0].detail or "")
+
+
+def test_every_go_invocation_disables_vcs_stamping_and_keeps_mod_mod(
+    tmp_path: Path, module: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Cells-Go 9 of 10 and PDF-Go 6 of 6 examples failed 2026-10-19 on `-buildvcs=false`: the
+    clone is a push-disabled worktree, so `go build` could not stamp VCS state."""
+    seen: list[tuple[list[str], str]] = []
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        flags = (kwargs.get("extra_environment") or {}).get("GOFLAGS", "")
+        seen.append((list(argv), flags))
+        if argv[1] == "version":
+            return _result(0, stdout="go version go1.26.4 windows/amd64")
+        return _result(0)
+
+    monkeypatch.setattr(go_examples, "go_executable", lambda: "go")
+    monkeypatch.setattr(go_examples, "execute", fake)
+    receipts = go_examples.verify_go_examples(
+        module, MODULE, IMPORT_PATH, "1.24", [_candidate(1, "x := 1")], tmp_path / "run", TIMEOUT
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    driven = [(argv[1], flags) for argv, flags in seen if argv[1] in {"build", "vet"}]
+    assert [name for name, _flags in driven] == ["build", "vet"]
+    for _name, flags in driven:
+        assert flags.split() == ["-mod=mod", "-buildvcs=false"]
+
+
+def test_a_failure_the_go_tool_itself_reports_is_recorded_not_called_unnamed(
+    tmp_path: Path, module: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The negative control: a build that genuinely fails still fails, and now says why."""
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "version":
+            return _result(0, stdout="go version go1.26.4 windows/amd64")
+        return _result(1, stderr="error obtaining VCS status: exit status 128")
+
+    monkeypatch.setattr(go_examples, "go_executable", lambda: "go")
+    monkeypatch.setattr(go_examples, "execute", fake)
+    receipts = go_examples.verify_go_examples(
+        module, MODULE, IMPORT_PATH, "1.24", [_candidate(1, "x := 1")], tmp_path / "run", TIMEOUT
+    )
+    assert [r.outcome for r in receipts] == ["FAILED"]
+    assert "error obtaining VCS status" in (receipts[0].detail or "")

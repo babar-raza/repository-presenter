@@ -51,7 +51,9 @@ def test_a_failing_step_names_itself_and_advertises_no_command(tmp_path: Path) -
     package = _package(tmp_path / "pkg", {"build": "rollup -c"})
     measured = npm_build.build_product(package, tmp_path / "ws", npm, 60.0)
     assert measured == MeasuredBuild(
-        False, "", "failed (`npm run build` exited 3 after `npm install` exited 0)"
+        False,
+        "",
+        "failed (`npm run build` exited 3 after `npm install` exited 0: npm error build exploded)",
     )
 
 
@@ -156,3 +158,49 @@ def test_npm_is_found_beside_node_when_the_registry_and_path_offer_none(
     # Negative control: no node, no registry entry, no npm.
     monkeypatch.setattr(npm_build, "resolve_tool", lambda name: None)
     assert npm_build.npm_executable() is None
+
+
+def test_the_install_gets_a_path_that_can_find_node_and_the_clone_is_not_touched(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-19: a dependency's `node install.js` failed with "'node' is not
+    recognized" because the machine's Node install was not on the inherited PATH."""
+    seen: list[dict[str, str]] = []
+    real = npm_build.execute
+
+    def spy(argv, **kwargs):  # type: ignore[no-untyped-def]
+        seen.append(dict(kwargs["extra_environment"]))
+        return real(argv, **kwargs)
+
+    monkeypatch.setattr(npm_build, "execute", spy)
+    monkeypatch.setattr(npm_build, "augmented_path", lambda: "base-path;extra-node-dir")
+    npm = fake_npm(tmp_path / "tools")
+    measured = npm_build.build_product(_package(tmp_path / "pkg"), tmp_path / "ws", npm, 60.0)
+    assert measured.verified
+    assert seen and all(env["PATH"] == "base-path;extra-node-dir" for env in seen)
+
+
+def test_a_failing_install_records_what_npm_said_without_this_machines_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from repository_presenter.core.execution import ExecutionResult
+
+    def failing(argv, **kwargs):  # type: ignore[no-untyped-def]
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1,
+            stdout="",
+            stderr=(
+                "npm error code 1\n"
+                "npm error path C:\\Users\\dev\\scratch\\node_modules\\esbuild\n"
+                "npm error 'node' is not recognized as an internal or external command,\n"
+            ),
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(npm_build, "execute", failing)
+    measured = npm_build.build_product(_package(tmp_path / "pkg"), tmp_path / "ws", "npm", 60.0)
+    assert measured.verified is False and measured.command == ""
+    assert measured.summary.startswith("failed (`npm install` exited 1: ")
+    assert "'node' is not recognized" in measured.summary
+    assert "dev" not in measured.summary.replace("node_modules", "")

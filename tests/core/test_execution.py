@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from repository_presenter.core.execution import (
+    error_excerpt,
     execute,
     profile_environment,
     secret_free_environment,
@@ -161,3 +162,34 @@ def test_a_disposable_profile_points_every_toolchain_cache_inside_the_workspace(
     merged = {**secret_free_environment({"PATH": "p", "GH_TOKEN": "t"}), **overlay}
     assert "GH_TOKEN" not in merged and merged["CI"] == "true"
     assert merged["HOME"] == overlay["HOME"]
+
+
+def test_an_error_excerpt_prefers_diagnostics_and_carries_no_path_of_this_machine(
+    tmp_path: Path,
+) -> None:
+    stderr = (
+        "npm warn deprecated thing\n"
+        f"npm error path {tmp_path}/node_modules/esbuild\n"
+        "npm error 'node' is not recognized as an internal or external command,\n"
+        "npm error A complete log of this run can be found in: C:\\Users\\someone\\a.log\n"
+    )
+    said = error_excerpt(stderr, bases=(tmp_path,), lines=3)
+    assert "'node' is not recognized" in said
+    assert "warn deprecated" not in said
+    assert str(tmp_path) not in said and "someone" not in said
+    # A url is not a drive path.
+    assert "https://example.test/x" in error_excerpt("error: see https://example.test/x")
+
+
+def test_an_error_excerpt_falls_back_to_the_first_lines_and_says_nothing_for_silence() -> None:
+    assert error_excerpt("first\nsecond\nthird\nfourth", lines=2) == "first | second"
+    assert error_excerpt("", "  \n") == ""
+    assert len(error_excerpt("error: " + "x" * 2000)) <= 360
+
+
+def test_a_msbuild_diagnostic_loses_its_project_bracket() -> None:
+    line = (
+        "src/A.csproj : error NU1903: Package 'X' 1.0 has a known high severity vulnerability "
+        "[D:\\work\\src\\A.csproj]"
+    )
+    assert error_excerpt(line).endswith("high severity vulnerability")

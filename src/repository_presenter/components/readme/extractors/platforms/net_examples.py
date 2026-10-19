@@ -26,7 +26,13 @@ from pathlib import Path
 
 from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, MeasuredBuild
-from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.execution import (
+    ExecutionResult,
+    error_excerpt,
+    execute,
+    profile_environment,
+)
+from repository_presenter.core.lfs import declares_lfs, fetch_lfs_build_inputs, pointer_files
 from repository_presenter.core.long_paths import long_path
 from repository_presenter.core.toolchains import resolve_tool
 
@@ -78,6 +84,11 @@ _CS_TYPE = re.compile(
 _CS_USING = re.compile(r"(?m)^[ \t]*using[ \t]+(?!static\b)([\w.]+)[ \t]*;")
 _CS_IDENTIFIER = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
 _PRODUCT_DIRECTORY = "rp_product_build"
+_LFS_PRODUCT_DIRECTORY = "rp_product_lfs"
+# NuGet's own vulnerability-audit diagnostics: NU1901 low, NU1902 moderate, NU1903 high, NU1904
+# critical. With `TreatWarningsAsErrors` they are build errors.
+_NUGET_AUDIT_ERROR = re.compile(r"error NU190[1-4]\b")
+_NO_NUGET_AUDIT = "-p:NuGetAudit=false"
 _NOT_COPIED = (".git",)
 
 
@@ -120,19 +131,54 @@ def build_product(
         return MeasuredBuild(
             False, "", f"not attempted (the sources would not copy: {type(error).__name__})"
         )
+    # A clone made without LFS smudging holds pointer files where a build's own assemblies should
+    # be (Aspose.Words for .NET: `packages/**/*.dll`); only those build inputs are fetched.
+    lfs = fetch_lfs_build_inputs(root, copy, workspace, timeout_seconds)
     result = execute(
         [dotnet, "build", relative],
         workspace=copy,
         timeout_seconds=timeout_seconds,
         extra_environment=profile_environment(workspace),
     )
+    audit = False
+    if (
+        result.return_code != 0
+        and not result.timed_out
+        and _NUGET_AUDIT_ERROR.search(result.stdout + "\n" + result.stderr)
+    ):
+        # A project that treats warnings as errors fails on a NuGet advisory published after the
+        # revision was written (NU1901-NU1904; measured 2026-10-19 on PDF-.NET, where advisories
+        # dated 2026-10-13 turned a clean build red). That is a fact about the advisory feed, not
+        # the source, so the build is repeated once with the vulnerability audit off - a decision
+        # of this verification environment, recorded as such in the receipt (owner ruling
+        # 2026-10-19: PDF-.NET is supported). A failure with any other cause stays a failure.
+        audit = True
+        result = execute(
+            [dotnet, "build", relative, _NO_NUGET_AUDIT],
+            workspace=copy,
+            timeout_seconds=timeout_seconds,
+            extra_environment=profile_environment(workspace),
+        )
+    aside = (
+        (
+            f"; with NuGet audit disabled ({_NO_NUGET_AUDIT}) by this verification environment, "
+            "because the first build failed only on NuGet advisory errors (NU1901-NU1904) that "
+            "the project's warnings-as-errors setting promotes"
+        )
+        if audit
+        else ""
+    ) + lfs.note
     if result.timed_out:
         return MeasuredBuild(
-            False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s)"
+            False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s{aside})"
         )
     if result.return_code != 0:
-        return MeasuredBuild(False, "", f"failed (`{spelled}` exited {result.return_code})")
-    return MeasuredBuild(True, spelled, f"succeeded (`{spelled}` exited 0)")
+        said = error_excerpt(result.stderr, result.stdout, bases=(copy, workspace, root))
+        why = f": {said}" if said else " and said nothing"
+        return MeasuredBuild(
+            False, "", f"failed (`{spelled}` exited {result.return_code}{aside}{why})"
+        )
+    return MeasuredBuild(True, spelled, f"succeeded (`{spelled}` exited 0{aside})")
 
 
 def verify_net_build(root: Path, project: Path | None, workspace: Path) -> MeasuredBuild:
@@ -200,7 +246,7 @@ def _fresh_workspace(workspace: Path) -> Path | None:
     return None
 
 
-def _scrub(text: str, run_dir: Path) -> str:
+def _scrub(text: str, run_dir: Path, *others: Path) -> str:
     """This machine's paths, and this run's own clock, out of a compiler's output.
 
     MSBuild prints absolute paths and appends the project in brackets. A receipt becomes a
@@ -220,7 +266,7 @@ def _scrub(text: str, run_dir: Path) -> str:
     anything the repository did.
     """
     cleaned = text
-    for base in {run_dir, run_dir.resolve()}:
+    for base in {path for one in (run_dir, *others) for path in (one, one.resolve())}:
         for rendered in (str(base), base.as_posix()):
             cleaned = cleaned.replace(rendered + "\\", "").replace(rendered + "/", "")
             cleaned = cleaned.replace(rendered, "")
@@ -287,6 +333,37 @@ def _needed_usings(code: str, declared: Sequence[str], types: dict[str, str]) ->
     return sorted(f"using {namespace};" for namespace in wanted)
 
 
+def _lfs_resolved_product(
+    root: Path, project: Path, workspace: Path
+) -> tuple[Path, tuple[Path, ...]]:
+    """The project an example references, and the copies whose paths a receipt must not carry.
+
+    An example's `ProjectReference` builds the product from source, so a clone made without LFS
+    smudging fails every example on the product's own pointer-file assemblies (Aspose.Words for
+    .NET, measured 2026-10-19: all five examples, `CS0234` after `MSB3246 ... bad image`). Only
+    when the checkout declares LFS and holds a build-input pointer file is the product copied,
+    its build inputs fetched into the copy, and the copy referenced; the clone is never written.
+    Every other repository, and a fetch that does not clear every pointer, keeps the clone's own
+    project exactly as before.
+    """
+    if not declares_lfs(root) or not pointer_files(root):
+        return project, ()
+    copy = workspace / _LFS_PRODUCT_DIRECTORY
+    try:
+        shutil.copytree(
+            long_path(root),
+            long_path(copy),
+            ignore=shutil.ignore_patterns(*_NOT_COPIED),
+            dirs_exist_ok=True,
+        )
+    except (OSError, shutil.Error):
+        return project, ()
+    fetch_lfs_build_inputs(root, copy, workspace, NET.install_timeout_seconds)
+    if pointer_files(copy):
+        return project, (copy,)
+    return copy / project.relative_to(root), (copy,)
+
+
 def verify_net_examples(
     root: Path,
     project: Path | None,
@@ -309,6 +386,7 @@ def verify_net_examples(
     if not version:
         return _blocked(candidates, "BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version")
     types = public_types(project.parent)
+    reference, copies = _lfs_resolved_product(root, project, workspace)
 
     receipts: list[ExampleReceipt] = []
     for candidate in candidates:
@@ -317,7 +395,7 @@ def verify_net_examples(
         (run_dir / "Example.csproj").write_text(
             _PROJECT.format(
                 framework=_sdk_framework(version),
-                reference=project.resolve().as_posix(),
+                reference=reference.resolve().as_posix(),
             ),
             encoding="utf-8",
             newline="\n",
@@ -341,21 +419,45 @@ def verify_net_examples(
             timeout_seconds=NET.example_timeout_seconds,
             extra_environment=profile_environment(run_dir),
         )
+        audit_off = False
+        if (
+            result.return_code != 0
+            and not result.timed_out
+            and _NUGET_AUDIT_ERROR.search(result.stdout + "\n" + result.stderr)
+        ):
+            # The ProjectReference rebuilds the product, whose warnings-as-errors setting turns a
+            # NuGet advisory published after the revision (NU1901-NU1904) into this build's error
+            # too (PDF-.NET, measured 2026-10-19: all twelve examples). Repeated once with the
+            # audit off, recorded as this verification environment's decision; see build_product.
+            audit_off = True
+            result = execute(
+                [dotnet, "build", "--nologo", "-v", "quiet", "-p:WarningLevel=0", _NO_NUGET_AUDIT],
+                workspace=run_dir,
+                timeout_seconds=NET.example_timeout_seconds,
+                extra_environment=profile_environment(run_dir),
+            )
         if result.timed_out:
             outcome, detail = "TIMED_OUT", f"no exit within {NET.example_timeout_seconds:g}s"
         elif result.return_code == 0:
             added = f"; usings supplied: {', '.join(supplied)}" if supplied else ""
             outcome = "EXECUTED"
             detail = f"compiled against {project.name}; SDK {version}{added}"
+            if audit_off:
+                detail += (
+                    f"; NuGet audit disabled ({_NO_NUGET_AUDIT}) by this verification environment"
+                )
         else:
-            outcome, detail = "FAILED", _first_error(result.stdout, result.stderr, run_dir)
+            outcome, detail = (
+                "FAILED",
+                _first_error(result.stdout, result.stderr, run_dir, root, *copies),
+            )
         receipts.append(
             ExampleReceipt(
                 ordinal=candidate.ordinal,
                 outcome=outcome,  # type: ignore[arg-type]
                 return_code=result.return_code,
-                stdout=_clip(_scrub(result.stdout, run_dir)),
-                stderr=_clip(_scrub(result.stderr, run_dir)),
+                stdout=_clip(_scrub(result.stdout, run_dir, root, *copies)),
+                stderr=_clip(_scrub(result.stderr, run_dir, root, *copies)),
                 detail=detail,
                 fixtures=(),
                 # The usings the harness put above the snippet: printed in front of it, so the
@@ -366,13 +468,13 @@ def verify_net_examples(
     return receipts
 
 
-def _first_error(stdout: str, stderr: str, run_dir: Path) -> str:
+def _first_error(stdout: str, stderr: str, run_dir: Path, *others: Path) -> str:
     """The compiler's own first diagnostic, which names the type or member that is missing.
 
     Reported without this machine's paths and without MSBuild's trailing project bracket, so the
     diagnostic a reader and a disposition see is the diagnostic and nothing else.
     """
-    for line in _scrub(stdout + "\n" + stderr, run_dir).splitlines():
+    for line in _scrub(stdout + "\n" + stderr, run_dir, *others).splitlines():
         if ": error " in line:
             return _TRAILING_PROJECT.sub("", line.strip())[:400]
     return "the build failed without naming a diagnostic"

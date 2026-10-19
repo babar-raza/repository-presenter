@@ -688,7 +688,8 @@ def fake_npm(directory: Path, fail_run: bool = False) -> str:
         path.write_text(
             "@echo off\r\n"
             'echo %*>>"%~dp0npm.log"\r\n'
-            'if "%1"=="run" if exist "%~dp0fail_run" exit /b 3\r\n'
+            'if "%1"=="run" if exist "%~dp0fail_run" '
+            "(echo npm error build exploded 1>&2 & exit /b 3)\r\n"
             "exit /b 0\r\n",
             encoding="utf-8",
         )
@@ -698,7 +699,8 @@ def fake_npm(directory: Path, fail_run: bool = False) -> str:
             "#!/bin/sh\n"
             'd=$(dirname "$0")\n'
             'echo "$@" >> "$d/npm.log"\n'
-            'if [ "$1" = "run" ] && [ -f "$d/fail_run" ]; then exit 3; fi\n'
+            'if [ "$1" = "run" ] && [ -f "$d/fail_run" ]; then '
+            'echo "npm error build exploded" >&2; exit 3; fi\n'
             "exit 0\n",
             encoding="utf-8",
         )

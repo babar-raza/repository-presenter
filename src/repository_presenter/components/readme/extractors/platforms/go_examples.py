@@ -31,7 +31,12 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
-from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.execution import (
+    ExecutionResult,
+    error_excerpt,
+    execute,
+    profile_environment,
+)
 from repository_presenter.core.toolchains import resolve_tool
 
 _MAX_OUTPUT_CHARS = 4000
@@ -101,6 +106,15 @@ def _blocked(candidates: Sequence[ExampleCandidate], detail: str) -> list[Exampl
         )
         for candidate in candidates
     ]
+
+
+# `-mod=mod` lets the wrapper module resolve what the product's own go.mod requires.
+# `-buildvcs=false` because the clone is a push-disabled worktree and the run directory sits under
+# the control repository: `go build` otherwise stamps VCS state and refuses with "error obtaining
+# VCS status ... Use -buildvcs=false to disable VCS stamping" (measured 2026-10-19: Cells-Go 9 of
+# 10 and PDF-Go 6 of 6 examples failed on that alone). It changes the binary's stamp, never what
+# compiles.
+GO_FLAGS = "-mod=mod -buildvcs=false"
 
 
 def _fresh_workspace(workspace: Path) -> Path | None:
@@ -236,7 +250,7 @@ def _build(
         [go, "build", "./..."],
         workspace=run_dir,
         timeout_seconds=timeout,
-        extra_environment={**profile_environment(run_dir), "GOFLAGS": "-mod=mod"},
+        extra_environment={**profile_environment(run_dir), "GOFLAGS": GO_FLAGS},
     )
     return (result, _scrub(result.stdout + "\n" + result.stderr, run_dir, module_directory))
 
@@ -247,7 +261,8 @@ def _first_diagnostic(output: str) -> str:
         stripped = line.strip()
         if re.search(r"\.go:\d+:\d+:", stripped) or stripped.startswith("go: "):
             return stripped[:400]
-    return "the build failed without naming a diagnostic"
+    # Not a compiler diagnostic: the tool itself refused (a VCS-stamping error, a missing module).
+    return error_excerpt(output) or "the build failed without naming a diagnostic"
 
 
 def verify_go_examples(
@@ -358,7 +373,7 @@ def _outcome(
         [go, "vet", "./..."],
         workspace=run_dir,
         timeout_seconds=timeout_seconds,
-        extra_environment={**profile_environment(run_dir), "GOFLAGS": "-mod=mod"},
+        extra_environment={**profile_environment(run_dir), "GOFLAGS": GO_FLAGS},
     )
     if vet.return_code == 0 and not vet.timed_out:
         return ("EXECUTED", f"COMPILED and vetted against {module_directory.name}; Go {toolchain}")

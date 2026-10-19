@@ -280,3 +280,110 @@ def test_a_launcher_listing_line_is_read_in_each_of_its_spellings() -> None:
         assert matched is not None and matched.group("version") == version
         assert matched.group("path").endswith("python.exe")
     assert toolchains._LAUNCHER_LINE.match("Installed Pythons found by py Launcher") is None
+
+
+def _roots(monkeypatch: pytest.MonkeyPatch, *roots: Path) -> None:
+    monkeypatch.setattr(toolchains, "_install_roots", lambda: tuple(roots))
+
+
+def test_cmake_off_path_resolves_to_the_install_root_before_the_registrys_bundled_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-10-19: no CMake on PATH, the winlibs one the registry records has no
+    certificate bundle, and PDF-Cpp's FetchContent configure failed in it. The machine's own
+    install root (`CMake/bin/cmake.exe`) is a system CMake and is tried first."""
+    system = _tool(tmp_path / "Program Files" / "CMake" / "bin" / "cmake.exe")
+    recorded = _tool(tmp_path / "winlibs" / "cmake.exe")
+    registry = _registry(tmp_path, [f"cmake={recorded}"])
+    monkeypatch.setenv(REGISTRY_VARIABLE, str(registry))
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+    _roots(monkeypatch, tmp_path / "Program Files")
+    assert resolve_tool("cmake") == str(system)
+
+
+def test_cmake_with_no_install_root_copy_still_falls_back_to_the_registry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, no_install_roots: None
+) -> None:
+    recorded = _tool(tmp_path / "winlibs" / "cmake.exe")
+    registry = _registry(tmp_path, [f"cmake={recorded}"])
+    monkeypatch.setenv(REGISTRY_VARIABLE, str(registry))
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+    assert resolve_tool("cmake") == str(recorded)
+
+
+def test_npm_is_found_in_the_node_install_root_when_it_is_not_on_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    npm = _tool(tmp_path / "Program Files" / "nodejs" / "npm.cmd")
+    monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
+    monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+    _roots(monkeypatch, tmp_path / "Program Files")
+    assert resolve_tool("npm") == str(npm)
+
+
+def _only_node_installed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    node = _tool(tmp_path / "Program Files" / "nodejs" / "node.exe")
+    monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
+    monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
+    monkeypatch.setattr(toolchains, "_on_path", lambda tool: None)
+    _roots(monkeypatch, tmp_path / "Program Files")
+    return node
+
+
+def test_augmented_path_only_appends_known_directories_that_exist_and_are_absent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    node = _only_node_installed(tmp_path, monkeypatch)
+    inherited = os.pathsep.join(["first-entry", "second-entry"])
+    result = toolchains.augmented_path(inherited).split(os.pathsep)
+    # The existing entries keep their order and position; the one addition is at the end, and
+    # Go, .NET and any directory that does not exist add nothing.
+    assert result == ["first-entry", "second-entry", str(node.parent)]
+    assert os.environ["PATH"] != os.pathsep.join(result)
+
+
+def test_augmented_path_does_not_move_or_duplicate_a_directory_already_on_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    node = _only_node_installed(tmp_path, monkeypatch)
+    inherited = os.pathsep.join(["a", str(node.parent), "z"])
+    assert toolchains.augmented_path(inherited) == inherited
+
+
+def test_augmented_path_adds_nothing_on_a_machine_with_no_known_toolchain(
+    monkeypatch: pytest.MonkeyPatch, no_install_roots: None
+) -> None:
+    monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
+    monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
+    monkeypatch.setattr(toolchains, "_on_path", lambda tool: None)
+    assert toolchains.augmented_path("only") == "only"
+    assert toolchains.augmented_path("") == ""
+
+
+def _vcvarsall(root: Path, year: str) -> Path:
+    parts = ("Microsoft Visual Studio", year, "BuildTools", "VC", "Auxiliary", "Build")
+    return _tool(root.joinpath(*parts, "vcvarsall.bat"))
+
+
+def test_vcvarsall_is_found_under_a_conventional_install_root_newest_year_first(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
+    monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
+    monkeypatch.setattr(toolchains.os, "name", "nt")
+    root = tmp_path / "Program Files (x86)"
+    _vcvarsall(root, "2019")
+    newest = _vcvarsall(root, "2022")
+    monkeypatch.setattr(toolchains, "_visual_studio_roots", lambda: (root,))
+    assert toolchains.vcvarsall_path() == str(newest)
+
+
+def test_vcvarsall_is_none_where_no_visual_studio_is_installed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
+    monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
+    monkeypatch.setattr(toolchains.os, "name", "nt")
+    monkeypatch.setattr(toolchains, "_visual_studio_roots", lambda: (tmp_path / "none",))
+    assert toolchains.vcvarsall_path() is None

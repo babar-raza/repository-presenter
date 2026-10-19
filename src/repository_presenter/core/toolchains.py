@@ -8,14 +8,15 @@ own install root, and the Java verifier reported BLOCKED_TOOLCHAIN there and EXE
 (measured 2026-10-04). Three rules follow.
 
 Resolution order is per tool, because the right answer differs by tool
-(`docs/RESEARCH_AND_GUIDELINES.md` §29.6 E7). `path` tools (C++ compiler, CMake, Ninja, Cargo,
-npm) keep PATH first: a PATH tool is at
-least as capable as the registry's own. `registry` tools (tsc) keep the registry first, because a
-newer PATH `tsc` can drop a `moduleResolution` the repository still declares (TS5108). `installed`
-tools (javac, mvn) take the machine's own record and install root before PATH: a JDK on PATH may be
-older than the one the repository's floor needs, and the install root is the same whichever shell
-ran the present. A hosted runner has no registry and no Windows install root, so it resolves by
-PATH exactly as before.
+(`docs/RESEARCH_AND_GUIDELINES.md` §29.6 E7). `path` tools (C++ compiler, Ninja, Cargo, npm)
+keep PATH first: a PATH tool is at least as capable as the registry's own. `machine` tools (CMake)
+are PATH first, then the machine's own install root, and only then the registry, whose bundled
+copy can lack what a system one has (a certificate bundle). `registry` tools (tsc) keep the
+registry first, because a newer PATH `tsc` can drop a `moduleResolution` the repository still
+declares (TS5108). `installed` tools (javac, mvn) take the machine's own record and install root
+before PATH: a JDK on PATH may be older than the one the repository's floor needs, and the install
+root is the same whichever shell ran the present. A hosted runner has no registry and no Windows
+install root, so it resolves by PATH exactly as before.
 
 The registry (`TOOLCHAIN_PATHS.txt`, OWNER-06) is read as data, never trusted as a PATH edit. Its
 entries name the absolute path each tool was provisioned at; when that path no longer exists but
@@ -94,7 +95,7 @@ TOOLS: dict[str, Tool] = {
         ),
         Tool("dotnet", ("dotnet", "dotnet.exe", "dotnet.cmd"), installed=("dotnet/dotnet.exe",)),
         Tool("node", ("node", "node.exe"), installed=("nodejs/node.exe",)),
-        Tool("npm", ("npm.cmd", "npm")),
+        Tool("npm", ("npm.cmd", "npm"), installed=("nodejs/npm.cmd",)),
         Tool("tsc", ("tsc", "tsc.cmd"), order="registry"),
         Tool(
             "go",
@@ -107,7 +108,12 @@ TOOLS: dict[str, Tool] = {
             ("cargo", "cargo.exe"),
             environment=(("RUSTUP_HOME", "rustup_home"), ("CARGO_HOME", "cargo_home")),
         ),
-        Tool("cmake", ("cmake",)),
+        # A system CMake (PATH, then its own install root) before the registry's: the winlibs one
+        # bundled with the C++ toolchain has no certificate bundle, so a configure that fetches a
+        # dependency over HTTPS fails in it (cpp_examples.cmake_executable). Measured 2026-10-19:
+        # with no CMake on PATH here the registry's winlibs one was chosen and PDF-Cpp "configure
+        # failed" for that reason alone.
+        Tool("cmake", ("cmake",), order="machine", installed=("CMake/bin/cmake.exe",)),
         Tool("gxx", ("g++", "c++", "clang++")),
         Tool("ninja", ("ninja",)),
     )
@@ -214,6 +220,7 @@ _PRECEDENCE: dict[str, tuple[str, ...]] = {
     "path": ("path", "recorded", "installed"),
     "registry": ("recorded", "path", "installed"),
     "installed": ("recorded", "installed", "path"),
+    "machine": ("path", "installed", "recorded"),
 }
 
 
@@ -327,6 +334,47 @@ def installed_pythons() -> list[tuple[str, Path]]:
     return sorted(chosen.items(), key=lambda item: tuple(int(part) for part in item[0].split(".")))
 
 
+# The tools whose own directory a subprocess needs on PATH although it calls them by absolute
+# path: `npm install` runs a dependency's `node install.js`, `npm run build` runs `node` and `tsc`,
+# and `tsc.cmd` itself shells out to `node` - all by bare name (measured 2026-10-19: a machine
+# whose Node install is under `D:\Program Files\nodejs` and not on PATH failed all of them with
+# "'node' is not recognized", which read as an upstream defect). Never a compiler or any registry
+# tool: those are put on PATH by the caller that means to use them.
+_ENVIRONMENT_TOOLS = ("node", "npm", "go", "dotnet")
+
+
+def known_toolchain_directories() -> list[str]:
+    """The directories of the machine's own node, npm, Go and .NET installs, as found."""
+    found: list[str] = []
+    for name in _ENVIRONMENT_TOOLS:
+        resolved = resolve_tool(name)
+        if resolved:
+            directory = Path(resolved).parent
+            if directory.is_dir() and str(directory) not in found:
+                found.append(str(directory))
+    return found
+
+
+def augmented_path(inherited: str | None = None) -> str:
+    """``inherited`` (default: the process's PATH) with each known toolchain directory that is
+    not already on it appended.
+
+    Only ever adds, and only at the end: an existing entry is neither moved nor shadowed, so a
+    machine that already has a tool on PATH is unchanged byte for byte, and a directory that does
+    not exist is never added. The process's own ``PATH`` is never written.
+    """
+    base = os.environ.get("PATH", "") if inherited is None else inherited
+    present = {
+        os.path.normcase(os.path.normpath(entry)) for entry in base.split(os.pathsep) if entry
+    }
+    additions = [
+        directory
+        for directory in known_toolchain_directories()
+        if os.path.normcase(os.path.normpath(directory)) not in present
+    ]
+    return os.pathsep.join(part for part in (base, *additions) if part)
+
+
 def subprocess_path(*tools: str | None) -> str:
     """The PATH a verifier's subprocess gets: each tool's own directory first, then the process's.
 
@@ -338,6 +386,42 @@ def subprocess_path(*tools: str | None) -> str:
     if inherited:
         directories.append(inherited)
     return os.pathsep.join(directories)
+
+
+def _visual_studio_roots() -> tuple[Path, ...]:
+    """The directories that hold a `Microsoft Visual Studio` folder (Visual Studio, Build Tools)."""
+    roots: list[Path] = []
+    for variable in ("PROGRAMFILES(X86)", "PROGRAMFILES"):
+        value = os.environ.get(variable, "").strip()
+        if value:
+            roots.append(Path(value))
+    roots.extend((Path("D:/Program Files (x86)"), Path("D:/Program Files")))
+    return tuple(dict.fromkeys(roots))
+
+
+def vcvarsall_path() -> str | None:
+    """The `vcvarsall.bat` of the newest Visual Studio (or Build Tools) install, or None.
+
+    The registry's own ``vcvarsall`` key wins when it names one that exists. Otherwise the
+    conventional install roots are searched, newest version first, so a machine whose MSVC was
+    installed by the standard installer is found without a registry entry. Windows only.
+    """
+    recorded = recorded_tool("vcvarsall")
+    if recorded:
+        return recorded
+    if os.name != "nt":
+        return None
+    found: list[Path] = []
+    for root in _visual_studio_roots():
+        try:
+            found.extend(root.glob("Microsoft Visual Studio/*/*/VC/Auxiliary/Build/vcvarsall.bat"))
+        except OSError:
+            continue
+    usable = [path for path in found if path.is_file()]
+    if not usable:
+        return None
+    # Newest edition year first; the drive and root do not rank an install.
+    return str(max(usable, key=lambda path: _version_key(Path(*path.parts[-7:]))))
 
 
 _PROBE_CACHE: dict[tuple[str, str, int, int], str] = {}
