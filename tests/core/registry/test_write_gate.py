@@ -165,14 +165,15 @@ ISSUE_FILING_OPT_INS: dict[str, str] = {
 
 
 def test_the_real_registry_default_derivation_leaves_every_entry_behaving_as_before() -> None:
-    """Of the 44 shipped entries, only the owner-approved opt-ins set ``issues_mode``; every other
-    entry derives it from ``mode``. The README-side effects are permitted for exactly the 2
-    ``full`` entries, as before; issue_filing and issue_close for those 2 plus the opt-ins, and
-    an opt-in never arms a README pull request."""
+    """Of the 36 shipped entries (44 before aspose-jmap-foss was excluded from the registry
+    2026-10-17, owner ruling, docs/DECISION_LOG.md, this date), only the owner-approved opt-ins
+    set ``issues_mode``; every other entry derives it from ``mode``. The README-side effects are
+    permitted for exactly the 2 ``full`` entries, as before; issue_filing and issue_close for
+    those 2 plus the opt-ins, and an opt-in never arms a README pull request."""
     from support import REPO_ROOT
 
     registry = load_registry(REPO_ROOT / "data" / "registry.json")
-    assert len(registry.entries) == 44
+    assert len(registry.entries) == 36
     explicit = {e.repository: e.issues_mode for e in registry.entries if e.issues_mode is not None}
     assert explicit == ISSUE_FILING_OPT_INS
 

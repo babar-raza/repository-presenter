@@ -82,7 +82,9 @@ WORKFLOW = yaml.safe_load(
     (REPO_ROOT / ".github" / "workflows" / "propose.yml").read_text(encoding="utf-8")
 )
 A = "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
-B = "aspose-email-foss/Aspose.JMAP-FOSS-for-Go"
+# aspose-jmap-foss was excluded from the registry 2026-10-17 (owner ruling, docs/DECISION_LOG.md,
+# this date); B only ever needed to be some other real registry entry distinct from A.
+B = "aspose-font-foss/Aspose.Font-FOSS-for-Python"
 RUN_ID = "2026-10-12"
 BRANCH = presenter_branch_name()
 APPROVER = "babar-raza"

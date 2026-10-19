@@ -63,7 +63,7 @@ def test_the_committed_sandbox_registry_names_only_the_pinned_repository() -> No
 
 
 def test_the_production_registry_is_unchanged_by_the_sandbox() -> None:
-    assert len(PRODUCTION.entries) == 44
+    assert len(PRODUCTION.entries) == 36
     assert SANDBOX not in {e.repository for e in PRODUCTION.entries}
     assert load_registry_for(REPO_ROOT) is not None
     assert load_registry_for(REPO_ROOT).entries == PRODUCTION.entries  # never the two merged

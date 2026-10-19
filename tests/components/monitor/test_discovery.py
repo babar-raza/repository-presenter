@@ -46,7 +46,6 @@ from support import (
     BEFORE_ADMISSION,
     BEYOND_THE_REGISTRY,
     GO_MCP,
-    JMAP_FAMILY,
     REPO_ROOT,
     UNREGISTERED_BEFORE_ADMISSION,
     FakeOrganizationLister,
@@ -94,9 +93,13 @@ def _repo(full_name: str, identity: int, **flags: Any) -> UpstreamRepository:
 
 
 def test_todays_reality_is_detected_the_family_registered_one_unregistered_one_excluded() -> None:
-    # GitHub holds 46 repositories in the 15 authorized organizations: 44 admitted (the JMAP family
-    # included), the Go MCP server (unregistered) and one organization profile repository. Built
-    # from the live registry, minus the two so a later admission of either cannot break it.
+    # Built from the live registry (36 entries, 2026-10-17; 44 before aspose-jmap-foss was
+    # excluded from scope, owner ruling, docs/DECISION_LOG.md, this date), plus the Go MCP server
+    # (unregistered) and one organization profile repository, minus the two so a later admission
+    # of either cannot break it. This simulated GitHub world mirrors the current registry, not
+    # the real one (which also still holds the eight now-excluded JMAP repositories) - the
+    # JMAP_FAMILY <= registry.entries check this test once carried belongs to a test against the
+    # real discovered world, not this synthetic one, and was removed with JMAP's exclusion.
     registry = registry_without(REGISTRY_PATH, BEYOND_THE_REGISTRY)
     admitted = len(registry.entries)
     lister = FakeOrganizationLister(with_extra(mirror(registry.entries), BEYOND_THE_REGISTRY))
@@ -110,9 +113,6 @@ def test_todays_reality_is_detected_the_family_registered_one_unregistered_one_e
         "MISSING_UPSTREAM": 0,
     }
     assert report.listed == admitted + 2 and report.admitted == admitted
-    assert {repository.full_name for repository in JMAP_FAMILY} <= {
-        entry.repository for entry in registry.entries
-    }
     assert [row.repository for row in report.unregistered] == [GO_MCP.full_name]
     (profile,) = report.excluded
     assert profile.repository == "aspose-slides-foss/.github"
