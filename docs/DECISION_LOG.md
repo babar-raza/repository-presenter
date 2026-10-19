@@ -5995,3 +5995,8 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   - **Measured on the 30 sealed bundles.** J1, J2, J3, J5 pass 30/30; J4 fails 29 (a kept heading, paragraph or list that the README does not print); J6 applies to 26 and fails 26 (live headings, code blocks or links dropped; 316 of 338 `OMIT_UNSUPPORTED` dispositions cite no fact, so they account for nothing). Authorizable 0 of 30; `status` prints 0/44 because all 30 are `UNVERIFIED` by recheck (no receipts).
   - **Left to the owner.** The 30-point profile's D14 still fires on 30 of 30 and still gates `propose`; the judge does not replace it.
   - **Reverse by:** revert the commit.
+- **2026-10-19 - first README pull request on a product repository (Cells-Java #7), and the attestation fix that lets the tool recognise it (G6-W02, G3-W09).**
+  - **Artifact.** https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/pull/7, opened by `propose.yml` in correction mode (run 39051331176) as `repository-presenter[bot]`: one commit, one file, the branch `README.md` byte-equal to the reviewed bundle (sha256 `2ae194d91cdb...`), the base branch untouched at `c65329e7257b`.
+  - **Defect.** The run ended `refused (token_app_mismatch)` although the write had succeeded: GitHub leaves `performed_via_github_app` null on a pull request an App created, so the post-create check read "no App". The fix attests the author instead: a `Bot` account `repository-presenter[bot]` whose App slug resolves to id 5092474. The same failure was first seen in run 38883943550.
+  - **Proof, live and read-only.** The fixed check accepts PR #7 and refuses the human-authored Cells-.NET PR #3 ("authored by User babar-raza").
+  - **Reverse by:** revert the commit; PR #7 can simply be closed.

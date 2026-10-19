@@ -14,9 +14,12 @@ What GitHub lets a bare installation token prove about itself, before any write:
 
 What it cannot prove: *which* App minted it. GitHub exposes an installation token's App only to
 that App's own JWT, which the effect job deliberately does not hold. The App is therefore attested
-on the artifact the token produces: :func:`verify_pull_request_app` reads the pull request's
-``performed_via_github_app`` and refuses unless it is ``EXPECTED_APP_ID`` - before updating an
-existing presenter pull request, and immediately after creating one.
+on the artifact the token produces: :func:`verify_pull_request_app` reads the pull request's author
+and refuses unless it is the ``Bot`` account ``<EXPECTED_APP_SLUG>[bot]`` and the public App of that
+slug has id ``EXPECTED_APP_ID`` - before updating an existing presenter pull request, and
+immediately after creating one. (``performed_via_github_app`` is not usable: GitHub leaves it null
+on a pull request an App created.) Because this check can only run after the create, a refusal
+there reports ``pr_created=True``; callers must not describe it as "nothing written".
 """
 
 from __future__ import annotations
@@ -29,11 +32,14 @@ from repository_presenter.core.github.client import (
     API_ROOT,
     FetchFn,
     default_fetch,
-    get_pull_request_app_id,
+    get_app_id,
+    get_pull_request_author,
 )
 
 #: The Repository Presenter GitHub App (``project/state.yaml``; ``docs/STATE_MACHINE.md``).
 EXPECTED_APP_ID = 5092474
+#: Its slug; the bot account that authors its pull requests is ``repository-presenter[bot]``.
+EXPECTED_APP_SLUG = "repository-presenter"
 INSTALLATION_TOKEN_PREFIX = "ghs_"
 
 
@@ -102,16 +108,26 @@ def verify_pull_request_app(
     token: str,
     fetch: FetchFn = default_fetch,
     expected_app_id: int = EXPECTED_APP_ID,
+    expected_app_slug: str = EXPECTED_APP_SLUG,
 ) -> TokenDecision:
-    """Refuse unless pull request ``number`` was performed by the expected GitHub App."""
+    """Refuse unless pull request ``number`` was authored by the expected GitHub App's bot."""
     try:
-        app_id = get_pull_request_app_id(owner, name, number, token=token, fetch=fetch)
+        author = get_pull_request_author(owner, name, number, token=token, fetch=fetch)
+        app_id = get_app_id(expected_app_slug, token=token, fetch=fetch)
     except RepositoryMetadataError as exc:
         return _refuse(Refusal.TOKEN_UNVERIFIABLE, f"could not attribute pull request: {exc}")
+    expected_login = f"{expected_app_slug}[bot]"
+    if author is None or author[1] != "Bot" or author[0].casefold() != expected_login:
+        who = "no author" if author is None else f"{author[1]} {author[0]}"
+        return _refuse(
+            Refusal.TOKEN_APP_MISMATCH,
+            f"pull request #{number} was authored by {who}, not the Repository Presenter App "
+            f"bot {expected_login}",
+        )
     if app_id != expected_app_id:
         return _refuse(
             Refusal.TOKEN_APP_MISMATCH,
-            f"pull request #{number} was performed by GitHub App {app_id}, not the Repository "
-            f"Presenter App {expected_app_id}",
+            f"GitHub App {expected_app_slug} has id {app_id}, not the Repository Presenter App "
+            f"{expected_app_id}",
         )
     return TokenDecision(True)

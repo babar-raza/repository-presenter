@@ -105,25 +105,51 @@ def test_the_expected_app_is_the_repository_presenter_app() -> None:
     assert EXPECTED_APP_ID == 5092474
 
 
-def test_a_pull_request_performed_by_the_expected_app_is_accepted() -> None:
-    body = {"performed_via_github_app": {"id": EXPECTED_APP_ID, "slug": "repository-presenter"}}
-    decision = verify_pull_request_app(
-        "o", "n", 4, token=INSTALLATION_TOKEN, fetch=_fetch(200, body)
-    )
+def _router(pr: dict[str, Any], app: dict[str, Any] | None = None) -> Any:
+    """Answer ``/issues/N`` with ``pr`` and ``/apps/<slug>`` with ``app`` (200 each)."""
+    app_body = {"id": EXPECTED_APP_ID, "slug": "repository-presenter"} if app is None else app
+
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        return (200, app_body) if "/apps/" in url else (200, pr)
+
+    return fetch
+
+
+_BOT = {"login": "repository-presenter[bot]", "type": "Bot"}
+
+
+def test_a_pull_request_authored_by_the_expected_app_bot_is_accepted() -> None:
+    # The live shape (run 38883943550, presenter-sandbox#1): the App's bot is the author and
+    # performed_via_github_app is null - the very case the old check wrongly refused.
+    pr = {"user": _BOT, "performed_via_github_app": None}
+    decision = verify_pull_request_app("o", "n", 4, token=INSTALLATION_TOKEN, fetch=_router(pr))
     assert decision.ok is True
 
 
-def test_a_pull_request_from_another_app_or_from_no_app_is_refused() -> None:
-    for body in (
-        {"performed_via_github_app": {"id": 15368}},
-        {"performed_via_github_app": None},
-        {},
+def test_a_pull_request_from_another_author_is_refused() -> None:
+    for user in (
+        {"login": "someone-else[bot]", "type": "Bot"},
+        {"login": "repository-presenter", "type": "User"},
+        {"login": "babar-raza", "type": "User"},
+        None,
     ):
         decision = verify_pull_request_app(
-            "o", "n", 4, token=INSTALLATION_TOKEN, fetch=_fetch(200, body)
+            "o", "n", 4, token=INSTALLATION_TOKEN, fetch=_router({"user": user})
         )
         assert decision.ok is False
         assert decision.code is Refusal.TOKEN_APP_MISMATCH
+
+
+def test_a_slug_that_resolves_to_a_different_app_id_is_refused() -> None:
+    decision = verify_pull_request_app(
+        "o",
+        "n",
+        4,
+        token=INSTALLATION_TOKEN,
+        fetch=_router({"user": _BOT}, {"id": 15368, "slug": "repository-presenter"}),
+    )
+    assert decision.ok is False
+    assert decision.code is Refusal.TOKEN_APP_MISMATCH
 
 
 def test_an_unreadable_pull_request_is_unverifiable() -> None:

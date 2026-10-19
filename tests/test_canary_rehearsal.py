@@ -991,8 +991,17 @@ def test_verify_notices_a_pull_request_that_is_not_ours_or_not_the_bundles(
     allow_writes(monkeypatch)
     assert world.write() == EXIT_OK
     assert statuses(world.verify())["performed by the App"] == canary.OK
-    world.rest.pulls(SANDBOX)[0]["performed_via_github_app"] = {"id": 1}  # some other App's
+    assert world.rest.pulls(SANDBOX)[0]["performed_via_github_app"] is None  # GitHub's real shape
+    pull = world.rest.pulls(SANDBOX)[0]
+    pull["user"] = {"login": "some-other-app[bot]", "type": "Bot"}  # some other App's pull request
     assert statuses(world.verify())["performed by the App"] == canary.MISSING
+    pull["user"] = {"login": "repository-presenter", "type": "User"}  # a person with the App's name
+    assert statuses(world.verify())["performed by the App"] == canary.MISSING
+    pull["user"] = {"login": "repository-presenter[bot]", "type": "Bot"}
+    assert statuses(world.verify())["performed by the App"] == canary.OK
+    world.rest.app_id = 1  # the public App of that slug is not ours
+    assert statuses(world.verify())["performed by the App"] == canary.MISSING
+    world.rest.app_id = canary.EXPECTED_APP_ID
     world.rest.pulls(SANDBOX)[0]["title"] = "an edited title"
     world.rest.pulls(SANDBOX)[0]["body"] = "a body without the provenance block"
     assert statuses(world.verify())["body provenance"] == canary.MISSING

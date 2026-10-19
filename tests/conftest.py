@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -78,37 +79,15 @@ def install_without_reaching_an_index(tmp_path_factory: pytest.TempPathFactory) 
         yield
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _isolated_global_git_config(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Path]:
-    """A throwaway global gitconfig holding nothing but the one ``safe.directory`` entry this
-    checkout itself may need.
-
-    A checkout under a path git treats as dubious ownership (e.g. a OneDrive-synced folder owned
-    by a different account than the one running tests, as on this machine: ``git -C <REPO_ROOT>``
-    fails closed with "detected dubious ownership" once the real global config, which normally
-    carries that exception, is hidden) could not be operated on by any test that shells out to
-    real ``git`` against ``REPO_ROOT`` once the fixture below pointed ``GIT_CONFIG_GLOBAL`` at
-    ``os.devnull`` - found 2026-10-17 (``tests/test_correction_wave_rehearsal.py`` and
-    ``tests/test_path_budget.py`` both call ``git -C REPO_ROOT`` directly and both failed closed,
-    pre-push only, never caught by hosted CI's fresh clone). This file names only ``REPO_ROOT``
-    itself, nothing a developer's or runner's own global config would add, so it does not weaken
-    ``isolate_ambient_credentials_and_git_config``'s own intent."""
-    config_path = tmp_path_factory.mktemp("isolated-global-gitconfig") / "gitconfig"
-    config_path.write_text(f"[safe]\n\tdirectory = {REPO_ROOT.as_posix()}\n", encoding="utf-8")
-    yield config_path
-
-
 @pytest.fixture(autouse=True)
-def isolate_ambient_credentials_and_git_config(
-    monkeypatch: pytest.MonkeyPatch, _isolated_global_git_config: Path
-) -> None:
+def isolate_ambient_credentials_and_git_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tests never inherit a developer's or runner's credentials or git configuration."""
     for name in AMBIENT_CREDENTIALS:
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("GIT_TERMINAL_PROMPT", "0")
     monkeypatch.setenv("GCM_INTERACTIVE", "never")
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
-    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(_isolated_global_git_config))
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
 
 
 @pytest.fixture(autouse=True)
