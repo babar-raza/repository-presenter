@@ -791,26 +791,42 @@ def find_pull_requests(
     )
 
 
-def get_pull_request_app_id(
+def get_pull_request_author(
     owner: str,
     name: str,
     number: int,
     *,
     token: str,
     fetch: FetchFn = default_fetch,
-) -> int | None:
-    """``GET /repos/{owner}/{repo}/issues/{number}`` - the id of the GitHub App that performed the
-    pull request (``performed_via_github_app``), or ``None`` when it was not created by an App."""
+) -> tuple[str, str] | None:
+    """``GET /repos/{owner}/{repo}/issues/{number}`` - the ``(login, type)`` of the account that
+    opened the pull request, or ``None`` when the response carries no author. A pull request opened
+    by a GitHub App installation token is authored by that App's bot account (``<slug>[bot]``,
+    type ``Bot``). ``performed_via_github_app`` is not that signal: GitHub leaves it null on a
+    pull request's issue resource even when an App created it (observed live, run 38883943550)."""
     url = f"{API_ROOT}/repos/{owner}/{name}/issues/{number}"
     status_code, body = fetch(url, token)
     if status_code == -1:
         raise RepositoryMetadataError(f"{owner}/{name}: unreachable ({body})")
     if status_code != 200 or not isinstance(body, dict):
         raise RepositoryMetadataError(f"{owner}/{name}: GET {url} returned HTTP {status_code}")
-    app = body.get("performed_via_github_app")
-    if not isinstance(app, dict):
+    user = body.get("user")
+    if not isinstance(user, dict):
         return None
-    app_id = app.get("id")
+    login, kind = user.get("login"), user.get("type")
+    return (login, kind) if isinstance(login, str) and isinstance(kind, str) else None
+
+
+def get_app_id(slug: str, *, token: str, fetch: FetchFn = default_fetch) -> int | None:
+    """``GET /apps/{slug}`` - the numeric id of the public GitHub App ``slug`` (slugs are globally
+    unique, so the bot login ``<slug>[bot]`` identifies exactly this App)."""
+    url = f"{API_ROOT}/apps/{slug}"
+    status_code, body = fetch(url, token)
+    if status_code == -1:
+        raise RepositoryMetadataError(f"app {slug}: unreachable ({body})")
+    if status_code != 200 or not isinstance(body, dict):
+        raise RepositoryMetadataError(f"app {slug}: GET {url} returned HTTP {status_code}")
+    app_id = body.get("id")
     return app_id if isinstance(app_id, int) else None
 
 

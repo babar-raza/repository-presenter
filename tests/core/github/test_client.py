@@ -22,9 +22,10 @@ from repository_presenter.core.github.client import (
     find_issue_with_marker,
     find_open_pull_request,
     find_pull_requests,
+    get_app_id,
     get_contents,
     get_issue,
-    get_pull_request_app_id,
+    get_pull_request_author,
     get_ref,
     get_repository,
     put_contents,
@@ -836,28 +837,45 @@ def test_find_pull_requests_raises_on_unreachable_and_on_http_errors() -> None:
         find_pull_requests(OWNER, REPO, head_branch="b", token="t", fetch=lambda u, t: (500, None))
 
 
-def test_get_pull_request_app_id_reads_performed_via_github_app() -> None:
+def test_get_pull_request_author_reads_the_bot_login_not_performed_via_github_app() -> None:
     seen: list[str] = []
 
     def fetch(url: str, token: str | None) -> tuple[int, object]:
         seen.append(url)
-        return 200, {"performed_via_github_app": {"id": 5092474, "slug": "repository-presenter"}}
+        return 200, {
+            "user": {"login": "repository-presenter[bot]", "type": "Bot"},
+            "performed_via_github_app": None,
+        }
 
-    assert get_pull_request_app_id(OWNER, REPO, 4, token="ghs_w", fetch=fetch) == 5092474
+    assert get_pull_request_author(OWNER, REPO, 4, token="ghs_w", fetch=fetch) == (
+        "repository-presenter[bot]",
+        "Bot",
+    )
     assert seen == [f"{API_ROOT}/repos/{OWNER}/{REPO}/issues/4"]
 
 
-def test_get_pull_request_app_id_is_none_without_an_app_and_raises_on_http_errors() -> None:
+def test_get_pull_request_author_is_none_without_a_user_and_raises_on_http_errors() -> None:
     assert (
-        get_pull_request_app_id(
-            OWNER, REPO, 4, token="t", fetch=lambda u, t: (200, {"performed_via_github_app": None})
-        )
+        get_pull_request_author(OWNER, REPO, 4, token="t", fetch=lambda u, t: (200, {"user": None}))
         is None
     )
     with pytest.raises(RepositoryMetadataError, match="HTTP 404"):
-        get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (404, {}))
+        get_pull_request_author(OWNER, REPO, 4, token="t", fetch=lambda u, t: (404, {}))
     with pytest.raises(RepositoryMetadataError, match="unreachable"):
-        get_pull_request_app_id(OWNER, REPO, 4, token="t", fetch=lambda u, t: (-1, "x"))
+        get_pull_request_author(OWNER, REPO, 4, token="t", fetch=lambda u, t: (-1, "x"))
+
+
+def test_get_app_id_reads_the_public_app_by_slug() -> None:
+    seen: list[str] = []
+
+    def fetch(url: str, token: str | None) -> tuple[int, object]:
+        seen.append(url)
+        return 200, {"id": 5092474, "slug": "repository-presenter"}
+
+    assert get_app_id("repository-presenter", token="ghs_w", fetch=fetch) == 5092474
+    assert seen == [f"{API_ROOT}/apps/repository-presenter"]
+    with pytest.raises(RepositoryMetadataError, match="HTTP 404"):
+        get_app_id("nope", token="t", fetch=lambda u, t: (404, {}))
 
 
 # ---------------------------------------------------------------------------

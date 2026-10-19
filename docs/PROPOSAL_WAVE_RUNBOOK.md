@@ -121,7 +121,8 @@ For each target `R` and PR number `N` (from the run log line `pr: <url>`):
    `gh pr view N -R R --json author,headRefName,baseRefName,isCrossRepository,files,commits`
    expects author `app/repository-presenter`, head `repository-presenter/readme-update`,
    `isCrossRepository` false, exactly one file `README.md`.
-   `gh api repos/R/issues/N --jq .performed_via_github_app.id` must print `5092474`.
+   `gh api repos/R/issues/N --jq .user.login` must print `repository-presenter[bot]` (the
+   `performed_via_github_app` field is null on App-created pull requests; do not use it).
 2. The diff equals the sealed README byte for byte:
    `gh api "repos/R/contents/README.md?ref=repository-presenter/readme-update" --jq .content |
    base64 -d | sha256sum` equals the sha256 of `candidates/<slug>/<revision>/README.md` (the
@@ -323,7 +324,7 @@ The owner's steps (1 to 3 in any order; 4 before 5, because the seed pin comes w
 
 | # | Do | Observe |
 |---|---|---|
-| P1 | step 7 | one pull request from `repository-presenter/readme-update` to `main`, authored by the App (`verify`: `performed by the App`, id 5092474; `gh api repos/babar-raza/presenter-sandbox/issues/1 --jq .performed_via_github_app.id`), one file `README.md`, branch README equal to the bundle's, `main` untouched, body carrying `candidate_hash` and `source_revision`, one commit `Update README via repository-presenter` naming the approver. The title is the bundle's `PULL_REQUEST.md` title (`docs(readme): add the Dependencies section and its Navigation item and lay out the At a Glance diagram left to right`); Files changed shows exactly the three hunks of `README.patch` (the contents-list item, the `## Dependencies` section, the diagram) |
+| P1 | step 7 | one pull request from `repository-presenter/readme-update` to `main`, authored by the App (`verify`: `performed by the App`, id 5092474; `gh api repos/babar-raza/presenter-sandbox/issues/1 --jq .user.login` prints `repository-presenter[bot]`), one file `README.md`, branch README equal to the bundle's, `main` untouched, body carrying `candidate_hash` and `source_revision`, one commit `Update README via repository-presenter` naming the approver. The title is the bundle's `PULL_REQUEST.md` title (`docs(readme): add the Dependencies section and its Navigation item and lay out the At a Glance diagram left to right`); Files changed shows exactly the three hunks of `README.patch` (the contents-list item, the `## Dependencies` section, the diagram) |
 | P2 no duplicate | dispatch step 7 again | `effected=True - no change needed`; still one pull request, no new commit (`verify` unchanged) |
 | P3 closed is final | O closes pull request 1 without merging, then dispatch again | the `write` job fails with `pr_already_closed`; no new pull request or commit; `verify --expect closed` |
 | P4 stale source | O commits anything to the sandbox `main` (UI: edit a file), then dispatch again | `source_moved` (the dry-run job already refuses); nothing written; the next canary needs a new seed pin, bundle and record (A1 to A3, then steps 4 to 5) |

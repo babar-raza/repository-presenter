@@ -208,6 +208,9 @@ class FakeGitHubRest:
         if method == "GET" and path == "/installation/repositories":
             listed = [{"full_name": name} for name in self.installation_scope]
             return 200, {"total_count": len(listed), "repositories": listed}
+        app = re.match(r"^/apps/([^/]+)$", path)
+        if method == "GET" and app is not None:
+            return 200, {"id": self.app_id, "slug": app[1]}
         match = re.match(r"^/repos/([^/]+)/([^/]+)(/.*)?$", path)
         if match is None:
             return 404, {"message": "Not Found"}
@@ -349,7 +352,9 @@ class FakeGitHubRest:
             "head": {"ref": head, "repo": {"full_name": repository}},
             "base": {"ref": payload["base"]},
             "user": {"login": "repository-presenter[bot]", "type": "Bot"},
-            "performed_via_github_app": {"id": self.app_id},
+            # GitHub leaves this null on a pull request an App created (run 38883943550); the App
+            # is attested by the author and the public /apps/{slug} id instead.
+            "performed_via_github_app": None,
         }
         repo.pulls.append(pull)
         return 201, self._pull_view(repository, pull)
@@ -397,6 +402,7 @@ class FakeGitHubRest:
                     "state": item["state"],
                     "title": item["title"],
                     "body": item["body"],
+                    "user": item.get("user"),
                     "performed_via_github_app": item.get("performed_via_github_app"),
                 }
         return 404, {"message": "Not Found"}
@@ -433,7 +439,8 @@ class FakeGitHubRest:
             "state": "open",
             "title": payload["title"],
             "body": payload.get("body") or "",
-            "performed_via_github_app": {"id": self.app_id},
+            "user": {"login": "repository-presenter[bot]", "type": "Bot"},
+            "performed_via_github_app": None,
         }
         repo.issues.append(issue)
         return 201, {

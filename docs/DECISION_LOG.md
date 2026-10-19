@@ -6009,3 +6009,8 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
     exact gap this project's own 2026-10-15 judge audit (this file, PR #308 entry) flagged but
     did not fix.
   - **Reverse by:** revert the commit.
+- **2026-10-19 - first README pull request on a product repository (Cells-Java #7), and the attestation fix that lets the tool recognise it (G6-W02, G3-W09).**
+  - **Artifact.** https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/pull/7, opened by `propose.yml` in correction mode (run 39051331176) as `repository-presenter[bot]`: one commit, one file, the branch `README.md` byte-equal to the reviewed bundle (sha256 `2ae194d91cdb...`), the base branch untouched at `c65329e7257b`.
+  - **Defect.** The run ended `refused (token_app_mismatch)` although the write had succeeded: GitHub leaves `performed_via_github_app` null on a pull request an App created, so the post-create check read "no App". The fix attests the author instead: a `Bot` account `repository-presenter[bot]` whose App slug resolves to id 5092474. The same failure was first seen in run 38883943550.
+  - **Proof, live and read-only.** The fixed check accepts PR #7 and refuses the human-authored Cells-.NET PR #3 ("authored by User babar-raza").
+  - **Reverse by:** revert the commit; PR #7 can simply be closed.
