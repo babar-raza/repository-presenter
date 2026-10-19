@@ -1132,6 +1132,18 @@ def compose_correction_pull_request(
     policy_version: str,
 ) -> PullRequestContent:
     document = _json(bundle / CORRECTIONS_NAME)
+    if document.get("kind") == "live_anchored":  # the second family has its own text
+        from repository_presenter.components.readme_correction.live_pull_request import (
+            compose_live_anchored_pull_request,
+        )
+
+        return compose_live_anchored_pull_request(
+            bundle=bundle,
+            repository=repository,
+            candidate_hash=candidate_hash,
+            source_revision=source_revision,
+            policy_version=policy_version,
+        )
     delta = _json(bundle / DELTA_NAME)
     facts = _facts(bundle)
     edits: list[dict[str, Any]] = document["edits"]

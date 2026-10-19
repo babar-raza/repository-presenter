@@ -21,6 +21,7 @@ corrected README) and the registry write gate remain what authorize a proposal.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -34,6 +35,8 @@ from repository_presenter.components.readme_correction.bundle import (
     README_NAME,
     TREE_NAME,
 )
+from repository_presenter.components.readme_correction.live_bundle import OPERATIONS_NAME
+from repository_presenter.components.readme_correction.model import KIND_FIELD, KIND_LIVE_ANCHORED
 from repository_presenter.components.readme_correction.pull_request import (
     compose_correction_pull_request,
 )
@@ -56,6 +59,8 @@ BUNDLE_FILES: tuple[str, ...] = (
 )
 #: Everything a committed correction directory holds besides ``SHA256SUMS`` itself.
 COMMITTED_FILES: frozenset[str] = frozenset((*BUNDLE_FILES, PULL_REQUEST_NAME))
+#: A live-anchored bundle (``live_bundle.py``) holds one file more: the operations it applies.
+LIVE_ANCHORED_COMMITTED_FILES: frozenset[str] = COMMITTED_FILES | {OPERATIONS_NAME}
 _LINE = re.compile(r"^([0-9a-f]{64})  ([A-Za-z0-9._-]+)$")
 
 
@@ -79,15 +84,30 @@ def write_sums(directory: Path) -> None:
     (directory / SUMS_NAME).write_bytes("".join(lines).encode("utf-8"))
 
 
+def committed_files(directory: Path) -> frozenset[str]:
+    """The file set ``directory`` must hold: the correction set, or the live-anchored set when its
+    manifest says ``kind: live_anchored``. A manifest that cannot be read leaves the correction
+    set, so the typed gate (which reads it too) refuses the bundle for its own reason."""
+    try:
+        manifest = json.loads((directory / MANIFEST_NAME).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return COMMITTED_FILES
+    if isinstance(manifest, dict) and manifest.get(KIND_FIELD) == KIND_LIVE_ANCHORED:
+        return LIVE_ANCHORED_COMMITTED_FILES
+    return COMMITTED_FILES
+
+
 def sums_problems(directory: Path) -> list[str]:
     """Why ``directory`` is not a committed correction bundle with intact digests; empty when it is.
 
     Checks, each independently: the directory and ``SHA256SUMS`` are real (not links); every line
-    of ``SHA256SUMS`` is ``<64 hex>  <name>`` with a name from :data:`COMMITTED_FILES`, once; the
-    listed names are exactly :data:`COMMITTED_FILES`; the directory holds nothing else, and no
+    of ``SHA256SUMS`` is ``<64 hex>  <name>`` with a name from the committed file set, once; the
+    listed names are exactly the committed file set (:data:`COMMITTED_FILES`, plus
+    ``operations.json`` for a live-anchored bundle); the directory holds nothing else, and no
     entry is a link or a subdirectory; every digest is the file's."""
     if directory.is_symlink() or not directory.is_dir():
         return [f"{directory.name} is not a regular directory"]
+    wanted = committed_files(directory)
     sums = directory / SUMS_NAME
     if sums.is_symlink() or not sums.is_file():
         return [f"{SUMS_NAME} is missing"]
@@ -99,7 +119,7 @@ def sums_problems(directory: Path) -> list[str]:
     expected: dict[str, str] = {}
     for number, line in enumerate(text.splitlines(), start=1):
         found = _LINE.match(line)
-        if found is None or found.group(2) not in COMMITTED_FILES:
+        if found is None or found.group(2) not in wanted:
             problems.append(f"{SUMS_NAME} line {number} is not '<sha256>  <committed file>'")
         elif found.group(2) in expected:
             problems.append(f"{SUMS_NAME} lists {found.group(2)} twice")
@@ -111,11 +131,11 @@ def sums_problems(directory: Path) -> list[str]:
     for name, path in sorted(present.items()):
         if path.is_symlink() or not path.is_file():
             problems.append(f"{name} is not a regular file")
-        elif name not in COMMITTED_FILES:
+        elif name not in wanted:
             problems.append(f"{name} is not part of a committed correction bundle")
-    for name in sorted(COMMITTED_FILES - set(expected)):
+    for name in sorted(wanted - set(expected)):
         problems.append(f"{SUMS_NAME} does not list {name}")
-    for name in sorted(COMMITTED_FILES - set(present)):
+    for name in sorted(wanted - set(present)):
         problems.append(f"{name} is missing")
     for name, digest in sorted(expected.items()):
         listed = present.get(name)

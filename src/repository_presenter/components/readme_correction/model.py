@@ -66,6 +66,8 @@ MAX_ADDITION = 4000
 MAX_SPAN = 200
 KIND_FIELD = "kind"
 KIND_CORRECTION = "correction"
+#: A bundle of live-anchored operations (``live_ops.py``): the second, separately typed family.
+KIND_LIVE_ANCHORED = "live_anchored"
 
 
 class InvalidEditError(ValueError):
