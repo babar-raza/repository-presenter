@@ -68,10 +68,94 @@ def _fact(raw: dict[str, Any]) -> Fact:
     )
 
 
+# The five aspose-jmap-foss rows this module's fixture was recorded from (wave-6 reseal,
+# cut 8fbf2166) were removed from data/registry.json 2026-10-17 (owner ruling,
+# docs/DECISION_LOG.md, this date; aspose-jmap-foss excluded from scope). This module tests the
+# unpublished-package install logic, not the live registry's current membership, so the exact
+# entries are frozen here (captured from data/registry.json immediately before removal) rather
+# than made to depend on a registry admission that no longer exists.
+_RETIRED_JMAP_ENTRIES: dict[str, dict[str, Any]] = {
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp",
+        "family": "jmap",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-cpp",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233504,
+            "node_id": "R_kgDOUs4FYA",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Go": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Go",
+        "family": "jmap",
+        "platform": "go",
+        "ecosystem": "go",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-go",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233108,
+            "node_id": "R_kgDOUs4D1A",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Java": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Java",
+        "family": "jmap",
+        "platform": "java",
+        "ecosystem": "java",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-java",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233642,
+            "node_id": "R_kgDOUs4F6g",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Python": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Python",
+        "family": "jmap",
+        "platform": "python",
+        "ecosystem": "python",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-python",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389232730,
+            "node_id": "R_kgDOUs4CWg",
+        },
+    },
+    "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust": {
+        "repository": "aspose-email-foss/Aspose.JMAP-FOSS-for-Rust",
+        "family": "jmap",
+        "platform": "rust",
+        "ecosystem": "rust",
+        "mode": "dry_run",
+        "policy_profile": "aspose-email-foss-jmap-rust",
+        "active": True,
+        "provider_identity": {
+            "provider": "github",
+            "repository_id": 1389233264,
+            "node_id": "R_kgDOUs4EcA",
+        },
+    },
+}
+
+
 def _entry(name: str) -> RegistryEntry:
-    """The admitted registry entry of the recorded repository (``data/registry.json``)."""
+    """The admitted registry entry of the recorded repository (``data/registry.json``), or the
+    frozen snapshot above for a repository retired from the registry since this row was recorded."""
+    repository = ROWS[name]["repository"]
     registry = json.loads((REPO_ROOT / "data" / "registry.json").read_text("utf-8"))
-    raw = next(e for e in registry["entries"] if e["repository"] == ROWS[name]["repository"])
+    raw = next((e for e in registry["entries"] if e["repository"] == repository), None)
+    if raw is None:
+        raw = _RETIRED_JMAP_ENTRIES[repository]
     return RegistryEntry.model_validate(raw)
 
 

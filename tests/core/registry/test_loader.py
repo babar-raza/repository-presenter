@@ -53,7 +53,7 @@ def test_real_registry_validates_against_its_schema() -> None:
 
 def test_real_registry_is_the_frozen_portfolio() -> None:
     registry = load_registry(REGISTRY)
-    assert len(registry.entries) == 44
+    assert len(registry.entries) == 36
     assert [e.repository for e in registry.entries] == sorted(
         (e.repository for e in registry.entries), key=str.casefold
     )
@@ -82,29 +82,19 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     # followed once its ecosystem had a platform plugin (platforms/nodejs.py; the guard in
     # tests/components/readme/extractors/platforms/test_registry.py keeps an entry from landing
     # without one). The registry and the reachable ceiling both move 36 to 43, then 44.
+    # 2026-10-17 (owner ruling, docs/DECISION_LOG.md, this date): aspose-jmap-foss excluded from
+    # scope; all eight entries removed, not merely disabled. The registry and the reachable
+    # ceiling both move 44 back to 36.
     assert {e.mode for e in registry.entries} == {"full", "dry_run"}
-    assert len(enabled_entries(registry)) == 44
+    assert len(enabled_entries(registry)) == 36
 
 
-def test_the_jmap_family_is_admitted_at_dry_run_in_the_email_organization() -> None:
+def test_organization_level_entries_the_owner_did_not_choose_stay_unregistered() -> None:
+    # Two such entries (not allow-listed, so never touched): the Go MCP server and the Slides
+    # organization's `.github` repository. Formerly shared with the eight aspose-jmap-foss
+    # entries this function was named for; those are excluded from the registry 2026-10-17
+    # (owner ruling, docs/DECISION_LOG.md, this date), so this now checks only this one invariant.
     registry = load_registry(REGISTRY)
-    jmap = [e for e in registry.entries if e.family == "jmap"]
-    assert {e.platform for e in jmap} == {
-        "python",
-        "typescript",
-        "go",
-        "rust",
-        "net",
-        "cpp",
-        "java",
-        "nodejs",
-    }
-    assert all(e.platform == e.ecosystem for e in jmap)
-    assert {e.mode for e in jmap} == {"dry_run"}
-    assert {e.owner for e in jmap} == {"aspose-email-foss"}
-    assert all(e.active and e.issues_mode is None for e in jmap)
-    # Two organization-level entries the owner did not choose stay unregistered (not allow-listed,
-    # so never touched): the Go MCP server and the Slides organization's `.github` repository.
     for repository in (
         "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go-MCP",
         "aspose-slides-foss/.github",

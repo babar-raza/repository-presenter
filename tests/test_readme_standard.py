@@ -43,27 +43,10 @@ def test_all_registry_repositories_are_assigned_exactly_once() -> None:
         a["repository"]
         for a in yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
     ]
-    assert len(registered) >= 44  # the 36 surveyed first plus the eight JMAP libraries
+    # 36 (owner ruling 2026-10-17, docs/DECISION_LOG.md, this date: the eight aspose-jmap-foss
+    # libraries excluded from the registry; this test's own count was 44 before that).
+    assert len(registered) >= 36
     assert Counter(assigned) == Counter(registered)
-
-
-def test_the_eight_jmap_libraries_are_assigned_with_the_family_condition() -> None:
-    assignments = yaml.safe_load((DATA / "assignments.yaml").read_text("utf-8"))["assignments"]
-    jmap = [a for a in assignments if a["family"] == "jmap"]
-    assert len(jmap) == 8
-    assert {a["ecosystem"] for a in jmap} == {
-        "net",
-        "cpp",
-        "go",
-        "java",
-        "nodejs",
-        "python",
-        "rust",
-        "typescript",
-    }
-    assert all("no_aspose_product_pages" in a["special_structures"] for a in jmap)
-    assert {a["archetype"] for a in jmap} == {"std-source", "std-native"}
-    assert all(a["api_size_class"] == "none" for a in jmap)
 
 
 def test_the_command_line_reports_ok_on_the_committed_data(

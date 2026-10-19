@@ -21,7 +21,7 @@ files, never from memory of a previous iteration.
   decision 2026-09-04, `plans/idea.md`; `RESEARCH_AND_GUIDELINES.md` §29), read-only, pinned at
   `b3ad363aaf69ce4d00d9aa02ecc59616b9705814`; never modify it, never import from it at runtime.
   `tools/` is owner/reviewer tooling (`tools/README.md`) — never read for an acceptance predicate,
-  never edited, never imported by anything under `src/`.
+  never edited, never imported by anything under `src/`; the one exception is `tools/lane_r_audit/` (G3-W12 card C1).
 - Pushing THIS repository to its own `origin` is required, not forbidden, so hosted CI runs. Follow
   `publication.control_repository` in `project/state.yaml`: after the full local CI-equivalent
   passes, push `main` directly while `main_protected: false`; once protected, push a branch, open a
@@ -29,7 +29,7 @@ files, never from memory of a previous iteration.
   the start of each iteration with `gh run list --limit 3`; a red run is `FAILED_INTERNAL` and is
   fixed before any new work.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
-  document. Writable governance: `project/state.yaml`; file records and pull notes in
+  document (except what `project/loop-prompt-ship.md` names). Writable governance: `project/state.yaml`; file records and pull notes in
   `migration/reuse-manifest.yaml`; `evidence/build/<gate>/manifest.json`; one coherent fix to a
   document predicate this iteration proved wrong; a dated facts-only measurement paragraph in the
   RESEARCH section the item names; a `PROVISIONAL` entry in §31 (§5) — never a rewrite of the
@@ -39,7 +39,7 @@ files, never from memory of a previous iteration.
 - A work item's purpose stays under about a thousand characters and closes in a handful of
   iterations. When an item's scope grows past that, or three iterations move it without a predicate
   closing, split it in `project/state.yaml` into items that each seal something — never widen it.
-- Progress has one unit: authorizable candidates, N/36 (owner decision D4, 2026-10-11: independent
+- Progress has one unit: authorizable candidates, N/44 (owner decision D4, 2026-10-11: independent
   acceptance review passed and not worse than the live README). `repository-presenter status` prints
   the sealed count from bundles on disk, reported alongside; it is not progress. Nothing else counts.
 - Budgets are hard: `AGENTS.md` at most 210 lines, `docs/EXECUTION_STATE_MACHINE.md` at most 520,

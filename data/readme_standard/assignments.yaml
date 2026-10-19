@@ -4,7 +4,9 @@
 # tools/readme_standard/check_profiles.py proves each registry repository appears
 # exactly once.
 # The eight JMAP libraries were admitted to the registry on 2026-10-11 (seven first, the Node.js
-# library as the 44th entry after them) and surveyed the same day.
+# library as the 44th entry after them) and surveyed the same day. Excluded from the registry
+# 2026-10-17 (owner ruling, docs/DECISION_LOG.md, this date); their assignments removed here in
+# the same commit.
 schema_version: 1
 assignments:
   - repository: aspose-3d-foss/Aspose.3D-FOSS-for-.NET
@@ -172,86 +174,6 @@ assignments:
     voice: neutral_reference
     special_structures: []
     notes: Most complete badge row (five); longest Documentation & Resources (ten items).
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-.NET
-    family: jmap
-    ecosystem: net
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: NuGet id Aspose.JMAP.FOSS shown as the intended id. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Cpp
-    family: jmap
-    ecosystem: cpp
-    archetype: std-native
-    install_channel: native_build
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: Header-only; CMake add_subdirectory or FetchContent; nlohmann::json fetched by CMake. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Go
-    family: jmap
-    ecosystem: go
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: go get of the module path with no tag yet; vendoring or replace is the stated route. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Java
-    family: jmap
-    ecosystem: java
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: Dependencies defers to pom.xml instead of listing it (DEF-27); builds in a Docker Maven container. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Node.js
-    family: jmap
-    ecosystem: nodejs
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: npm install of the intended package aspose-jmap-foss shown before it exists; ES module for Node.js 18 or later with no runtime dependencies (the global fetch). Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Python
-    family: jmap
-    ecosystem: python
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: pip install of the intended id aspose-jmap-foss shown before it exists. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-Rust
-    family: jmap
-    ecosystem: rust
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: cargo add of the intended crate name shown before it exists. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
-  - repository: aspose-email-foss/Aspose.JMAP-FOSS-for-TypeScript
-    family: jmap
-    ecosystem: typescript
-    archetype: std-source
-    install_channel: source_only
-    api_size_class: none
-    surfaces: [library]
-    voice: neutral_reference
-    special_structures: [no_aspose_product_pages]
-    notes: npm install of the intended package shown before it exists. Standard skeleton, near-identical to its seven siblings; no package published; API Reference is a prose paragraph with no listing (DEF-28); no Aspose product, documentation or reference page exists for the family (404 at survey time), so no banner, docs links or Enterprise paragraph.
   - repository: aspose-font-foss/Aspose.Font-FOSS-for-Python
     family: font
     ecosystem: python

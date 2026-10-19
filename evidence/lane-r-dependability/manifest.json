@@ -1,0 +1,20 @@
+{
+ "control_revision": "4a7baf11926a6ee8707f41b8c6a525367c5f8fcd",
+ "files": {
+  "ledger_baseline.json": "f8a09306c1243de8c4030ba09231dbd51fb232885fd7fa92ddc22a52fa73b766",
+  "P_kept_units.md": "2e0b774f8bbe530dc5f110d38e10037d14d4227c0e0ed144e863346dc75c3880",
+  "plan-audit-1/A_governance.md": "4a07b8428b2b8a7be1e73aba1f882d5797706df8b74940602267a343cdda70b0",
+  "plan-audit-1/B_feasibility.md": "d7667c7294a70f30eff50f997536dec50a31e9ee6e3cdbed8b34477963d58c2c",
+  "plan-audit-1/C_adversarial.md": "c2285a7d14b2bb55d731d09e2b4b2bd08a6001e84b87b4bf43b4e6a4119dffae",
+  "plan-audit-2/A2_round2.md": "28f313249e95b73fd728b61a041cbd776936dd0ea12a5fe1fe91f7f072af35bd",
+  "Q_claims.md": "6a1348a80b791db4f3a597fe90535b81684f58f6ddab0be3b1b07e428b12675b",
+  "R_determinism_review.md": "6c7aefd8e2b6b2fdc5694b534378cb456bf42a3c1dcef9463c1ee43af4ff7d31",
+  "S_preservation_assembler.md": "f56bcc92f7f94686f49ba111ecafae8cb4bd8be5d9aa299f282799bc014f2702",
+  "T_research.md": "05c34918ba13b18631e2d6d82dfda6bca3a3e6f1814de9c62362415ec5a33c15"
+ },
+ "kind": "lane_r_dependability_investigation",
+ "recorded_at": "2026-10-16",
+ "redaction": "no credentials, tokens or provider output; counts, file and line references, bundle names and verdicts only; reports are agent-written and approximate where they say so",
+ "schema_version": 1,
+ "window": "the 30 sealed bundles on disk at the control revision and the hand triage of 2026-10-16 (review-packets, not committed); plan-audit-1/ holds the three adversarial audits of the plan commit 1aafd9dc (agent-written, approximate where they say so); plan-audit-2/ holds the second-round audit of the plan commit 5f8f7ef5"
+}
