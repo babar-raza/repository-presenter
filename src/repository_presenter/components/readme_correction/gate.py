@@ -19,6 +19,7 @@ so everything after it (source-revision recheck, authorization record, the PR ef
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 from typing import Any
@@ -106,7 +107,15 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
         "repository"
     ):
         return "facts.json is for another repository or revision than the manifest"
-    ctx = Context(entry, facts, original_text, tree, str(manifest.get("readme_path", "README.md")))
+    requirements_v2 = (document.get("rendering") or {}).get(files.REQUIREMENTS_RENDERING) == 2
+    ctx = Context(
+        entry,
+        facts,
+        original_text,
+        tree,
+        str(manifest.get("readme_path", "README.md")),
+        requirements_v2,
+    )
     try:
         again, delta = correct_settled(ctx, original)
     except (CorrectionError, ValueError) as exc:
@@ -133,7 +142,7 @@ def correction_refusal(bundle: Path, manifest: dict[str, Any], entry: RegistryEn
             fact = ctx.fact(fact_id)
             if fact is None or fact.polarity != wanted:
                 return f"{edit.detector} cites {fact_id} which is not a {wanted} fact"
-    final = Context(entry, facts, again.corrected, tree, ctx.readme_path)
+    final = dataclasses.replace(ctx, readme=again.corrected)
     if correct_settled(final, original)[0].edits:
         return "a run over the corrected README finds further corrections: the result is not final"
     if not again.edits:
