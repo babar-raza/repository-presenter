@@ -1136,3 +1136,27 @@ def test_a_whole_section_and_a_links_section_each_get_their_own_sentence(
     )
     assert "contents list" not in body
     assert_plain(content)
+
+
+def test_a_stray_fence_fix_is_described_as_what_it_is() -> None:
+    from repository_presenter.components.readme_correction import pull_request as pr
+
+    edit = {
+        "detector": "stray_fence",
+        "kind": "STRUCTURE_FIX",
+        "line": 219,
+        "original": "```  ",
+        "replacement": "",
+        "evidence": [
+            {
+                "fact_id": None,
+                "kind": "readme_structure",
+                "status": "README_TEXT",
+                "value": "README.md:219",
+            }
+        ],
+    }
+    assert "stray closing code fence" in pr._structure_phrase([edit])
+    assert pr._parts("structure", [edit], pr._Dev()) == ["remove a stray closing code fence"]
+    why = pr._why(edit)
+    assert "never opened" in why and "does not" not in why.split("never opened")[0]
