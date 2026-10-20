@@ -43,6 +43,10 @@ EDIT_KINDS: frozenset[str] = frozenset(
 REPORT_ONLY_REASONS: dict[str, str] = {
     "RE_ENABLE_CONDITION_UNMET": "the detector is report-only until its re-enable condition holds",
     "ALREADY_SHOWN": "the README already shows an equivalent of the candidate",
+    "CONTRADICTS_README_PUBLICATION_CLAIM": (
+        "the README itself says the package is not published; an insertion that asserts "
+        "publication would contradict a sentence the maintainers wrote"
+    ),
     "NEEDS_INSTALL_FIRST": "the candidate command needs an install the evidence does not name",
     "NOT_IN_VERIFIED_CHAIN": (
         "the command is not a step of the one CI job (or project file) whose steps were verified"
@@ -202,6 +206,13 @@ class Context:
     readme: str
     tree_paths: tuple[str, ...]
     readme_path: str = "README.md"
+    #: Version 2 of how the Requirements additions read: a ``;``-joined MSBuild
+    #: ``TargetFrameworks`` value is stated as the list it is ("Targets `a` and `b`.", not pasted as
+    #: a requirement), and a dependency group of one short line joins the section's list instead of
+    #: taking an H3 of its own. A bundle written before records no ``rendering`` in
+    #: ``corrections.json``, and the gate re-derives it the way it was written, so a sealed bundle
+    #: keeps verifying.
+    requirements_v2: bool = True
 
     @functools.cached_property
     def lines(self) -> tuple[ReadmeLine, ...]:

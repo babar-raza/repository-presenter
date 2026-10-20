@@ -18,8 +18,36 @@ CMAKE_FACT_ID = "package:cmake_minimum"
 _GROUP = "### Native and System Requirements"
 
 
+#: A floor row whose value is a ``;``-joined MSBuild ``TargetFrameworks`` list.
+_MULTI_TARGET_ROW = re.compile(
+    r"^- Requires [^`\n]+`(?P<value>[^`\n;]+(?:;[^`\n;]+)+)`(?P<rest>.*)$"
+)
+
+
+def split_targets(body: str) -> str:
+    """``body`` with each ``Requires .NET `a;b``` row rewritten as ``Targets a and b.``: the project
+    file's list of frameworks it builds for, not frameworks a consumer must all have. The names stay
+    plain text: BC-04 accepts a code span only when it is a whole fact value or a line the
+    renderer wrote, and a single framework is neither."""
+    lines = []
+    for line in body.splitlines():
+        match = _MULTI_TARGET_ROW.match(line)
+        if match is not None:
+            names = [name.strip() for name in match.group("value").split(";") if name.strip()]
+            joined = names[0] if len(names) == 1 else ", ".join(names[:-1]) + f" and {names[-1]}"
+            line = f"- Targets {joined}{match.group('rest')}"
+        lines.append(line)
+    text = "\n".join(lines)
+    return text + "\n" if body.endswith("\n") else text
+
+
 def augment_dependencies(ctx: Context, body: str) -> str:
-    """``body`` (a rendered Dependencies section) without a CMake minimum row the README states."""
+    """``body`` (a rendered Dependencies section) without a CMake minimum row the README states,
+    and with a list of target frameworks stated as the list it is."""
+    return _without_stated_cmake(ctx, split_targets(body) if ctx.requirements_v2 else body)
+
+
+def _without_stated_cmake(ctx: Context, body: str) -> str:
     cmake = ctx.supported(CMAKE_FACT_ID)
     if cmake is None or not body:
         return body

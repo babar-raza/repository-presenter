@@ -35,6 +35,7 @@ from repository_presenter.components.readme.evidence.facts.commands import (
     matrix_axes,
 )
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.validation import claims as bc14
 from repository_presenter.components.readme_correction.augment import (
     CMAKE_FACT_ID,
     augment_dependencies,
@@ -382,11 +383,16 @@ def add_dev_commands(ctx: Context) -> DetectorResult:
 DEPENDENCIES_HEADING = re.compile(r"dependenc|requirement|prerequisite", re.IGNORECASE)
 _BULLET_KEY = re.compile(r"^- `([^`]+)`")
 _ZERO = re.compile(
-    r"(?i)\b(?:no|zero|without)\s+(?:required\s+|third[- ]party\s+|runtime\s+)*dependenc"
+    r"(?i)\b(?:no|zero|without)\s+(?:required\s+|third[- ]party\s+|runtime\s+|package\s+)*dependenc"
 )
 
 
 _NONE = re.compile(r"(?i)\bnone\b")
+#: A group whose one line is no longer than this is a stub, not a subsection.
+_STUB_LINE = 200
+#: The groups that state what the environment needs, which a Requirements list already holds; an
+#: Optional or Development group never joins a list of requirements.
+_FOLDABLE = frozenset({"### Required Package Dependencies", "### Native and System Requirements"})
 
 
 def _bullet_token(line: str) -> str | None:
@@ -394,6 +400,9 @@ def _bullet_token(line: str) -> str | None:
     match = _BULLET_KEY.match(line)
     if match is not None:
         return re.split(r"[<>=!~ \[]", match.group(1), maxsplit=1)[0].lower()
+    if line.startswith("- Targets "):  # a target-framework list: the first framework names it
+        target = re.match(r"- Targets (\S+)", line)
+        return target.group(1).rstrip(".,").lower() if target else None
     floor = re.search(r"(\d+(?:\.\d+)*)", line)
     return floor.group(1) if line.startswith("- Requires") and floor else None
 
@@ -420,6 +429,7 @@ def add_dependency_groups(ctx: Context) -> DetectorResult:
         elif groups and line.strip():
             groups[-1][1].append(line)
     block: list[str] = []
+    groups_kept: list[tuple[str, list[str]]] = []
     for heading, lines in groups:
         if heading[4:].strip().lower() in headings:
             continue
@@ -432,7 +442,22 @@ def add_dependency_groups(ctx: Context) -> DetectorResult:
             elif token is not None and token not in readme:
                 kept.append(line)
         if kept:
+            groups_kept.append((heading, kept))
+    # A group of one short line under its own H3 is noise beside a list the section already has:
+    # the line joins that list as a bullet (a sub-heading is only worth a group of several lines).
+    fold = (
+        ctx.requirements_v2
+        and point.after_list
+        and not any(line.text.startswith("### ") for line in section.lines if not line.in_fence)
+    )
+    bullets: list[str] = []
+    for heading, kept in groups_kept:
+        if fold and heading in _FOLDABLE and len(kept) == 1 and len(kept[0]) <= _STUB_LINE:
+            bullets.append(kept[0] if kept[0].startswith("- ") else f"- {kept[0]}")
+        else:
             block += [heading, "", *kept, ""]
+    if bullets:
+        block = [*bullets, "", *block] if block else [*bullets, ""]
     if not block:
         return DetectorResult()
     cited = tuple(
@@ -453,7 +478,7 @@ def add_dependency_groups(ctx: Context) -> DetectorResult:
                 start=point.offset,
                 end=point.offset,
                 original="",
-                replacement=addition_text(ctx, point, block[:-1], continue_list=False),
+                replacement=addition_text(ctx, point, block[:-1], continue_list=bool(bullets)),
                 fact_ids=cited,
                 rationale=(
                     f"'{section.title}' names none of the dependency information of the cited "
@@ -755,6 +780,30 @@ def add_version_badge(ctx: Context) -> DetectorResult:
     family = _badge_family(badge)
     if family and re.search(re.escape(family), ctx.readme, re.IGNORECASE):
         return DetectorResult()
+    unpublished = [
+        finding
+        for finding in bc14.claim_findings(ctx.readme, ctx.facts)
+        if "is not published" in finding.detail
+    ]
+    if unpublished:  # the badge says "published"; the maintainers' own sentence says "not yet"
+        claim = unpublished[0]
+        return DetectorResult(
+            findings=(
+                Finding(
+                    "add_version_badge",
+                    claim.line + 1,
+                    ctx.lines[claim.line].text,
+                    "the registry lists the package, but the README says it is not published "
+                    f"({ctx.lines[claim.line].text.strip()!r}); a published-version badge would "
+                    "contradict that sentence, so it is not added",
+                    (PUBLISHED_VERSION_FACT_ID,),
+                    report_only_reason="CONTRADICTS_README_PUBLICATION_CLAIM",
+                    candidate=badge,
+                    re_enable="the README no longer says the package is unpublished (the "
+                    "claim_publication finding is resolved by the maintainers)",
+                ),
+            )
+        )
     preamble: list[ReadmeLine] = []
     for line in ctx.lines:
         if not line.in_fence and line.text.startswith("## "):

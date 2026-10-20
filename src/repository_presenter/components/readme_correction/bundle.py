@@ -41,6 +41,9 @@ CORRECTIONS_NAME = "corrections.json"
 TREE_NAME = "tree.txt"
 DELTA_NAME = "validation_delta.json"
 SCHEMA_VERSION = 1
+#: ``corrections.json`` ``rendering``: the behaviours of the run a later re-derivation must repeat
+#: (a bundle that does not record one was written by the run that preceded it).
+REQUIREMENTS_RENDERING = "requirements"
 _VALUE_LIMIT = 160
 
 
@@ -103,6 +106,7 @@ def corrections_document(
         "repository": ctx.facts.repository,
         "source_revision": ctx.facts.source_revision,
         "readme_path": ctx.readme_path,
+        **({"rendering": {REQUIREMENTS_RENDERING: 2}} if ctx.requirements_v2 else {}),
         "original_sha256": sha256(original),
         "corrected_sha256": sha256(result.corrected.encode("utf-8")),
         "summary": dict(sorted(kinds.items())),
