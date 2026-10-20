@@ -261,7 +261,10 @@ from repository_presenter.components.readme_correction.gate import load_proposab
 from repository_presenter.components.readme_correction.pull_request import (
     compose_correction_pull_request,
 )
-from repository_presenter.components.readme_correction.run import produce_correction
+from repository_presenter.components.readme_correction.run import (
+    produce_correction,
+    produce_live_anchored,
+)
 from repository_presenter.core.authorization.proposal import (
     AUTHORIZATION_DIRNAME,
     CURRENT_POLICY_VERSION,
@@ -1145,6 +1148,18 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     correct.add_argument(
+        "--ops",
+        type=Path,
+        default=None,
+        metavar="FILE",
+        help=(
+            "an operations.json of live-anchored operations (retitle, reflow, insert before a "
+            "heading, delete a broken list item) to apply to the live README instead of running "
+            "the detectors; needs --facts for exactly the registry head's revision, and writes a "
+            "`live_anchored` bundle that holds the operations as operations.json"
+        ),
+    )
+    correct.add_argument(
         "--out",
         type=Path,
         required=True,
@@ -1593,6 +1608,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             sandbox=args.sandbox,
             receipts=args.receipts,
             verify_commands=args.verify_commands,
+            ops=args.ops,
         )
     if args.command == "propose":
         return run_propose(
@@ -3245,8 +3261,12 @@ def run_correct_readme(
     sandbox: bool = False,
     receipts: Path | None = None,
     verify_commands: bool = False,
+    ops: Path | None = None,
 ) -> int:
     """``correct-readme``: write the correction bundle for ``repository``'s live README.
+
+    ``ops`` switches to the live-anchored family: the operations of that file are checked and
+    applied instead of the detectors running (``produce_live_anchored``); it needs ``facts_path``.
 
     Read-only toward the target, no model call, no write beyond ``out``. The hard allow-list is
     checked before any repository-specific network work, exactly as ``present`` does. ``sandbox``
@@ -3254,6 +3274,9 @@ def run_correct_readme(
     extraction it starts."""
     root = _resolve_root(root_argument)
     if root is None:
+        return EXIT_USAGE
+    if ops is not None and (facts_path is None or receipts is not None or verify_commands):
+        _fail("correct-readme: --ops needs --facts and cannot be combined with --receipts")
         return EXIT_USAGE
     live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
@@ -3278,19 +3301,30 @@ def run_correct_readme(
                 )
             return facts
 
-        outcome = produce_correction(
-            entry,
-            clone_directory=root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
-            out_directory=out,
-            facts_path=facts_path,
-            extract_facts=extract_facts,
-            token=os.environ.get("GH_TOKEN") or None,
-            receipts=ReceiptOptions(
-                directory=receipts,
-                verify=verify_commands,
-                scratch=root / RUNS_DIRNAME / "chains",
-            ),
-        )
+        clone_directory = root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}"
+        if ops is not None and facts_path is not None:
+            outcome = produce_live_anchored(
+                entry,
+                clone_directory=clone_directory,
+                out_directory=out,
+                ops_path=ops,
+                facts_path=facts_path,
+                token=os.environ.get("GH_TOKEN") or None,
+            )
+        else:
+            outcome = produce_correction(
+                entry,
+                clone_directory=clone_directory,
+                out_directory=out,
+                facts_path=facts_path,
+                extract_facts=extract_facts,
+                token=os.environ.get("GH_TOKEN") or None,
+                receipts=ReceiptOptions(
+                    directory=receipts,
+                    verify=verify_commands,
+                    scratch=root / RUNS_DIRNAME / "chains",
+                ),
+            )
         leaks = scan_for_secrets(out, configured_secrets(os.environ))
         if leaks:
             shutil.rmtree(out)
@@ -3304,8 +3338,8 @@ def run_correct_readme(
         return exc.exit_code
     counts = ", ".join(f"{kind} {count}" for kind, count in sorted(outcome.summary.items()))
     detail = (
-        f"{outcome.edits} edit(s) ({counts or 'none'}), {outcome.unapplied} finding(s) left "
-        f"unapplied"
+        f"{outcome.edits} {'operation' if ops is not None else 'edit'}(s) ({counts or 'none'}), "
+        f"{outcome.unapplied} finding(s) left unapplied"
         if outcome.manifest
         else outcome.reason
     )
