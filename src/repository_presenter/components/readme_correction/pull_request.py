@@ -66,7 +66,7 @@ _INTERNAL = (
     r"\b\d{8}-[0-9a-f]{7,8}\b",
     r"\b(?:package|dependency|install_command|license|build_test_asset|link_target|example"
     r"|public_symbol|format|identity|third_party_notices|inherited_unit):[\w.\-@]+",
-    r"\b(?:claim_[a-z_]+|second_h1|unclosed_details|missing_sections|add_[a-z_]+"
+    r"\b(?:claim_[a-z_]+|second_h1|unclosed_details|stray_fence|missing_sections|add_[a-z_]+"
     r"|at_a_glance_diagram|stale_phrase|broken_link|failing_example|report_gaps)\b",
 )
 INTERNAL_IDENTIFIERS = tuple(re.compile(p) for p in _INTERNAL)
@@ -295,6 +295,7 @@ def _structure_phrase(edits: list[dict[str, Any]]) -> str:
     words = {
         "second_h1": "a second top-level heading",
         "unclosed_details": "a `<details>` block that is never closed",
+        "stray_fence": "a stray closing code fence",
     }
     found = [words.get(e["detector"], "broken markup") for e in edits]
     count = _COUNT_WORDS.get(len(edits), str(len(edits)))
@@ -355,6 +356,10 @@ def _parts(category: str, edits: list[dict[str, Any]], dev: _Dev) -> list[str]:
                 "close {n} unclosed <details> blocks",
             ),
             "second_h1": ("demote a stray second H1", "demote {n} stray second H1s"),
+            "stray_fence": (
+                "remove a stray closing code fence",
+                "remove {n} stray closing code fences",
+            ),
         }
         out = []
         for detector, (one, many) in phrases.items():
@@ -674,6 +679,14 @@ def _why(edit: dict[str, Any], dev: _Dev | None = None) -> str:
             f"line {lines[0] if lines else edit['line']} is a second top-level heading, and a "
             "README has one: its title, on line 1. We made it a second-level heading (`##`); if "
             "the line was meant as a note, deleting the `#` instead may read better"
+        )
+    if detector == "stray_fence":
+        return (
+            f"line {lines[0] if lines else edit['line']} closes a code block that was never "
+            "opened, so markdown reads everything after it, up to the next fence, as one code "
+            "block: the headings and links in between do not render, and a link to them "
+            "(for example from the Navigation list) goes nowhere. We emptied that one line; the "
+            "text around it is unchanged"
         )
     if detector == "unclosed_details":
         opened = lines[0] if lines else "?"

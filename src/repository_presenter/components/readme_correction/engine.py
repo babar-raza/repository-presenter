@@ -7,6 +7,7 @@ provider call anywhere on the path, so the zero-call no-op proof is a re-run and
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import Callable
 
 from repository_presenter.components.readme_correction.apply import (
@@ -120,5 +121,5 @@ def is_stable(
     judged (the settled one, once validation has dropped what it must)."""
     again = compute(ctx)
     deterministic = again.corrected == result.corrected and again.edits == result.edits
-    after = Context(ctx.entry, ctx.facts, result.corrected, ctx.tree_paths, ctx.readme_path)
+    after = dataclasses.replace(ctx, readme=result.corrected)
     return deterministic, not compute(after).edits

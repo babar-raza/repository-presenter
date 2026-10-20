@@ -74,6 +74,7 @@ def test_every_registered_detector_is_loaded_by_name() -> None:
         "report_gaps",
         "second_h1",
         "stale_phrase",
+        "stray_fence",
         "unclosed_details",
         "unpublished_install_command",
     ]
