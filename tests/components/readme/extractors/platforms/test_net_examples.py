@@ -617,3 +617,19 @@ def test_an_example_that_fails_to_compile_is_not_retried_with_audit_off(
     )
     assert [r.outcome for r in receipts] == ["FAILED"]
     assert not any("-p:NuGetAudit=false" in call for call in calls)
+
+
+def test_scrubbing_removes_the_outer_base_after_the_inner_one_not_before(tmp_path: Path) -> None:
+    """The clone holds the run directory. Removing the clone's path first leaves 'run/example_001/'
+    behind (a set's iteration order decided, so Windows passed and Linux did not); longest first
+    is deterministic."""
+    run = tmp_path / "run"
+    text = (
+        f"{run / 'example_001' / 'Program.cs'}(1,30): error CS0246 in {tmp_path / 'src' / 'A.cs'}"
+    )
+    for _ in range(5):
+        assert net_examples._scrub(text, run, tmp_path, run / "example_001") == (
+            "Program.cs(1,30): error CS0246 in src/A.cs"
+            if "/" in str(tmp_path)
+            else r"Program.cs(1,30): error CS0246 in src\A.cs"
+        )

@@ -399,6 +399,12 @@ def _visual_studio_roots() -> tuple[Path, ...]:
     return tuple(dict.fromkeys(roots))
 
 
+def _on_windows() -> bool:
+    """Whether this is Windows; a function so a test can say so without patching ``os.name``,
+    which pathlib reads to choose WindowsPath and which breaks every ``Path()`` on Linux."""
+    return os.name == "nt"
+
+
 def vcvarsall_path() -> str | None:
     """The `vcvarsall.bat` of the newest Visual Studio (or Build Tools) install, or None.
 
@@ -409,7 +415,7 @@ def vcvarsall_path() -> str | None:
     recorded = recorded_tool("vcvarsall")
     if recorded:
         return recorded
-    if os.name != "nt":
+    if not _on_windows():
         return None
     found: list[Path] = []
     for root in _visual_studio_roots():

@@ -199,7 +199,10 @@ def error_excerpt(
     differs per machine would also move a sealed candidate's bytes for a reason that is not the
     repository. Returns "" when the tool said nothing.
     """
-    roots = {path for base in bases for path in (base, base.resolve())}
+    roots = sorted(
+        {path for base in bases for path in (base, base.resolve())},
+        key=lambda path: (-len(str(path)), str(path)),  # longest first: see net_examples._scrub
+    )
     cleaned: list[str] = []
     for output in outputs:
         text = output

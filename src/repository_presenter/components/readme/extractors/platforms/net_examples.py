@@ -266,7 +266,10 @@ def _scrub(text: str, run_dir: Path, *others: Path) -> str:
     anything the repository did.
     """
     cleaned = text
-    for base in {path for one in (run_dir, *others) for path in (one, one.resolve())}:
+    # longest first: a base that contains another (the clone holds the run directory) must not be
+    # removed before the one inside it, or a fragment of the inner path is left behind
+    bases = {path for one in (run_dir, *others) for path in (one, one.resolve())}
+    for base in sorted(bases, key=lambda path: (-len(str(path)), str(path))):
         for rendered in (str(base), base.as_posix()):
             cleaned = cleaned.replace(rendered + "\\", "").replace(rendered + "/", "")
             cleaned = cleaned.replace(rendered, "")

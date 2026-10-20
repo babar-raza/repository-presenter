@@ -371,7 +371,7 @@ def test_vcvarsall_is_found_under_a_conventional_install_root_newest_year_first(
 ) -> None:
     monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
     monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
-    monkeypatch.setattr(toolchains.os, "name", "nt")
+    monkeypatch.setattr(toolchains, "_on_windows", lambda: True)
     root = tmp_path / "Program Files (x86)"
     _vcvarsall(root, "2019")
     newest = _vcvarsall(root, "2022")
@@ -384,6 +384,6 @@ def test_vcvarsall_is_none_where_no_visual_studio_is_installed(
 ) -> None:
     monkeypatch.delenv(REGISTRY_VARIABLE, raising=False)
     monkeypatch.setattr(toolchains, "REGISTRY_DEFAULTS", ())
-    monkeypatch.setattr(toolchains.os, "name", "nt")
+    monkeypatch.setattr(toolchains, "_on_windows", lambda: True)
     monkeypatch.setattr(toolchains, "_visual_studio_roots", lambda: (tmp_path / "none",))
     assert toolchains.vcvarsall_path() is None
