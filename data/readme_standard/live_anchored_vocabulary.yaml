@@ -1,0 +1,36 @@
+# The closed vocabulary the live-anchored README operations accept
+# (src/repository_presenter/components/readme_correction/live_ops.py; OWNER-26).
+#
+# The README standard (common.yaml) names each element's heading once. It carries no table of the
+# headings live READMEs use for the same section, so this file is that table, kept small and
+# explicit: a RETITLE may rename a heading to the standard name of an element only when the live
+# heading is listed here for that element (or differs from the standard name by case, "&" versus
+# "and", or punctuation alone, which needs no entry). Everything is additive: nothing here changes
+# the standard, the survey or any archetype, and no other reader of data/readme_standard/ opens it.
+#
+# Each entry is a judgement that a visitor reads both headings as the same section. Add one only
+# with a live README that uses the wording; never to make an operation pass.
+schema_version: 1
+
+# element id (common.yaml) -> the live headings that name the same section
+heading_synonyms:
+  key_capabilities: [Features, Key Features, Capabilities]
+  installation: [Install, Installing]
+  quick_start: [Getting Started]
+  docs_resources: [Documentation, Resources, Examples and API]
+  scope_limitations: [Scope, Limitations]
+  development_testing: [Development, Testing, Building and Testing]
+
+# The H3 buckets an inserted Dependencies section may use (common.yaml, element "dependencies").
+dependency_buckets:
+  - Required Package Dependencies
+  - Optional Dependencies
+  - Native and System Requirements
+  - Development Dependencies
+
+# Words of an inserted diagram label or bullet remainder that make no factual claim, so the
+# word-support check does not demand them in the README: articles, conjunctions, prepositions,
+# and the three modifiers that describe the state of an input ("a new workbook", "an existing
+# file", "multi-format").
+glue_words:
+  [a, an, and, the, of, for, to, in, on, or, with, from, into, as, by, new, existing, multi]

@@ -91,10 +91,12 @@ def test_only_the_registry_reads_the_manifest_directory() -> None:
     # (plans/idea.md "real build status"). It never reads this repository's prompt manifests; the
     # assertion above is what pins that (no module but the registry spells the manifest suffix).
     # The acceptance judge reads data/readme_standard (assignments.yaml: the required elements of a
-    # repository's archetype), never a prompt manifest.
+    # repository's archetype), never a prompt manifest. So does the live-anchored operations
+    # checker (live_anchored_vocabulary.yaml: heading synonyms and dependency buckets).
     assert yaml_readers == [
         "components/readme/acceptance/judge.py",
         "components/readme/evidence/facts/assets.py",
+        "components/readme_correction/live_ops.py",
         "core/llm/prompts.py",
         "cursor.py",
     ]
