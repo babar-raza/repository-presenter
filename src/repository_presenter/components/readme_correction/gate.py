@@ -5,6 +5,10 @@ no-op proof and a ratified acceptance score all hold (``core/candidates.py::prop
 untouched). A correction has no model to review and no prose to score; the honest equivalents,
 each *recomputed here from the bundle's own bytes* rather than read back from a claim, are:
 
+A bundle whose manifest ``kind`` is ``live_anchored`` (``live_ops.py``) is proven by
+``live_gate.live_anchored_refusal`` instead, with the same shape of recomputation: re-check and
+re-apply its operations over the bundle's own original README, facts and tree.
+
 * review  -> the diff touches only enumerated, evidenced edits: re-running the engine on the
   bundle's original README, facts and tree reproduces ``README.md`` and every edit exactly, and the
   engine's confinement proof (nothing outside an edit changed) holds;
@@ -30,11 +34,13 @@ from repository_presenter.components.readme_correction.committed import (
     sums_problems,
 )
 from repository_presenter.components.readme_correction.engine import CorrectionError
+from repository_presenter.components.readme_correction.live_gate import live_anchored_refusal
 from repository_presenter.components.readme_correction.model import (
     DIAGRAM_FIX,
     EDIT_KINDS,
     KIND_CORRECTION,
     KIND_FIELD,
+    KIND_LIVE_ANCHORED,
     STRUCTURE_FIX,
     Context,
     Edit,
@@ -195,7 +201,12 @@ def load_proposable_correction(
             entry = require_listed(load_registry(root / _REGISTRY_RELATIVE_PATH), repository)
         except PresenterError as exc:
             raise WriteRefusedError(Refusal.REGISTRY_NOT_LISTED, str(exc)) from exc
-    reason = correction_refusal(bundle, manifest, entry)
+    if (
+        manifest.get(KIND_FIELD) == KIND_LIVE_ANCHORED
+    ):  # the second family: recomputed, not re-detected
+        reason = live_anchored_refusal(bundle, manifest, entry)
+    else:
+        reason = correction_refusal(bundle, manifest, entry)
     if reason is not None:
         raise WriteRefusedError(Refusal.CORRECTION_NOT_PROVEN, f"{repository}: {reason}")
     text = (bundle / files.README_NAME).read_bytes().decode("utf-8")
