@@ -14,11 +14,14 @@ schema_version: 1
 
 # element id (common.yaml) -> the live headings that name the same section
 heading_synonyms:
-  key_capabilities: [Features, Key Features, Capabilities]
+  # "What it can do" (Aspose.Slides-FOSS-for-.NET, Aspose.Words-FOSS-for-.NET), "Highlights"
+  # (Aspose.PSD-FOSS-for-.NET) and "What it cannot do" (Aspose.Slides-FOSS-for-.NET) were added
+  # with the propose-ops rule; each names the same section of the product in its live README.
+  key_capabilities: [Features, Key Features, Capabilities, What it can do, Highlights]
   installation: [Install, Installing]
   quick_start: [Getting Started]
   docs_resources: [Documentation, Resources, Examples and API]
-  scope_limitations: [Scope, Limitations]
+  scope_limitations: [Scope, Limitations, What it cannot do]
   development_testing: [Development, Testing, Building and Testing]
 
 # The H3 buckets an inserted Dependencies section may use (common.yaml, element "dependencies").
