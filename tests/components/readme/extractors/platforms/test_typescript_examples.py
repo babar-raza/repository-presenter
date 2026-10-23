@@ -428,7 +428,9 @@ def test_a_build_step_that_fails_proves_nothing(tmp_path: Path) -> None:
     product = typescript_examples.build_product(root, workspace, npm, 60.0)
     assert product.verified is False
     assert product.command == ""
-    assert product.summary == "failed (`npm run build` exited 3 after `npm install` exited 0)"
+    assert product.summary == (
+        "failed (`npm run build` exited 3 after `npm install` exited 0: npm error build exploded)"
+    )
 
 
 def test_without_npm_the_build_is_not_attempted(tmp_path: Path) -> None:
@@ -474,7 +476,12 @@ def test_a_failed_package_build_and_a_machine_without_npm_measure_nothing(
     failing = fake_npm(tmp_path / "tools", fail_run=True)
     monkeypatch.setattr(typescript_examples, "npm_executable", lambda: failing)
     assert typescript_examples.verify_typescript_build(root, tmp_path / "ws", 60.0) == (
-        MeasuredBuild(False, "", "failed (`npm run build` exited 3 after `npm install` exited 0)")
+        MeasuredBuild(
+            False,
+            "",
+            "failed (`npm run build` exited 3 after `npm install` exited 0: "
+            "npm error build exploded)",
+        )
     )
     monkeypatch.setattr(typescript_examples, "npm_executable", lambda: None)
     assert typescript_examples.verify_typescript_build(root, tmp_path / "ws-none", 60.0) == (
@@ -514,7 +521,7 @@ def test_a_receipt_carries_what_the_packages_own_build_proved(
     assert receipts[0].build_command == ""
     assert receipts[0].detail.endswith(
         "; the package's own npm build failed (`npm run build` exited 3 after `npm install` "
-        "exited 0)"
+        "exited 0: npm error build exploded)"
     )
 
 

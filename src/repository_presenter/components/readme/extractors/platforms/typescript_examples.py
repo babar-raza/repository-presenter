@@ -51,7 +51,7 @@ from repository_presenter.core.examples import (
     MeasuredBuild,
 )
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
-from repository_presenter.core.toolchains import REGISTRY_VARIABLE, resolve_tool
+from repository_presenter.core.toolchains import REGISTRY_VARIABLE, augmented_path, resolve_tool
 
 _REGISTRY_VARIABLE = REGISTRY_VARIABLE  # the name the registry tests set (core/toolchains.py)
 _PRODUCT_DIRECTORY = PRODUCT_DIRECTORY  # where the build runs (surface/npm_build.py)
@@ -328,7 +328,7 @@ def probe_compiler(compiler: str, workspace: Path, flags: Sequence[str]) -> str:
         [compiler, *flags, "probe.ts"],
         workspace=directory,
         timeout_seconds=120.0,
-        extra_environment=profile_environment(directory),
+        extra_environment=_tool_environment(directory),
     )
     if result.return_code == 0:
         return ""
@@ -336,12 +336,19 @@ def probe_compiler(compiler: str, workspace: Path, flags: Sequence[str]) -> str:
     return said[0][:300] if said else f"exited {result.return_code} and said nothing"
 
 
+def _tool_environment(directory: Path) -> dict[str, str]:
+    """The disposable profile plus a PATH that can find `node`: `tsc.cmd` shells out to it by bare
+    name, so a machine whose Node install is not on PATH could run no example at all (measured
+    2026-10-19). The directory is appended only when absent (`core/toolchains.augmented_path`)."""
+    return {**profile_environment(directory), "PATH": augmented_path()}
+
+
 def _version(compiler: str, workspace: Path) -> str:
     result = execute(
         [compiler, "--version"],
         workspace=workspace,
         timeout_seconds=60.0,
-        extra_environment=profile_environment(workspace),
+        extra_environment=_tool_environment(workspace),
     )
     return result.stdout.strip() if result.return_code == 0 else ""
 
@@ -403,7 +410,7 @@ def verify_typescript_examples(
             [compiler, *flags, _HOST_DECLARATIONS, name],
             workspace=workspace,
             timeout_seconds=timeout_seconds,
-            extra_environment=profile_environment(workspace),
+            extra_environment=_tool_environment(workspace),
         )
         stdout = scrub(result.stdout, workspace)
         stderr = scrub(result.stderr, workspace)

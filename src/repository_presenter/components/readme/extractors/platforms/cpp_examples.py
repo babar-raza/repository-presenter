@@ -50,12 +50,18 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
-from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
+from repository_presenter.core.execution import (
+    ExecutionResult,
+    error_excerpt,
+    execute,
+    profile_environment,
+)
 from repository_presenter.core.toolchains import (
     REGISTRY_VARIABLE,
     recorded_tool,
     resolve_tool,
     subprocess_path,
+    vcvarsall_path,
 )
 
 _MAX_OUTPUT_CHARS = 4000
@@ -215,7 +221,7 @@ def msvc_toolchain(workspace: Path) -> MsvcToolchain | None:
     file or directory" from `rc` with only `cl.exe`'s directory on `PATH`), which `vcvarsall.bat`
     itself adds to `PATH`, not to any of the other three variables.
     """
-    vcvarsall = recorded_tool("vcvarsall")
+    vcvarsall = vcvarsall_path()
     if vcvarsall is None:
         return None
     env_probe = _run_in_activated_shell(vcvarsall, "set", workspace)
@@ -390,6 +396,19 @@ def fetched_includes(build: Path) -> list[Path]:
     ]
 
 
+def _why(result: ExecutionResult, source: Path, workspace: Path) -> str:
+    """``: <the first error lines the tool wrote>``, or "" when it wrote none.
+
+    A bare "configure failed" cannot be told from a harness fault (a CMake with no certificate
+    bundle, a missing toolchain), so every failed step records what it said, without this
+    machine's paths (`core.execution.error_excerpt`).
+    """
+    if result.timed_out:
+        return ""  # cut off, not failed: what it had printed so far is progress, not an error
+    said = error_excerpt(result.stderr, result.stdout, bases=(source, workspace))
+    return f": {said}" if said else ""
+
+
 def build_product(
     source: Path, workspace: Path, path: str, cmake: str | None, ninja: str | None
 ) -> tuple[str, list[Path]]:
@@ -423,7 +442,10 @@ def build_product(
         # finishing, because a receipt saying "failed" of a step that was cut off is not true,
         # and neither phrase is "succeeded", so `build_verified` stays false either way (TB-01).
         stopped = "timed out" if configure.timed_out else "failed"
-        return (f"configure {stopped}", fetched_includes(build))
+        return (
+            f"configure {stopped}{_why(configure, source, workspace)}",
+            fetched_includes(build),
+        )
     built = execute(
         [cmake, "--build", str(build)],
         workspace=workspace,
@@ -438,7 +460,9 @@ def build_product(
     # way; this is a different compiler building that exact same configuration. A repository whose
     # primary build already succeeds never reaches this branch at all.
     msvc = msvc_toolchain(workspace)
+    fallback = " (no second toolchain on this machine to try)"
     if msvc is not None:
+        fallback = ""
         msvc_build = workspace / "cmake-build-msvc"
         # `msvc.environment["PATH"]` is vcvarsall's own activated PATH (cl.exe's directory, the
         # Windows SDK's rc.exe/mt.exe, and more) - ninja is not part of the VS installation, so its
@@ -471,7 +495,10 @@ def build_product(
                     f"succeeded (MSVC{identity}, after the primary toolchain's own build failed)",
                     fetched_includes(msvc_build),
                 )
-    return ("failed", fetched_includes(build))
+            fallback = f"; MSVC build also failed{_why(msvc_built, source, workspace)}"
+        else:
+            fallback = f"; MSVC configure failed{_why(msvc_configure, source, workspace)}"
+    return (f"failed{_why(built, source, workspace)}{fallback}", fetched_includes(build))
 
 
 # The phrase `build_product` returned for a manifest this process already built, so the examples'

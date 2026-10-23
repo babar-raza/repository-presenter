@@ -19,8 +19,8 @@ from pathlib import Path
 
 from repository_presenter.components.readme.extractors.surface.npm_package import read_json
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, MeasuredBuild
-from repository_presenter.core.execution import execute, profile_environment
-from repository_presenter.core.toolchains import resolve_tool
+from repository_presenter.core.execution import error_excerpt, execute, profile_environment
+from repository_presenter.core.toolchains import augmented_path, resolve_tool
 
 MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
@@ -131,7 +131,10 @@ def build_product(
     steps: list[tuple[str, ...]] = [("install",)]
     if declares_build:
         steps.append(("run", "build"))
-    environment = profile_environment(workspace)
+    # `npm install` runs a dependency's `node install.js` and `npm run build` runs `node` and `tsc`
+    # by bare name, so the machine's own Node directory is on this subprocess's PATH when the
+    # inherited one lacks it (appended, never reordered; `core/toolchains.augmented_path`).
+    environment = {**profile_environment(workspace), "PATH": augmented_path()}
     ran: list[str] = []
     for step in steps:
         spelled = " ".join(("npm", *step))
@@ -147,8 +150,10 @@ def build_product(
                 False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s{after})"
             )
         if result.return_code != 0:
+            said = error_excerpt(result.stderr, result.stdout, bases=(workspace, copy, root))
+            why = f": {said}" if said else " and said nothing"
             return MeasuredBuild(
-                False, "", f"failed (`{spelled}` exited {result.return_code}{after})"
+                False, "", f"failed (`{spelled}` exited {result.return_code}{after}{why})"
             )
         ran.append(spelled)
     proven = "; ".join(f"`{done}` exited 0" for done in ran)

@@ -36,6 +36,7 @@ src/repository_presenter/
     noop_proof.py           the no-op proof, measured: process identity, the rerun's provider calls counted from its own ledger, and bundle-totals-versus-ledger reconciliation (the `verify-noop-proof` gate)
     execution.py            bounded secret-free execution of repository examples
     toolchains.py           machine toolchain resolution (registry, install search, per-tool PATH precedence) and the environment toolchain fingerprint
+    lfs.py                  Git LFS build inputs fetched into a disposable build copy (only when the checkout declares LFS, `git lfs` answers and a build-input pointer file is present; the clone is never written)
     config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture
