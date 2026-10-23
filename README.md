@@ -330,6 +330,7 @@ repository-presenter propose --repo OWNER/NAME [--root PATH] [--authorization-re
 repository-presenter propose --repo OWNER/NAME --local-test-readme-file PATH --source-revision SHA   # dry-run plan only; never writes
 repository-presenter propose --repo OWNER/NAME --correction-bundle DIR [--require-sums] [--sandbox] [--root PATH] [--authorization-record PATH] [--trigger-sha SHA] [--base-branch NAME] [--propose]   # propose a correction bundle through its typed gate
 repository-presenter correct-readme --repo OWNER/NAME --out DIR [--root PATH] [--facts PATH] [--sandbox] [--receipts DIR] [--verify-commands] [--ops FILE]
+repository-presenter propose-ops --repo OWNER/NAME --facts PATH --out FILE [--report FILE] [--root PATH] [--sandbox]   # write the operations file `correct-readme --ops` takes, deterministically, plus a report of what was and was not proposed
 repository-presenter draft-proposal-authorization --repo OWNER/NAME --approver NAME [--root PATH] [--base-branch NAME] [--expires-in-hours N] [--supersedes-pr N] [--correction-bundle DIR] [--sandbox]
 repository-presenter wave-readiness [--root PATH] [--repo OWNER/NAME] [--offline] [--authorize OWNER/NAME@HASH] [--authorize-file PATH] [--emit-records DIR --approver NAME --expires-at TIME [--issued-at TIME]]
 repository-presenter publish-candidates --repo OWNER/NAME --import-dir PATH [--root PATH] [--control-repo OWNER/NAME] [--base-branch NAME] [--publish]

@@ -258,6 +258,10 @@ from repository_presenter.components.readme.validation.registry import (
 )
 from repository_presenter.components.readme_correction.enrich import ReceiptOptions
 from repository_presenter.components.readme_correction.gate import load_proposable_correction
+from repository_presenter.components.readme_correction.propose_ops import (
+    produce_proposal,
+    write_proposal,
+)
 from repository_presenter.components.readme_correction.pull_request import (
     compose_correction_pull_request,
 )
@@ -1166,6 +1170,41 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="DIR",
         help="the empty or absent directory the correction bundle is written into",
     )
+    propose_ops = subcommands.add_parser(
+        "propose-ops",
+        help=(
+            "write the operations file `correct-readme --ops` takes, deterministically: retitles, "
+            "joined badge lines, deleted broken list items and the Navigation, Dependencies and "
+            "At a Glance sections the live README lacks and the facts and its own text can fill, "
+            "each already accepted by the operations check, with a report of every candidate "
+            "that was not proposed and why; no model call and no write to the target"
+        ),
+    )
+    propose_ops.add_argument(
+        "--repo", required=True, metavar="OWNER/NAME", help="registry coordinates"
+    )
+    propose_ops.add_argument("--root", type=Path, default=None, help=root_help)
+    propose_ops.add_argument("--sandbox", action="store_true", help=sandbox_help)
+    propose_ops.add_argument(
+        "--facts",
+        type=Path,
+        required=True,
+        metavar="PATH",
+        help="a facts.json for exactly the registry head's revision (a facts-only run's)",
+    )
+    propose_ops.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        metavar="FILE",
+        help=(
+            "the operations file to write (not written when nothing is proposed); the report "
+            "goes next to it as FILE.report.json unless --report names another"
+        ),
+    )
+    propose_ops.add_argument(
+        "--report", type=Path, default=None, metavar="FILE", help="where the report is written"
+    )
     propose = subcommands.add_parser(
         "propose",
         help=(
@@ -1609,6 +1648,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             receipts=args.receipts,
             verify_commands=args.verify_commands,
             ops=args.ops,
+        )
+    if args.command == "propose-ops":
+        return run_propose_ops(
+            args.repo,
+            args.root,
+            facts_path=args.facts,
+            out=args.out,
+            report=args.report,
+            sandbox=args.sandbox,
         )
     if args.command == "propose":
         return run_propose(
@@ -3347,6 +3395,52 @@ def run_correct_readme(
         f"correct-readme: {outcome.repository} @ {outcome.revision[:12]}: {outcome.status}: "
         f"{detail}; bundle {outcome.out}"
     )
+    return EXIT_OK
+
+
+def run_propose_ops(
+    repository: str,
+    root_argument: Path | None,
+    *,
+    facts_path: Path,
+    out: Path,
+    report: Path | None = None,
+    sandbox: bool = False,
+) -> int:
+    """``propose-ops``: write the operations file and the report for ``repository``'s live README.
+
+    The same read as ``correct-readme --ops`` (the hard allow-list first, then a pinned read-only
+    clone and facts for exactly the head), no model call and no write beyond ``out`` and the
+    report. A repository with nothing to propose is a result (``NO_CHANGE``), not an error."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    try:
+        registry = load_registry_for(root, sandbox=sandbox)
+        entry = require_listed(registry, repository)
+        print(f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem})")
+        proposal = produce_proposal(
+            entry,
+            clone_directory=root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
+            facts_path=facts_path,
+            token=os.environ.get("GH_TOKEN") or None,
+        )
+        report_path = report or out.with_name(out.name + ".report.json")
+        write_proposal(proposal, out, report_path)
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    counts = ", ".join(f"{kind} {count}" for kind, count in proposal.counts().items())
+    print(
+        f"propose-ops: {proposal.repository} @ {proposal.revision[:12]}: {proposal.outcome}: "
+        f"{counts or proposal.reason or 'nothing to propose'}; "
+        f"{len(proposal.skipped)} candidate(s) not proposed; report {report_path}"
+    )
+    for item in proposal.proposed:
+        print(f"  + {item.op.id} {item.op.kind} {','.join(item.sections)}".rstrip())
+    for skip in proposal.skipped:
+        print(f"  - {skip.rule} {skip.code} (line {skip.line}): {skip.detail}")
     return EXIT_OK
 
 
